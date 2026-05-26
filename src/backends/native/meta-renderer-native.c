@@ -75,10 +75,6 @@
 #include "common/meta-drm-format-helpers.h"
 #include "core/boxes-private.h"
 
-#ifdef HAVE_EGL_DEVICE
-#include "backends/native/meta-render-device-egl-stream.h"
-#endif
-
 #ifndef EGL_DRM_MASTER_FD_EXT
 #define EGL_DRM_MASTER_FD_EXT 0x333C
 #endif
@@ -423,7 +419,6 @@ meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
 
   return FALSE;
 }
-
 
 static EGLSurface
 create_dummy_pbuffer_surface (CoglRenderer  *cogl_renderer,
@@ -856,18 +851,6 @@ meta_renderer_native_init_egl_context (CoglWinsys   *winsys,
                                        GError      **error)
 {
   COGL_WINSYS_CLASS (meta_winsys_egl_parent_class)->context_init (winsys, cogl_context, error);
-
-#ifdef HAVE_EGL_DEVICE
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-#endif
-
-#ifdef HAVE_EGL_DEVICE
-  if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
-    cogl_driver_set_feature (cogl_context_get_driver (cogl_context),
-                             COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL, TRUE);
-#endif
 
   return TRUE;
 }
@@ -1742,24 +1725,6 @@ create_renderer_gpu_data_surfaceless (MetaRendererNative  *renderer_native,
   return renderer_gpu_data;
 }
 
-#ifdef HAVE_EGL_DEVICE
-static MetaRendererNativeGpuData *
-create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
-                                     MetaRenderDevice    *render_device,
-                                     MetaGpuKms          *gpu_kms)
-{
-  MetaRendererNativeGpuData *renderer_gpu_data;
-
-  renderer_gpu_data = meta_create_renderer_native_gpu_data ();
-  renderer_gpu_data->renderer_native = renderer_native;
-  renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
-  renderer_gpu_data->render_device = render_device;
-  renderer_gpu_data->gpu_kms = gpu_kms;
-
-  return renderer_gpu_data;
-}
-#endif /* HAVE_EGL_DEVICE */
-
 static void
 on_crtc_needs_flush (MetaKmsDevice *kms_device,
                      MetaKmsCrtc   *kms_crtc,
@@ -1808,14 +1773,6 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
                                                         render_device,
                                                         gpu_kms);
     }
-#ifdef HAVE_EGL_DEVICE
-  else if (META_IS_RENDER_DEVICE_EGL_STREAM (render_device))
-    {
-      renderer_gpu_data = create_renderer_gpu_data_egl_device (renderer_native,
-                                                               render_device,
-                                                               gpu_kms);
-    }
-#endif
   else
     {
       g_assert_not_reached ();
@@ -1839,10 +1796,6 @@ renderer_data_mode_to_string (MetaRendererNativeMode mode)
       return "gbm";
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       return "surfaceless";
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      return "egldevice";
-#endif
     }
 
   g_assert_not_reached ();

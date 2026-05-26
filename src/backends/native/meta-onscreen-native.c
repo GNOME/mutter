@@ -140,14 +140,6 @@ struct _MetaOnscreenNative
     struct gbm_surface *surface;
   } gbm;
 
-#ifdef HAVE_EGL_DEVICE
-  struct {
-    EGLStreamKHR stream;
-
-    MetaDrmBufferDumb *dumb_fb;
-  } egl;
-#endif
-
   gboolean needs_flush;
 
   gboolean vrr_allowed;
@@ -620,49 +612,6 @@ meta_onscreen_native_get_egl (MetaOnscreenNative *onscreen_native)
   return meta_renderer_native_get_egl (renderer_native);
 }
 
-#ifdef HAVE_EGL_DEVICE
-static int
-custom_egl_stream_page_flip (gpointer custom_page_flip_data,
-                             gpointer user_data)
-{
-  CoglOnscreen *onscreen = custom_page_flip_data;
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  MetaRendererView *view = user_data;
-  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
-  MetaRendererNativeGpuData *renderer_gpu_data;
-  MetaRenderDevice *render_device;
-  EGLDisplay *egl_display;
-  EGLAttrib *acquire_attribs;
-  g_autoptr (GError) error = NULL;
-
-  acquire_attribs = (EGLAttrib[]) {
-    EGL_DRM_FLIP_EVENT_DATA_NV,
-    (EGLAttrib) view,
-    EGL_NONE
-  };
-
-  renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
-                                       onscreen_native->render_gpu);
-  render_device = renderer_gpu_data->render_device;
-
-  egl_display = meta_render_device_get_egl_display (render_device);
-  if (!meta_egl_stream_consumer_acquire_attrib (egl,
-                                                egl_display,
-                                                onscreen_native->egl.stream,
-                                                acquire_attribs,
-                                                &error))
-    {
-      if (g_error_matches (error, META_EGL_ERROR, EGL_RESOURCE_BUSY_EXT))
-        return -EBUSY;
-      else
-        return -EINVAL;
-    }
-
-  return 0;
-}
-#endif /* HAVE_EGL_DEVICE */
-
 static void
 clear_superseded_frame (CoglOnscreen *onscreen)
 {
@@ -867,14 +816,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      meta_kms_update_set_flushing (kms_update, kms_crtc);
-      meta_kms_update_set_custom_page_flip (kms_update,
-                                            custom_egl_stream_page_flip,
-                                            onscreen_native);
-      break;
-#endif
     }
 
   meta_kms_update_add_page_flip_listener (kms_update,
@@ -1019,38 +960,6 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      {
-        MetaDrmBuffer *buffer;
-        graphene_rect_t src_rect;
-        MtkRectangle dst_rect;
-
-        buffer = META_DRM_BUFFER (onscreen_native->egl.dumb_fb);
-
-        src_rect = (graphene_rect_t) {
-          .origin.x = 0,
-          .origin.y = 0,
-          .size.width = meta_drm_buffer_get_width (buffer),
-          .size.height = meta_drm_buffer_get_height (buffer)
-        };
-
-        dst_rect = (MtkRectangle) {
-          .x = 0,
-          .y = 0,
-          .width = meta_drm_buffer_get_width (buffer),
-          .height = meta_drm_buffer_get_height (buffer)
-        };
-
-        assign_primary_plane (crtc_kms,
-                              buffer,
-                              kms_update,
-                              META_KMS_ASSIGN_PLANE_FLAG_NONE,
-                              &src_rect,
-                              &dst_rect);
-        break;
-      }
-#endif
     }
 
   meta_crtc_kms_set_mode (crtc_kms, kms_update);
@@ -1979,10 +1888,6 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
           break;
         case META_RENDERER_NATIVE_MODE_SURFACELESS:
           break;
-#ifdef HAVE_EGL_DEVICE
-        case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-          break;
-#endif
         }
     }
   else /* property-only update, no framebuffer changes */
@@ -2069,19 +1974,6 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      if (meta_renderer_native_has_pending_mode_set (renderer_native))
-        {
-          kms_update = meta_frame_native_steal_kms_update (frame_native);
-          meta_renderer_native_queue_mode_set_update (renderer_native,
-                                                      kms_update);
-
-          meta_renderer_native_post_mode_set_updates (renderer_native);
-          return;
-        }
-      break;
-#endif
     }
 
   meta_topic (META_DEBUG_KMS,
@@ -2258,10 +2150,6 @@ meta_onscreen_native_get_window_handles (CoglOnscreen *onscreen,
 
   if (onscreen_native->gbm.surface)
     window = onscreen_native->gbm.surface;
-#ifdef HAVE_EGL_DEVICE
-  else if (onscreen_native->egl.stream)
-    window = onscreen_native->egl.stream;
-#endif
 
   if (!window)
     return FALSE;
@@ -2870,100 +2758,6 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   return TRUE;
 }
 
-#ifdef HAVE_EGL_DEVICE
-static gboolean
-create_surfaces_egl_device (CoglOnscreen  *onscreen,
-                            int            width,
-                            int            height,
-                            EGLStreamKHR  *out_egl_stream,
-                            EGLSurface    *out_egl_surface,
-                            GError       **error)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
-  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  MetaRenderDevice *render_device;
-  MetaEgl *egl =
-    meta_renderer_native_get_egl (renderer_gpu_data->renderer_native);
-  EGLDisplay egl_display;
-  EGLConfig egl_config;
-  EGLStreamKHR egl_stream;
-  EGLSurface egl_surface;
-  EGLint num_layers;
-  EGLOutputLayerEXT output_layer;
-  EGLAttrib output_attribs[3];
-  EGLint stream_attribs[] = {
-    EGL_STREAM_FIFO_LENGTH_KHR, 0,
-    EGL_CONSUMER_AUTO_ACQUIRE_EXT, EGL_FALSE,
-    EGL_NONE
-  };
-  EGLint stream_producer_attribs[] = {
-    EGL_WIDTH, width,
-    EGL_HEIGHT, height,
-    EGL_NONE
-  };
-
-  render_device = renderer_gpu_data->render_device;
-  egl_display = meta_render_device_get_egl_display (render_device);
-  egl_stream = meta_egl_create_stream (egl, egl_display, stream_attribs, error);
-  if (egl_stream == EGL_NO_STREAM_KHR)
-    return FALSE;
-
-  output_attribs[0] = EGL_DRM_CRTC_EXT;
-  output_attribs[1] = meta_crtc_get_id (onscreen_native->crtc);
-  output_attribs[2] = EGL_NONE;
-
-  if (!meta_egl_get_output_layers (egl, egl_display,
-                                   output_attribs,
-                                   &output_layer, 1, &num_layers,
-                                   error))
-    {
-      meta_egl_destroy_stream (egl, egl_display, egl_stream, NULL);
-      return FALSE;
-    }
-
-  if (num_layers < 1)
-    {
-      meta_egl_destroy_stream (egl, egl_display, egl_stream, NULL);
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "Unable to find output layers.");
-      return FALSE;
-    }
-
-  if (!meta_egl_stream_consumer_output (egl, egl_display,
-                                        egl_stream, output_layer,
-                                        error))
-    {
-      meta_egl_destroy_stream (egl, egl_display, egl_stream, NULL);
-      return FALSE;
-    }
-
-  egl_config = cogl_display_egl_get_egl_config (cogl_display_egl);
-  egl_surface = meta_egl_create_stream_producer_surface (egl,
-                                                         egl_display,
-                                                         egl_config,
-                                                         egl_stream,
-                                                         stream_producer_attribs,
-                                                         error);
-  if (egl_surface == EGL_NO_SURFACE)
-    {
-      meta_egl_destroy_stream (egl, egl_display, egl_stream, NULL);
-      return FALSE;
-    }
-
-  *out_egl_stream = egl_stream;
-  *out_egl_surface = egl_surface;
-
-  return TRUE;
-}
-#endif /* HAVE_EGL_DEVICE */
-
 void
 meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
                                MetaRendererView *view)
@@ -2984,11 +2778,6 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
   EGLSurface egl_surface;
   int width;
   int height;
-#ifdef HAVE_EGL_DEVICE
-  MetaRenderDevice *render_device;
-  MetaDrmBuffer *dumb_buffer;
-  EGLStreamKHR egl_stream;
-#endif
   CoglFramebufferClass *parent_class;
 
   if (META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc)) !=
@@ -3023,29 +2812,6 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      render_device = renderer_gpu_data->render_device;
-      dumb_buffer = meta_render_device_allocate_dumb_buf (render_device,
-                                                          width, height,
-                                                          DRM_FORMAT_XRGB8888,
-                                                          error);
-      if (!dumb_buffer)
-        return FALSE;
-
-      onscreen_native->egl.dumb_fb = META_DRM_BUFFER_DUMB (dumb_buffer);
-
-      if (!create_surfaces_egl_device (onscreen,
-                                       width, height,
-                                       &egl_stream,
-                                       &egl_surface,
-                                       error))
-        return FALSE;
-
-      onscreen_native->egl.stream = egl_stream;
-      cogl_onscreen_egl_set_egl_surface (onscreen_egl, egl_surface);
-      break;
-#endif /* HAVE_EGL_DEVICE */
     }
 
   parent_class = COGL_FRAMEBUFFER_CLASS (meta_onscreen_native_parent_class);
@@ -3556,26 +3322,6 @@ meta_onscreen_native_dispose (GObject *object)
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      g_clear_object (&onscreen_native->egl.dumb_fb);
-
-      if (onscreen_native->egl.stream != EGL_NO_STREAM_KHR)
-        {
-          MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
-          CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-          CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-          EGLDisplay egl_display =
-            cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
-
-          meta_egl_destroy_stream (egl,
-                                   egl_display,
-                                   onscreen_native->egl.stream,
-                                   NULL);
-          onscreen_native->egl.stream = EGL_NO_STREAM_KHR;
-        }
-      break;
-#endif /* HAVE_EGL_DEVICE */
     }
 
   G_OBJECT_CLASS (meta_onscreen_native_parent_class)->dispose (object);

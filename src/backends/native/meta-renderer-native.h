@@ -41,9 +41,6 @@ typedef enum _MetaRendererNativeMode
 {
   META_RENDERER_NATIVE_MODE_GBM,
   META_RENDERER_NATIVE_MODE_SURFACELESS,
-#ifdef HAVE_EGL_DEVICE
-  META_RENDERER_NATIVE_MODE_EGL_DEVICE
-#endif
 } MetaRendererNativeMode;
 
 MetaRendererNative * meta_renderer_native_new (MetaBackendNative  *backend_native,

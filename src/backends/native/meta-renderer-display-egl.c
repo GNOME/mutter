@@ -48,12 +48,6 @@ meta_renderer_display_egl_add_config_attributes (CoglDisplayEGL *cogl_display_eg
       attributes[i++] = EGL_SURFACE_TYPE;
       attributes[i++] = EGL_PBUFFER_BIT;
       break;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      attributes[i++] = EGL_SURFACE_TYPE;
-      attributes[i++] = EGL_STREAM_BIT_KHR;
-      break;
-#endif
     }
 
   return i;
@@ -97,14 +91,6 @@ meta_renderer_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       *out_config = EGL_NO_CONFIG_KHR;
       return TRUE;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      return meta_egl_choose_first_config (egl,
-                                           egl_display,
-                                           attributes,
-                                           out_config,
-                                           error);
-#endif
     }
 
   return FALSE;
@@ -122,11 +108,6 @@ meta_renderer_display_egl_setup (CoglDisplay  *cogl_display,
   renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   renderer_native = renderer_gpu_data->renderer_native;
-
-#ifdef HAVE_EGL_DEVICE
-  if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
-    cogl_renderer_egl_set_needs_config (COGL_RENDERER_EGL (cogl_renderer),  TRUE);
-#endif
 
   if (!COGL_DISPLAY_CLASS (meta_renderer_display_egl_parent_class)->setup (cogl_display, error))
     return FALSE;

@@ -25,9 +25,6 @@
 /* Defined if EGL support is enabled */
 #mesondefine HAVE_EGL
 
-/* Defined if EGLDevice support is enabled */
-#mesondefine HAVE_EGL_DEVICE
-
 /* Have GL for rendering */
 #mesondefine HAVE_GL
 

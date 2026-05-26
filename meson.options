@@ -58,12 +58,6 @@ option('libgnome_desktop',
   description: 'Build with or without gnome-desktop'
 )
 
-option('egl_device',
-  type: 'boolean',
-  value: false,
-  description: 'Enable EGLDevice and EGLStream renderer support'
-)
-
 option('udev',
   type: 'boolean',
   value: true,

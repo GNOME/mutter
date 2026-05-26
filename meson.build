@@ -283,8 +283,6 @@ have_drm_plane_size_hint = cc.has_type('struct drm_plane_size_hint',
                                         dependencies: libdrm_dep,
                                         prefix: '#include <drm_mode.h>')
 
-have_egl_device = get_option('egl_device')
-
 have_libwacom = get_option('libwacom')
 if have_libwacom
   libwacom_dep = dependency('libwacom', version: libwacom_req)
@@ -556,7 +554,6 @@ cdata.set('HAVE_REMOTE_DESKTOP', have_remote_desktop)
 cdata.set('HAVE_DEVKIT', have_devkit)
 cdata.set('HAVE_GNOME_DESKTOP', have_gnome_desktop)
 cdata.set('HAVE_SOUND_PLAYER', have_sound_player)
-cdata.set('HAVE_EGL_DEVICE', have_egl_device)
 cdata.set('HAVE_LIBGUDEV', have_libgudev)
 cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_LIBWACOM_GET_NUM_RINGS', have_libwacom_get_num_rings)
@@ -739,7 +736,6 @@ summary('EGL', have_egl, section: 'Rendering APIs')
 
 summary('XWayland', have_xwayland, section: 'Options')
 summary('Native Backend', have_native_backend, section: 'Options')
-summary('EGL Device', have_egl_device, section: 'Options')
 summary('Remote desktop', have_remote_desktop, section: 'Options')
 summary('Development Kit', have_devkit, section: 'Options')
 summary('libgnome-desktop', have_gnome_desktop, section: 'Options')

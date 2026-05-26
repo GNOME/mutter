@@ -434,13 +434,6 @@ if have_xwayland
 endif
 
 
-if have_egl_device
-  mutter_sources += [
-    'backends/native/meta-render-device-egl-stream.c',
-    'backends/native/meta-render-device-egl-stream.h',
-  ]
-endif
-
 if have_egl
   mutter_sources += [
     'backends/meta-egl.c',

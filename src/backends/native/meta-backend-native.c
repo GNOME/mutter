@@ -64,10 +64,6 @@
 #include "meta/main.h"
 #include "meta-dbus-rtkit1.h"
 
-#ifdef HAVE_EGL_DEVICE
-#include "backends/native/meta-render-device-egl-stream.h"
-#endif
-
 #include "meta-private-enum-types.h"
 
 enum
@@ -91,10 +87,6 @@ typedef struct _MetaBackendNativePrivate
   GHashTable *startup_render_devices;
 
   MetaBackendNativeMode mode;
-
-#ifdef HAVE_EGL_DEVICE
-  MetaRenderDeviceEglStream *render_device_egl_stream;
-#endif
 
   MetaDrmLeaseManager *drm_lease_manager;
 } MetaBackendNativePrivate;
@@ -449,11 +441,6 @@ create_render_device (MetaBackendNative  *backend_native,
   MetaDeviceFileFlags device_file_flags;
   g_autoptr (MetaRenderDeviceGbm) render_device_gbm = NULL;
   g_autoptr (GError) gbm_error = NULL;
-#ifdef HAVE_EGL_DEVICE
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (backend_native);
-  g_autoptr (GError) egl_stream_error = NULL;
-#endif
 
   if (meta_backend_is_headless (backend))
     device_file_flags = META_DEVICE_FILE_FLAG_NONE;
@@ -467,52 +454,16 @@ create_render_device (MetaBackendNative  *backend_native,
   if (!device_file)
     return NULL;
 
-#ifdef HAVE_EGL_DEVICE
-  if (g_strcmp0 (getenv ("MUTTER_DEBUG_FORCE_EGL_STREAM"), "1") != 0)
-#endif
+  render_device_gbm = meta_render_device_gbm_new (backend, device_file,
+                                                  &gbm_error);
+  if (render_device_gbm)
     {
-      render_device_gbm = meta_render_device_gbm_new (backend, device_file,
-                                                      &gbm_error);
-      if (render_device_gbm)
-        {
-          MetaRenderDevice *render_device =
-            META_RENDER_DEVICE (render_device_gbm);
+      MetaRenderDevice *render_device =
+        META_RENDER_DEVICE (render_device_gbm);
 
-          if (meta_render_device_is_hardware_accelerated (render_device))
-            return META_RENDER_DEVICE (g_steal_pointer (&render_device_gbm));
-        }
+      if (meta_render_device_is_hardware_accelerated (render_device))
+        return META_RENDER_DEVICE (g_steal_pointer (&render_device_gbm));
     }
-#ifdef HAVE_EGL_DEVICE
-  else
-    {
-      g_set_error (&gbm_error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "GBM backend was disabled using env var");
-    }
-#endif
-
-#ifdef HAVE_EGL_DEVICE
-  if (!priv->render_device_egl_stream)
-    {
-      MetaRenderDeviceEglStream *device;
-
-      device = meta_render_device_egl_stream_new (backend,
-                                                  device_file,
-                                                  &egl_stream_error);
-      if (device)
-        {
-          g_object_add_weak_pointer (G_OBJECT (device),
-                                     (gpointer *) &priv->render_device_egl_stream);
-          return META_RENDER_DEVICE (device);
-        }
-    }
-  else if (!render_device_gbm)
-    {
-      g_set_error (&egl_stream_error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "it's not GBM-compatible and one EGLDevice was already found");
-    }
-#endif
 
   if (render_device_gbm)
     return META_RENDER_DEVICE (g_steal_pointer (&render_device_gbm));
@@ -520,16 +471,7 @@ create_render_device (MetaBackendNative  *backend_native,
   g_set_error (error, G_IO_ERROR,
                G_IO_ERROR_FAILED,
                "Failed to initialize render device for %s: "
-               "%s"
-#ifdef HAVE_EGL_DEVICE
-               ", %s"
-#endif
-               , device_path
-               , gbm_error->message
-#ifdef HAVE_EGL_DEVICE
-               , egl_stream_error->message
-#endif
-               );
+               "%s", device_path, gbm_error->message);
 
   return NULL;
 }
@@ -564,11 +506,6 @@ add_drm_device (MetaBackendNative  *backend_native,
   render_device = create_render_device (backend_native, device_path, error);
   if (!render_device)
     return FALSE;
-
-#ifdef HAVE_EGL_DEVICE
-  if (META_IS_RENDER_DEVICE_EGL_STREAM (render_device))
-    flags |= META_KMS_DEVICE_FLAG_FORCE_LEGACY;
-#endif
 
   kms_device = meta_kms_create_device (priv->kms, device_path, flags,
                                        error);

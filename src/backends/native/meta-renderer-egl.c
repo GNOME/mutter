@@ -258,9 +258,6 @@ meta_renderer_egl_create_dma_buf (CoglRenderer     *cogl_renderer,
       }
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-#endif
       break;
     }
 
@@ -282,9 +279,6 @@ meta_renderer_egl_is_dma_buf_supported (CoglRenderer *cogl_renderer)
     case META_RENDERER_NATIVE_MODE_GBM:
       return meta_render_device_is_hardware_accelerated (render_device);
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-#endif
       return FALSE;
     }
 
