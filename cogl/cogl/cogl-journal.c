@@ -1891,10 +1891,10 @@ _cogl_journal_try_read_pixel (CoglJournal *journal,
       if (color[3] != 0xff)
         return FALSE;
 
-      pixel = _cogl_bitmap_map (bitmap,
-                                COGL_BUFFER_ACCESS_WRITE,
-                                COGL_BUFFER_MAP_HINT_DISCARD,
-                                &ignore_error);
+      pixel = cogl_bitmap_map (bitmap,
+                               COGL_BUFFER_ACCESS_WRITE,
+                               COGL_BUFFER_MAP_HINT_DISCARD,
+                               &ignore_error);
       if (pixel == NULL)
         return FALSE;
 
@@ -1903,7 +1903,7 @@ _cogl_journal_try_read_pixel (CoglJournal *journal,
       pixel[2] = color[2];
       pixel[3] = color[3];
 
-      _cogl_bitmap_unmap (bitmap);
+      cogl_bitmap_unmap (bitmap);
 
       goto success;
     }

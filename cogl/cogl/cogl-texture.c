@@ -896,17 +896,17 @@ cogl_texture_get_data (CoglTexture *texture,
                                            data);
   else
     {
-      target_bmp = _cogl_bitmap_new_with_malloc_buffer (ctx,
-                                                        tex_width, tex_height,
-                                                        closest_format,
-                                                        &ignore_error);
+      target_bmp = cogl_bitmap_new_with_malloc_buffer (ctx,
+                                                       tex_width, tex_height,
+                                                       closest_format,
+                                                       &ignore_error);
       if (!target_bmp)
         return 0;
     }
 
-  tg_data.target_bits = _cogl_bitmap_map (target_bmp, COGL_BUFFER_ACCESS_WRITE,
-                                          COGL_BUFFER_MAP_HINT_DISCARD,
-                                          &ignore_error);
+  tg_data.target_bits = cogl_bitmap_map (target_bmp, COGL_BUFFER_ACCESS_WRITE,
+                                         COGL_BUFFER_MAP_HINT_DISCARD,
+                                         &ignore_error);
   if (tg_data.target_bits)
     {
       tg_data.meta_texture = texture;
@@ -932,7 +932,7 @@ cogl_texture_get_data (CoglTexture *texture,
                                       texture_get_cb,
                                       &tg_data);
 
-      _cogl_bitmap_unmap (target_bmp);
+      cogl_bitmap_unmap (target_bmp);
     }
   else
     {

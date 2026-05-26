@@ -1275,10 +1275,10 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
       if (priv->clear_color_alpha != 1.0)
         return FALSE;
 
-      pixel = _cogl_bitmap_map (bitmap,
-                                COGL_BUFFER_ACCESS_WRITE,
-                                COGL_BUFFER_MAP_HINT_DISCARD,
-                                &ignore_error);
+      pixel = cogl_bitmap_map (bitmap,
+                               COGL_BUFFER_ACCESS_WRITE,
+                               COGL_BUFFER_MAP_HINT_DISCARD,
+                               &ignore_error);
       if (pixel == NULL)
         return FALSE;
 
@@ -1287,7 +1287,7 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
       pixel[2] = (uint8_t) (priv->clear_color_blue * 255.0f);
       pixel[3] = (uint8_t) (priv->clear_color_alpha * 255.0f);
 
-      _cogl_bitmap_unmap (bitmap);
+      cogl_bitmap_unmap (bitmap);
 
       return TRUE;
     }
