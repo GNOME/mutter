@@ -23,11 +23,12 @@
 
 #include "clutter/clutter.h"
 #include "clutter/clutter-stage-private.h"
+#include "clutter/clutter-input-only-action.h"
 
 #define CLUTTER_TYPE_INPUT_ONLY_ACTOR (clutter_input_only_actor_get_type ())
 G_DECLARE_FINAL_TYPE (ClutterInputOnlyActor, clutter_input_only_actor,
                       CLUTTER, INPUT_ONLY_ACTOR, ClutterActor)
 
-ClutterInputOnlyActor * clutter_input_only_actor_new (ClutterEventHandler event_handler,
-                                                      gpointer            user_data,
-                                                      GDestroyNotify      destroy);
+ClutterInputOnlyActor * clutter_input_only_actor_new (ClutterInputOnlyHandleEvent event_handler,
+                                                      gpointer                    user_data,
+                                                      GDestroyNotify              destroy);

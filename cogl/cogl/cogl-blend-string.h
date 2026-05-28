@@ -155,7 +155,7 @@ typedef enum /*< prefix=COGL_BLEND_STRING_ERROR >*/
 uint32_t
 cogl_blend_string_error_quark (void);
 
-gboolean
+int
 _cogl_blend_string_compile (const char *string,
                             CoglBlendStringContext context,
                             CoglBlendStringStatement *statements,
