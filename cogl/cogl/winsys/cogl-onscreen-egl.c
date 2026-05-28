@@ -36,7 +36,6 @@
 #include "cogl/cogl-renderer-egl-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-trace.h"
-#include "cogl/winsys/cogl-winsys-egl.h"
 
 typedef struct _CoglOnscreenEglPrivate
 {

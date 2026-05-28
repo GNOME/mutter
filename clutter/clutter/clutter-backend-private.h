@@ -75,6 +75,9 @@ struct _ClutterBackendClass
   CoglDisplay *         (* get_display)        (ClutterBackend  *backend,
                                                 CoglRenderer    *renderer,
                                                 GError         **error);
+  CoglContext *         (* get_context)        (ClutterBackend  *backend,
+                                                CoglDisplay     *display,
+                                                GError         **error);
   gboolean              (* create_context)     (ClutterBackend  *backend,
                                                 GError         **error);
 

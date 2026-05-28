@@ -42,7 +42,6 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-attribute-private.h"
-#include "cogl/winsys/cogl-winsys.h"
 
 #include <gio/gio.h>
 #include <string.h>
@@ -337,7 +336,6 @@ cogl_context_init (CoglContext *context)
   priv->sampler_cache = _cogl_sampler_cache_new (context);
 
   _cogl_pipeline_init_default_pipeline (context);
-  _cogl_pipeline_init_default_layers (context);
   _cogl_pipeline_init_state_hash_functions ();
   _cogl_pipeline_init_layer_state_hash_functions ();
 
@@ -379,25 +377,6 @@ cogl_context_initable_init (GInitable     *initable,
                             GCancellable  *cancellable,
                             GError       **error)
 {
-  CoglContext *context = COGL_CONTEXT (initable);
-  CoglDisplay *display = cogl_context_get_display (context);
-  CoglRenderer *renderer = cogl_display_get_renderer (display);
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
-  CoglDriver *driver;
-
-  if (!winsys_class->context_init (winsys, context, error))
-    return FALSE;
-
-  driver = cogl_renderer_get_driver (renderer);
-  if (COGL_DRIVER_GET_CLASS (driver)->context_init &&
-      !COGL_DRIVER_GET_CLASS (driver)->context_init (driver, context))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to initialize context");
-      return FALSE;
-    }
-
   return TRUE;
 }
 

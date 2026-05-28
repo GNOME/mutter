@@ -44,7 +44,6 @@
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-driver-private.h"
 #include "cogl/driver/nop/cogl-driver-nop-private.h"
-#include "cogl/winsys/cogl-winsys.h"
 
 
 static CoglDriverId _cogl_drivers[] =
@@ -65,14 +64,10 @@ typedef struct _CoglRendererPrivate
   gboolean connected;
   CoglDriverId driver_override;
   CoglDriver *driver;
-  CoglWinsys *winsys;
 
   CoglList idle_closures;
 
   CoglDriverId driver_id;
-
-  void *winsys_user_data;
-  GDestroyNotify winsys_user_data_destroy;
 } CoglRendererPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
@@ -93,12 +88,7 @@ cogl_renderer_dispose (GObject *object)
   CoglRendererPrivate *priv =
     cogl_renderer_get_instance_private (renderer);
 
-  g_clear_pointer (&priv->winsys_user_data,
-                   priv->winsys_user_data_destroy);
-
   _cogl_closure_list_disconnect_all (&priv->idle_closures);
-
-  g_clear_object (&priv->winsys);
 
   g_clear_object (&priv->driver);
 
@@ -361,16 +351,6 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 
 /* Final connection API */
 
-void
-cogl_renderer_set_custom_winsys (CoglRenderer *renderer,
-                                 CoglWinsys   *winsys)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  priv->winsys = winsys;
-}
-
 gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 {
@@ -381,24 +361,11 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
   if (priv->connected)
     return TRUE;
 
-  /* The driver needs to be chosen before connecting the renderer
-     because eglInitialize requires the library containing the GL API
-     to be loaded before its called */
   if (!_cogl_renderer_choose_driver (renderer, error))
     return FALSE;
 
-  if (!priv->winsys)
-    {
-      g_set_error (error, COGL_WINSYS_ERROR, COGL_WINSYS_ERROR_INIT,
-                   "Failed to connected to any renderer: no winsys set");
-      return FALSE;
-    }
-
   if (class->connect && !class->connect (renderer, error))
-    {
-      g_clear_object (&priv->winsys);
-      return FALSE;
-    }
+    return FALSE;
 
   priv->connected = TRUE;
   return TRUE;
@@ -539,36 +506,6 @@ cogl_renderer_get_driver (CoglRenderer *renderer)
     cogl_renderer_get_instance_private (renderer);
 
   return priv->driver;
-}
-
-CoglWinsys *
-cogl_renderer_get_winsys (CoglRenderer *renderer)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  return priv->winsys;
-}
-
-void *
-cogl_renderer_get_winsys_data (CoglRenderer *renderer)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  return priv->winsys_user_data;
-}
-
-void
-cogl_renderer_set_winsys_data (CoglRenderer   *renderer,
-                               void           *winsys,
-                               GDestroyNotify  destroy)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  priv->winsys_user_data = winsys;
-  priv->winsys_user_data_destroy = destroy;
 }
 
 CoglClosure *
