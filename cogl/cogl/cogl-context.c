@@ -204,7 +204,54 @@ struct _CoglContext
 };
 
 
+enum
+{
+  PROP_0,
+  PROP_DISPLAY,
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 G_DEFINE_FINAL_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
+
+static void
+cogl_context_get_property (GObject    *object,
+                           guint       prop_id,
+                           GValue     *value,
+                           GParamSpec *pspec)
+{
+  CoglContext *context = COGL_CONTEXT (object);
+
+  switch (prop_id)
+    {
+    case PROP_DISPLAY:
+      g_value_set_object (value, context->display);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+cogl_context_set_property (GObject      *object,
+                           guint         prop_id,
+                           const GValue *value,
+                           GParamSpec   *pspec)
+{
+  CoglContext *context = COGL_CONTEXT (object);
+
+  switch (prop_id)
+    {
+    case PROP_DISPLAY:
+      context->display = g_value_dup_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
 
 void
 cogl_context_clear_onscreen_dirty_queue (CoglContext *context)
@@ -300,8 +347,19 @@ cogl_context_class_init (CoglContextClass *class)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (class);
 
+  object_class->get_property = cogl_context_get_property;
+  object_class->set_property = cogl_context_set_property;
   object_class->dispose = cogl_context_dispose;
   object_class->finalize = cogl_context_finalize;
+
+  obj_props[PROP_DISPLAY] =
+    g_param_spec_object ("display", NULL, NULL,
+                         COGL_TYPE_DISPLAY,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_NAME);
+
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 /* For reference: There was some deliberation over whether to have a
@@ -346,20 +404,19 @@ cogl_context_new (CoglDisplay *display,
 #endif
 
   /* Allocate context memory */
-  context = g_object_new (COGL_TYPE_CONTEXT, NULL);
+  context = g_object_new (COGL_TYPE_CONTEXT,
+                          "display", display,
+                          NULL);
 
   /* Init default values */
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
-
-  context->display = g_object_ref (display);
 
   renderer = cogl_display_get_renderer (display);;
   winsys = cogl_renderer_get_winsys (renderer);
   winsys_class = COGL_WINSYS_GET_CLASS (winsys);
   if (!winsys_class->context_init (winsys, context, error))
     {
-      g_object_unref (display);
-      g_free (context);
+      g_object_unref (context);
       return NULL;
     }
 
@@ -367,7 +424,6 @@ cogl_context_new (CoglDisplay *display,
   if (COGL_DRIVER_GET_CLASS (driver)->context_init &&
       !COGL_DRIVER_GET_CLASS (driver)->context_init (driver, context))
     {
-      g_object_unref (display);
       g_object_unref (context);
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Failed to initialize context");
@@ -442,8 +498,7 @@ cogl_context_new (CoglDisplay *display,
                                    &local_error);
   if (!context->default_gl_texture_2d_tex)
     {
-      g_object_unref (display);
-      g_free (context);
+      g_object_unref (context);
       g_propagate_prefixed_error (error, local_error,
                                   "Failed to create 1x1 fallback texture: ");
       return NULL;
