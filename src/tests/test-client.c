@@ -1323,7 +1323,7 @@ on_line_received (GObject      *source,
                   gpointer      user_data)
 {
   GDataInputStream *in = G_DATA_INPUT_STREAM (source);
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   gsize length;
   char *line = g_data_input_stream_read_line_finish_utf8 (in, result, &length, &error);
 

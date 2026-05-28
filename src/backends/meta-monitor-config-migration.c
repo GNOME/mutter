@@ -1095,7 +1095,7 @@ migrate_config (gpointer key,
     meta_monitor_config_store_get_monitor_manager (config_store);
   GList *logical_monitor_configs;
   MetaLogicalMonitorLayoutMode layout_mode;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   GList *disabled_monitor_specs;
   MetaMonitorsConfig *config;
 

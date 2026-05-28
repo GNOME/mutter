@@ -287,7 +287,7 @@ _cogl_blit_get_tex_data_blit (CoglBlitData *data,
                               int width,
                               int height)
 {
-  GError *ignore = NULL;
+  g_autoptr (GError) ignore = NULL;
   int rowstride = data->src_width * data->bpp;
   int offset = rowstride * src_y + src_x * data->bpp;
 

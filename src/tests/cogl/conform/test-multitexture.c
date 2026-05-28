@@ -107,7 +107,7 @@ on_paint (ClutterActor        *actor,
   CoglPipeline *pipeline;
   CoglColor color;
   gboolean status;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   float tex_coords[] = {
     0, 0, 0.5, 0.5, /* tex0 */
     0.5, 0.5, 1, 1 /* tex1 */
