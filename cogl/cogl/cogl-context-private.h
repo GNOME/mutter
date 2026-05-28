@@ -37,7 +37,6 @@
 #include "cogl/cogl-matrix-stack.h"
 #include "cogl/cogl-pipeline-private.h"
 #include "cogl/cogl-buffer-private.h"
-#include "cogl/cogl-bitmask.h"
 #include "cogl/cogl-atlas.h"
 #include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-texture-driver.h"
@@ -45,7 +44,6 @@
 #include "cogl/cogl-texture-2d.h"
 #include "cogl/cogl-sampler-cache-private.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/winsys/cogl-winsys.h"
@@ -145,24 +143,6 @@ void
 cogl_context_clear_current_draw_buffer_changes (CoglContext   *context,
                                                 unsigned long  changes);
 
-GLuint
-cogl_context_get_current_gl_program (CoglContext *context);
-
-void
-cogl_context_set_current_gl_program (CoglContext *context,
-                                     GLuint       program);
-
-void
-cogl_context_set_gl_blend_enable_cache (CoglContext *context,
-                                        gboolean     enabled);
-
-gboolean
-cogl_context_get_current_gl_dither_enabled (CoglContext *context);
-
-void
-cogl_context_set_current_gl_dither_enabled (CoglContext *context,
-                                            gboolean     enabled);
-
 CoglClipStack *
 cogl_context_get_current_clip_stack (CoglContext *context);
 
@@ -200,64 +180,12 @@ cogl_context_get_stencil_pipeline (CoglContext *context);
 graphene_matrix_t *
 cogl_context_get_y_flip_matrix (CoglContext *context);
 
-gboolean
-cogl_context_get_depth_test_enabled_cache (CoglContext *context);
-
-void
-cogl_context_set_depth_test_enabled_cache (CoglContext *context,
-                                           gboolean     enabled);
-
-CoglDepthTestFunction
-cogl_context_get_depth_test_function_cache (CoglContext *context);
-
-void
-cogl_context_set_depth_test_function_cache (CoglContext           *context,
-                                            CoglDepthTestFunction  function);
-
-gboolean
-cogl_context_get_depth_writing_enabled_cache (CoglContext *context);
-
-void
-cogl_context_set_depth_writing_enabled_cache (CoglContext *context,
-                                              gboolean     enabled);
-
-float
-cogl_context_get_depth_range_near_cache (CoglContext *context);
-
-void
-cogl_context_set_depth_range_near_cache (CoglContext *context,
-                                         float        near_val);
-
-float
-cogl_context_get_depth_range_far_cache (CoglContext *context);
-
-void
-cogl_context_set_depth_range_far_cache (CoglContext *context,
-                                        float        far_val);
-
-gboolean
-cogl_context_get_was_bound_to_onscreen (CoglContext *context);
-
-void
-cogl_context_set_was_bound_to_onscreen (CoglContext *context,
-                                        gboolean     bound);
-
-gboolean
-cogl_context_get_have_last_offscreen_allocate_flags (CoglContext *context);
-
-void
-cogl_context_set_have_last_offscreen_allocate_flags (CoglContext *context,
-                                                     gboolean     have_flags);
-
-CoglOffscreenAllocateFlags
-cogl_context_get_last_offscreen_allocate_flags (CoglContext *context);
-
-void
-cogl_context_set_last_offscreen_allocate_flags (CoglContext                *context,
-                                                CoglOffscreenAllocateFlags  flags);
-
 CoglTexture *
-cogl_context_get_default_gl_texture_2d_tex (CoglContext *context);
+cogl_context_get_default_2d_texture (CoglContext *context);
+
+void
+cogl_context_set_default_2d_texture (CoglContext *context,
+                                     CoglTexture *texture);
 
 CoglBuffer *
 cogl_context_get_current_buffer (CoglContext         *context,
@@ -283,21 +211,6 @@ cogl_context_get_n_uniform_names (CoglContext *context);
 
 int
 cogl_context_increment_n_uniform_names (CoglContext *context);
-
-GString *
-cogl_context_get_codegen_header_buffer (CoglContext *context);
-
-GString *
-cogl_context_get_codegen_source_buffer (CoglContext *context);
-
-CoglBitmask *
-cogl_context_get_enabled_custom_attributes (CoglContext *context);
-
-CoglBitmask *
-cogl_context_get_enable_custom_attributes_tmp (CoglContext *context);
-
-CoglBitmask *
-cogl_context_get_changed_bits_tmp (CoglContext * context);
 
 CoglPipeline *
 cogl_context_get_default_pipeline (CoglContext *context);

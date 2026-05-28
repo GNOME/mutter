@@ -32,6 +32,7 @@
 #include "config.h"
 
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-context-egl-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-indices-private.h"
@@ -125,13 +126,13 @@ cogl_gl_framebuffer_flush_dither_state (CoglGlFramebuffer *gl_framebuffer)
   gboolean is_dither_enabled;
 
   is_dither_enabled = cogl_framebuffer_get_dither_enabled (framebuffer);
-  if (cogl_context_get_current_gl_dither_enabled (ctx) != is_dither_enabled)
+  if (cogl_context_egl_get_current_gl_dither_enabled (COGL_CONTEXT_EGL (ctx)) != is_dither_enabled)
     {
       if (is_dither_enabled)
         GE (driver, glEnable (GL_DITHER));
       else
         GE (driver, glDisable (GL_DITHER));
-      cogl_context_set_current_gl_dither_enabled (ctx, is_dither_enabled);
+      cogl_context_egl_set_current_gl_dither_enabled (COGL_CONTEXT_EGL (ctx), is_dither_enabled);
     }
 }
 
@@ -276,11 +277,11 @@ cogl_gl_framebuffer_clear (CoglFramebufferDriver *fb_driver,
 
       is_depth_writing_enabled =
         cogl_framebuffer_get_depth_write_enabled (framebuffer);
-      if (cogl_context_get_depth_writing_enabled_cache (ctx) != is_depth_writing_enabled)
+      if (cogl_context_egl_get_depth_writing_enabled_cache (COGL_CONTEXT_EGL (ctx)) != is_depth_writing_enabled)
         {
           GE (driver, glDepthMask (is_depth_writing_enabled));
 
-          cogl_context_set_depth_writing_enabled_cache (ctx, is_depth_writing_enabled);
+          cogl_context_egl_set_depth_writing_enabled_cache (COGL_CONTEXT_EGL (ctx), is_depth_writing_enabled);
 
           /* Make sure the DepthMask is updated when the next primitive is drawn */
           cogl_context_add_current_pipeline_changes_since_flush (ctx, COGL_PIPELINE_STATE_DEPTH);
