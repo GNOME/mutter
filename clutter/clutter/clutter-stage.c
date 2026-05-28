@@ -780,8 +780,7 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 
   /* Steal events before starting processing to avoid reentrancy
    * issues */
-  events = priv->event_queue->head;
-  priv->event_queue->head = NULL;
+  events = g_steal_pointer (&priv->event_queue->head);
   priv->event_queue->tail = NULL;
   priv->event_queue->length = 0;
 

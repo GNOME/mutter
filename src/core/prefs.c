@@ -1784,8 +1784,7 @@ update_binding (MetaKeyPref *binding,
               "Binding \"%s\" has new GSettings value",
               binding->name);
 
-  old_combos = binding->combos;
-  binding->combos = NULL;
+  old_combos = g_steal_pointer (&binding->combos);
 
   for (i = 0; strokes && strokes[i]; i++)
     {
