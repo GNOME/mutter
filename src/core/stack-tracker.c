@@ -716,8 +716,7 @@ meta_stack_tracker_free (MetaStackTracker *tracker)
     g_array_free (tracker->predicted_stack, TRUE);
 
   g_queue_foreach (tracker->unverified_predictions, (GFunc)meta_stack_op_free, NULL);
-  g_queue_free (tracker->unverified_predictions);
-  tracker->unverified_predictions = NULL;
+  g_clear_pointer (&tracker->unverified_predictions, g_queue_free);
 
 #ifdef HAVE_XWAYLAND
   g_signal_handlers_disconnect_by_func (tracker->display,

@@ -238,8 +238,7 @@ try_display (int      display,
  out:
   if (!ret)
     {
-      g_free (filename);
-      filename = NULL;
+      g_clear_pointer (&filename, g_free);
 
       g_clear_fd (&fd, NULL);
     }

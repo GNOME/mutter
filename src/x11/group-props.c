@@ -134,8 +134,7 @@ static void
 reload_wm_client_machine (MetaGroup     *group,
                           MetaPropValue *value)
 {
-  g_free (group->wm_client_machine);
-  group->wm_client_machine = NULL;
+  g_clear_pointer (&group->wm_client_machine, g_free);
 
   if (value->type != META_PROP_VALUE_INVALID)
     group->wm_client_machine = g_strdup (value->v.str);
@@ -158,8 +157,7 @@ static void
 reload_net_startup_id (MetaGroup     *group,
                        MetaPropValue *value)
 {
-  g_free (group->startup_id);
-  group->startup_id = NULL;
+  g_clear_pointer (&group->startup_id, g_free);
 
   if (value->type != META_PROP_VALUE_INVALID)
     group->startup_id = g_strdup (value->v.str);
@@ -210,8 +208,7 @@ meta_x11_display_free_group_prop_hooks (MetaX11Display *x11_display)
 {
   g_assert (x11_display->group_prop_hooks != NULL);
 
-  g_free (x11_display->group_prop_hooks);
-  x11_display->group_prop_hooks = NULL;
+  g_clear_pointer (&x11_display->group_prop_hooks, g_free);
 }
 
 static MetaGroupPropHooks*

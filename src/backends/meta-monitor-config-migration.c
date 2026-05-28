@@ -414,8 +414,7 @@ handle_end_element (GMarkupParseContext *context,
 
     case STATE_OUTPUT_FIELD:
       {
-        g_free (parser->output_field);
-        parser->output_field = NULL;
+        g_clear_pointer (&parser->output_field, g_free);
 
         parser->state = STATE_OUTPUT;
         return;

@@ -338,8 +338,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
       if (!cogl_texture_allocate (tex, &ignore_error))
         {
           g_error_free (ignore_error);
-          g_object_unref (tex);
-          tex = NULL;
+          g_clear_object (&tex);
         }
 
       g_object_unref (clear_bmp);
@@ -356,8 +355,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
       if (!cogl_texture_allocate (tex, &ignore_error))
         {
           g_error_free (ignore_error);
-          g_object_unref (tex);
-          tex = NULL;
+          g_clear_object (&tex);
         }
     }
 
@@ -604,8 +602,7 @@ create_migration_texture (CoglContext *ctx,
   if (!cogl_texture_allocate (tex, &skip_error))
     {
       g_error_free (skip_error);
-      g_object_unref (tex);
-      tex = NULL;
+      g_clear_object (&tex);
     }
 
   if (!tex)

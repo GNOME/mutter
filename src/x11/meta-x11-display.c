@@ -349,11 +349,9 @@ meta_x11_display_dispose (GObject *object)
 
   meta_x11_display_remove_cursor_later (x11_display);
 
-  g_free (x11_display->name);
-  x11_display->name = NULL;
+  g_clear_pointer (&x11_display->name, g_free);
 
-  g_free (x11_display->screen_name);
-  x11_display->screen_name = NULL;
+  g_clear_pointer (&x11_display->screen_name, g_free);
 
   G_OBJECT_CLASS (meta_x11_display_parent_class)->dispose (object);
 }

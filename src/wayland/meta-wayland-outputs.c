@@ -534,8 +534,7 @@ make_output_resources_inert (MetaWaylandOutput *wayland_output)
 
       wl_resource_set_user_data (output_resource, NULL);
     }
-  g_list_free (wayland_output->resources);
-  wayland_output->resources = NULL;
+  g_clear_list (&wayland_output->resources, NULL);
 
   for (l = wayland_output->xdg_output_resources; l; l = l->next)
     {
@@ -543,8 +542,7 @@ make_output_resources_inert (MetaWaylandOutput *wayland_output)
 
       wl_resource_set_user_data (xdg_output_resource, NULL);
     }
-  g_list_free (wayland_output->xdg_output_resources);
-  wayland_output->xdg_output_resources = NULL;
+  g_clear_list (&wayland_output->xdg_output_resources, NULL);
 }
 
 static void

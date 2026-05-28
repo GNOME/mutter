@@ -190,8 +190,7 @@ check_result (CallbackData *data)
       dump_attribute_set (attrs);
     }
 
-  g_free (text);
-  text = NULL;
+  g_clear_pointer (&text, g_free);
 
   if (fail)
     {

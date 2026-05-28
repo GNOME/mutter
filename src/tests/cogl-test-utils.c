@@ -213,8 +213,7 @@ test_utils_texture_new_with_size (CoglContext           *ctx,
   if (!cogl_texture_allocate (tex, &skip_error))
     {
       g_error_free (skip_error);
-      g_object_unref (tex);
-      tex = NULL;
+      g_clear_object (&tex);
     }
 
   if (!tex)

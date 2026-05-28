@@ -933,8 +933,7 @@ changed_idle_handler (gpointer data)
 
   copy = g_list_copy (changes); /* reentrancy paranoia */
 
-  g_list_free (changes);
-  changes = NULL;
+  g_clear_list (&changes, NULL);
 
   tmp = copy;
   while (tmp != NULL)

@@ -953,8 +953,7 @@ _cogl_blend_string_test (void)
           g_print ("Failed to parse string:\n%s\n%s\n",
                    strings[i].string,
                    error->message);
-          g_error_free (error);
-          error = NULL;
+          g_clear_error (&error);
           continue;
         }
       g_print ("Original:\n");
