@@ -55,6 +55,11 @@ struct _CoglDisplayEGLClass
                               EGLint          *attributes,
                               EGLConfig       *out_config,
                               GError         **error);
+
+  gboolean (* context_created) (CoglDisplayEGL  *display,
+                                GError         **error);
+
+  void (* cleanup_context) (CoglDisplayEGL *display);
 };
 
 COGL_EXPORT
@@ -106,5 +111,7 @@ EGLBoolean cogl_display_egl_make_current (CoglDisplayEGL *display_egl,
  */
 COGL_EXPORT
 EGLBoolean cogl_display_egl_ensure_current (CoglDisplayEGL *display_egl);
+
+#define COGL_MAX_EGL_CONFIG_ATTRIBS 30
 
 G_END_DECLS

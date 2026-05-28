@@ -792,6 +792,8 @@ if have_native_backend
     'backends/native/meta-render-device-surfaceless.h',
     'backends/native/meta-render-device.c',
     'backends/native/meta-render-device.h',
+    'backends/native/meta-renderer-context-egl.c',
+    'backends/native/meta-renderer-context-egl-private.h',
     'backends/native/meta-renderer-display-egl.c',
     'backends/native/meta-renderer-display-egl-private.h',
     'backends/native/meta-renderer-egl.c',

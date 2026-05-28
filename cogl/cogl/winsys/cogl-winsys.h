@@ -30,6 +30,9 @@
 
 #pragma once
 
+#include <stdint.h>
+
+#include "cogl/cogl-macros.h"
 
 COGL_EXPORT uint32_t
 _cogl_winsys_error_quark (void);
@@ -51,21 +54,3 @@ typedef enum _CoglDrmModifierFilter
   COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE = 1 << 0,
   COGL_DRM_MODIFIER_FILTER_NOT_EXTERNAL_ONLY = 1 << 1,
 } CoglDrmModifierFilter;
-
-#define COGL_TYPE_WINSYS (cogl_winsys_get_type ())
-
-COGL_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CoglWinsys,
-                          cogl_winsys,
-                          COGL,
-                          WINSYS,
-                          GObject)
-
-struct _CoglWinsysClass
-{
-  GObjectClass parent_class;
-
-  gboolean (*context_init) (CoglWinsys   *winsys,
-                            CoglContext  *context,
-                            GError      **error);
-};
