@@ -97,35 +97,23 @@ G_BEGIN_DECLS
 #define COGL_TYPE_CONTEXT (cogl_context_get_type ())
 
 COGL_EXPORT
-G_DECLARE_FINAL_TYPE (CoglContext,
-                      cogl_context,
-                      COGL,
-                      CONTEXT,
-                      GObject)
+G_DECLARE_DERIVABLE_TYPE (CoglContext,
+                          cogl_context,
+                          COGL,
+                          CONTEXT,
+                          GObject)
 
-/**
- * cogl_context_new: (constructor)
- * @display: (allow-none): A #CoglDisplay pointer
- * @error: A GError return location.
- *
- * Creates a new #CoglContext which acts as an application sandbox
- * for any state objects that are allocated.
- *
- * Return value: (transfer full): A newly allocated #CoglContext
- */
-COGL_EXPORT CoglContext *
-cogl_context_new (CoglDisplay *display,
-                  GError **error);
+typedef struct _CoglContextClass
+{
+  GObjectClass parent_class;
+} CoglContextClass;
 
 /**
  * cogl_context_get_display:
  * @context: A #CoglContext pointer
  *
  * Retrieves the #CoglDisplay that is internally associated with the
- * given @context. This will return the same #CoglDisplay that was
- * passed to cogl_context_new() or if %NULL was passed to
- * cogl_context_new() then this function returns a pointer to the
- * display that was automatically setup internally.
+ * given @context.
  *
  * Return value: (transfer none): The #CoglDisplay associated with the
  *               given @context.

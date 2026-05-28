@@ -49,10 +49,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct _CoglContext
+typedef struct _CoglContextPrivate
 {
-  GObject parent_instance;
-
   CoglDisplay *display;
 
   CoglPipeline *default_pipeline;
@@ -198,7 +196,7 @@ struct _CoglContext
   int n_uniform_names;
 
   GHashTable *named_pipelines;
-};
+} CoglContextPrivate;
 
 
 enum
@@ -212,9 +210,10 @@ static GParamSpec *obj_props[N_PROPS];
 
 static void cogl_context_initable_iface_init (GInitableIface *iface);
 
-G_DEFINE_FINAL_TYPE_WITH_CODE (CoglContext, cogl_context, G_TYPE_OBJECT,
-                               G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                      cogl_context_initable_iface_init))
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (CoglContext, cogl_context, G_TYPE_OBJECT,
+                                  G_ADD_PRIVATE (CoglContext)
+                                  G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                         cogl_context_initable_iface_init))
 
 static void
 cogl_context_get_property (GObject    *object,
@@ -223,11 +222,13 @@ cogl_context_get_property (GObject    *object,
                            GParamSpec *pspec)
 {
   CoglContext *context = COGL_CONTEXT (object);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
 
   switch (prop_id)
     {
     case PROP_DISPLAY:
-      g_value_set_object (value, context->display);
+      g_value_set_object (value, priv->display);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -242,11 +243,13 @@ cogl_context_set_property (GObject      *object,
                            GParamSpec   *pspec)
 {
   CoglContext *context = COGL_CONTEXT (object);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
 
   switch (prop_id)
     {
     case PROP_DISPLAY:
-      context->display = g_value_dup_object (value);
+      priv->display = g_value_dup_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -258,52 +261,54 @@ static void
 cogl_context_dispose (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
 
-  g_clear_object (&context->default_gl_texture_2d_tex);
+  g_clear_object (&priv->default_gl_texture_2d_tex);
 
-  g_clear_object (&context->opaque_color_pipeline);
-  g_clear_object (&context->blit_texture_pipeline);
+  g_clear_object (&priv->opaque_color_pipeline);
+  g_clear_object (&priv->blit_texture_pipeline);
 
-  g_clear_pointer (&context->journal_flush_attributes_array, g_array_unref);
-  g_clear_pointer (&context->journal_clip_bounds, g_array_unref);
+  g_clear_pointer (&priv->journal_flush_attributes_array, g_array_unref);
+  g_clear_pointer (&priv->journal_clip_bounds, g_array_unref);
 
-  g_clear_object (&context->rectangle_byte_indices);
-  g_clear_object (&context->rectangle_short_indices);
+  g_clear_object (&priv->rectangle_byte_indices);
+  g_clear_object (&priv->rectangle_short_indices);
 
-  g_clear_object (&context->default_pipeline);
+  g_clear_object (&priv->default_pipeline);
 
-  g_clear_object (&context->dummy_layer_dependant);
-  g_clear_object (&context->default_layer_n);
-  g_clear_object (&context->default_layer_0);
+  g_clear_object (&priv->dummy_layer_dependant);
+  g_clear_object (&priv->default_layer_n);
+  g_clear_object (&priv->default_layer_0);
 
-  if (context->current_clip_stack_valid)
-    g_clear_pointer (&context->current_clip_stack, _cogl_clip_stack_unref);
+  if (priv->current_clip_stack_valid)
+    g_clear_pointer (&priv->current_clip_stack, _cogl_clip_stack_unref);
 
-  g_clear_slist (&context->atlases, NULL);
-  g_hook_list_clear (&context->atlas_reorganize_callbacks);
+  g_clear_slist (&priv->atlases, NULL);
+  g_hook_list_clear (&priv->atlas_reorganize_callbacks);
 
-  _cogl_bitmask_destroy (&context->enabled_custom_attributes);
-  _cogl_bitmask_destroy (&context->enable_custom_attributes_tmp);
-  _cogl_bitmask_destroy (&context->changed_bits_tmp);
+  _cogl_bitmask_destroy (&priv->enabled_custom_attributes);
+  _cogl_bitmask_destroy (&priv->enable_custom_attributes_tmp);
+  _cogl_bitmask_destroy (&priv->changed_bits_tmp);
 
-  g_clear_pointer (&context->current_modelview_entry, cogl_matrix_entry_unref);
-  g_clear_pointer (&context->current_projection_entry, cogl_matrix_entry_unref);
+  g_clear_pointer (&priv->current_modelview_entry, cogl_matrix_entry_unref);
+  g_clear_pointer (&priv->current_projection_entry, cogl_matrix_entry_unref);
 
-  g_clear_pointer (&context->uniform_names, g_ptr_array_unref);
-  g_clear_pointer (&context->uniform_name_hash, g_hash_table_destroy);
+  g_clear_pointer (&priv->uniform_names, g_ptr_array_unref);
+  g_clear_pointer (&priv->uniform_name_hash, g_hash_table_destroy);
 
-  g_clear_pointer (&context->attribute_name_states_hash,
+  g_clear_pointer (&priv->attribute_name_states_hash,
                    g_hash_table_destroy);
-  g_clear_pointer (&context->attribute_name_index_map, g_array_unref);
+  g_clear_pointer (&priv->attribute_name_index_map, g_array_unref);
 
-  g_clear_pointer (&context->buffer_map_fallback_array, g_byte_array_unref);
+  g_clear_pointer (&priv->buffer_map_fallback_array, g_byte_array_unref);
 
-  g_clear_pointer (&context->named_pipelines, g_hash_table_destroy);
+  g_clear_pointer (&priv->named_pipelines, g_hash_table_destroy);
 
-  g_clear_pointer (&context->pipeline_cache, _cogl_pipeline_cache_free);
-  g_clear_pointer (&context->sampler_cache, _cogl_sampler_cache_free);
+  g_clear_pointer (&priv->pipeline_cache, _cogl_pipeline_cache_free);
+  g_clear_pointer (&priv->sampler_cache, _cogl_sampler_cache_free);
 
-  g_clear_object (&context->display);
+  g_clear_object (&priv->display);
 
   G_OBJECT_CLASS (cogl_context_parent_class)->dispose (object);
 }
@@ -312,9 +317,11 @@ static void
 cogl_context_finalize (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
 
-  g_string_free (context->codegen_header_buffer, TRUE);
-  g_string_free (context->codegen_source_buffer, TRUE);
+  g_string_free (priv->codegen_header_buffer, TRUE);
+  g_string_free (priv->codegen_source_buffer, TRUE);
 
   G_OBJECT_CLASS (cogl_context_parent_class)->finalize (object);
 }
@@ -322,61 +329,64 @@ cogl_context_finalize (GObject *object)
 static void
 cogl_context_init (CoglContext *context)
 {
-  context->attribute_name_states_hash =
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->attribute_name_states_hash =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
   _cogl_attribute_register_attribute_name (context, "cogl_color_in");
 
-  context->uniform_names =
+  priv->uniform_names =
     g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
-  context->uniform_name_hash = g_hash_table_new (g_str_hash, g_str_equal);
+  priv->uniform_name_hash = g_hash_table_new (g_str_hash, g_str_equal);
 
-  graphene_matrix_init_identity (&context->identity_matrix);
-  graphene_matrix_init_identity (&context->y_flip_matrix);
-  graphene_matrix_scale (&context->y_flip_matrix, 1, -1, 1);
+  graphene_matrix_init_identity (&priv->identity_matrix);
+  graphene_matrix_init_identity (&priv->y_flip_matrix);
+  graphene_matrix_scale (&priv->y_flip_matrix, 1, -1, 1);
 
-  context->codegen_header_buffer = g_string_new ("");
-  context->codegen_source_buffer = g_string_new ("");
+  priv->codegen_header_buffer = g_string_new ("");
+  priv->codegen_source_buffer = g_string_new ("");
 
-  context->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
+  priv->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
 
-  context->journal_flush_attributes_array =
+  priv->journal_flush_attributes_array =
     g_array_new (TRUE, FALSE, sizeof (CoglAttribute *));
 
-  _cogl_bitmask_init (&context->enabled_custom_attributes);
-  _cogl_bitmask_init (&context->enable_custom_attributes_tmp);
-  _cogl_bitmask_init (&context->changed_bits_tmp);
+  _cogl_bitmask_init (&priv->enabled_custom_attributes);
+  _cogl_bitmask_init (&priv->enable_custom_attributes_tmp);
+  _cogl_bitmask_init (&priv->changed_bits_tmp);
 
-  context->current_gl_dither_enabled = TRUE;
+  priv->current_gl_dither_enabled = TRUE;
 
-  context->depth_test_function_cache = COGL_DEPTH_TEST_FUNCTION_LESS;
-  context->depth_writing_enabled_cache = TRUE;
-  context->depth_range_far_cache = 1;
+  priv->depth_test_function_cache = COGL_DEPTH_TEST_FUNCTION_LESS;
+  priv->depth_writing_enabled_cache = TRUE;
+  priv->depth_range_far_cache = 1;
 
-  _cogl_matrix_entry_identity_init (&context->identity_entry);
+  _cogl_matrix_entry_identity_init (&priv->identity_entry);
 
-  g_hook_list_init (&context->atlas_reorganize_callbacks, sizeof (GHook));
+  g_hook_list_init (&priv->atlas_reorganize_callbacks, sizeof (GHook));
 
-  context->buffer_map_fallback_array = g_byte_array_new ();
+  priv->buffer_map_fallback_array = g_byte_array_new ();
 
-  context->sampler_cache = _cogl_sampler_cache_new (context);
+  priv->sampler_cache = _cogl_sampler_cache_new (context);
 
   _cogl_pipeline_init_default_pipeline (context);
   _cogl_pipeline_init_default_layers (context);
   _cogl_pipeline_init_state_hash_functions ();
   _cogl_pipeline_init_layer_state_hash_functions ();
 
-  context->opaque_color_pipeline = cogl_pipeline_new (context);
-  cogl_pipeline_set_static_name (context->opaque_color_pipeline,
+  priv->opaque_color_pipeline = cogl_pipeline_new (context);
+  cogl_pipeline_set_static_name (priv->opaque_color_pipeline,
                                  "CoglContext (opaque color)");
 
-  context->pipeline_cache = _cogl_pipeline_cache_new (context);
+  priv->pipeline_cache = _cogl_pipeline_cache_new (context);
 
-  context->stencil_pipeline = cogl_pipeline_new (context);
-  cogl_pipeline_set_static_name (context->stencil_pipeline,
+  priv->stencil_pipeline = cogl_pipeline_new (context);
+  cogl_pipeline_set_static_name (priv->stencil_pipeline,
                                  "Cogl (stencil)");
 
-  context->named_pipelines =
+  priv->named_pipelines =
     g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
 }
 
@@ -406,6 +416,8 @@ cogl_context_initable_init (GInitable     *initable,
                             GError       **error)
 {
   CoglContext *context = COGL_CONTEXT (initable);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
   CoglDisplay *display = cogl_context_get_display (context);
   CoglRenderer *renderer = cogl_display_get_renderer (display);
   CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
@@ -425,14 +437,14 @@ cogl_context_initable_init (GInitable     *initable,
       return FALSE;
     }
 
-  context->default_gl_texture_2d_tex =
+  priv->default_gl_texture_2d_tex =
     cogl_texture_2d_new_from_data (context,
                                    1, 1,
                                    COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                    0, /* rowstride */
                                    white_pixel,
                                    error);
-  if (!context->default_gl_texture_2d_tex)
+  if (!priv->default_gl_texture_2d_tex)
     return FALSE;
 
   return TRUE;
@@ -444,21 +456,14 @@ cogl_context_initable_iface_init (GInitableIface *iface)
   iface->init = cogl_context_initable_init;
 }
 
-CoglContext *
-cogl_context_new (CoglDisplay  *display,
-                  GError      **error)
-{
-  g_return_val_if_fail (display != NULL, NULL);
-
-  return g_initable_new (COGL_TYPE_CONTEXT, NULL, error,
-                         "display", display,
-                         NULL);
-}
 
 CoglDisplay *
 cogl_context_get_display (CoglContext *context)
 {
-  return context->display;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->display;
 }
 
 CoglRenderer *
@@ -474,27 +479,36 @@ cogl_context_set_winsys_feature (CoglContext      *context,
                                  CoglWinsysFeature feature,
                                  gboolean          value)
 {
-  COGL_FLAGS_SET (context->winsys_features, feature, value);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  COGL_FLAGS_SET (priv->winsys_features, feature, value);
 }
 
 void
 _cogl_context_set_current_projection_entry (CoglContext *context,
                                             CoglMatrixEntry *entry)
 {
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
   cogl_matrix_entry_ref (entry);
-  if (context->current_projection_entry)
-    cogl_matrix_entry_unref (context->current_projection_entry);
-  context->current_projection_entry = entry;
+  if (priv->current_projection_entry)
+    cogl_matrix_entry_unref (priv->current_projection_entry);
+  priv->current_projection_entry = entry;
 }
 
 void
 _cogl_context_set_current_modelview_entry (CoglContext *context,
                                            CoglMatrixEntry *entry)
 {
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
   cogl_matrix_entry_ref (entry);
-  if (context->current_modelview_entry)
-    cogl_matrix_entry_unref (context->current_modelview_entry);
-  context->current_modelview_entry = entry;
+  if (priv->current_modelview_entry)
+    cogl_matrix_entry_unref (priv->current_modelview_entry);
+  priv->current_modelview_entry = entry;
 }
 
 void
@@ -502,15 +516,18 @@ cogl_context_set_named_pipeline (CoglContext     *context,
                                  CoglPipelineKey *key,
                                  CoglPipeline    *pipeline)
 {
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
   if (pipeline)
     {
       g_debug ("Adding named pipeline %s", *key);
-      g_hash_table_insert (context->named_pipelines, (gpointer) key, pipeline);
+      g_hash_table_insert (priv->named_pipelines, (gpointer) key, pipeline);
     }
   else
     {
       g_debug ("Removing named pipeline %s", *key);
-      g_hash_table_remove (context->named_pipelines, (gpointer) key);
+      g_hash_table_remove (priv->named_pipelines, (gpointer) key);
     }
 }
 
@@ -518,7 +535,10 @@ CoglPipeline *
 cogl_context_get_named_pipeline (CoglContext     *context,
                                  CoglPipelineKey *key)
 {
-  return g_hash_table_lookup (context->named_pipelines, key);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return g_hash_table_lookup (priv->named_pipelines, key);
 }
 
 /* FIXME: we should distinguish renderer and context features */
@@ -526,15 +546,20 @@ gboolean
 cogl_context_has_winsys_feature (CoglContext       *context,
                                  CoglWinsysFeature  feature)
 {
-  return COGL_FLAGS_GET (context->winsys_features, feature);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return COGL_FLAGS_GET (priv->winsys_features, feature);
 }
 
 void
 cogl_context_flush (CoglContext *context)
 {
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
   GList *l;
 
-  for (l = context->framebuffers; l; l = l->next)
+  for (l = priv->framebuffers; l; l = l->next)
     _cogl_framebuffer_flush_journal (l->data);
 }
 
@@ -549,379 +574,553 @@ cogl_context_get_driver (CoglContext *context)
 CoglPipeline *
 cogl_context_get_current_pipeline (CoglContext *context)
 {
-  return context->current_pipeline;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_pipeline;
 }
 
 void
 cogl_context_set_current_pipeline (CoglContext  *context,
                                    CoglPipeline *pipeline)
 {
-  if (context->current_pipeline != NULL)
-    g_object_unref (context->current_pipeline);
-  context->current_pipeline = pipeline;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  if (priv->current_pipeline != NULL)
+    g_object_unref (priv->current_pipeline);
+  priv->current_pipeline = pipeline;
 }
 
 unsigned long
 cogl_context_get_current_pipeline_age (CoglContext *context)
 {
-  return context->current_pipeline_age;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_pipeline_age;
 }
 
 void
 cogl_context_set_current_pipeline_age (CoglContext   *context,
                                        unsigned long  age)
 {
-  context->current_pipeline_age = age;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_pipeline_age = age;
 }
 
 void
 cogl_context_decrement_current_pipeline_age (CoglContext *context)
 {
-  context->current_pipeline_age--;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_pipeline_age--;
 }
 
 unsigned long
 cogl_context_get_current_pipeline_changes_since_flush (CoglContext *context)
 {
-  return context->current_pipeline_changes_since_flush;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_pipeline_changes_since_flush;
 }
 
 void
 cogl_context_set_current_pipeline_changes_since_flush (CoglContext   *context,
                                                        unsigned long  changes)
 {
-  context->current_pipeline_changes_since_flush = changes;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_pipeline_changes_since_flush = changes;
 }
 
 void
 cogl_context_add_current_pipeline_changes_since_flush (CoglContext   *context,
                                                        unsigned long  changes)
 {
-  context->current_pipeline_changes_since_flush |= changes;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_pipeline_changes_since_flush |= changes;
 }
 
 gboolean
 cogl_context_get_current_pipeline_with_color_attrib (CoglContext *context)
 {
-  return context->current_pipeline_with_color_attrib;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_pipeline_with_color_attrib;
 }
 
 void
 cogl_context_set_current_pipeline_with_color_attrib (CoglContext *context,
                                                      gboolean     with_color_attrib)
 {
-  context->current_pipeline_with_color_attrib = with_color_attrib;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_pipeline_with_color_attrib = with_color_attrib;
 }
 
 gboolean
 cogl_context_get_current_pipeline_unknown_color_alpha (CoglContext *context)
 {
-  return context->current_pipeline_unknown_color_alpha;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_pipeline_unknown_color_alpha;
 }
 
 void
 cogl_context_set_current_pipeline_unknown_color_alpha (CoglContext *context,
                                                        gboolean     unknown_color_alpha)
 {
-  context->current_pipeline_unknown_color_alpha = unknown_color_alpha;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_pipeline_unknown_color_alpha = unknown_color_alpha;
 }
 
 CoglPipelineCache *
 cogl_context_get_pipeline_cache (CoglContext *context)
 {
-  return context->pipeline_cache;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->pipeline_cache;
 }
 
 CoglFramebuffer *
 cogl_context_get_current_draw_buffer (CoglContext *context)
 {
-  return context->current_draw_buffer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_draw_buffer;
 }
 
 void
 cogl_context_set_current_draw_buffer (CoglContext     *context,
                                       CoglFramebuffer *framebuffer)
 {
-  context->current_draw_buffer = framebuffer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_draw_buffer = framebuffer;
 }
 
 CoglFramebuffer *
 cogl_context_get_current_read_buffer (CoglContext *context)
 {
-  return context->current_read_buffer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_read_buffer;
 }
 
 void
 cogl_context_set_current_read_buffer (CoglContext     *context,
                                       CoglFramebuffer *framebuffer)
 {
-  context->current_read_buffer = framebuffer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_read_buffer = framebuffer;
 }
 
 unsigned long
 cogl_context_get_current_draw_buffer_state_flushed (CoglContext *context)
 {
-  return context->current_draw_buffer_state_flushed;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_draw_buffer_state_flushed;
 }
 
 void
 cogl_context_set_current_draw_buffer_state_flushed (CoglContext   *context,
                                                     unsigned long  state)
 {
-  context->current_draw_buffer_state_flushed = state;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_draw_buffer_state_flushed = state;
 }
 
 void
 cogl_context_add_current_draw_buffer_state_flushed (CoglContext   *context,
                                                     unsigned long  state)
 {
-  context->current_draw_buffer_state_flushed |= state;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_draw_buffer_state_flushed |= state;
 }
 
 unsigned long
 cogl_context_get_current_draw_buffer_changes (CoglContext *context)
 {
-  return context->current_draw_buffer_changes;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_draw_buffer_changes;
 }
 
 void
 cogl_context_add_current_draw_buffer_changes (CoglContext   *context,
                                               unsigned long  changes)
 {
-  context->current_draw_buffer_changes |= changes;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_draw_buffer_changes |= changes;
 }
 
 void
 cogl_context_clear_current_draw_buffer_changes (CoglContext   *context,
                                                 unsigned long  changes)
 {
-  context->current_draw_buffer_changes &= ~changes;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_draw_buffer_changes &= ~changes;
 }
 
 GLuint
 cogl_context_get_current_gl_program (CoglContext *context)
 {
-  return context->current_gl_program;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_gl_program;
 }
 
 void
 cogl_context_set_current_gl_program (CoglContext *context,
                                      GLuint       program)
 {
-  context->current_gl_program = program;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_gl_program = program;
 }
 
 gboolean
 cogl_context_get_gl_blend_enable_cache (CoglContext *context)
 {
-  return context->gl_blend_enable_cache;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->gl_blend_enable_cache;
 }
 
 void
 cogl_context_set_gl_blend_enable_cache (CoglContext *context,
                                         gboolean     enabled)
 {
-  context->gl_blend_enable_cache = enabled;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->gl_blend_enable_cache = enabled;
 }
 
 gboolean
 cogl_context_get_current_gl_dither_enabled (CoglContext *context)
 {
-  return context->current_gl_dither_enabled;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_gl_dither_enabled;
 }
 
 void
 cogl_context_set_current_gl_dither_enabled (CoglContext *context,
                                             gboolean     enabled)
 {
-  context->current_gl_dither_enabled = enabled;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_gl_dither_enabled = enabled;
 }
 
 CoglClipStack *
 cogl_context_get_current_clip_stack (CoglContext *context)
 {
-  return context->current_clip_stack;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_clip_stack;
 }
 
 void
 cogl_context_set_current_clip_stack (CoglContext   *context,
                                      CoglClipStack *stack)
 {
-  context->current_clip_stack = stack;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_clip_stack = stack;
 }
 
 gboolean
 cogl_context_get_current_clip_stack_valid (CoglContext *context)
 {
-  return context->current_clip_stack_valid;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_clip_stack_valid;
 }
 
 void
 cogl_context_set_current_clip_stack_valid (CoglContext *context,
                                            gboolean     valid)
 {
-  context->current_clip_stack_valid = valid;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_clip_stack_valid = valid;
 }
 
 CoglMatrixEntry *
 cogl_context_get_current_projection_entry (CoglContext *context)
 {
-  return context->current_projection_entry;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_projection_entry;
 }
 
 void
 cogl_context_set_current_projection_entry (CoglContext     *context,
                                            CoglMatrixEntry *entry)
 {
-  context->current_projection_entry = entry;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_projection_entry = entry;
 }
 
 CoglMatrixEntry *
 cogl_context_get_current_modelview_entry (CoglContext *context)
 {
-  return context->current_modelview_entry;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_modelview_entry;
 }
 
 void
 cogl_context_set_current_modelview_entry (CoglContext     *context,
                                           CoglMatrixEntry *entry)
 {
-  context->current_modelview_entry = entry;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_modelview_entry = entry;
 }
 
 CoglMatrixEntry *
 cogl_context_get_identity_entry (CoglContext *context)
 {
-  return &context->identity_entry;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return &priv->identity_entry;
 }
 
 CoglPipeline *
 cogl_context_get_stencil_pipeline (CoglContext *context)
 {
-  return context->stencil_pipeline;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->stencil_pipeline;
 }
 
 graphene_matrix_t *
 cogl_context_get_y_flip_matrix (CoglContext *context)
 {
-  return &context->y_flip_matrix;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return &priv->y_flip_matrix;
 }
 
 gboolean
 cogl_context_get_depth_test_enabled_cache (CoglContext *context)
 {
-  return context->depth_test_enabled_cache;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->depth_test_enabled_cache;
 }
 
 void
 cogl_context_set_depth_test_enabled_cache (CoglContext *context,
                                            gboolean     enabled)
 {
-  context->depth_test_enabled_cache = enabled;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->depth_test_enabled_cache = enabled;
 }
 
 CoglDepthTestFunction
 cogl_context_get_depth_test_function_cache (CoglContext *context)
 {
-  return context->depth_test_function_cache;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->depth_test_function_cache;
 }
 
 void
 cogl_context_set_depth_test_function_cache (CoglContext           *context,
                                             CoglDepthTestFunction  function)
 {
-  context->depth_test_function_cache = function;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->depth_test_function_cache = function;
 }
 
 gboolean
 cogl_context_get_depth_writing_enabled_cache (CoglContext *context)
 {
-  return context->depth_writing_enabled_cache;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->depth_writing_enabled_cache;
 }
 
 void
 cogl_context_set_depth_writing_enabled_cache (CoglContext *context,
                                               gboolean     enabled)
 {
-  context->depth_writing_enabled_cache = enabled;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->depth_writing_enabled_cache = enabled;
 }
 
 float
 cogl_context_get_depth_range_near_cache (CoglContext *context)
 {
-  return context->depth_range_near_cache;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->depth_range_near_cache;
 }
 
 void
 cogl_context_set_depth_range_near_cache (CoglContext *context,
                                          float        near_val)
 {
-  context->depth_range_near_cache = near_val;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->depth_range_near_cache = near_val;
 }
 
 float
 cogl_context_get_depth_range_far_cache (CoglContext *context)
 {
-  return context->depth_range_far_cache;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->depth_range_far_cache;
 }
 
 void
 cogl_context_set_depth_range_far_cache (CoglContext *context,
                                         float        far_val)
 {
-  context->depth_range_far_cache = far_val;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->depth_range_far_cache = far_val;
 }
 
 gboolean
 cogl_context_get_was_bound_to_onscreen (CoglContext *context)
 {
-  return context->was_bound_to_onscreen;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->was_bound_to_onscreen;
 }
 
 void
 cogl_context_set_was_bound_to_onscreen (CoglContext *context,
                                         gboolean     bound)
 {
-  context->was_bound_to_onscreen = bound;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->was_bound_to_onscreen = bound;
 }
 
 gboolean
 cogl_context_get_have_last_offscreen_allocate_flags (CoglContext *context)
 {
-  return context->have_last_offscreen_allocate_flags;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->have_last_offscreen_allocate_flags;
 }
 
 void
 cogl_context_set_have_last_offscreen_allocate_flags (CoglContext *context,
                                                      gboolean     have_flags)
 {
-  context->have_last_offscreen_allocate_flags = have_flags;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->have_last_offscreen_allocate_flags = have_flags;
 }
 
 CoglOffscreenAllocateFlags
 cogl_context_get_last_offscreen_allocate_flags (CoglContext *context)
 {
-  return context->last_offscreen_allocate_flags;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->last_offscreen_allocate_flags;
 }
 
 void
 cogl_context_set_last_offscreen_allocate_flags (CoglContext                *context,
                                                 CoglOffscreenAllocateFlags  flags)
 {
-  context->last_offscreen_allocate_flags = flags;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->last_offscreen_allocate_flags = flags;
 }
 
 CoglTexture *
 cogl_context_get_default_gl_texture_2d_tex (CoglContext *context)
 {
-  return context->default_gl_texture_2d_tex;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->default_gl_texture_2d_tex;
 }
 
 CoglBuffer *
 cogl_context_get_current_buffer (CoglContext         *context,
                                  CoglBufferBindTarget target)
 {
-  return context->current_buffer[target];
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->current_buffer[target];
 }
 
 void
@@ -929,298 +1128,439 @@ cogl_context_set_current_buffer (CoglContext         *context,
                                  CoglBufferBindTarget target,
                                  CoglBuffer          *buffer)
 {
-  context->current_buffer[target] = buffer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->current_buffer[target] = buffer;
 }
 
 GArray *
 cogl_context_get_attribute_name_index_map (CoglContext *context)
 {
-  return context->attribute_name_index_map;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->attribute_name_index_map;
 }
 
 void
 cogl_context_set_attribute_name_index_map (CoglContext *context,
                                            GArray      *array)
 {
-  context->attribute_name_index_map = array;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->attribute_name_index_map = array;
 }
 
 GPtrArray *
 cogl_context_get_uniform_names (CoglContext *context)
 {
-  return context->uniform_names;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->uniform_names;
 }
 
 int
 cogl_context_get_n_uniform_names (CoglContext *context)
 {
-  return context->n_uniform_names;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->n_uniform_names;
 }
 
 int
 cogl_context_increment_n_uniform_names (CoglContext *context)
 {
-  return context->n_uniform_names++;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->n_uniform_names++;
 }
 
 GString *
 cogl_context_get_codegen_header_buffer (CoglContext *context)
 {
-  return context->codegen_header_buffer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->codegen_header_buffer;
 }
 
 GString *
 cogl_context_get_codegen_source_buffer (CoglContext *context)
 {
-  return context->codegen_source_buffer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->codegen_source_buffer;
 }
 
 CoglBitmask *
 cogl_context_get_enabled_custom_attributes (CoglContext *context)
 {
-  return &context->enabled_custom_attributes;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return &priv->enabled_custom_attributes;
 }
 
 CoglBitmask *
 cogl_context_get_enable_custom_attributes_tmp (CoglContext *context)
 {
-  return &context->enable_custom_attributes_tmp;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return &priv->enable_custom_attributes_tmp;
 }
 
 CoglBitmask *
 cogl_context_get_changed_bits_tmp (CoglContext *context)
 {
-  return &context->changed_bits_tmp;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return &priv->changed_bits_tmp;
 }
 
 CoglPipeline *
 cogl_context_get_default_pipeline (CoglContext *context)
 {
-  return context->default_pipeline;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->default_pipeline;
 }
 
 void
 cogl_context_set_default_pipeline (CoglContext  *context,
                                    CoglPipeline *pipeline)
 {
-  context->default_pipeline = pipeline;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->default_pipeline = pipeline;
 }
 
 CoglPipelineLayer *
 cogl_context_get_default_layer_0 (CoglContext *context)
 {
-  return context->default_layer_0;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->default_layer_0;
 }
 
 void
 cogl_context_set_default_layer_0 (CoglContext       *context,
                                   CoglPipelineLayer *layer)
 {
-  context->default_layer_0 = layer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->default_layer_0 = layer;
 }
 
 CoglPipelineLayer *
 cogl_context_get_default_layer_n (CoglContext *context)
 {
-  return context->default_layer_n;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->default_layer_n;
 }
 
 void
 cogl_context_set_default_layer_n (CoglContext       *context,
                                   CoglPipelineLayer *layer)
 {
-  context->default_layer_n = layer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->default_layer_n = layer;
 }
 
 void
 cogl_context_set_dummy_layer_dependant (CoglContext       *context,
                                         CoglPipelineLayer *layer)
 {
-  context->dummy_layer_dependant = layer;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->dummy_layer_dependant = layer;
 }
 
 GHashTable *
 cogl_context_get_attribute_name_states_hash (CoglContext *context)
 {
-  return context->attribute_name_states_hash;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->attribute_name_states_hash;
 }
 
 GHashTable *
 cogl_context_get_uniform_name_hash (CoglContext *context)
 {
-  return context->uniform_name_hash;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->uniform_name_hash;
 }
 
 int
 cogl_context_increment_n_attribute_names (CoglContext *context)
 {
-  return context->n_attribute_names++;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->n_attribute_names++;
 }
 
 CoglSamplerCache *
 cogl_context_get_sampler_cache (CoglContext *context)
 {
-  return context->sampler_cache;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->sampler_cache;
 }
 
 void
 cogl_context_prepend_framebuffer (CoglContext     *context,
                                   CoglFramebuffer *framebuffer)
 {
-  context->framebuffers = g_list_prepend (context->framebuffers, framebuffer);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->framebuffers = g_list_prepend (priv->framebuffers, framebuffer);
 }
 
 void
 cogl_context_remove_framebuffer (CoglContext     *context,
                                  CoglFramebuffer *framebuffer)
 {
-  context->framebuffers = g_list_remove (context->framebuffers, framebuffer);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->framebuffers = g_list_remove (priv->framebuffers, framebuffer);
 }
 
 GArray *
 cogl_context_get_journal_flush_attributes_array (CoglContext *context)
 {
-  return context->journal_flush_attributes_array;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->journal_flush_attributes_array;
 }
 
 GArray *
 cogl_context_get_journal_clip_bounds (CoglContext *context)
 {
-  return context->journal_clip_bounds;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->journal_clip_bounds;
 }
 
 void
 cogl_context_set_journal_clip_bounds (CoglContext *context,
                                       GArray      *array)
 {
-  context->journal_clip_bounds = array;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->journal_clip_bounds = array;
 }
 
 uint8_t
 cogl_context_get_journal_rectangles_color (CoglContext *context)
 {
-  return context->journal_rectangles_color;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->journal_rectangles_color;
 }
 
 void
 cogl_context_set_journal_rectangles_color (CoglContext *context,
                                            uint8_t      color)
 {
-  context->journal_rectangles_color = color;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->journal_rectangles_color = color;
 }
 
 CoglPipeline *
 cogl_context_get_opaque_color_pipeline (CoglContext *context)
 {
-  return context->opaque_color_pipeline;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->opaque_color_pipeline;
 }
 
 CoglPipeline *
 cogl_context_get_blit_texture_pipeline (CoglContext *context)
 {
-  return context->blit_texture_pipeline;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->blit_texture_pipeline;
 }
 
 void
 cogl_context_set_blit_texture_pipeline (CoglContext  *context,
                                         CoglPipeline *pipeline)
 {
-  context->blit_texture_pipeline = pipeline;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->blit_texture_pipeline = pipeline;
 }
 
 GSList *
 cogl_context_get_atlases (CoglContext *context)
 {
-  return context->atlases;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->atlases;
 }
 
 void
 cogl_context_prepend_atlas (CoglContext *context,
                             CoglAtlas   *atlas)
 {
-  context->atlases = g_slist_prepend (context->atlases, atlas);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->atlases = g_slist_prepend (priv->atlases, atlas);
 }
 
 void
 cogl_context_remove_atlas (CoglContext *context,
                            CoglAtlas   *atlas)
 {
-  context->atlases = g_slist_remove (context->atlases, atlas);
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->atlases = g_slist_remove (priv->atlases, atlas);
 }
 
 GHookList *
 cogl_context_get_atlas_reorganize_callbacks (CoglContext *context)
 {
-  return &context->atlas_reorganize_callbacks;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return &priv->atlas_reorganize_callbacks;
 }
 
 CoglIndices *
 cogl_context_get_rectangle_byte_indices (CoglContext *context)
 {
-  return context->rectangle_byte_indices;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->rectangle_byte_indices;
 }
 
 void
 cogl_context_set_rectangle_byte_indices (CoglContext *context,
                                          CoglIndices *indices)
 {
-  context->rectangle_byte_indices = indices;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->rectangle_byte_indices = indices;
 }
 
 CoglIndices *
 cogl_context_get_rectangle_short_indices (CoglContext *context)
 {
-  return context->rectangle_short_indices;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->rectangle_short_indices;
 }
 
 void
 cogl_context_set_rectangle_short_indices (CoglContext *context,
                                           CoglIndices *indices)
 {
-  context->rectangle_short_indices = indices;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->rectangle_short_indices = indices;
 }
 
 int
 cogl_context_get_rectangle_short_indices_len (CoglContext *context)
 {
-  return context->rectangle_short_indices_len;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->rectangle_short_indices_len;
 }
 
 void
 cogl_context_set_rectangle_short_indices_len (CoglContext *context,
                                               int          len)
 {
-  context->rectangle_short_indices_len = len;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->rectangle_short_indices_len = len;
 }
 
 GByteArray *
 cogl_context_get_buffer_map_fallback_array (CoglContext *context)
 {
-  return context->buffer_map_fallback_array;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->buffer_map_fallback_array;
 }
 
 gboolean
 cogl_context_get_buffer_map_fallback_in_use (CoglContext *context)
 {
-  return context->buffer_map_fallback_in_use;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->buffer_map_fallback_in_use;
 }
 
 void
 cogl_context_set_buffer_map_fallback_in_use (CoglContext *context,
                                              gboolean     in_use)
 {
-  context->buffer_map_fallback_in_use = in_use;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->buffer_map_fallback_in_use = in_use;
 }
 
 size_t
 cogl_context_get_buffer_map_fallback_offset (CoglContext *context)
 {
-  return context->buffer_map_fallback_offset;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  return priv->buffer_map_fallback_offset;
 }
 
 void
 cogl_context_set_buffer_map_fallback_offset (CoglContext *context,
                                              size_t       offset)
 {
-  context->buffer_map_fallback_offset = offset;
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->buffer_map_fallback_offset = offset;
 }

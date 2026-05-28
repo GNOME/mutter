@@ -89,6 +89,7 @@
 #include "cogl/cogl-scanout.h"
 #include "cogl/cogl-graphene.h"
 
+#include "cogl/cogl-context-egl.h"
 #include "cogl/cogl-display-egl.h"
 #include "cogl/cogl-renderer-egl.h"
 #include "cogl/winsys/cogl-onscreen-egl.h"
