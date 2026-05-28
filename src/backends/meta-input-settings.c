@@ -1765,6 +1765,8 @@ meta_input_settings_constructed (GObject *object)
   MetaInputSettings *input_settings = META_INPUT_SETTINGS (object);
   GSList *devices, *d;
 
+  G_OBJECT_CLASS (meta_input_settings_parent_class)->constructed (object);
+
   devices = meta_input_settings_get_devices (input_settings,
                                              CLUTTER_INPUT_CAPABILITY_TOUCHPAD,
                                              CLUTTER_INPUT_CAPABILITY_NONE);

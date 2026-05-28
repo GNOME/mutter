@@ -65,6 +65,8 @@ meta_feedback_actor_constructed (GObject *object)
     meta_feedback_actor_get_instance_private (self);
   ClutterActor *feedback_group;
 
+  G_OBJECT_CLASS (meta_feedback_actor_parent_class)->constructed (object);
+
   feedback_group = meta_compositor_get_feedback_group (priv->compositor);
   clutter_actor_add_child (feedback_group, CLUTTER_ACTOR (object));
   meta_compositor_disable_unredirect (priv->compositor);

@@ -469,6 +469,8 @@ meta_a11y_manager_constructed (GObject *object)
 {
   MetaA11yManager *a11y_manager = META_A11Y_MANAGER (object);
 
+  G_OBJECT_CLASS (meta_a11y_manager_parent_class)->constructed (object);
+
   a11y_manager->grabbed_keypresses = g_hash_table_new (NULL, NULL);
   a11y_manager->all_grabbed_modifiers = g_hash_table_new (NULL, NULL);
   a11y_manager->query_pointer_requesters =

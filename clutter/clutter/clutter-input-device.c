@@ -106,6 +106,8 @@ clutter_input_device_constructed (GObject *gobject)
   ClutterInputDevicePrivate *priv =
     clutter_input_device_get_instance_private (device);
 
+  G_OBJECT_CLASS (clutter_input_device_parent_class)->constructed (gobject);
+
   if (priv->capabilities == 0)
     {
       ClutterInputCapabilities capabilities = 0;

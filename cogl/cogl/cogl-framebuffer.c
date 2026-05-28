@@ -212,6 +212,8 @@ cogl_framebuffer_constructed (GObject *object)
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
 
+  G_OBJECT_CLASS (cogl_framebuffer_parent_class)->constructed (object);
+
   g_assert (priv->context);
 
   priv->internal_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;

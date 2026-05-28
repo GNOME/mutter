@@ -298,6 +298,8 @@ meta_wayland_cursor_surface_constructed (GObject *object)
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   MetaWaylandBuffer *buffer;
 
+  G_OBJECT_CLASS (meta_wayland_cursor_surface_parent_class)->constructed (object);
+
   buffer = meta_wayland_surface_get_buffer (surface);
 
   g_warn_if_fail (!buffer || buffer->resource);

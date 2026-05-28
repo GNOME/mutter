@@ -1350,6 +1350,8 @@ meta_monitor_manager_constructed (GObject *object)
   MetaContext *context = meta_backend_get_context (backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
 
+  G_OBJECT_CLASS (meta_monitor_manager_parent_class)->constructed (object);
+
   manager->display_config = meta_dbus_display_config_skeleton_new ();
 
   g_signal_connect_object (settings,

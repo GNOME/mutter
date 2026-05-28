@@ -379,6 +379,8 @@ meta_service_channel_constructed (GObject *object)
 {
   MetaServiceChannel *service_channel = META_SERVICE_CHANNEL (object);
 
+  G_OBJECT_CLASS (meta_service_channel_parent_class)->constructed (object);
+
   service_channel->cancellable = g_cancellable_new ();
 
   service_channel->service_clients =

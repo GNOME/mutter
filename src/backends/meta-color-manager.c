@@ -458,6 +458,8 @@ meta_color_manager_constructed (GObject *object)
   MetaColorManagerPrivate *priv =
     meta_color_manager_get_instance_private (color_manager);
 
+  G_OBJECT_CLASS (meta_color_manager_parent_class)->constructed (object);
+
   priv->lcms_context = cmsCreateContext (NULL, NULL);
 
   priv->cancellable = g_cancellable_new ();

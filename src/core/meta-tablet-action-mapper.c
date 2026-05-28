@@ -295,6 +295,8 @@ meta_tablet_action_mapper_constructed (GObject *object)
   g_autoptr (GList) devices = NULL;
   GList *l;
 
+  G_OBJECT_CLASS (meta_tablet_action_mapper_parent_class)->constructed (object);
+
   priv->seat = clutter_backend_get_default_seat (clutter_backend);
   devices = clutter_seat_list_devices (priv->seat);
 
