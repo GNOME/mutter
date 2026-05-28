@@ -37,6 +37,7 @@
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-context-egl-private.h"
 #include "cogl/cogl-pipeline-private.h"
 #include "cogl/cogl-offscreen.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
@@ -405,8 +406,9 @@ get_uniform_cb (CoglPipeline *pipeline,
   UnitState *unit_state = &program_state->unit_state[state->unit];
   GLint uniform_location;
   CoglContext *ctx = pipeline->context;
+  CoglContextEGL *context_egl = COGL_CONTEXT_EGL (ctx);
   CoglDriver *driver = cogl_context_get_driver (ctx);
-  GString *source_buffer = cogl_context_get_codegen_source_buffer (ctx);
+  GString *source_buffer = cogl_context_egl_get_codegen_source_buffer (context_egl);
 
   /* We can reuse the source buffer to create the uniform name because
      the program has now been linked */
@@ -526,8 +528,8 @@ static gboolean
 flush_uniform_cb (int uniform_num, void *user_data)
 {
   FlushUniformsClosure *data = user_data;
-  char *uniform_name = g_ptr_array_index (cogl_context_get_uniform_names (data->ctx),
-                                          uniform_num);
+  GPtrArray *uniform_names = cogl_context_get_uniform_names (data->ctx);
+  char *uniform_name = g_ptr_array_index (uniform_names, uniform_num);
 
   if (COGL_FLAGS_GET (data->uniform_differences, uniform_num))
     {
@@ -632,7 +634,9 @@ _cogl_pipeline_progend_glsl_flush_uniforms (CoglPipeline *pipeline,
   data.program_state = program_state;
   data.ctx = ctx;
 
-  n_uniform_longs = COGL_FLAGS_N_LONGS_FOR_SIZE (cogl_context_get_n_uniform_names (ctx));
+  n_uniform_longs = COGL_FLAGS_N_LONGS_FOR_SIZE (
+    cogl_context_get_n_uniform_names (ctx)
+  );
 
   data.uniform_differences = g_newa (unsigned long, n_uniform_longs);
 
@@ -877,6 +881,7 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
   CoglProgram *user_program;
   CoglPipelineCacheEntry *cache_entry = NULL;
   CoglContext *ctx = pipeline->context;
+  CoglContextEGL *ctx_egl = COGL_CONTEXT_EGL (ctx);
   CoglDriver *driver = cogl_context_get_driver (ctx);
 
   program_state = get_program_state (pipeline);
@@ -985,16 +990,16 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
 
   gl_program = program_state->program;
 
-  if (cogl_context_get_current_gl_program (ctx) != gl_program)
+  if (cogl_context_egl_get_current_gl_program (ctx_egl) != gl_program)
     {
       cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
       GE (driver, glUseProgram (gl_program));
       if (cogl_driver_gl_get_gl_error (COGL_DRIVER_GL (driver)) == GL_NO_ERROR)
-        cogl_context_set_current_gl_program (ctx, gl_program);
+        cogl_context_egl_set_current_gl_program (ctx_egl, gl_program);
       else
         {
           GE (driver, glUseProgram (0));
-          cogl_context_set_current_gl_program (ctx, 0);
+          cogl_context_egl_set_current_gl_program (ctx_egl, 0);
         }
     }
 

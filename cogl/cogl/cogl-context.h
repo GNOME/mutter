@@ -232,10 +232,6 @@ cogl_context_get_egl_display (CoglContext *context);
 COGL_EXPORT
 CoglDriver * cogl_context_get_driver (CoglContext *context);
 
-COGL_EXPORT_TEST
-gboolean cogl_context_get_gl_blend_enable_cache (CoglContext *context);
-
-
 COGL_EXPORT
 void cogl_context_set_winsys_feature (CoglContext      *context,
                                       CoglWinsysFeature feature,

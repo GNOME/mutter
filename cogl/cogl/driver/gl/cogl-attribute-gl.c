@@ -38,6 +38,7 @@
 
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-context-egl-private.h"
 #include "cogl/cogl-attribute.h"
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/driver/gl/cogl-attribute-gl-private.h"
@@ -76,14 +77,16 @@ foreach_changed_bit_and_save (CoglContext *context,
                               CoglBitmaskForeachFunc callback,
                               ForeachChangedBitState *state)
 {
+  CoglContextEGL *context_egl = COGL_CONTEXT_EGL (context);
+
   /* Get the list of bits that are different */
-  _cogl_bitmask_clear_all (cogl_context_get_changed_bits_tmp (context));
-  _cogl_bitmask_set_bits (cogl_context_get_changed_bits_tmp (context), current_bits);
-  _cogl_bitmask_xor_bits (cogl_context_get_changed_bits_tmp (context), new_bits);
+  _cogl_bitmask_clear_all (cogl_context_egl_get_changed_bits_tmp (context_egl));
+  _cogl_bitmask_set_bits (cogl_context_egl_get_changed_bits_tmp (context_egl), current_bits);
+  _cogl_bitmask_xor_bits (cogl_context_egl_get_changed_bits_tmp (context_egl), new_bits);
 
   /* Iterate over each bit to change */
   state->new_bits = new_bits;
-  _cogl_bitmask_foreach (cogl_context_get_changed_bits_tmp (context),
+  _cogl_bitmask_foreach (cogl_context_egl_get_changed_bits_tmp (context_egl),
                          callback,
                          state);
 
@@ -112,7 +115,7 @@ setup_generic_buffered_attribute (CoglContext *context,
                                      attribute->normalized,
                                      attribute->stride,
                                      base + attribute->offset));
-  _cogl_bitmask_set (cogl_context_get_enable_custom_attributes_tmp (context),
+  _cogl_bitmask_set (cogl_context_egl_get_enable_custom_attributes_tmp (COGL_CONTEXT_EGL (context)),
                      attrib_location, TRUE);
 }
 
@@ -124,10 +127,10 @@ apply_attribute_enable_updates (CoglContext *context,
 
   changed_bits_state.context = context;
   changed_bits_state.pipeline = pipeline;
-  changed_bits_state.new_bits = cogl_context_get_enable_custom_attributes_tmp (context);
+  changed_bits_state.new_bits = cogl_context_egl_get_enable_custom_attributes_tmp (COGL_CONTEXT_EGL (context));
   foreach_changed_bit_and_save (context,
-                                cogl_context_get_enabled_custom_attributes (context),
-                                cogl_context_get_enable_custom_attributes_tmp (context),
+                                cogl_context_egl_get_enabled_custom_attributes (COGL_CONTEXT_EGL (context)),
+                                cogl_context_egl_get_enable_custom_attributes_tmp (COGL_CONTEXT_EGL (context)),
                                 toggle_custom_attribute_enabled_cb,
                                 &changed_bits_state);
 }
@@ -214,7 +217,7 @@ _cogl_gl_flush_attributes_state (CoglDriver           *driver,
                                  with_color_attrib,
                                  unknown_color_alpha);
 
-  _cogl_bitmask_clear_all (cogl_context_get_enable_custom_attributes_tmp (ctx));
+  _cogl_bitmask_clear_all (cogl_context_egl_get_enable_custom_attributes_tmp (COGL_CONTEXT_EGL (ctx)));
 
   /* Bind the attribute pointers. We need to do this after the
    * pipeline is flushed because when using GLSL that is the only

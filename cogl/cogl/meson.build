@@ -188,6 +188,7 @@ cogl_sources = [
   'cogl-context-private.h',
   'cogl-context.c',
   'cogl-context-egl.c',
+  'cogl-context-egl-private.h',
   'cogl-cpu-caps.c',
   'cogl-cpu-caps.h',
   'cogl-debug-options.h',

@@ -32,6 +32,7 @@
 #include <gio/gio.h>
 
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-context-egl-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
@@ -198,7 +199,7 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
    * default draw buffer will be GL_NONE so we need to correct
    * that. We can't do it any earlier because binding GL_BACK when
    * there is no default framebuffer won't work */
-  if (!cogl_context_get_was_bound_to_onscreen (ctx))
+  if (!cogl_context_egl_get_was_bound_to_onscreen (COGL_CONTEXT_EGL (ctx)))
     {
       if (GE_HAS (driver, glDrawBuffer))
         {
@@ -218,7 +219,7 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
           GE (driver, glDrawBuffers (G_N_ELEMENTS (buffers), buffers));
         }
 
-      cogl_context_set_was_bound_to_onscreen (ctx, TRUE);
+      cogl_context_egl_set_was_bound_to_onscreen (COGL_CONTEXT_EGL (ctx), TRUE);
     }
 }
 
