@@ -115,29 +115,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaRendererNative,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
 
-#define META_TYPE_WINSYS_EGL (meta_winsys_egl_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWinsysEgl, meta_winsys_egl, META, WINSYS_EGL, CoglWinsysEGL)
-
-static MetaRendererNative * meta_winsys_egl_get_renderer (MetaWinsysEgl *winsys_egl);
-
-struct _MetaWinsysEgl
-{
-  CoglWinsysEGL parent;
-
-  MetaRendererNative *renderer;
-};
-
-enum
-{
-  PROP_0,
-  PROP_WINSYS_EGL_RENDERER,
-  N_WINSYS_EGL_PROPS
-};
-
-static GParamSpec *winsys_egl_props[N_WINSYS_EGL_PROPS];
-
-G_DEFINE_FINAL_TYPE (MetaWinsysEgl, meta_winsys_egl, COGL_TYPE_WINSYS_EGL)
-
 static gboolean
 meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
                                       MetaGpuKms          *gpu_kms,
@@ -407,100 +384,6 @@ meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
     }
 
   return FALSE;
-}
-
-static EGLSurface
-create_dummy_pbuffer_surface (CoglRenderer  *cogl_renderer,
-                              EGLDisplay     egl_display,
-                              GError       **error)
-{
-  CoglWinsys *winsys = cogl_renderer_get_winsys (cogl_renderer);
-  MetaRendererNative *renderer =
-    meta_winsys_egl_get_renderer (META_WINSYS_EGL (winsys));
-  MetaBackend *backend = meta_renderer_get_backend (META_RENDERER (renderer));
-  MetaEgl *egl = meta_backend_get_egl (backend);
-  EGLConfig pbuffer_config;
-  static const EGLint pbuffer_config_attribs[] = {
-    EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-    EGL_RED_SIZE, 1,
-    EGL_GREEN_SIZE, 1,
-    EGL_BLUE_SIZE, 1,
-    EGL_ALPHA_SIZE, 0,
-    EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-    EGL_NONE
-  };
-  static const EGLint pbuffer_attribs[] = {
-    EGL_WIDTH, 16,
-    EGL_HEIGHT, 16,
-    EGL_NONE
-  };
-
-  if (!meta_egl_choose_first_config (egl, egl_display, pbuffer_config_attribs,
-                                     &pbuffer_config, error))
-    return EGL_NO_SURFACE;
-
-  return meta_egl_create_pbuffer_surface (egl, egl_display,
-                                          pbuffer_config, pbuffer_attribs,
-                                          error);
-}
-
-static gboolean
-meta_renderer_native_egl_context_created (CoglWinsysEGL  *winsys,
-                                          CoglDisplay    *cogl_display,
-                                          GError        **error)
-{
-  CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
-  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
-  EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (renderer_egl);
-
-  if (!cogl_renderer_egl_has_feature (renderer_egl,
-                                      COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT))
-    {
-      cogl_display_egl_set_dummy_surface (cogl_display_egl,
-                                          create_dummy_pbuffer_surface (cogl_renderer,
-                                                                        egl_display,
-                                                                        error));
-      if (cogl_display_egl_get_dummy_surface (cogl_display_egl) == EGL_NO_SURFACE)
-        return FALSE;
-    }
-
-  if (!cogl_display_egl_make_current (cogl_display_egl,
-                                      cogl_display_egl_get_dummy_surface (cogl_display_egl),
-                                      cogl_display_egl_get_dummy_surface (cogl_display_egl),
-                                      cogl_display_egl_get_egl_context (cogl_display_egl)))
-    {
-      g_set_error (error, COGL_WINSYS_ERROR,
-                   COGL_WINSYS_ERROR_CREATE_CONTEXT,
-                   "Failed to make context current");
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-static void
-meta_renderer_native_egl_cleanup_context (CoglWinsysEGL *winsys,
-                                          CoglDisplay   *cogl_display)
-{
-  CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
-  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-
-  if (cogl_display_egl_get_dummy_surface (cogl_display_egl) != EGL_NO_SURFACE)
-    {
-      meta_egl_destroy_surface (egl,
-                                egl_display,
-                                cogl_display_egl_get_dummy_surface (cogl_display_egl),
-                                NULL);
-      cogl_display_egl_set_dummy_surface (cogl_display_egl, EGL_NO_SURFACE);
-    }
 }
 
 static CoglContext *
@@ -834,91 +717,6 @@ meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,
   meta_kms_update_free (new_kms_update);
 }
 
-static gboolean
-meta_renderer_native_init_egl_context (CoglWinsys   *winsys,
-                                       CoglContext  *cogl_context,
-                                       GError      **error)
-{
-  COGL_WINSYS_CLASS (meta_winsys_egl_parent_class)->context_init (winsys, cogl_context, error);
-
-  return TRUE;
-}
-
-static void
-meta_winsys_egl_get_property (GObject      *object,
-                              unsigned int  prop_id,
-                              GValue       *value,
-                              GParamSpec   *pspec)
-{
-  MetaWinsysEgl *winsys_egl = META_WINSYS_EGL (object);
-
-  switch (prop_id)
-    {
-    case PROP_WINSYS_EGL_RENDERER:
-      g_value_set_object (value, winsys_egl->renderer);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-meta_winsys_egl_set_property (GObject      *object,
-                              unsigned int  prop_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
-  MetaWinsysEgl *winsys_egl = META_WINSYS_EGL (object);
-
-  switch (prop_id)
-    {
-    case PROP_WINSYS_EGL_RENDERER:
-      winsys_egl->renderer = g_value_get_object (value);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-meta_winsys_egl_class_init (MetaWinsysEglClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_CLASS (klass);
-  CoglWinsysEGLClass *winsys_egl_class = COGL_WINSYS_EGL_CLASS (klass);
-
-  object_class->get_property = meta_winsys_egl_get_property;
-  object_class->set_property = meta_winsys_egl_set_property;
-
-  winsys_egl_props[PROP_WINSYS_EGL_RENDERER] =
-    g_param_spec_object ("renderer", NULL, NULL,
-                         META_TYPE_RENDERER_NATIVE,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-
-  g_object_class_install_properties (object_class, N_WINSYS_EGL_PROPS,
-                                     winsys_egl_props);
-
-  winsys_class->context_init = meta_renderer_native_init_egl_context;
-
-  winsys_egl_class->context_created = meta_renderer_native_egl_context_created;
-  winsys_egl_class->cleanup_context = meta_renderer_native_egl_cleanup_context;
-}
-
-static void
-meta_winsys_egl_init (MetaWinsysEgl *winsys)
-{
-}
-
-MetaRendererNative *
-meta_winsys_egl_get_renderer (MetaWinsysEgl *winsys_egl)
-{
-  return winsys_egl->renderer;
-}
-
 void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 {
@@ -1057,22 +855,12 @@ meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaGpuKms *primary_gpu_kms;
   MetaRendererNativeGpuData *renderer_gpu_data;
-  MetaRendererEgl *cogl_renderer;
-  CoglWinsys *winsys;
-
-  winsys = g_object_new (META_TYPE_WINSYS_EGL,
-                         "name", "EGL_KMS",
-                         "renderer", renderer,
-                         NULL);
 
   primary_gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          primary_gpu_kms);
 
-  cogl_renderer = meta_renderer_egl_new (renderer_gpu_data);
-  cogl_renderer_set_custom_winsys (COGL_RENDERER (cogl_renderer),
-                                   winsys);
-  return COGL_RENDERER (cogl_renderer);
+  return COGL_RENDERER (meta_renderer_egl_new (renderer_gpu_data));
 }
 
 static MtkMonitorTransform

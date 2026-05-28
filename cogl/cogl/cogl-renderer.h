@@ -34,8 +34,8 @@
 
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-pixel-format.h"
-#include "cogl/winsys/cogl-winsys.h"
 #include "cogl/cogl-driver.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 #include <glib-object.h>
 
@@ -267,29 +267,6 @@ cogl_renderer_bind_api (CoglRenderer *renderer);
 COGL_EXPORT void *
 cogl_renderer_get_proc_address (CoglRenderer *renderer,
                                 const char   *name);
-
-COGL_EXPORT
-void cogl_renderer_set_winsys_data (CoglRenderer   *renderer,
-                                    void           *winsys,
-                                    GDestroyNotify  destroy);
-
-COGL_EXPORT
-void * cogl_renderer_get_winsys_data (CoglRenderer *renderer);
-
-/**
- * cogl_renderer_get_winsys:
- * @renderer: a #CoglRenderer
- *
- * Queries the associated #CoglWinsys.
- *
- * Return value: (transfer none): The associated #CoglWinsys
- */
-COGL_EXPORT
-CoglWinsys * cogl_renderer_get_winsys (CoglRenderer *renderer);
-
-COGL_EXPORT
-void cogl_renderer_set_custom_winsys (CoglRenderer *renderer,
-                                      CoglWinsys   *winsys);
 
 /**
  * cogl_renderer_get_latest_sync_fd

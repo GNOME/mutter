@@ -94,7 +94,6 @@
 #include "cogl/cogl-renderer-egl.h"
 #include "cogl/winsys/cogl-onscreen-egl.h"
 #include "cogl/winsys/cogl-winsys.h"
-#include "cogl/winsys/cogl-winsys-egl.h"
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we

@@ -61,7 +61,6 @@ endif
 
 cogl_winsys_headers = [
   'winsys/cogl-winsys.h',
-  'winsys/cogl-winsys-egl.h',
   'winsys/cogl-onscreen-egl.h',
 ]
 
@@ -295,7 +294,6 @@ if have_egl
     'winsys/cogl-onscreen-egl.c',
     'winsys/cogl-onscreen-egl.h',
     'winsys/cogl-winsys-egl-feature-functions.h',
-    'winsys/cogl-winsys-egl.c',
   ]
 endif
 

@@ -33,7 +33,6 @@
 #include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-renderer-egl-private.h"
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/winsys/cogl-winsys-egl.h"
 
 typedef struct _CoglDisplayEGLPrivate
 {
@@ -53,10 +52,9 @@ cleanup_context (CoglDisplay *display)
 {
   CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (display);
   CoglRenderer *renderer = cogl_display_get_renderer (display);
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
-  CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
+  CoglDisplayEGLClass *display_egl_class = COGL_DISPLAY_EGL_GET_CLASS (display_egl);
   EGLContext current_egl_ctx = cogl_display_egl_get_egl_context (display_egl);
 
   if (current_egl_ctx != EGL_NO_CONTEXT)
@@ -68,8 +66,8 @@ cleanup_context (CoglDisplay *display)
       cogl_display_egl_set_egl_context (display_egl, EGL_NO_CONTEXT);
     }
 
-  if (egl_class->cleanup_context)
-    egl_class->cleanup_context (COGL_WINSYS_EGL (winsys), display);
+  if (display_egl_class->cleanup_context)
+    display_egl_class->cleanup_context (display_egl);
 }
 
 static gboolean
@@ -77,11 +75,9 @@ try_create_context (CoglDisplay  *display,
                     GError      **error)
 {
   CoglRenderer *renderer = cogl_display_get_renderer (display);
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
   CoglDisplayEGL *egl_display = COGL_DISPLAY_EGL (display);
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
-  CoglWinsysEGLClass *winsys_egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
   CoglDisplayEGLClass *display_egl_class = COGL_DISPLAY_EGL_GET_CLASS (display);
   EGLConfig config;
   EGLint attribs[11];
@@ -189,8 +185,8 @@ try_create_context (CoglDisplay  *display,
         g_message ("Obtained a high priority EGL context");
     }
 
-  if (winsys_egl_class->context_created &&
-      !winsys_egl_class->context_created (COGL_WINSYS_EGL (winsys), display, error))
+  if (display_egl_class->context_created &&
+      !display_egl_class->context_created (egl_display, error))
     return FALSE;
 
   return TRUE;

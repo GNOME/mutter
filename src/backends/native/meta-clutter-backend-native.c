@@ -44,6 +44,7 @@
 #include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-renderer.h"
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-renderer-context-egl-private.h"
 #include "backends/native/meta-renderer-display-egl-private.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-sprite-native.h"
@@ -87,6 +88,14 @@ meta_clutter_backend_native_get_display (ClutterBackend  *clutter_backend,
                                          GError         **error)
 {
   return COGL_DISPLAY (meta_renderer_display_egl_new (cogl_renderer));
+}
+
+static CoglContext *
+meta_clutter_backend_native_get_context (ClutterBackend  *clutter_backend,
+                                         CoglDisplay     *display,
+                                         GError         **error)
+{
+  return meta_renderer_context_egl_new (display, error);
 }
 
 static ClutterStageWindow *
@@ -387,6 +396,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->get_display = meta_clutter_backend_native_get_display;
+  clutter_backend_class->get_context = meta_clutter_backend_native_get_context;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;

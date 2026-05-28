@@ -41,11 +41,16 @@ G_BEGIN_DECLS
 #define COGL_TYPE_CONTEXT_EGL (cogl_context_egl_get_type ())
 
 COGL_EXPORT
-G_DECLARE_FINAL_TYPE (CoglContextEGL,
-                      cogl_context_egl,
-                      COGL,
-                      CONTEXT_EGL,
-                      CoglContext)
+G_DECLARE_DERIVABLE_TYPE (CoglContextEGL,
+                          cogl_context_egl,
+                          COGL,
+                          CONTEXT_EGL,
+                          CoglContext)
+
+struct _CoglContextEGLClass
+{
+  CoglContextClass parent_class;
+};
 
 COGL_EXPORT CoglContext *
 cogl_context_egl_new (CoglDisplay  *display,
