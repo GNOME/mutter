@@ -1180,7 +1180,7 @@ buffer_params_create_common (struct wl_client   *client,
   MetaWaylandDmaBufBuffer *dma_buf;
   MetaWaylandBuffer *buffer;
   struct wl_resource *buffer_resource;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   dma_buf = wl_resource_get_user_data (params_resource);
   if (!dma_buf)

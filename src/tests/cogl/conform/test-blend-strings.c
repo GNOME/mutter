@@ -54,7 +54,7 @@ test_blend_paint (TestState  *state,
 
   CoglPipeline *pipeline;
   gboolean status;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   int y_off;
   int x_off;
 
@@ -186,7 +186,7 @@ test_tex_combine (TestState *state,
 
   CoglPipeline *pipeline;
   gboolean status;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   int y_off;
   int x_off;
 
