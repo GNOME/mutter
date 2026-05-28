@@ -679,14 +679,14 @@ meta_window_class_init (MetaWindowClass *klass)
   obj_props[PROP_DISPLAY] =
     g_param_spec_object ("display", NULL, NULL,
                          META_TYPE_DISPLAY,
-                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   obj_props[PROP_EFFECT] =
     g_param_spec_int ("effect", NULL, NULL,
                       META_COMP_EFFECT_CREATE,
                       META_COMP_EFFECT_NONE,
                       META_COMP_EFFECT_NONE,
-                      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   obj_props[PROP_SUSPEND_STATE] =
     g_param_spec_enum ("suspend-state", NULL, NULL,

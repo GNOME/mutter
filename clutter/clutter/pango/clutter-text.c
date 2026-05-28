@@ -3896,7 +3896,7 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("editable", NULL, NULL,
                                 FALSE,
-                                G_PARAM_READWRITE);
+                                G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
   obj_props[PROP_EDITABLE] = pspec;
   g_object_class_install_property (gobject_class, PROP_EDITABLE, pspec);
 
@@ -3911,7 +3911,7 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("selectable", NULL, NULL,
                                 TRUE,
-                                G_PARAM_READWRITE);
+                                G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
   obj_props[PROP_SELECTABLE] = pspec;
   g_object_class_install_property (gobject_class, PROP_SELECTABLE, pspec);
 
@@ -3922,7 +3922,7 @@ clutter_text_class_init (ClutterTextClass *klass)
    */
   pspec = g_param_spec_boolean ("activatable", NULL, NULL,
                                 TRUE,
-                                G_PARAM_READWRITE);
+                                G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
   obj_props[PROP_ACTIVATABLE] = pspec;
   g_object_class_install_property (gobject_class, PROP_ACTIVATABLE, pspec);
 

@@ -222,15 +222,15 @@ meta_launch_context_class_init (MetaLaunchContextClass *klass)
   props[PROP_DISPLAY] =
     g_param_spec_object ("display", NULL, NULL,
                          META_TYPE_DISPLAY,
-                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   props[PROP_WORKSPACE] =
     g_param_spec_object ("workspace", NULL, NULL,
                          META_TYPE_WORKSPACE,
-                         G_PARAM_READWRITE);
+                         G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
   props[PROP_TIMESTAMP] =
     g_param_spec_uint ("timestamp", NULL, NULL,
                        0, G_MAXUINT32, 0,
-                       G_PARAM_READWRITE);
+                       G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }

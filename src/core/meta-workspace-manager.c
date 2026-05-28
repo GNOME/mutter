@@ -185,7 +185,7 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
                                    PROP_N_WORKSPACES,
                                    g_param_spec_int ("n-workspaces", NULL, NULL,
                                                      1, G_MAXINT, 1,
-                                                     G_PARAM_READABLE));
+                                                     G_PARAM_READABLE | G_PARAM_STATIC_NAME));
 }
 
 static void
