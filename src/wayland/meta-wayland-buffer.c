@@ -958,6 +958,7 @@ meta_wayland_buffer_finalize (GObject *object)
   MetaWaylandBuffer *buffer = META_WAYLAND_BUFFER (object);
 
   g_warn_if_fail (buffer->use_count == 0);
+  g_warn_if_fail (!buffer->resource);
 
   clear_tainted_scanout_onscreens (buffer);
   g_clear_pointer (&buffer->tainted_scanout_onscreens, g_hash_table_unref);

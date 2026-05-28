@@ -417,14 +417,14 @@ pending_buffer_resource_destroyed (MetaWaylandBuffer       *buffer,
                                    MetaWaylandSurfaceState *pending)
 {
   g_clear_signal_handler (&pending->buffer_destroy_handler_id, buffer);
-  pending->buffer = NULL;
+  g_clear_object (&pending->buffer);
 }
 
 static void
 meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
 {
   state->newly_attached = FALSE;
-  state->buffer = NULL;
+  g_clear_object (&state->buffer);
   state->texture = NULL;
   state->buffer_destroy_handler_id = 0;
   state->dx = 0;
@@ -497,15 +497,8 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
   g_clear_pointer (&state->opaque_region, mtk_region_unref);
   g_clear_pointer (&state->xdg_positioner, g_free);
 
-  if (state->buffer_destroy_handler_id)
-    {
-      g_clear_signal_handler (&state->buffer_destroy_handler_id, state->buffer);
-      state->buffer = NULL;
-    }
-  else
-    {
-      g_clear_object (&state->buffer);
-    }
+  g_clear_signal_handler (&state->buffer_destroy_handler_id, state->buffer);
+  g_clear_object (&state->buffer);
 
   wl_list_for_each_safe (cb, next, &state->frame_callback_list, link)
     wl_resource_destroy (cb->resource);
@@ -1165,7 +1158,6 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
       if (release_point)
         g_ptr_array_add (buffer->release_points, g_object_ref (release_point));
 
-      g_object_ref (buffer);
       meta_wayland_buffer_inc_use_count (buffer);
     }
   else if (pending->newly_attached)
@@ -1308,7 +1300,7 @@ wl_surface_attach (struct wl_client   *client,
     }
 
   pending->newly_attached = TRUE;
-  pending->buffer = buffer;
+  g_set_object (&pending->buffer, buffer);
 
   if (buffer)
     {
