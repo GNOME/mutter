@@ -210,7 +210,11 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
-G_DEFINE_FINAL_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
+static void cogl_context_initable_iface_init (GInitableIface *iface);
+
+G_DEFINE_FINAL_TYPE_WITH_CODE (CoglContext, cogl_context, G_TYPE_OBJECT,
+                               G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                      cogl_context_initable_iface_init))
 
 static void
 cogl_context_get_property (GObject    *object,
@@ -316,8 +320,64 @@ cogl_context_finalize (GObject *object)
 }
 
 static void
-cogl_context_init (CoglContext *info)
+cogl_context_init (CoglContext *context)
 {
+  context->attribute_name_states_hash =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  _cogl_attribute_register_attribute_name (context, "cogl_color_in");
+
+  context->uniform_names =
+    g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
+  context->uniform_name_hash = g_hash_table_new (g_str_hash, g_str_equal);
+
+  graphene_matrix_init_identity (&context->identity_matrix);
+  graphene_matrix_init_identity (&context->y_flip_matrix);
+  graphene_matrix_scale (&context->y_flip_matrix, 1, -1, 1);
+
+  context->codegen_header_buffer = g_string_new ("");
+  context->codegen_source_buffer = g_string_new ("");
+
+  context->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
+
+  context->journal_flush_attributes_array =
+    g_array_new (TRUE, FALSE, sizeof (CoglAttribute *));
+
+  _cogl_bitmask_init (&context->enabled_custom_attributes);
+  _cogl_bitmask_init (&context->enable_custom_attributes_tmp);
+  _cogl_bitmask_init (&context->changed_bits_tmp);
+
+  context->current_gl_dither_enabled = TRUE;
+
+  context->depth_test_function_cache = COGL_DEPTH_TEST_FUNCTION_LESS;
+  context->depth_writing_enabled_cache = TRUE;
+  context->depth_range_far_cache = 1;
+
+  _cogl_matrix_entry_identity_init (&context->identity_entry);
+
+  g_hook_list_init (&context->atlas_reorganize_callbacks, sizeof (GHook));
+
+  context->buffer_map_fallback_array = g_byte_array_new ();
+
+  context->sampler_cache = _cogl_sampler_cache_new (context);
+
+  _cogl_pipeline_init_default_pipeline (context);
+  _cogl_pipeline_init_default_layers (context);
+  _cogl_pipeline_init_state_hash_functions ();
+  _cogl_pipeline_init_layer_state_hash_functions ();
+
+  context->opaque_color_pipeline = cogl_pipeline_new (context);
+  cogl_pipeline_set_static_name (context->opaque_color_pipeline,
+                                 "CoglContext (opaque color)");
+
+  context->pipeline_cache = _cogl_pipeline_cache_new (context);
+
+  context->stencil_pipeline = cogl_pipeline_new (context);
+  cogl_pipeline_set_static_name (context->stencil_pipeline,
+                                 "Cogl (stencil)");
+
+  context->named_pipelines =
+    g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
 }
 
 static void
@@ -340,154 +400,59 @@ cogl_context_class_init (CoglContextClass *class)
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
-/* For reference: There was some deliberation over whether to have a
- * constructor that could throw an exception but looking at standard
- * practices with several high level OO languages including python, C++,
- * C# Java and Ruby they all support exceptions in constructors and the
- * general consensus appears to be that throwing an exception is neater
- * than successfully constructing with an internal error status that
- * would then have to be explicitly checked via some form of ::is_ok()
- * method.
- */
-CoglContext *
-cogl_context_new (CoglDisplay *display,
-                  GError **error)
+static gboolean
+cogl_context_initable_init (GInitable     *initable,
+                            GCancellable  *cancellable,
+                            GError       **error)
 {
+  CoglContext *context = COGL_CONTEXT (initable);
+  CoglDisplay *display = cogl_context_get_display (context);
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
+  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
+  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
   CoglDriver *driver;
-  CoglRenderer *renderer;
-  CoglWinsys *winsys;
-  CoglWinsysClass *winsys_class;
-
-  g_return_val_if_fail (display != NULL, NULL);
-
-  CoglContext *context;
   uint8_t white_pixel[] = { 0xff, 0xff, 0xff, 0xff };
-  int i;
-  GError *local_error = NULL;
 
-#ifdef COGL_ENABLE_PROFILE
-  /* We need to be absolutely sure that uprof has been initialized
-   * before calling _cogl_uprof_init. uprof_init (NULL, NULL)
-   * will be a NOP if it has been initialized but it will also
-   * mean subsequent parsing of the UProf GOptionGroup will have no
-   * affect.
-   *
-   * Sadly GOptionGroup based library initialization is extremely
-   * fragile by design because GOptionGroups have no notion of
-   * dependencies and so the order things are initialized isn't
-   * currently under tight control.
-   */
-  uprof_init (NULL, NULL);
-  _cogl_uprof_init ();
-#endif
-
-  /* Allocate context memory */
-  context = g_object_new (COGL_TYPE_CONTEXT,
-                          "display", display,
-                          NULL);
-
-  /* Init default values */
-  memset (context->winsys_features, 0, sizeof (context->winsys_features));
-
-  renderer = cogl_display_get_renderer (display);;
-  winsys = cogl_renderer_get_winsys (renderer);
-  winsys_class = COGL_WINSYS_GET_CLASS (winsys);
   if (!winsys_class->context_init (winsys, context, error))
-    {
-      g_object_unref (context);
-      return NULL;
-    }
+    return FALSE;
 
   driver = cogl_renderer_get_driver (renderer);
   if (COGL_DRIVER_GET_CLASS (driver)->context_init &&
       !COGL_DRIVER_GET_CLASS (driver)->context_init (driver, context))
     {
-      g_object_unref (context);
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Failed to initialize context");
-      return NULL;
+      return FALSE;
     }
 
-  context->attribute_name_states_hash =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-
-  /* The "cogl_color_in" attribute needs a deterministic name_index
-   * so we make sure it's the first attribute name we register */
-  _cogl_attribute_register_attribute_name (context, "cogl_color_in");
-
-
-  context->uniform_names =
-    g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
-  context->uniform_name_hash = g_hash_table_new (g_str_hash, g_str_equal);
-
-  context->sampler_cache = _cogl_sampler_cache_new (context);
-
-  _cogl_pipeline_init_default_pipeline (context);
-  _cogl_pipeline_init_default_layers (context);
-  _cogl_pipeline_init_state_hash_functions ();
-  _cogl_pipeline_init_layer_state_hash_functions ();
-
-  graphene_matrix_init_identity (&context->identity_matrix);
-  graphene_matrix_init_identity (&context->y_flip_matrix);
-  graphene_matrix_scale (&context->y_flip_matrix, 1, -1, 1);
-
-  context->opaque_color_pipeline = cogl_pipeline_new (context);
-  cogl_pipeline_set_static_name (context->opaque_color_pipeline,
-                                 "CoglContext (opaque color)");
-
-  context->codegen_header_buffer = g_string_new ("");
-  context->codegen_source_buffer = g_string_new ("");
-
-  context->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
-
-  context->journal_flush_attributes_array =
-    g_array_new (TRUE, FALSE, sizeof (CoglAttribute *));
-
-  _cogl_bitmask_init (&context->enabled_custom_attributes);
-  _cogl_bitmask_init (&context->enable_custom_attributes_tmp);
-  _cogl_bitmask_init (&context->changed_bits_tmp);
-
-  context->current_gl_dither_enabled = TRUE;
-
-  context->depth_test_function_cache = COGL_DEPTH_TEST_FUNCTION_LESS;
-  context->depth_writing_enabled_cache = TRUE;
-  context->depth_range_far_cache = 1;
-
-  context->pipeline_cache = _cogl_pipeline_cache_new (context);
-
-  for (i = 0; i < COGL_BUFFER_BIND_TARGET_COUNT; i++)
-    context->current_buffer[i] = NULL;
-
-  context->stencil_pipeline = cogl_pipeline_new (context);
-  cogl_pipeline_set_static_name (context->stencil_pipeline,
-                                 "Cogl (stencil)");
-
-  _cogl_matrix_entry_identity_init (&context->identity_entry);
-
-  /* Create default textures used for fall backs */
   context->default_gl_texture_2d_tex =
     cogl_texture_2d_new_from_data (context,
                                    1, 1,
                                    COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                    0, /* rowstride */
                                    white_pixel,
-                                   &local_error);
+                                   error);
   if (!context->default_gl_texture_2d_tex)
-    {
-      g_object_unref (context);
-      g_propagate_prefixed_error (error, local_error,
-                                  "Failed to create 1x1 fallback texture: ");
-      return NULL;
-    }
+    return FALSE;
 
-  g_hook_list_init (&context->atlas_reorganize_callbacks, sizeof (GHook));
+  return TRUE;
+}
 
-  context->buffer_map_fallback_array = g_byte_array_new ();
+static void
+cogl_context_initable_iface_init (GInitableIface *iface)
+{
+  iface->init = cogl_context_initable_init;
+}
 
-  context->named_pipelines =
-    g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
+CoglContext *
+cogl_context_new (CoglDisplay  *display,
+                  GError      **error)
+{
+  g_return_val_if_fail (display != NULL, NULL);
 
-  return context;
+  return g_initable_new (COGL_TYPE_CONTEXT, NULL, error,
+                         "display", display,
+                         NULL);
 }
 
 CoglDisplay *
