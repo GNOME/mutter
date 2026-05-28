@@ -198,7 +198,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Creating the Cogl context");
-  backend->cogl_context = cogl_context_new (backend->cogl_display, error);
+  backend->cogl_context = cogl_context_egl_new (backend->cogl_display, error);
   if (backend->cogl_context == NULL)
     goto error;
 
