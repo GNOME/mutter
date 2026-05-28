@@ -304,8 +304,7 @@ meta_wayland_transaction_maybe_apply (MetaWaylandTransaction *transaction)
         return;
 
       transaction = first_candidate;
-      first_candidate = transaction->next_candidate;
-      transaction->next_candidate = NULL;
+      first_candidate = g_steal_pointer (&transaction->next_candidate);
     }
 }
 

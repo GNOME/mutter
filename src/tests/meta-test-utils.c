@@ -308,8 +308,7 @@ meta_test_client_do_line (MetaTestClient  *client,
 
   client->error = &local_error;
   g_main_loop_run (client->loop);
-  line = client->line;
-  client->line = NULL;
+  line = g_steal_pointer (&client->line);
   client->error = NULL;
 
   if (local_error)

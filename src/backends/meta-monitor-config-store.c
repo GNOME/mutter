@@ -703,8 +703,7 @@ finish_monitor_spec (ConfigParser *parser)
     case STATE_MONITOR:
       {
         parser->current_monitor_config->monitor_spec =
-          parser->current_monitor_spec;
-        parser->current_monitor_spec = NULL;
+          g_steal_pointer (&parser->current_monitor_spec);
 
         return;
       }
@@ -1416,8 +1415,7 @@ handle_end_element (GMarkupParseContext  *context,
           return;
 
         parser->current_monitor_config->mode_spec =
-          parser->current_monitor_mode_spec;
-        parser->current_monitor_mode_spec = NULL;
+          g_steal_pointer (&parser->current_monitor_mode_spec);
 
         parser->state = STATE_MONITOR;
         return;

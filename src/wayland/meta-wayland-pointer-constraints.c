@@ -793,15 +793,7 @@ pending_constraint_state_applied (MetaWaylandSurfaceState           *pending,
     return;
 
   g_clear_pointer (&constraint->region, mtk_region_unref);
-  if (constraint_pending->region)
-    {
-      constraint->region = constraint_pending->region;
-      constraint_pending->region = NULL;
-    }
-  else
-    {
-      constraint->region = NULL;
-    }
+  constraint->region = g_steal_pointer (&constraint_pending->region);
 
   g_clear_signal_handler (&constraint_pending->applied_handler_id, pending);
   remove_pending_constraint_state (constraint, pending);

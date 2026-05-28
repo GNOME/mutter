@@ -441,8 +441,7 @@ meta_rectangle_get_minimal_spanning_set_for_region (
       MetaStrut *strut = (MetaStrut*)strut_iter->data;
       MtkRectangle *strut_rect = &strut->rect;
 
-      tmp_list = ret;
-      ret = NULL;
+      tmp_list = g_steal_pointer (&ret);
       rect_iter = tmp_list;
       while (rect_iter)
         {

@@ -1328,8 +1328,7 @@ meta_display_update_focus_window (MetaDisplay *display,
        * meta_window_set_focused_internal() don't see
        * display->focus_window->has_focus == FALSE
        */
-      previous = display->focus_window;
-      display->focus_window = NULL;
+      previous = g_steal_pointer (&display->focus_window);
 
       meta_window_set_focused_internal (previous, FALSE);
     }

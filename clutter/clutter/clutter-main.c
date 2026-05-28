@@ -446,8 +446,7 @@ _clutter_run_repaint_functions (ClutterRepaintFlags flags)
     return;
 
   /* steal the list */
-  invoke_list = context->repaint_funcs;
-  context->repaint_funcs = NULL;
+  invoke_list = g_steal_pointer (&context->repaint_funcs);
 
   reinvoke_list = NULL;
 
@@ -526,8 +525,7 @@ _clutter_clear_events_queue (void)
   while ((event = g_async_queue_try_pop_unlocked (context->events_queue)))
     clutter_event_free (event);
 
-  events_queue = context->events_queue;
-  context->events_queue = NULL;
+  events_queue = g_steal_pointer (&context->events_queue);
 
   g_async_queue_unlock (events_queue);
   g_async_queue_unref (events_queue);

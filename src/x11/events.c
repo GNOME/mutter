@@ -1263,10 +1263,7 @@ handle_other_xevent (MetaX11Display *x11_display,
    */
   property_for_window = NULL;
   if (window && modified == meta_window_x11_get_user_time_window (window))
-    {
-      property_for_window = window;
-      window = NULL;
-    }
+    property_for_window = g_steal_pointer (&window);
 
   if (META_X11_DISPLAY_HAS_XSYNC (x11_display) &&
       event->type == (x11_display->xsync_event_base + XSyncAlarmNotify))
