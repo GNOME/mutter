@@ -36,6 +36,7 @@
 #include "cogl/cogl-debug.h"
 #include "cogl/cogl-pipeline-private.h"
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-context-egl-private.h"
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-offscreen.h"
@@ -233,6 +234,7 @@ static void
 flush_depth_state (CoglContext *ctx,
                    CoglDepthState *depth_state)
 {
+  CoglContextEGL *ctx_egl = COGL_CONTEXT_EGL (ctx);
   CoglFramebuffer *current_draw_buffer =
     cogl_context_get_current_draw_buffer (ctx);
   gboolean depth_writing_enabled = depth_state->write_enabled;
@@ -244,7 +246,7 @@ flush_depth_state (CoglContext *ctx,
         cogl_framebuffer_get_depth_write_enabled (current_draw_buffer);
     }
 
-  if (cogl_context_get_depth_test_enabled_cache (ctx) != depth_state->test_enabled)
+  if (cogl_context_egl_get_depth_test_enabled_cache (ctx_egl) != depth_state->test_enabled)
     {
       if (depth_state->test_enabled == TRUE)
         {
@@ -254,25 +256,25 @@ flush_depth_state (CoglContext *ctx,
         }
       else
         GE (driver, glDisable (GL_DEPTH_TEST));
-      cogl_context_set_depth_test_enabled_cache (ctx, depth_state->test_enabled);
+      cogl_context_egl_set_depth_test_enabled_cache (ctx_egl, depth_state->test_enabled);
     }
 
-  if (cogl_context_get_depth_test_function_cache (ctx) != depth_state->test_function &&
+  if (cogl_context_egl_get_depth_test_function_cache (ctx_egl) != depth_state->test_function &&
       depth_state->test_enabled == TRUE)
     {
       GE (driver, glDepthFunc (depth_state->test_function));
-      cogl_context_set_depth_test_function_cache (ctx, depth_state->test_function);
+      cogl_context_egl_set_depth_test_function_cache (ctx_egl, depth_state->test_function);
     }
 
-  if (cogl_context_get_depth_writing_enabled_cache (ctx) != depth_writing_enabled)
+  if (cogl_context_egl_get_depth_writing_enabled_cache (ctx_egl) != depth_writing_enabled)
     {
       GE (driver, glDepthMask (depth_writing_enabled ?
                                GL_TRUE : GL_FALSE));
-      cogl_context_set_depth_writing_enabled_cache (ctx, depth_writing_enabled);
+      cogl_context_egl_set_depth_writing_enabled_cache (ctx_egl, depth_writing_enabled);
     }
 
-  if ((cogl_context_get_depth_range_near_cache (ctx) != depth_state->range_near ||
-       cogl_context_get_depth_range_far_cache (ctx) != depth_state->range_far))
+  if ((cogl_context_egl_get_depth_range_near_cache (ctx_egl) != depth_state->range_near ||
+       cogl_context_egl_get_depth_range_far_cache (ctx_egl) != depth_state->range_far))
     {
       CoglRenderer *renderer = cogl_context_get_renderer (ctx);
 
@@ -283,8 +285,8 @@ flush_depth_state (CoglContext *ctx,
         GE (driver, glDepthRange (depth_state->range_near,
                                   depth_state->range_far));
 
-      cogl_context_set_depth_range_near_cache (ctx, depth_state->range_near);
-      cogl_context_set_depth_range_far_cache (ctx, depth_state->range_far);
+      cogl_context_egl_set_depth_range_near_cache (ctx_egl, depth_state->range_near);
+      cogl_context_egl_set_depth_range_far_cache (ctx_egl, depth_state->range_far);
     }
 }
 
@@ -386,7 +388,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
         }
     }
 
-  if (pipeline->real_blend_enable != cogl_context_get_gl_blend_enable_cache (ctx))
+  if (pipeline->real_blend_enable != cogl_context_egl_get_gl_blend_enable_cache (COGL_CONTEXT_EGL (ctx)))
     {
       if (pipeline->real_blend_enable)
         GE (driver, glEnable (GL_BLEND));
@@ -394,7 +396,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
         GE (driver, glDisable (GL_BLEND));
       /* XXX: we shouldn't update any other blend state if blending
        * is disabled! */
-      cogl_context_set_gl_blend_enable_cache (ctx, pipeline->real_blend_enable);
+      cogl_context_egl_set_gl_blend_enable_cache (COGL_CONTEXT_EGL (ctx), pipeline->real_blend_enable);
     }
 }
 
@@ -440,7 +442,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
       GLenum gl_target;
 
       if (texture == NULL)
-        texture = cogl_context_get_default_gl_texture_2d_tex (ctx);
+        texture = cogl_context_get_default_2d_texture (ctx);
 
       cogl_texture_get_gl_texture (texture,
                                    &gl_texture,

@@ -32,6 +32,7 @@
 #include <gio/gio.h>
 
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-context-egl-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
@@ -447,13 +448,13 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                          allocate_flags = 0,
                          gl_fbo)) ||
 
-      (cogl_context_get_have_last_offscreen_allocate_flags (context) &&
+      (cogl_context_egl_get_have_last_offscreen_allocate_flags (COGL_CONTEXT_EGL (context)) &&
        try_creating_fbo (context,
                          texture,
                          texture_level,
                          level_width,
                          level_height,
-                         allocate_flags = cogl_context_get_last_offscreen_allocate_flags (context),
+                         allocate_flags = cogl_context_egl_get_last_offscreen_allocate_flags (COGL_CONTEXT_EGL (context)),
                          gl_fbo)) ||
 
       (
@@ -508,8 +509,8 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
         {
           /* Record that the last set of flags succeeded so that we can
              try that set first next time */
-          cogl_context_set_last_offscreen_allocate_flags (context, allocate_flags);
-          cogl_context_set_have_last_offscreen_allocate_flags (context, TRUE);
+          cogl_context_egl_set_last_offscreen_allocate_flags (COGL_CONTEXT_EGL (context), allocate_flags);
+          cogl_context_egl_set_have_last_offscreen_allocate_flags (COGL_CONTEXT_EGL (context), TRUE);
         }
 
       return gl_framebuffer_fbo;

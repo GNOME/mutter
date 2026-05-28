@@ -38,7 +38,6 @@
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-texture-private.h"
-#include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-pipeline-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-onscreen-private.h"
@@ -62,14 +61,6 @@ typedef struct _CoglContextPrivate
   GArray *attribute_name_index_map;
   int n_attribute_names;
 
-  CoglBitmask enabled_custom_attributes;
-
-  /* These are temporary bitmasks that are used when disabling
-   * builtin and custom attribute arrays. They are here just
-   * to avoid allocating new ones each time */
-  CoglBitmask enable_custom_attributes_tmp;
-  CoglBitmask changed_bits_tmp;
-
   /* A few handy matrix constants */
   graphene_matrix_t identity_matrix;
   graphene_matrix_t y_flip_matrix;
@@ -84,13 +75,10 @@ typedef struct _CoglContextPrivate
   /* Only used for comparing other pipelines when reading pixels. */
   CoglPipeline *opaque_color_pipeline;
 
-  GString *codegen_header_buffer;
-  GString *codegen_source_buffer;
-
   CoglPipelineCache *pipeline_cache;
 
   /* Textures */
-  CoglTexture *default_gl_texture_2d_tex;
+  CoglTexture *default_2d_texture;
 
   /* Central list of all framebuffers so all journals can be flushed
    * at any time. */
@@ -107,14 +95,6 @@ typedef struct _CoglContextPrivate
   gboolean current_pipeline_unknown_color_alpha;
   unsigned long current_pipeline_age;
 
-  gboolean gl_blend_enable_cache;
-
-  gboolean depth_test_enabled_cache;
-  CoglDepthTestFunction depth_test_function_cache;
-  gboolean depth_writing_enabled_cache;
-  float depth_range_near_cache;
-  float depth_range_far_cache;
-
   CoglBuffer *current_buffer[COGL_BUFFER_BIND_TARGET_COUNT];
 
   /* Framebuffers */
@@ -122,14 +102,6 @@ typedef struct _CoglContextPrivate
   unsigned long current_draw_buffer_changes;
   CoglFramebuffer *current_draw_buffer;
   CoglFramebuffer *current_read_buffer;
-
-  gboolean have_last_offscreen_allocate_flags;
-  CoglOffscreenAllocateFlags last_offscreen_allocate_flags;
-
-  /* This becomes TRUE the first time the context is bound to an
-   * onscreen buffer. This is used by cogl-framebuffer-gl to determine
-   * when to initialise the glDrawBuffer state */
-  gboolean was_bound_to_onscreen;
 
   /* Primitives */
   CoglPipeline *stencil_pipeline;
@@ -148,11 +120,6 @@ typedef struct _CoglContextPrivate
      be reset by cogl_clear. It needs to be reset to increase the
      chances of getting the same colour during an animation */
   uint8_t journal_rectangles_color;
-
-  /* Fragment processing programs */
-  GLuint current_gl_program;
-
-  gboolean current_gl_dither_enabled;
 
   /* Clipping */
   /* TRUE if we have a valid clipping stack flushed. In that case
@@ -264,8 +231,7 @@ cogl_context_dispose (GObject *object)
   CoglContextPrivate *priv =
     cogl_context_get_instance_private (context);
 
-  g_clear_object (&priv->default_gl_texture_2d_tex);
-
+  g_clear_object (&priv->default_2d_texture);
   g_clear_object (&priv->opaque_color_pipeline);
   g_clear_object (&priv->blit_texture_pipeline);
 
@@ -286,10 +252,6 @@ cogl_context_dispose (GObject *object)
 
   g_clear_slist (&priv->atlases, NULL);
   g_hook_list_clear (&priv->atlas_reorganize_callbacks);
-
-  _cogl_bitmask_destroy (&priv->enabled_custom_attributes);
-  _cogl_bitmask_destroy (&priv->enable_custom_attributes_tmp);
-  _cogl_bitmask_destroy (&priv->changed_bits_tmp);
 
   g_clear_pointer (&priv->current_modelview_entry, cogl_matrix_entry_unref);
   g_clear_pointer (&priv->current_projection_entry, cogl_matrix_entry_unref);
@@ -314,19 +276,6 @@ cogl_context_dispose (GObject *object)
 }
 
 static void
-cogl_context_finalize (GObject *object)
-{
-  CoglContext *context = COGL_CONTEXT (object);
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  g_string_free (priv->codegen_header_buffer, TRUE);
-  g_string_free (priv->codegen_source_buffer, TRUE);
-
-  G_OBJECT_CLASS (cogl_context_parent_class)->finalize (object);
-}
-
-static void
 cogl_context_init (CoglContext *context)
 {
   CoglContextPrivate *priv =
@@ -345,23 +294,10 @@ cogl_context_init (CoglContext *context)
   graphene_matrix_init_identity (&priv->y_flip_matrix);
   graphene_matrix_scale (&priv->y_flip_matrix, 1, -1, 1);
 
-  priv->codegen_header_buffer = g_string_new ("");
-  priv->codegen_source_buffer = g_string_new ("");
-
   priv->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
 
   priv->journal_flush_attributes_array =
     g_array_new (TRUE, FALSE, sizeof (CoglAttribute *));
-
-  _cogl_bitmask_init (&priv->enabled_custom_attributes);
-  _cogl_bitmask_init (&priv->enable_custom_attributes_tmp);
-  _cogl_bitmask_init (&priv->changed_bits_tmp);
-
-  priv->current_gl_dither_enabled = TRUE;
-
-  priv->depth_test_function_cache = COGL_DEPTH_TEST_FUNCTION_LESS;
-  priv->depth_writing_enabled_cache = TRUE;
-  priv->depth_range_far_cache = 1;
 
   _cogl_matrix_entry_identity_init (&priv->identity_entry);
 
@@ -398,7 +334,6 @@ cogl_context_class_init (CoglContextClass *class)
   object_class->get_property = cogl_context_get_property;
   object_class->set_property = cogl_context_set_property;
   object_class->dispose = cogl_context_dispose;
-  object_class->finalize = cogl_context_finalize;
 
   obj_props[PROP_DISPLAY] =
     g_param_spec_object ("display", NULL, NULL,
@@ -416,14 +351,11 @@ cogl_context_initable_init (GInitable     *initable,
                             GError       **error)
 {
   CoglContext *context = COGL_CONTEXT (initable);
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
   CoglDisplay *display = cogl_context_get_display (context);
   CoglRenderer *renderer = cogl_display_get_renderer (display);
   CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
   CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
   CoglDriver *driver;
-  uint8_t white_pixel[] = { 0xff, 0xff, 0xff, 0xff };
 
   if (!winsys_class->context_init (winsys, context, error))
     return FALSE;
@@ -436,16 +368,6 @@ cogl_context_initable_init (GInitable     *initable,
                    "Failed to initialize context");
       return FALSE;
     }
-
-  priv->default_gl_texture_2d_tex =
-    cogl_texture_2d_new_from_data (context,
-                                   1, 1,
-                                   COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                   0, /* rowstride */
-                                   white_pixel,
-                                   error);
-  if (!priv->default_gl_texture_2d_tex)
-    return FALSE;
 
   return TRUE;
 }
@@ -792,63 +714,6 @@ cogl_context_clear_current_draw_buffer_changes (CoglContext   *context,
   priv->current_draw_buffer_changes &= ~changes;
 }
 
-GLuint
-cogl_context_get_current_gl_program (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->current_gl_program;
-}
-
-void
-cogl_context_set_current_gl_program (CoglContext *context,
-                                     GLuint       program)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->current_gl_program = program;
-}
-
-gboolean
-cogl_context_get_gl_blend_enable_cache (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->gl_blend_enable_cache;
-}
-
-void
-cogl_context_set_gl_blend_enable_cache (CoglContext *context,
-                                        gboolean     enabled)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->gl_blend_enable_cache = enabled;
-}
-
-gboolean
-cogl_context_get_current_gl_dither_enabled (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->current_gl_dither_enabled;
-}
-
-void
-cogl_context_set_current_gl_dither_enabled (CoglContext *context,
-                                            gboolean     enabled)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->current_gl_dither_enabled = enabled;
-}
-
 CoglClipStack *
 cogl_context_get_current_clip_stack (CoglContext *context)
 {
@@ -952,165 +817,23 @@ cogl_context_get_y_flip_matrix (CoglContext *context)
   return &priv->y_flip_matrix;
 }
 
-gboolean
-cogl_context_get_depth_test_enabled_cache (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->depth_test_enabled_cache;
-}
-
-void
-cogl_context_set_depth_test_enabled_cache (CoglContext *context,
-                                           gboolean     enabled)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->depth_test_enabled_cache = enabled;
-}
-
-CoglDepthTestFunction
-cogl_context_get_depth_test_function_cache (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->depth_test_function_cache;
-}
-
-void
-cogl_context_set_depth_test_function_cache (CoglContext           *context,
-                                            CoglDepthTestFunction  function)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->depth_test_function_cache = function;
-}
-
-gboolean
-cogl_context_get_depth_writing_enabled_cache (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->depth_writing_enabled_cache;
-}
-
-void
-cogl_context_set_depth_writing_enabled_cache (CoglContext *context,
-                                              gboolean     enabled)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->depth_writing_enabled_cache = enabled;
-}
-
-float
-cogl_context_get_depth_range_near_cache (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->depth_range_near_cache;
-}
-
-void
-cogl_context_set_depth_range_near_cache (CoglContext *context,
-                                         float        near_val)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->depth_range_near_cache = near_val;
-}
-
-float
-cogl_context_get_depth_range_far_cache (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->depth_range_far_cache;
-}
-
-void
-cogl_context_set_depth_range_far_cache (CoglContext *context,
-                                        float        far_val)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->depth_range_far_cache = far_val;
-}
-
-gboolean
-cogl_context_get_was_bound_to_onscreen (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->was_bound_to_onscreen;
-}
-
-void
-cogl_context_set_was_bound_to_onscreen (CoglContext *context,
-                                        gboolean     bound)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->was_bound_to_onscreen = bound;
-}
-
-gboolean
-cogl_context_get_have_last_offscreen_allocate_flags (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->have_last_offscreen_allocate_flags;
-}
-
-void
-cogl_context_set_have_last_offscreen_allocate_flags (CoglContext *context,
-                                                     gboolean     have_flags)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->have_last_offscreen_allocate_flags = have_flags;
-}
-
-CoglOffscreenAllocateFlags
-cogl_context_get_last_offscreen_allocate_flags (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->last_offscreen_allocate_flags;
-}
-
-void
-cogl_context_set_last_offscreen_allocate_flags (CoglContext                *context,
-                                                CoglOffscreenAllocateFlags  flags)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  priv->last_offscreen_allocate_flags = flags;
-}
-
 CoglTexture *
-cogl_context_get_default_gl_texture_2d_tex (CoglContext *context)
+cogl_context_get_default_2d_texture (CoglContext *context)
 {
   CoglContextPrivate *priv =
     cogl_context_get_instance_private (context);
 
-  return priv->default_gl_texture_2d_tex;
+  return priv->default_2d_texture;
+}
+
+void
+cogl_context_set_default_2d_texture (CoglContext *context,
+                                     CoglTexture *texture)
+{
+  CoglContextPrivate *priv =
+    cogl_context_get_instance_private (context);
+
+  priv->default_2d_texture = texture;
 }
 
 CoglBuffer *
@@ -1178,51 +901,6 @@ cogl_context_increment_n_uniform_names (CoglContext *context)
     cogl_context_get_instance_private (context);
 
   return priv->n_uniform_names++;
-}
-
-GString *
-cogl_context_get_codegen_header_buffer (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->codegen_header_buffer;
-}
-
-GString *
-cogl_context_get_codegen_source_buffer (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return priv->codegen_source_buffer;
-}
-
-CoglBitmask *
-cogl_context_get_enabled_custom_attributes (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return &priv->enabled_custom_attributes;
-}
-
-CoglBitmask *
-cogl_context_get_enable_custom_attributes_tmp (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return &priv->enable_custom_attributes_tmp;
-}
-
-CoglBitmask *
-cogl_context_get_changed_bits_tmp (CoglContext *context)
-{
-  CoglContextPrivate *priv =
-    cogl_context_get_instance_private (context);
-
-  return &priv->changed_bits_tmp;
 }
 
 CoglPipeline *

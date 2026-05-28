@@ -37,6 +37,7 @@
 #include <string.h>
 
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-context-egl-private.h"
 #include "cogl/cogl-pipeline-private.h"
 #include "cogl/cogl-pipeline-layer-private.h"
 #include "cogl/cogl-blend-string.h"
@@ -298,8 +299,9 @@ _cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
   CoglPipeline *authority;
   CoglPipelineCacheEntry *cache_entry = NULL;
   CoglContext *ctx = pipeline->context;
-  GString *header_buffer = cogl_context_get_codegen_header_buffer (ctx);
-  GString *source_buffer = cogl_context_get_codegen_source_buffer (ctx);
+  CoglContextEGL *context_egl = COGL_CONTEXT_EGL (ctx);
+  GString *header_buffer = cogl_context_egl_get_codegen_header_buffer (context_egl);
+  GString *source_buffer = cogl_context_egl_get_codegen_source_buffer (context_egl);
   int i;
 
   /* Now lookup our glsl backend private state */
