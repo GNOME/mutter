@@ -370,7 +370,7 @@ clutter_key_controller_set_trigger_keybindings (ClutterKeyController *key_contro
     return;
 
   key_controller->trigger_keybindings = !!trigger_keybindings;
-  g_object_notify (G_OBJECT (key_controller), "trigger-keybindings");
+  g_object_notify_by_pspec (G_OBJECT (key_controller), props[PROP_TRIGGER_KEYBINDINGS]);
 }
 
 /**

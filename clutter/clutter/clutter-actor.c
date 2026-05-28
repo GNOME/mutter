@@ -18891,7 +18891,7 @@ clutter_actor_set_accessible_name (ClutterActor *self,
   g_set_str (&priv->accessible_name, name);
 
   if (accessible)
-    g_object_notify (G_OBJECT (accessible), "accessible-name");
+    g_object_notify_by_pspec (G_OBJECT (accessible), obj_props[PROP_ACCESSIBLE_NAME]);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_ACCESSIBLE_NAME]);
 }
@@ -18951,7 +18951,7 @@ clutter_actor_set_accessible_role (ClutterActor *self,
   self->accessible_role = role;
 
   if (accessible)
-    g_object_notify (G_OBJECT (accessible), "accessible-role");
+    g_object_notify_by_pspec (G_OBJECT (accessible), obj_props[PROP_ACCESSIBLE_ROLE]);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_ACCESSIBLE_ROLE]);
 }
@@ -19075,7 +19075,7 @@ clutter_actor_set_cursor_type (ClutterActor      *actor,
 
   priv = clutter_actor_get_instance_private (actor);
   priv->cursor_type = cursor;
-  g_object_notify (G_OBJECT (actor), "cursor-type");
+  g_object_notify_by_pspec (G_OBJECT (actor), obj_props[PROP_CURSOR_TYPE]);
 }
 
 ClutterCursorType

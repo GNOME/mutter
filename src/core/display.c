@@ -1356,7 +1356,7 @@ meta_display_update_focus_window (MetaDisplay *display,
         meta_window_set_inactive_since (display->focus_window, -1);
     }
 
-  g_object_notify (G_OBJECT (display), "focus-window");
+  g_object_notify_by_pspec (G_OBJECT (display), obj_props[PROP_FOCUS_WINDOW]);
 }
 
 static gboolean

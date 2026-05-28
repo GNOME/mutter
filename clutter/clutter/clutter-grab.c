@@ -117,7 +117,7 @@ clutter_grab_new (ClutterStage *stage,
 void
 clutter_grab_notify (ClutterGrab *grab)
 {
-  g_object_notify (G_OBJECT (grab), "revoked");
+  g_object_notify_by_pspec (G_OBJECT (grab), props[PROP_REVOKED]);
 }
 
 gboolean

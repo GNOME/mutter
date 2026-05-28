@@ -1142,7 +1142,7 @@ clutter_pan_gesture_set_required_button (ClutterPanGesture *self,
     return;
 
   self->required_button = required_button;
-  g_object_notify (G_OBJECT (self), "required-button");
+  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_REQUIRED_BUTTON]);
 }
 
 /**

@@ -1020,7 +1020,7 @@ clutter_box_layout_set_spacing (ClutterBoxLayout *layout,
 
       clutter_layout_manager_layout_changed (manager);
 
-      g_object_notify (G_OBJECT (layout), "spacing");
+      g_object_notify_by_pspec (G_OBJECT (layout), obj_props[PROP_SPACING]);
     }
 }
 
@@ -1127,7 +1127,7 @@ clutter_box_layout_set_homogeneous (ClutterBoxLayout *layout,
 
       clutter_layout_manager_layout_changed (manager);
 
-      g_object_notify (G_OBJECT (layout), "homogeneous");
+      g_object_notify_by_pspec (G_OBJECT (layout), obj_props[PROP_HOMOGENEOUS]);
     }
 }
 
