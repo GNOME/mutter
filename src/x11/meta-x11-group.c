@@ -115,8 +115,8 @@ meta_group_unref (MetaGroup *group)
       /* mop up hash table, this is how it gets freed on display close */
       if (g_hash_table_size (group->x11_display->groups_by_leader) == 0)
         {
-          g_hash_table_destroy (group->x11_display->groups_by_leader);
-          group->x11_display->groups_by_leader = NULL;
+          g_clear_pointer (&group->x11_display->groups_by_leader,
+                           g_hash_table_destroy);
         }
 
       g_free (group->wm_client_machine);

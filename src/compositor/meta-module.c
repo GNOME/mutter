@@ -104,8 +104,7 @@ meta_module_finalize (GObject *object)
 {
   MetaModule *module = META_MODULE (object);
 
-  g_free (module->path);
-  module->path = NULL;
+  g_clear_pointer (&module->path, g_free);
 
   G_OBJECT_CLASS (meta_module_parent_class)->finalize (object);
 }

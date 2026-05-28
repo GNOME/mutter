@@ -182,10 +182,7 @@ clutter_shader_effect_clear (ClutterShaderEffect *self,
   g_clear_object (&priv->program);
 
   if (reset_uniforms && priv->uniforms != NULL)
-    {
-      g_hash_table_destroy (priv->uniforms);
-      priv->uniforms = NULL;
-    }
+    g_clear_pointer (&priv->uniforms, g_hash_table_destroy);
 
   priv->actor = NULL;
 }

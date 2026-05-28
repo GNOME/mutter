@@ -1748,11 +1748,9 @@ meta_x11_display_init_window_prop_hooks (MetaX11Display *x11_display)
 void
 meta_x11_display_free_window_prop_hooks (MetaX11Display *x11_display)
 {
-  g_hash_table_unref (x11_display->prop_hooks);
-  x11_display->prop_hooks = NULL;
+  g_clear_pointer (&x11_display->prop_hooks, g_hash_table_unref);
 
-  g_free (x11_display->prop_hooks_table);
-  x11_display->prop_hooks_table = NULL;
+  g_clear_pointer (&x11_display->prop_hooks_table, g_free);
 }
 
 static MetaWindowPropHooks *

@@ -297,8 +297,7 @@ motif_hints_from_results (GetPropertyResults *results,
 
   if (results->type == None || results->n_items <= 0)
     {
-      g_free (results->prop);
-      results->prop = NULL;
+      g_clear_pointer (&results->prop, g_free);
       meta_topic (META_DEBUG_X11, "Motif hints had unexpected type or n_items");
       return FALSE;
     }
@@ -311,8 +310,7 @@ motif_hints_from_results (GetPropertyResults *results,
   memcpy(*hints_p, results->prop, MIN (sizeof (MotifWmHints),
                                        results->n_items * sizeof (uint32_t)));
 
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   return TRUE;
 }
@@ -328,8 +326,7 @@ latin1_string_from_results (GetPropertyResults *results,
 
   *str_p = g_strndup ((char *) results->prop, results->n_items);
 
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   return TRUE;
 }
@@ -370,16 +367,14 @@ utf8_string_from_results (GetPropertyResults *results,
       g_warning ("Property %s on window 0x%lx contained invalid UTF-8",
                  name, results->xwindow);
       meta_XFree (name);
-      g_free (results->prop);
-      results->prop = NULL;
+      g_clear_pointer (&results->prop, g_free);
 
       return FALSE;
     }
 
   *str_p = g_strndup ((char *) results->prop, results->n_items);
 
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   return TRUE;
 }
@@ -437,8 +432,7 @@ utf8_list_from_results (GetPropertyResults *results,
           g_warning ("Property %s on window 0x%lx contained invalid UTF-8 for item %d in the list",
                      name, results->xwindow, i);
           meta_XFree (name);
-          g_free (results->prop);
-          results->prop = NULL;
+          g_clear_pointer (&results->prop, g_free);
 
           g_strfreev (retval);
           return FALSE;
@@ -453,8 +447,7 @@ utf8_list_from_results (GetPropertyResults *results,
   *str_p = retval;
   *n_str_p = i;
 
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   return TRUE;
 }
@@ -501,8 +494,7 @@ window_from_results (GetPropertyResults *results,
     return FALSE;
 
   *window_p = *(uint32_t *) results->prop;
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   return TRUE;
 }
@@ -517,8 +509,7 @@ counter_from_results (GetPropertyResults *results,
     return FALSE;
 
   *counter_p = *(uint32_t *) results->prop;
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   return TRUE;
 }
@@ -576,8 +567,7 @@ cardinal_with_atom_type_from_results (GetPropertyResults *results,
     return FALSE;
 
   *cardinal_p = *((uint32_t *) results->prop);
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   return TRUE;
 }
@@ -730,8 +720,7 @@ class_hint_from_results (GetPropertyResults *results,
   else
     class_hint->res_class = g_strdup ((char *) results->prop + len_name + 1);
 
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   return TRUE;
 }
@@ -752,8 +741,7 @@ size_hints_from_results (GetPropertyResults *results,
 
   if (results->n_items < OldNumPropSizeElements)
     {
-      g_free (results->prop);
-      results->prop = NULL;
+      g_clear_pointer (&results->prop, g_free);
       return FALSE;
     }
 
@@ -788,8 +776,7 @@ size_hints_from_results (GetPropertyResults *results,
 
   hints->flags &= (*flags_p);	/* get rid of unwanted bits */
 
-  g_free (results->prop);
-  results->prop = NULL;
+  g_clear_pointer (&results->prop, g_free);
 
   *hints_p = hints;
 

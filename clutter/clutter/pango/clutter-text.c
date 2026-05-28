@@ -6661,8 +6661,7 @@ clutter_text_set_preedit_string (ClutterText   *self,
 
   priv = clutter_text_get_instance_private (self);
 
-  g_free (priv->preedit_str);
-  priv->preedit_str = NULL;
+  g_clear_pointer (&priv->preedit_str, g_free);
 
   if (priv->preedit_attrs != NULL)
     {

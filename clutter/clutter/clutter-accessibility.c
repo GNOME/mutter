@@ -102,10 +102,7 @@ clutter_accessibility_remove_key_event_listener (guint remove_listener)
     }
 
   if (g_hash_table_size (key_listener_list) == 0)
-    {
-      g_hash_table_destroy (key_listener_list);
-      key_listener_list = NULL;
-    }
+    g_clear_pointer (&key_listener_list, g_hash_table_destroy);
 }
 
 /* ------------------------------ PRIVATE FUNCTIONS ------------------------- */

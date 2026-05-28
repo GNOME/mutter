@@ -90,12 +90,7 @@ clutter_backend_dispose (GObject *gobject)
   g_clear_object (&backend->cogl_display);
   g_clear_object (&backend->cogl_context);
   g_clear_object (&backend->dummy_onscreen);
-  if (backend->stage_window)
-    {
-      g_object_remove_weak_pointer (G_OBJECT (backend->stage_window),
-                                    (gpointer *) &backend->stage_window);
-      backend->stage_window = NULL;
-    }
+  g_clear_weak_pointer (&backend->stage_window);
 
   g_clear_pointer (&backend->cogl_source, g_source_destroy);
 #ifdef HAVE_FONTS

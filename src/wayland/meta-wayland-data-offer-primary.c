@@ -122,9 +122,7 @@ destroy_primary_offer (struct wl_resource *resource)
           meta_wayland_data_source_set_current_offer (offer->source, NULL);
         }
 
-      g_object_remove_weak_pointer (G_OBJECT (offer->source),
-                                    (gpointer *)&offer->source);
-      offer->source = NULL;
+      g_clear_weak_pointer (&offer->source);
     }
 
   g_free (offer);
