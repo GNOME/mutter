@@ -1695,7 +1695,7 @@ clutter_timeline_get_delta (ClutterTimeline *timeline)
 
 void
 _clutter_timeline_advance (ClutterTimeline *timeline,
-                           gint64           tick_time)
+                           int64_t          tick_time)
 {
   ClutterTimelinePrivate *priv =
     clutter_timeline_get_instance_private (timeline);
@@ -1734,7 +1734,7 @@ _clutter_timeline_advance (ClutterTimeline *timeline,
  */
 void
 _clutter_timeline_do_tick (ClutterTimeline *timeline,
-                           gint64           tick_time)
+                           int64_t          tick_time)
 {
   ClutterTimelinePrivate *priv;
 

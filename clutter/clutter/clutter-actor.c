@@ -15011,7 +15011,7 @@ update_resource_scale (ClutterActor *self,
 
 void
 clutter_actor_finish_layout (ClutterActor *self,
-                             gboolean      use_max_scale)
+                             int           phase)
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *child;
@@ -15050,7 +15050,7 @@ clutter_actor_finish_layout (ClutterActor *self,
   if (priv->needs_update_stage_views)
     {
       update_stage_views (self);
-      update_resource_scale (self, use_max_scale);
+      update_resource_scale (self, phase);
 
       priv->needs_update_stage_views = FALSE;
     }
@@ -15066,7 +15066,7 @@ clutter_actor_finish_layout (ClutterActor *self,
   priv->needs_finish_layout = FALSE;
 
   for (child = priv->first_child; child; child = child->priv->next_sibling)
-    clutter_actor_finish_layout (child, use_max_scale);
+    clutter_actor_finish_layout (child, phase);
 }
 
 /**

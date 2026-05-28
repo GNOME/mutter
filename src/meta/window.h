@@ -319,7 +319,7 @@ void        meta_window_delete             (MetaWindow  *window,
                                             guint32      timestamp);
 
 META_EXPORT
-guint       meta_window_get_stable_sequence (MetaWindow *window);
+guint32     meta_window_get_stable_sequence (MetaWindow *window);
 
 META_EXPORT
 guint32     meta_window_get_user_time (MetaWindow *window);
