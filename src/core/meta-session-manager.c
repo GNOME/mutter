@@ -159,13 +159,11 @@ meta_session_manager_class_init (MetaSessionManagerClass *klass)
   props[PROP_NAME] =
     g_param_spec_string ("name", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   props[PROP_FD] =
     g_param_spec_int ("fd", NULL, NULL,
                       G_MININT, G_MAXINT, -1,
-                      G_PARAM_READWRITE |
-                      G_PARAM_CONSTRUCT_ONLY);
+                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }

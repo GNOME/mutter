@@ -6958,7 +6958,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_enum ("accessible-role", NULL, NULL,
                        ATK_TYPE_ROLE,
                        ATK_ROLE_INVALID,
-                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_EXPLICIT_NOTIFY);
+                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+                       G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_NAME);
 
   /**
    * ClutterActor:accessible-name:
@@ -6968,7 +6969,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   obj_props[PROP_ACCESSIBLE_NAME] =
     g_param_spec_string ("accessible-name", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_EXPLICIT_NOTIFY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+                         G_PARAM_EXPLICIT_NOTIFY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 

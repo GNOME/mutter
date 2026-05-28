@@ -113,7 +113,7 @@ meta_dnd_actor_class_init (MetaDnDActorClass *klass)
 
   pspec = g_param_spec_object ("drag-origin", NULL, NULL,
                                CLUTTER_TYPE_ACTOR,
-                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_property (object_class,
                                    PROP_DRAG_ORIGIN,
@@ -121,7 +121,7 @@ meta_dnd_actor_class_init (MetaDnDActorClass *klass)
 
   pspec = g_param_spec_int ("drag-start-x", NULL, NULL,
                             0, G_MAXINT, 0,
-                            G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                            G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_property (object_class,
                                    PROP_DRAG_START_X,
@@ -129,7 +129,7 @@ meta_dnd_actor_class_init (MetaDnDActorClass *klass)
 
   pspec = g_param_spec_int ("drag-start-y", NULL, NULL,
                             0, G_MAXINT, 0,
-                            G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                            G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_property (object_class,
                                    PROP_DRAG_START_Y,

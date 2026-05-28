@@ -358,7 +358,7 @@ meta_background_class_init (MetaBackgroundClass *klass)
   props[PROP_META_DISPLAY] =
     g_param_spec_object ("meta-display", NULL, NULL,
                          META_TYPE_DISPLAY,
-                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }

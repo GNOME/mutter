@@ -2253,12 +2253,12 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
 
   obj_props[PROP_ATTRIBUTES] =
     g_param_spec_pointer ("attributes", NULL, NULL,
-                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   obj_props[PROP_XWINDOW] =
     g_param_spec_ulong ("xwindow", NULL, NULL,
                         0, G_MAXULONG, 0,
-                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }

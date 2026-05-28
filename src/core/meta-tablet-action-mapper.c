@@ -197,7 +197,7 @@ meta_tablet_action_mapper_class_init (MetaTabletActionMapperClass *klass)
   obj_properties[PROP_MONITOR_MANAGER] =
     g_param_spec_object ("monitor-manager", NULL, NULL,
                          META_TYPE_MONITOR_MANAGER,
-                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class,
                                      N_PROPERTIES,

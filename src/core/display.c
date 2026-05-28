@@ -526,11 +526,11 @@ meta_display_class_init (MetaDisplayClass *klass)
     g_param_spec_flags ("compositor-modifiers", NULL, NULL,
                         CLUTTER_TYPE_MODIFIER_TYPE,
                         0,
-                        G_PARAM_READABLE);
+                        G_PARAM_READABLE | G_PARAM_STATIC_NAME);
   obj_props[PROP_FOCUS_WINDOW] =
     g_param_spec_object ("focus-window", NULL, NULL,
                          META_TYPE_WINDOW,
-                         G_PARAM_READABLE);
+                         G_PARAM_READABLE | G_PARAM_STATIC_NAME);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 

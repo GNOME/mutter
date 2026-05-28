@@ -361,8 +361,7 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_VENDOR_ID] =
     g_param_spec_uint ("vendor-id", NULL, NULL,
                        0, 0xffff, 0,
-                       G_PARAM_READWRITE |
-                       G_PARAM_CONSTRUCT_ONLY);
+                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   /**
    * ClutterInputDevice:product-id:
@@ -372,8 +371,7 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_PRODUCT_ID] =
     g_param_spec_uint ("product-id", NULL, NULL,
                        0, 0xffff, 0,
-                       G_PARAM_READWRITE |
-                       G_PARAM_CONSTRUCT_ONLY);
+                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   /**
    * ClutterInputDevice:bus-type:
@@ -383,8 +381,7 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   obj_props[PROP_BUS_TYPE] =
     g_param_spec_uint ("bus-type", NULL, NULL,
                        0, 0xff, 0,
-                       G_PARAM_READWRITE |
-                       G_PARAM_CONSTRUCT_ONLY);
+                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   obj_props[PROP_N_RINGS] =
     g_param_spec_int ("n-rings", NULL, NULL,

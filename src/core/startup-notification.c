@@ -268,43 +268,35 @@ meta_startup_sequence_class_init (MetaStartupSequenceClass *klass)
   seq_props[PROP_SEQ_DISPLAY] =
     g_param_spec_object ("display", NULL, NULL,
                          META_TYPE_DISPLAY,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   seq_props[PROP_SEQ_ID] =
     g_param_spec_string ("id", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   seq_props[PROP_SEQ_TIMESTAMP] =
     g_param_spec_uint64 ("timestamp", NULL, NULL,
                          0, G_MAXUINT64, 0,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   seq_props[PROP_SEQ_ICON_NAME] =
     g_param_spec_string ("icon-name", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   seq_props[PROP_SEQ_APPLICATION_ID] =
     g_param_spec_string ("application-id", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   seq_props[PROP_SEQ_WMCLASS] =
     g_param_spec_string ("wmclass", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   seq_props[PROP_SEQ_WORKSPACE] =
     g_param_spec_int ("workspace", NULL, NULL,
                       G_MININT, G_MAXINT, -1,
-                      G_PARAM_READWRITE |
-                      G_PARAM_CONSTRUCT_ONLY);
+                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
   seq_props[PROP_SEQ_NAME] =
     g_param_spec_string ("name", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, N_SEQ_PROPS, seq_props);
 }

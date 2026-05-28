@@ -142,8 +142,7 @@ meta_startup_sequence_x11_class_init (MetaStartupSequenceX11Class *klass)
 
   seq_x11_props[PROP_SEQ_X11_SEQ] =
     g_param_spec_pointer ("seq", NULL, NULL,
-                          G_PARAM_READWRITE |
-                          G_PARAM_CONSTRUCT_ONLY);
+                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, N_SEQ_X11_PROPS,
                                      seq_x11_props);

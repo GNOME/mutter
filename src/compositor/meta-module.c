@@ -166,8 +166,7 @@ meta_module_class_init (MetaModuleClass *klass)
 				   PROP_PATH,
 				   g_param_spec_string ("path", NULL, NULL,
 							NULL,
-							G_PARAM_READWRITE |
-						      G_PARAM_CONSTRUCT_ONLY));
+							G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME));
 }
 
 static void

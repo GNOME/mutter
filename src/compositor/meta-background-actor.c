@@ -141,7 +141,7 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
 
   param_spec = g_param_spec_object ("meta-display", NULL, NULL,
                                     META_TYPE_DISPLAY,
-                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_property (object_class,
                                    PROP_META_DISPLAY,
@@ -149,7 +149,7 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
 
   param_spec = g_param_spec_int ("monitor", NULL, NULL,
                                  0, G_MAXINT, 0,
-                                 G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                                 G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_property (object_class,
                                    PROP_MONITOR,

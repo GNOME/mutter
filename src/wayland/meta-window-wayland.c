@@ -1306,12 +1306,12 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   obj_props[PROP_SURFACE] =
     g_param_spec_object ("surface", NULL, NULL,
                          META_TYPE_WAYLAND_SURFACE,
-                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   obj_props[PROP_CLIENT] =
     g_param_spec_object ("client", NULL, NULL,
                          META_TYPE_WAYLAND_CLIENT,
-                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 

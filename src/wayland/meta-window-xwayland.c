@@ -585,7 +585,7 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   obj_props[PROP_XWAYLAND_MAY_GRAB_KEYBOARD] =
     g_param_spec_boolean ("xwayland-may-grab-keyboard", NULL, NULL,
                           FALSE,
-                          G_PARAM_READWRITE);
+                          G_PARAM_READWRITE | G_PARAM_STATIC_NAME);
 
   obj_props[PROP_SURFACE] =
     g_param_spec_object ("surface", NULL, NULL,

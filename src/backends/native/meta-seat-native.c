@@ -528,21 +528,18 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   props[PROP_FLAGS] =
     g_param_spec_flags ("flags", NULL, NULL,
                         META_TYPE_SEAT_NATIVE_FLAG,
                         META_SEAT_NATIVE_FLAG_NONE,
-                        G_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY);
+                        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   props[PROP_BACKEND] =
     g_param_spec_object ("backend", NULL, NULL,
                          META_TYPE_BACKEND,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 

@@ -3585,15 +3585,13 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id", NULL, NULL,
                          NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   props[PROP_FLAGS] =
     g_param_spec_flags ("flags", NULL, NULL,
                         META_TYPE_SEAT_NATIVE_FLAG,
                         META_SEAT_NATIVE_FLAG_NONE,
-                        G_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY);
+                        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME);
 
   signals[KBD_A11Y_FLAGS_CHANGED] =
     g_signal_new ("kbd-a11y-flags-changed",

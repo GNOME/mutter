@@ -43,8 +43,7 @@ meta_close_dialog_default_init (MetaCloseDialogInterface *iface)
   g_object_interface_install_property (iface,
                                        g_param_spec_object ("window", NULL, NULL,
                                                             META_TYPE_WINDOW,
-                                                            G_PARAM_READWRITE |
-                                                            G_PARAM_CONSTRUCT_ONLY));
+                                                            G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_NAME));
   dialog_signals[RESPONSE] =
     g_signal_new ("response",
                   G_TYPE_FROM_INTERFACE (iface),
