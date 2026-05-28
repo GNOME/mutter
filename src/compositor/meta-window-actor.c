@@ -608,6 +608,8 @@ meta_window_actor_constructed (GObject *object)
     meta_window_actor_get_instance_private (self);
   MetaWindow *window = priv->window;
 
+  G_OBJECT_CLASS (meta_window_actor_parent_class)->constructed (object);
+
   priv->compositor = window->display->compositor;
 
   priv->stage_views_changed_id =

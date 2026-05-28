@@ -1046,6 +1046,8 @@ meta_virtual_input_device_native_constructed (GObject *object)
   ClutterInputDeviceType device_type;
   g_autoptr (GTask) task = NULL;
 
+  G_OBJECT_CLASS (meta_virtual_input_device_native_parent_class)->constructed (object);
+
   device_type = clutter_virtual_input_device_get_device_type (virtual_device);
 
   meta_topic (META_DEBUG_INPUT,

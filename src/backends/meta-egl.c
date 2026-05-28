@@ -981,6 +981,8 @@ meta_egl_constructed (GObject *object)
 {
   MetaEgl *egl = META_EGL (object);
 
+  G_OBJECT_CLASS (meta_egl_parent_class)->constructed (object);
+
   GET_EGL_PROC_ADDR (eglGetPlatformDisplayEXT);
 
   GET_EGL_PROC_ADDR (eglCreateImageKHR);

@@ -1140,6 +1140,8 @@ meta_window_constructed (GObject *object)
   MetaLogicalMonitor *main_monitor;
   MetaLogicalMonitor *highest_scale_monitor;
 
+  G_OBJECT_CLASS (meta_window_parent_class)->constructed (object);
+
   COGL_TRACE_BEGIN_SCOPED (MetaWindowSharedInit,
                            "Meta::Window::constructed()");
 
