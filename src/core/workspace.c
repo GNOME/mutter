@@ -412,7 +412,7 @@ meta_workspace_remove_window (MetaWorkspace *workspace,
     update_workspace_default_focus (workspace, window);
 
   g_signal_emit (workspace, signals[WINDOW_REMOVED], 0, window);
-  g_object_notify (G_OBJECT (workspace), "n-windows");
+  g_object_notify_by_pspec (G_OBJECT (workspace), obj_props[PROP_N_WINDOWS]);
 }
 
 void
