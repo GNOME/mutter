@@ -50,15 +50,7 @@ struct _MetaEgl
   PFNEGLWAITSYNCPROC eglWaitSync;
   PFNEGLDUPNATIVEFENCEFDANDROIDPROC eglDupNativeFenceFDANDROID;
 
-  PFNEGLBINDWAYLANDDISPLAYWL eglBindWaylandDisplayWL;
-  PFNEGLQUERYWAYLANDBUFFERWL eglQueryWaylandBufferWL;
-
-  PFNEGLQUERYDEVICESTRINGEXTPROC eglQueryDeviceStringEXT;
-
-  PFNEGLQUERYDMABUFFORMATSEXTPROC eglQueryDmaBufFormatsEXT;
   PFNEGLQUERYDMABUFMODIFIERSEXTPROC eglQueryDmaBufModifiersEXT;
-
-  PFNEGLQUERYDISPLAYATTRIBEXTPROC eglQueryDisplayAttribEXT;
 };
 
 G_DEFINE_TYPE (MetaEgl, meta_egl, G_TYPE_OBJECT)
@@ -147,25 +139,6 @@ set_egl_error (GError **error)
       g_warning ("Expected an EGL error but eglGetError returned EGL_SUCCESS");
       error_number = -1;
     }
-
-  error_str = get_egl_error_str (error_number);
-  g_set_error_literal (error, META_EGL_ERROR,
-                       error_number,
-                       error_str);
-}
-
-static void
-check_egl_error (GError **error)
-{
-  EGLint error_number;
-  const char *error_str;
-
-  if (!error)
-    return;
-
-  error_number = eglGetError ();
-  if (error_number == EGL_SUCCESS)
-    return;
 
   error_str = get_egl_error_str (error_number);
   g_set_error_literal (error, META_EGL_ERROR,
@@ -301,72 +274,6 @@ meta_egl_get_proc_address (MetaEgl    *egl,
 }
 
 gboolean
-meta_egl_get_config_attrib (MetaEgl     *egl,
-                            EGLDisplay   display,
-                            EGLConfig    config,
-                            EGLint       attribute,
-                            EGLint      *value,
-                            GError     **error)
-{
-  if (!eglGetConfigAttrib (display,
-                           config,
-                           attribute,
-                           value))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-EGLConfig *
-meta_egl_choose_all_configs (MetaEgl       *egl,
-                             EGLDisplay     display,
-                             const EGLint  *attrib_list,
-                             EGLint        *out_num_configs,
-                             GError       **error)
-{
-  EGLint num_configs;
-  EGLConfig *configs;
-  EGLint num_matches;
-
-  if (!eglGetConfigs (display, NULL, 0, &num_configs))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  if (num_configs < 1)
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "No EGL configurations available");
-      return FALSE;
-    }
-
-  configs = g_new0 (EGLConfig, num_configs);
-
-  if (!eglChooseConfig (display, attrib_list, configs, num_configs, &num_matches))
-    {
-      g_free (configs);
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  if (num_matches == 0)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "No matching EGL configs");
-      g_free (configs);
-      return NULL;
-    }
-
-  *out_num_configs = num_matches;
-  return configs;
-}
-
-gboolean
 meta_egl_choose_first_config (MetaEgl       *egl,
                               EGLDisplay     display,
                               const EGLint  *attrib_list,
@@ -414,61 +321,6 @@ meta_egl_choose_first_config (MetaEgl       *egl,
   *chosen_config = configs[0];
 
   g_free (configs);
-
-  return TRUE;
-}
-
-EGLSurface
-meta_egl_create_window_surface (MetaEgl            *egl,
-                                EGLDisplay          display,
-                                EGLConfig           config,
-                                EGLNativeWindowType native_window_type,
-                                const EGLint       *attrib_list,
-                                GError            **error)
-{
-  EGLSurface surface;
-
-  surface = eglCreateWindowSurface (display, config,
-                                    native_window_type, attrib_list);
-  if (surface == EGL_NO_SURFACE)
-    {
-      set_egl_error (error);
-      return EGL_NO_SURFACE;
-    }
-
-  return surface;
-}
-
-EGLSurface
-meta_egl_create_pbuffer_surface (MetaEgl      *egl,
-                                 EGLDisplay    display,
-                                 EGLConfig     config,
-                                 const EGLint *attrib_list,
-                                 GError      **error)
-{
-  EGLSurface surface;
-
-  surface = eglCreatePbufferSurface (display, config, attrib_list);
-  if (surface == EGL_NO_SURFACE)
-    {
-      set_egl_error (error);
-      return EGL_NO_SURFACE;
-    }
-
-  return surface;
-}
-
-gboolean
-meta_egl_destroy_surface (MetaEgl   *egl,
-                          EGLDisplay display,
-                          EGLSurface surface,
-                          GError   **error)
-{
-  if (!eglDestroySurface (display, surface))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
 
   return TRUE;
 }
@@ -566,7 +418,7 @@ meta_egl_destroy_context (MetaEgl   *egl,
   return TRUE;
 }
 
-EGLImageKHR
+static EGLImageKHR
 meta_egl_create_image (MetaEgl        *egl,
                        EGLDisplay      display,
                        EGLContext      context,
@@ -720,129 +572,6 @@ meta_egl_make_current (MetaEgl   *egl,
 }
 
 gboolean
-meta_egl_bind_wayland_display (MetaEgl            *egl,
-                               EGLDisplay          display,
-                               struct wl_display  *wayland_display,
-                               GError            **error)
-{
-  if (!is_egl_proc_valid (egl->eglBindWaylandDisplayWL, error))
-    return FALSE;
-
-  if (!egl->eglBindWaylandDisplayWL (display, wayland_display))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-gboolean
-meta_egl_query_wayland_buffer (MetaEgl            *egl,
-                               EGLDisplay          display,
-                               struct wl_resource *buffer,
-                               EGLint              attribute,
-                               EGLint             *value,
-                               GError            **error)
-{
-  if (!is_egl_proc_valid (egl->eglQueryWaylandBufferWL, error))
-    return FALSE;
-
-  if (!egl->eglQueryWaylandBufferWL (display, buffer, attribute, value))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-gboolean
-meta_egl_query_device_string (MetaEgl       *egl,
-                              EGLDeviceEXT   device,
-                              EGLint         name,
-                              const char   **out_string,
-                              GError       **error)
-{
-  g_autoptr (GError) local_error = NULL;
-  const char *device_string;
-
-  if (!is_egl_proc_valid (egl->eglQueryDeviceStringEXT, error))
-    return FALSE;
-
-  device_string = egl->eglQueryDeviceStringEXT (device, name);
-  if (!device_string)
-    {
-      check_egl_error (&local_error);
-      if (local_error)
-        {
-          g_propagate_error (error, g_steal_pointer (&local_error));
-          return FALSE;
-        }
-    }
-
-  *out_string = device_string;
-  return TRUE;
-}
-
-gboolean
-meta_egl_egl_device_has_extensions (MetaEgl        *egl,
-                                    EGLDeviceEXT    device,
-                                    const char   ***missing_extensions,
-                                    const char     *first_extension,
-                                    ...)
-{
-  va_list var_args;
-  const char *extensions_str;
-  gboolean has_extensions;
-  g_autoptr (GError) error = NULL;
-
-  if (!meta_egl_query_device_string (egl, device, EGL_EXTENSIONS,
-                                     &extensions_str, &error))
-    {
-      g_warning ("Failed to query device string: %s", error->message);
-      return FALSE;
-    }
-
-  if (!extensions_str)
-    {
-      g_warning ("EGL_EXTENSIONS device string returned NULL");
-      return FALSE;
-    }
-
-  va_start (var_args, first_extension);
-  has_extensions =
-    meta_extensions_string_has_extensions_valist (extensions_str,
-                                                  missing_extensions,
-                                                  first_extension,
-                                                  var_args);
-  va_end (var_args);
-
-  return has_extensions;
-}
-
-gboolean
-meta_egl_query_dma_buf_formats (MetaEgl   *egl,
-                                EGLDisplay display,
-                                EGLint     max_formats,
-                                EGLint    *formats,
-                                EGLint    *num_formats,
-                                GError   **error)
-{
-  if (!is_egl_proc_valid (egl->eglQueryDmaBufFormatsEXT, error))
-    return FALSE;
-
-  if (!egl->eglQueryDmaBufFormatsEXT (display, max_formats, formats,
-                                      num_formats))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-    return TRUE;
-}
-
-gboolean
 meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
                                   EGLDisplay    display,
                                   EGLint        format,
@@ -858,25 +587,6 @@ meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
   if (!egl->eglQueryDmaBufModifiersEXT (display, format, max_modifiers,
                                         modifiers, external_only,
                                         num_modifiers))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-gboolean
-meta_egl_query_display_attrib (MetaEgl     *egl,
-                               EGLDisplay   display,
-                               EGLint       attribute,
-                               EGLAttrib   *value,
-                               GError     **error)
-{
-  if (!is_egl_proc_valid (egl->eglQueryDisplayAttribEXT, error))
-    return FALSE;
-
-  if (!egl->eglQueryDisplayAttribEXT (display, attribute, value))
     {
       set_egl_error (error);
       return FALSE;
@@ -993,15 +703,7 @@ meta_egl_constructed (GObject *object)
   GET_EGL_PROC_ADDR (eglWaitSync);
   GET_EGL_PROC_ADDR (eglDupNativeFenceFDANDROID);
 
-  GET_EGL_PROC_ADDR (eglBindWaylandDisplayWL);
-  GET_EGL_PROC_ADDR (eglQueryWaylandBufferWL);
-
-  GET_EGL_PROC_ADDR (eglQueryDeviceStringEXT);
-
-  GET_EGL_PROC_ADDR (eglQueryDmaBufFormatsEXT);
   GET_EGL_PROC_ADDR (eglQueryDmaBufModifiersEXT);
-
-  GET_EGL_PROC_ADDR (eglQueryDisplayAttribEXT);
 }
 
 #undef GET_EGL_PROC_ADDR

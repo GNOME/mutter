@@ -43,6 +43,78 @@
 
 #include "cogl/cogl-renderer-egl-private.h"
 
+
+G_DEFINE_QUARK (cogl-egl-error-quark, cogl_egl_error)
+
+static const char *
+get_egl_error_str (EGLint error_number)
+{
+  switch (error_number)
+    {
+    case EGL_SUCCESS:
+      return "The last function succeeded without error.";
+    case EGL_NOT_INITIALIZED:
+      return "EGL is not initialized, or could not be initialized, for the specified EGL display connection.";
+    case EGL_BAD_ACCESS:
+      return "EGL cannot access a requested resource.";
+    case EGL_BAD_ALLOC:
+      return "EGL failed to allocate resources for the requested operation.";
+    case EGL_BAD_ATTRIBUTE:
+      return "An unrecognized attribute or attribute value was passed in the attribute list.";
+    case EGL_BAD_CONTEXT:
+      return "An EGLContext argument does not name a valid EGL rendering context.";
+    case EGL_BAD_CONFIG:
+      return "An EGLConfig argument does not name a valid EGL frame buffer configuration.";
+    case EGL_BAD_CURRENT_SURFACE:
+      return "The current surface of the calling thread is no longer valid.";
+    case EGL_BAD_DISPLAY:
+      return "An EGLDisplay argument does not name a valid EGL display connection.";
+    case EGL_BAD_SURFACE:
+      return "An EGLSurface argument does not name a valid surface configured for GL rendering.";
+    case EGL_BAD_MATCH:
+      return "Arguments are inconsistent.";
+    case EGL_BAD_PARAMETER:
+      return "One or more argument values are invalid.";
+    case EGL_BAD_NATIVE_PIXMAP:
+      return "A NativePixmapType argument does not refer to a valid native pixmap.";
+    case EGL_BAD_NATIVE_WINDOW:
+      return "A NativeWindowType argument does not refer to a valid native window.";
+    case EGL_CONTEXT_LOST:
+      return "A power management event has occurred.";
+    default:
+      return "Unknown EGL error";
+    }
+}
+
+static void
+set_egl_error (GError **error)
+{
+  EGLint error_number;
+
+  if (!error)
+    return;
+
+  error_number = eglGetError ();
+  if (error_number == EGL_SUCCESS)
+    return;
+
+  g_set_error_literal (error, COGL_EGL_ERROR,
+                       error_number,
+                       get_egl_error_str (error_number));
+}
+
+static gboolean
+is_egl_proc_valid (void    *proc,
+                   GError **error)
+{
+  if (proc)
+    return TRUE;
+
+  g_set_error_literal (error, COGL_EGL_ERROR, EGL_BAD_ACCESS,
+                       "EGL extension function pointer not available");
+  return FALSE;
+}
+
 typedef struct _CoglRendererEGLPrivate
 {
   GModule *libgl_module;
@@ -75,6 +147,20 @@ typedef struct _CoglRendererEGLPrivate
 #ifdef EGL_ANDROID_native_fence_sync
   PFNEGLDUPNATIVEFENCEFDANDROIDPROC eglDupNativeFenceFDANDROID;
 #endif
+
+  PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
+  PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
+
+  PFNEGLBINDWAYLANDDISPLAYWL eglBindWaylandDisplayWL;
+  PFNEGLQUERYWAYLANDBUFFERWL eglQueryWaylandBufferWL;
+
+  PFNEGLQUERYDMABUFFORMATSEXTPROC eglQueryDmaBufFormatsEXT;
+  PFNEGLQUERYDMABUFMODIFIERSEXTPROC eglQueryDmaBufModifiersEXT;
+
+  PFNEGLQUERYDISPLAYATTRIBEXTPROC eglQueryDisplayAttribEXT;
+
+  PFNEGLQUERYDEVICESTRINGEXTPROC eglQueryDeviceStringEXT;
+
 } CoglRendererEGLPrivate;
 
 
@@ -174,7 +260,7 @@ cogl_renderer_egl_get_proc_address (CoglRenderer *renderer,
   priv->proc = (void *) cogl_renderer_get_proc_address (renderer, #proc)
 
 void
-cogl_renderer_egl_check_extensions (CoglRenderer *renderer)
+cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
 {
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   CoglRendererEGLPrivate *priv =
@@ -243,6 +329,27 @@ cogl_renderer_egl_check_extensions (CoglRenderer *renderer)
   if (_cogl_check_extension ("EGL_IMG_context_priority", split_extensions))
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY;
 
+  if (_cogl_check_extension ("EGL_KHR_image_base", split_extensions))
+    {
+      GET_EGL_PROC_ADDR (eglCreateImageKHR);
+      GET_EGL_PROC_ADDR (eglDestroyImageKHR);
+    }
+
+  if (_cogl_check_extension ("EGL_WL_bind_wayland_display", split_extensions))
+    {
+      GET_EGL_PROC_ADDR (eglBindWaylandDisplayWL);
+      GET_EGL_PROC_ADDR (eglQueryWaylandBufferWL);
+    }
+
+  if (_cogl_check_extension ("EGL_EXT_image_dma_buf_import_modifiers", split_extensions))
+    {
+      GET_EGL_PROC_ADDR (eglQueryDmaBufFormatsEXT);
+      GET_EGL_PROC_ADDR (eglQueryDmaBufModifiersEXT);
+    }
+
+  GET_EGL_PROC_ADDR (eglQueryDisplayAttribEXT);
+  GET_EGL_PROC_ADDR (eglQueryDeviceStringEXT);
+
   g_strfreev (split_extensions);
 }
 
@@ -264,7 +371,7 @@ cogl_renderer_egl_connect (CoglRenderer   *renderer,
       return FALSE;
     }
 
-  cogl_renderer_egl_check_extensions (renderer);
+  cogl_renderer_egl_init_extensions (renderer);
 
   return TRUE;
 }
@@ -486,4 +593,576 @@ cogl_renderer_egl_set_damage_region (CoglRendererEGL *renderer_egl,
 
   return priv->eglSetDamageRegionKHR (priv->edisplay, surface,
                                       (EGLint *) rects, n_rects) != EGL_FALSE;
+}
+
+gboolean
+cogl_renderer_egl_has_extensions (CoglRendererEGL  *renderer_egl,
+                                  const char      ***missing_extensions,
+                                  const char       *first_extension,
+                                  ...)
+{
+  CoglRendererEGLPrivate *priv;
+  const char *extensions_str;
+  char **extensions;
+  const char *extension;
+  va_list var_args;
+  size_t num_missing = 0;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  extensions_str = eglQueryString (priv->edisplay, EGL_EXTENSIONS);
+  if (!extensions_str)
+    return FALSE;
+
+  if (missing_extensions)
+    *missing_extensions = NULL;
+
+  extensions = g_strsplit (extensions_str, " ", -1);
+
+  va_start (var_args, first_extension);
+  extension = first_extension;
+  while (extension)
+    {
+      if (!g_strv_contains ((const char * const *) extensions, extension))
+        {
+          num_missing++;
+          if (missing_extensions)
+            {
+              *missing_extensions = g_realloc_n (*missing_extensions,
+                                                  num_missing + 1,
+                                                  sizeof (const char *));
+              (*missing_extensions)[num_missing - 1] = extension;
+              (*missing_extensions)[num_missing] = NULL;
+            }
+          else
+            {
+              break;
+            }
+        }
+      extension = va_arg (var_args, char *);
+    }
+  va_end (var_args);
+
+  g_strfreev (extensions);
+
+  return num_missing == 0;
+}
+
+const char *
+cogl_renderer_egl_query_string (CoglRendererEGL *renderer_egl,
+                                EGLint           name)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), NULL);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+  return eglQueryString (priv->edisplay, name);
+}
+
+gboolean
+cogl_renderer_egl_choose_first_config (CoglRendererEGL  *renderer_egl,
+                                       const EGLint     *attrib_list,
+                                       EGLConfig        *chosen_config,
+                                       GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+  EGLint num_configs;
+  EGLBoolean status;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  status = eglChooseConfig (priv->edisplay, attrib_list,
+                            chosen_config, 1, &num_configs);
+  if (status != EGL_TRUE || num_configs < 1)
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+EGLConfig *
+cogl_renderer_egl_choose_all_configs (CoglRendererEGL  *renderer_egl,
+                                      const EGLint     *attrib_list,
+                                      EGLint           *out_num_configs,
+                                      GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+  EGLint num_configs;
+  EGLConfig *configs;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), NULL);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!eglChooseConfig (priv->edisplay, attrib_list, NULL, 0, &num_configs))
+    {
+      set_egl_error (error);
+      return NULL;
+    }
+
+  if (num_configs == 0)
+    return NULL;
+
+  configs = g_new0 (EGLConfig, num_configs);
+  eglChooseConfig (priv->edisplay, attrib_list,
+                   configs, num_configs, &num_configs);
+
+  *out_num_configs = num_configs;
+  return configs;
+}
+
+gboolean
+cogl_renderer_egl_get_config_attrib (CoglRendererEGL  *renderer_egl,
+                                     EGLConfig         config,
+                                     EGLint            attribute,
+                                     EGLint           *value,
+                                     GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!eglGetConfigAttrib (priv->edisplay, config, attribute, value))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+EGLSurface
+cogl_renderer_egl_create_window_surface (CoglRendererEGL     *renderer_egl,
+                                         EGLConfig            config,
+                                         EGLNativeWindowType  native_window,
+                                         const EGLint        *attrib_list,
+                                         GError             **error)
+{
+  CoglRendererEGLPrivate *priv;
+  EGLSurface surface;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), EGL_NO_SURFACE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  surface = eglCreateWindowSurface (priv->edisplay, config,
+                                    native_window, attrib_list);
+  if (surface == EGL_NO_SURFACE)
+    {
+      set_egl_error (error);
+      return EGL_NO_SURFACE;
+    }
+
+  return surface;
+}
+
+EGLSurface
+cogl_renderer_egl_create_pbuffer_surface (CoglRendererEGL  *renderer_egl,
+                                          EGLConfig         config,
+                                          const EGLint     *attrib_list,
+                                          GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+  EGLSurface surface;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), EGL_NO_SURFACE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  surface = eglCreatePbufferSurface (priv->edisplay, config, attrib_list);
+  if (surface == EGL_NO_SURFACE)
+    {
+      set_egl_error (error);
+      return EGL_NO_SURFACE;
+    }
+
+  return surface;
+}
+
+gboolean
+cogl_renderer_egl_destroy_surface (CoglRendererEGL  *renderer_egl,
+                                   EGLSurface        surface,
+                                   GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!eglDestroySurface (priv->edisplay, surface))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+EGLImageKHR
+cogl_renderer_egl_create_image (CoglRendererEGL  *renderer_egl,
+                                EGLContext        context,
+                                EGLenum           target,
+                                EGLClientBuffer   buffer,
+                                const EGLint     *attrib_list,
+                                GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+  EGLImageKHR image;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), EGL_NO_IMAGE_KHR);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!is_egl_proc_valid (priv->eglCreateImageKHR, error))
+    return EGL_NO_IMAGE_KHR;
+
+  image = priv->eglCreateImageKHR (priv->edisplay, context,
+                                   target, buffer, attrib_list);
+  if (image == EGL_NO_IMAGE_KHR)
+    {
+      set_egl_error (error);
+      return EGL_NO_IMAGE_KHR;
+    }
+
+  return image;
+}
+
+gboolean
+cogl_renderer_egl_destroy_image (CoglRendererEGL  *renderer_egl,
+                                 EGLImageKHR       image,
+                                 GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!is_egl_proc_valid (priv->eglDestroyImageKHR, error))
+    return FALSE;
+
+  if (!priv->eglDestroyImageKHR (priv->edisplay, image))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+EGLImageKHR
+cogl_renderer_egl_create_dmabuf_image (CoglRendererEGL  *renderer_egl,
+                                       unsigned int      width,
+                                       unsigned int      height,
+                                       uint32_t          drm_format,
+                                       uint32_t          n_planes,
+                                       const int        *fds,
+                                       const uint32_t   *strides,
+                                       const uint32_t   *offsets,
+                                       const uint64_t   *modifiers,
+                                       GError          **error)
+{
+  EGLint attribs[39];
+  int atti = 0;
+
+  attribs[atti++] = EGL_WIDTH;
+  attribs[atti++] = width;
+  attribs[atti++] = EGL_HEIGHT;
+  attribs[atti++] = height;
+  attribs[atti++] = EGL_LINUX_DRM_FOURCC_EXT;
+  attribs[atti++] = drm_format;
+  attribs[atti++] = EGL_IMAGE_PRESERVED_KHR;
+  attribs[atti++] = EGL_TRUE;
+
+  if (n_planes > 0)
+    {
+      attribs[atti++] = EGL_DMA_BUF_PLANE0_FD_EXT;
+      attribs[atti++] = fds[0];
+      attribs[atti++] = EGL_DMA_BUF_PLANE0_OFFSET_EXT;
+      attribs[atti++] = offsets[0];
+      attribs[atti++] = EGL_DMA_BUF_PLANE0_PITCH_EXT;
+      attribs[atti++] = strides[0];
+      if (modifiers)
+        {
+          attribs[atti++] = EGL_DMA_BUF_PLANE0_MODIFIER_LO_EXT;
+          attribs[atti++] = modifiers[0] & 0xFFFFFFFF;
+          attribs[atti++] = EGL_DMA_BUF_PLANE0_MODIFIER_HI_EXT;
+          attribs[atti++] = modifiers[0] >> 32;
+        }
+    }
+
+  if (n_planes > 1)
+    {
+      attribs[atti++] = EGL_DMA_BUF_PLANE1_FD_EXT;
+      attribs[atti++] = fds[1];
+      attribs[atti++] = EGL_DMA_BUF_PLANE1_OFFSET_EXT;
+      attribs[atti++] = offsets[1];
+      attribs[atti++] = EGL_DMA_BUF_PLANE1_PITCH_EXT;
+      attribs[atti++] = strides[1];
+      if (modifiers)
+        {
+          attribs[atti++] = EGL_DMA_BUF_PLANE1_MODIFIER_LO_EXT;
+          attribs[atti++] = modifiers[1] & 0xFFFFFFFF;
+          attribs[atti++] = EGL_DMA_BUF_PLANE1_MODIFIER_HI_EXT;
+          attribs[atti++] = modifiers[1] >> 32;
+        }
+    }
+
+  if (n_planes > 2)
+    {
+      attribs[atti++] = EGL_DMA_BUF_PLANE2_FD_EXT;
+      attribs[atti++] = fds[2];
+      attribs[atti++] = EGL_DMA_BUF_PLANE2_OFFSET_EXT;
+      attribs[atti++] = offsets[2];
+      attribs[atti++] = EGL_DMA_BUF_PLANE2_PITCH_EXT;
+      attribs[atti++] = strides[2];
+      if (modifiers)
+        {
+          attribs[atti++] = EGL_DMA_BUF_PLANE2_MODIFIER_LO_EXT;
+          attribs[atti++] = modifiers[2] & 0xFFFFFFFF;
+          attribs[atti++] = EGL_DMA_BUF_PLANE2_MODIFIER_HI_EXT;
+          attribs[atti++] = modifiers[2] >> 32;
+        }
+    }
+
+  attribs[atti++] = EGL_NONE;
+  g_assert (atti <= G_N_ELEMENTS (attribs));
+
+  return cogl_renderer_egl_create_image (renderer_egl, EGL_NO_CONTEXT,
+                                         EGL_LINUX_DMA_BUF_EXT, NULL,
+                                         attribs, error);
+}
+
+gboolean
+cogl_renderer_egl_bind_wayland_display (CoglRendererEGL  *renderer_egl,
+                                        struct wl_display *wayland_display,
+                                        GError           **error)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!is_egl_proc_valid (priv->eglBindWaylandDisplayWL, error))
+    return FALSE;
+
+  if (!priv->eglBindWaylandDisplayWL (priv->edisplay, wayland_display))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
+cogl_renderer_egl_query_wayland_buffer (CoglRendererEGL     *renderer_egl,
+                                        struct wl_resource  *buffer,
+                                        EGLint               attribute,
+                                        EGLint              *value,
+                                        GError             **error)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!is_egl_proc_valid (priv->eglQueryWaylandBufferWL, error))
+    return FALSE;
+
+  if (!priv->eglQueryWaylandBufferWL (priv->edisplay, buffer, attribute, value))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
+cogl_renderer_egl_query_dma_buf_formats (CoglRendererEGL  *renderer_egl,
+                                         EGLint            max_formats,
+                                         EGLint           *formats,
+                                         EGLint           *num_formats,
+                                         GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!is_egl_proc_valid (priv->eglQueryDmaBufFormatsEXT, error))
+    return FALSE;
+
+  if (!priv->eglQueryDmaBufFormatsEXT (priv->edisplay, max_formats,
+                                       formats, num_formats))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
+cogl_renderer_egl_query_dma_buf_modifiers (CoglRendererEGL  *renderer_egl,
+                                           EGLint            format,
+                                           EGLint            max_modifiers,
+                                           EGLuint64KHR     *modifiers,
+                                           EGLBoolean       *external_only,
+                                           EGLint           *num_modifiers,
+                                           GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!is_egl_proc_valid (priv->eglQueryDmaBufModifiersEXT, error))
+    return FALSE;
+
+  if (!priv->eglQueryDmaBufModifiersEXT (priv->edisplay, format,
+                                         max_modifiers, modifiers,
+                                         external_only, num_modifiers))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
+cogl_renderer_egl_query_display_attrib (CoglRendererEGL  *renderer_egl,
+                                        EGLint            attribute,
+                                        EGLAttrib        *value,
+                                        GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!is_egl_proc_valid (priv->eglQueryDisplayAttribEXT, error))
+    return FALSE;
+
+  if (!priv->eglQueryDisplayAttribEXT (priv->edisplay, attribute, value))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
+cogl_renderer_egl_query_device_string (CoglRendererEGL  *renderer_egl,
+                                       EGLDeviceEXT      device,
+                                       EGLint            name,
+                                       const char      **out_string,
+                                       GError          **error)
+{
+  CoglRendererEGLPrivate *priv;
+  g_autoptr (GError) local_error = NULL;
+  const char *device_string;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!is_egl_proc_valid (priv->eglQueryDeviceStringEXT, error))
+    return FALSE;
+
+  device_string = priv->eglQueryDeviceStringEXT (device, name);
+  if (!device_string)
+    {
+      set_egl_error (&local_error);
+      if (local_error)
+        {
+          g_propagate_error (error, g_steal_pointer (&local_error));
+          return FALSE;
+        }
+    }
+
+  *out_string = device_string;
+  return TRUE;
+}
+
+gboolean
+cogl_renderer_egl_device_has_extensions (CoglRendererEGL  *renderer_egl,
+                                         EGLDeviceEXT      device,
+                                         const char      ***missing_extensions,
+                                         const char       *first_extension,
+                                         ...)
+{
+  va_list var_args;
+  const char *extensions_str;
+  char **extensions;
+  const char *extension;
+  size_t num_missing = 0;
+  g_autoptr (GError) error = NULL;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  if (!cogl_renderer_egl_query_device_string (renderer_egl, device,
+                                              EGL_EXTENSIONS,
+                                              &extensions_str, &error))
+    {
+      g_warning ("Failed to query device string: %s", error->message);
+      return FALSE;
+    }
+
+  if (!extensions_str)
+    {
+      g_warning ("EGL_EXTENSIONS device string returned NULL");
+      return FALSE;
+    }
+
+  if (missing_extensions)
+    *missing_extensions = NULL;
+
+  extensions = g_strsplit (extensions_str, " ", -1);
+
+  va_start (var_args, first_extension);
+  extension = first_extension;
+  while (extension)
+    {
+      if (!g_strv_contains ((const char * const *) extensions, extension))
+        {
+          num_missing++;
+          if (missing_extensions)
+            {
+              *missing_extensions = g_realloc_n (*missing_extensions,
+                                                  num_missing + 1,
+                                                  sizeof (const char *));
+              (*missing_extensions)[num_missing - 1] = extension;
+              (*missing_extensions)[num_missing] = NULL;
+            }
+          else
+            {
+              break;
+            }
+        }
+      extension = va_arg (var_args, char *);
+    }
+  va_end (var_args);
+
+  g_strfreev (extensions);
+
+  return num_missing == 0;
 }

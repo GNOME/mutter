@@ -174,9 +174,6 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                           CoglOnscreen        *onscreen,
                           GError             **error);
 
-static MetaEgl *
-meta_onscreen_native_get_egl (MetaOnscreenNative *onscreen_native);
-
 static void
 render_source_remove_frame (GSource      *source,
                             ClutterFrame *frame)
@@ -314,10 +311,11 @@ maybe_init_render_source (MetaOnscreenNative *onscreen_native)
         }
       else
         {
-          MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
-          EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+          CoglRenderer *renderer =
+            cogl_context_get_renderer (cogl_context);
           const char *egl_vendor =
-            meta_egl_query_string (egl, egl_display, EGL_VENDOR);
+            cogl_renderer_egl_query_string (COGL_RENDERER_EGL (renderer),
+                                            EGL_VENDOR);
           output_gpu_is_nvidia =
             g_strcmp0 (egl_vendor, "NVIDIA") == 0;
         }
@@ -603,14 +601,6 @@ static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
   .mode_set_fallback = page_flip_feedback_mode_set_fallback,
   .discarded = page_flip_feedback_discarded,
 };
-
-static MetaEgl *
-meta_onscreen_native_get_egl (MetaOnscreenNative *onscreen_native)
-{
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-
-  return meta_renderer_native_get_egl (renderer_native);
-}
 
 static void
 clear_superseded_frame (CoglOnscreen *onscreen)
@@ -2461,19 +2451,17 @@ should_surface_be_sharable (CoglOnscreen *onscreen)
 }
 
 static uint32_t
-get_gbm_format_from_egl (MetaEgl    *egl,
-                         EGLDisplay  egl_display,
-                         EGLConfig   egl_config)
+get_gbm_format_from_egl (CoglRendererEGL *renderer_egl,
+                         EGLConfig        egl_config)
 {
   uint32_t gbm_format;
   EGLint native_visual_id;
 
-  if (meta_egl_get_config_attrib (egl,
-                                  egl_display,
-                                  egl_config,
-                                  EGL_NATIVE_VISUAL_ID,
-                                  &native_visual_id,
-                                  NULL))
+  if (cogl_renderer_egl_get_config_attrib (renderer_egl,
+                                           egl_config,
+                                           EGL_NATIVE_VISUAL_ID,
+                                           &native_visual_id,
+                                           NULL))
     gbm_format = (uint32_t) native_visual_id;
   else
     g_assert_not_reached ();
@@ -2565,9 +2553,7 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
-  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaKmsPlane *kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
   EGLint attrs[COGL_MAX_EGL_CONFIG_ATTRIBS];
@@ -2602,8 +2588,7 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
    */
   if (!should_surface_be_sharable (onscreen) &&
       meta_renderer_native_choose_gbm_format (kms_plane,
-                                              egl,
-                                              egl_display,
+                                              renderer_egl,
                                               attrs,
                                               alphaless_10bpc_formats,
                                               G_N_ELEMENTS (alphaless_10bpc_formats),
@@ -2613,8 +2598,7 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
     return TRUE;
 
   if (meta_renderer_native_choose_gbm_format (kms_plane,
-                                              egl,
-                                              egl_display,
+                                              renderer_egl,
                                               attrs,
                                               default_formats,
                                               G_N_ELEMENTS (default_formats),
@@ -2636,7 +2620,6 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
@@ -2645,7 +2628,6 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   CoglRendererEGL *cogl_renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  EGLDisplay edpy = cogl_renderer_egl_get_edisplay (cogl_renderer_egl);
   MetaRenderDeviceGbm *render_device_gbm;
   struct gbm_device *gbm_device;
   struct gbm_surface *new_gbm_surface = NULL;
@@ -2669,8 +2651,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
       !choose_onscreen_egl_config (onscreen, &egl_config, error))
     egl_config = cogl_display_egl_get_egl_config (cogl_display_egl);
 
-  format = get_gbm_format_from_egl (egl,
-                                    edpy,
+  format = get_gbm_format_from_egl (cogl_renderer_egl,
                                     egl_config);
 
   if (meta_renderer_native_use_modifiers (renderer_native))
@@ -2724,12 +2705,11 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
 
   egl_native_window = (EGLNativeWindowType) new_gbm_surface;
   new_egl_surface =
-    meta_egl_create_window_surface (egl,
-                                    edpy,
-                                    egl_config,
-                                    egl_native_window,
-                                    NULL,
-                                    error);
+    cogl_renderer_egl_create_window_surface (cogl_renderer_egl,
+                                             egl_config,
+                                             egl_native_window,
+                                             NULL,
+                                             error);
   if (new_egl_surface == EGL_NO_SURFACE)
     {
       gbm_surface_destroy (new_gbm_surface);

@@ -42,6 +42,6 @@
 
 G_BEGIN_DECLS
 
-void cogl_renderer_egl_check_extensions (CoglRenderer *renderer);
+void cogl_renderer_egl_init_extensions (CoglRenderer *renderer);
 
 G_END_DECLS

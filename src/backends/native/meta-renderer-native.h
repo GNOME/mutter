@@ -30,6 +30,7 @@
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-monitor-manager-native.h"
+#include "cogl/cogl.h"
 
 #define META_TYPE_RENDERER_NATIVE (meta_renderer_native_get_type ())
 META_EXPORT_TEST
@@ -72,12 +73,11 @@ gboolean meta_renderer_native_use_modifiers (MetaRendererNative *renderer_native
 
 gboolean meta_renderer_native_has_addfb2 (MetaRendererNative *renderer_native);
 
-gboolean meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
-                                                 MetaEgl         *egl,
-                                                 EGLDisplay       egl_display,
-                                                 EGLint          *attributes,
-                                                 const uint32_t  *formats,
-                                                 size_t           num_formats,
-                                                 const char      *purpose,
-                                                 EGLConfig       *out_config,
-                                                 GError         **error);
+gboolean meta_renderer_native_choose_gbm_format (MetaKmsPlane     *kms_plane,
+                                                 CoglRendererEGL  *renderer_egl,
+                                                 EGLint           *attributes,
+                                                 const uint32_t   *formats,
+                                                 size_t            num_formats,
+                                                 const char       *purpose,
+                                                 EGLConfig        *out_config,
+                                                 GError          **error);

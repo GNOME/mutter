@@ -206,23 +206,6 @@ COGL_EXPORT CoglIndices *
 cogl_context_get_rectangle_indices (CoglContext *context,
                                     int          n_rectangles);
 
-#ifdef HAVE_EGL
-/**
- * cogl_context_get_egl_display:
- * @context: A #CoglContext pointer
- *
- * If you have done a runtime check to determine that Cogl is using
- * EGL internally then this API can be used to retrieve the EGLDisplay
- * handle that was setup internally. The result is undefined if Cogl
- * is not using EGL.
- *
- *
- * Return value: The internally setup EGLDisplay handle.
- */
-COGL_EXPORT EGLDisplay
-cogl_context_get_egl_display (CoglContext *context);
-#endif /* HAVE_EGL */
-
 /**
  * cogl_context_get_driver:
  * @context: A #CoglContext

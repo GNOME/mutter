@@ -34,6 +34,7 @@
 #endif
 
 #include "clutter/clutter.h"
+#include "cogl/cogl.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "core/events.h"
 #include "core/meta-context-private.h"
@@ -875,16 +876,16 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
     meta_wayland_compositor_get_instance_private (compositor);
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+  CoglRendererEGL *renderer_egl =
+    COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
   g_autoptr (GError) error = NULL;
 
-  if (!meta_egl_has_extensions (egl, egl_display, NULL,
-                                "EGL_WL_bind_wayland_display",
-                                NULL))
+  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
+                                         "EGL_WL_bind_wayland_display",
+                                         NULL))
     {
       meta_topic (META_DEBUG_WAYLAND,
                   "Not binding Wayland display, missing extension");
@@ -894,10 +895,9 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
   meta_topic (META_DEBUG_WAYLAND,
               "Binding Wayland EGL display");
 
-  if (meta_egl_bind_wayland_display (egl,
-                                     egl_display,
-                                     compositor->wayland_display,
-                                     &error))
+  if (cogl_renderer_egl_bind_wayland_display (renderer_egl,
+                                              compositor->wayland_display,
+                                              &error))
     priv->is_wayland_egl_display_bound = TRUE;
   else
     g_warning ("Failed to bind Wayland display: %s", error->message);

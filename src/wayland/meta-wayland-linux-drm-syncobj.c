@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "backends/native/meta-backend-native-types.h"
+#include "cogl/cogl.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-renderer-native.h"
 #include "meta/util.h"
@@ -452,10 +453,10 @@ meta_wayland_drm_syncobj_manager_new (MetaWaylandCompositor *compositor,
   MetaContext *context =
     meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+  CoglRendererEGL *renderer_egl =
+    COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
   MetaWaylandDrmSyncobjManager *drm_syncobj_manager;
   EGLDeviceEXT egl_device;
   g_autofd int drm_fd = -1;
@@ -463,7 +464,7 @@ meta_wayland_drm_syncobj_manager_new (MetaWaylandCompositor *compositor,
   uint64_t timeline_supported = false;
   const char *device_path = NULL;
 
-  g_assert (backend && egl && clutter_backend && cogl_context && egl_display);
+  g_assert (backend && clutter_backend && cogl_context);
 
   if (!cogl_context_has_winsys_feature (cogl_context, COGL_WINSYS_FEATURE_SYNC_FD))
     {
@@ -472,31 +473,31 @@ meta_wayland_drm_syncobj_manager_new (MetaWaylandCompositor *compositor,
       return NULL;
     }
 
-  if (!meta_egl_query_display_attrib (egl, egl_display,
-                                      EGL_DEVICE_EXT, &attrib,
-                                      error))
+  if (!cogl_renderer_egl_query_display_attrib (renderer_egl,
+                                               EGL_DEVICE_EXT, &attrib,
+                                               error))
     return NULL;
 
   egl_device = (EGLDeviceEXT) attrib;
 
-  if (meta_egl_egl_device_has_extensions (egl, egl_device, NULL,
-                                          "EGL_EXT_device_drm_render_node",
-                                          NULL))
+  if (cogl_renderer_egl_device_has_extensions (renderer_egl, egl_device, NULL,
+                                               "EGL_EXT_device_drm_render_node",
+                                               NULL))
     {
-      if (!meta_egl_query_device_string (egl, egl_device,
-                                         EGL_DRM_RENDER_NODE_FILE_EXT,
-                                         &device_path, error))
+      if (!cogl_renderer_egl_query_device_string (renderer_egl, egl_device,
+                                                  EGL_DRM_RENDER_NODE_FILE_EXT,
+                                                  &device_path, error))
         return NULL;
     }
 
   if (!device_path &&
-      meta_egl_egl_device_has_extensions (egl, egl_device, NULL,
-                                          "EGL_EXT_device_drm",
-                                          NULL))
+      cogl_renderer_egl_device_has_extensions (renderer_egl, egl_device, NULL,
+                                               "EGL_EXT_device_drm",
+                                               NULL))
     {
-      if (!meta_egl_query_device_string (egl, egl_device,
-                                         EGL_DRM_DEVICE_FILE_EXT,
-                                         &device_path, error))
+      if (!cogl_renderer_egl_query_device_string (renderer_egl, egl_device,
+                                                  EGL_DRM_DEVICE_FILE_EXT,
+                                                  &device_path, error))
         return NULL;
     }
 

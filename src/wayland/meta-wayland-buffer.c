@@ -53,6 +53,7 @@
 #include "backends/meta-backend-private.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl-texture-private.h"
+#include "cogl/cogl.h"
 #include "meta/util.h"
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-private.h"
@@ -154,16 +155,17 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
         meta_wayland_compositor_get_context (buffer->compositor);
       MetaBackend *backend = meta_context_get_backend (context);
       EGLint format;
-      MetaEgl *egl = meta_backend_get_egl (backend);
       ClutterBackend *clutter_backend =
         meta_backend_get_clutter_backend (backend);
       CoglContext *cogl_context =
         clutter_backend_get_cogl_context (clutter_backend);
-      EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+      CoglRendererEGL *renderer_egl =
+        COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
 
-      if (meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                         EGL_TEXTURE_FORMAT, &format,
-                                         NULL))
+      if (cogl_renderer_egl_query_wayland_buffer (renderer_egl,
+                                                  buffer->resource,
+                                                  EGL_TEXTURE_FORMAT, &format,
+                                                  NULL))
         {
           buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_IMAGE;
           buffer->dma_buf.dma_buf =
@@ -456,10 +458,10 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
   MetaContext *context =
     meta_wayland_compositor_get_context (buffer->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+  CoglRendererEGL *renderer_egl =
+    COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
   int format, width, height, y_inverted;
   CoglPixelFormat cogl_format;
   EGLImageKHR egl_image;
@@ -473,24 +475,25 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
       return TRUE;
     }
 
-  if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                      EGL_TEXTURE_FORMAT, &format,
-                                      error))
+  if (!cogl_renderer_egl_query_wayland_buffer (renderer_egl, buffer->resource,
+                                               EGL_TEXTURE_FORMAT, &format,
+                                               error))
     return FALSE;
 
-  if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                      EGL_WIDTH, &width,
-                                      error))
+  if (!cogl_renderer_egl_query_wayland_buffer (renderer_egl, buffer->resource,
+                                               EGL_WIDTH, &width,
+                                               error))
     return FALSE;
 
-  if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                      EGL_HEIGHT, &height,
-                                      error))
+  if (!cogl_renderer_egl_query_wayland_buffer (renderer_egl, buffer->resource,
+                                               EGL_HEIGHT, &height,
+                                               error))
     return FALSE;
 
-  if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                      EGL_WAYLAND_Y_INVERTED_WL, &y_inverted,
-                                      NULL))
+  if (!cogl_renderer_egl_query_wayland_buffer (renderer_egl, buffer->resource,
+                                               EGL_WAYLAND_Y_INVERTED_WL,
+                                               &y_inverted,
+                                               NULL))
     y_inverted = EGL_TRUE;
 
   switch (format)
@@ -510,10 +513,11 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
 
   /* The WL_bind_wayland_display spec states that EGL_NO_CONTEXT is to be used
    * in conjunction with the EGL_WAYLAND_BUFFER_WL target. */
-  egl_image = meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
-                                     EGL_WAYLAND_BUFFER_WL, buffer->resource,
-                                     NULL,
-                                     error);
+  egl_image = cogl_renderer_egl_create_image (renderer_egl, EGL_NO_CONTEXT,
+                                              EGL_WAYLAND_BUFFER_WL,
+                                              buffer->resource,
+                                              NULL,
+                                              error);
   if (egl_image == EGL_NO_IMAGE_KHR)
     return FALSE;
 
@@ -525,7 +529,7 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
                                                    flags,
                                                    error);
 
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+  cogl_renderer_egl_destroy_image (renderer_egl, egl_image, NULL);
 
   if (!texture_2d)
     return FALSE;

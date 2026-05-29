@@ -279,21 +279,20 @@ ensure_mode_set_update (MetaRendererNative *renderer_native,
 }
 
 static gboolean
-choose_egl_config_from_gbm_format (MetaEgl       *egl,
-                                   EGLDisplay     egl_display,
-                                   const EGLint  *attributes,
-                                   uint32_t       gbm_format,
-                                   EGLConfig     *out_config,
-                                   GError       **error)
+choose_egl_config_from_gbm_format (CoglRendererEGL  *renderer_egl,
+                                   const EGLint     *attributes,
+                                   uint32_t          gbm_format,
+                                   EGLConfig        *out_config,
+                                   GError          **error)
 {
   EGLConfig *egl_configs;
   EGLint n_configs;
   EGLint i;
 
-  egl_configs = meta_egl_choose_all_configs (egl, egl_display,
-                                             attributes,
-                                             &n_configs,
-                                             error);
+  egl_configs = cogl_renderer_egl_choose_all_configs (renderer_egl,
+                                                      attributes,
+                                                      &n_configs,
+                                                      error);
   if (!egl_configs)
     return FALSE;
 
@@ -301,11 +300,11 @@ choose_egl_config_from_gbm_format (MetaEgl       *egl,
     {
       EGLint visual_id;
 
-      if (!meta_egl_get_config_attrib (egl, egl_display,
-                                       egl_configs[i],
-                                       EGL_NATIVE_VISUAL_ID,
-                                       &visual_id,
-                                       error))
+      if (!cogl_renderer_egl_get_config_attrib (renderer_egl,
+                                                egl_configs[i],
+                                                EGL_NATIVE_VISUAL_ID,
+                                                &visual_id,
+                                                error))
         {
           g_free (egl_configs);
           return FALSE;
@@ -326,15 +325,14 @@ choose_egl_config_from_gbm_format (MetaEgl       *egl,
 }
 
 gboolean
-meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
-                                        MetaEgl         *egl,
-                                        EGLDisplay       egl_display,
-                                        EGLint          *attributes,
-                                        const uint32_t  *formats,
-                                        size_t           num_formats,
-                                        const char      *purpose,
-                                        EGLConfig       *out_config,
-                                        GError         **error)
+meta_renderer_native_choose_gbm_format (MetaKmsPlane     *kms_plane,
+                                        CoglRendererEGL  *renderer_egl,
+                                        EGLint           *attributes,
+                                        const uint32_t   *formats,
+                                        size_t            num_formats,
+                                        const char       *purpose,
+                                        EGLConfig        *out_config,
+                                        GError          **error)
 {
   int i;
 
@@ -360,8 +358,7 @@ meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
           continue;
         }
 
-      if (choose_egl_config_from_gbm_format (egl,
-                                             egl_display,
+      if (choose_egl_config_from_gbm_format (renderer_egl,
                                              attributes,
                                              formats[i],
                                              out_config,
@@ -416,9 +413,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
     cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   EGLImageKHR egl_image;
   CoglPixelFormat cogl_format;
   CoglEglImageFlags flags;
@@ -430,17 +425,16 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   g_assert (format_info);
   cogl_format = format_info->cogl_format;
 
-  egl_image = meta_egl_create_dmabuf_image (egl,
-                                            egl_display,
-                                            width,
-                                            height,
-                                            drm_format,
-                                            n_planes,
-                                            fds,
-                                            strides,
-                                            offsets,
-                                            modifiers,
-                                            error);
+  egl_image = cogl_renderer_egl_create_dmabuf_image (renderer_egl,
+                                                     width,
+                                                     height,
+                                                     drm_format,
+                                                     n_planes,
+                                                     fds,
+                                                     strides,
+                                                     offsets,
+                                                     modifiers,
+                                                     error);
   if (egl_image == EGL_NO_IMAGE_KHR)
     return NULL;
 
@@ -453,7 +447,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
                                                  flags,
                                                  error);
 
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+  cogl_renderer_egl_destroy_image (renderer_egl, egl_image, NULL);
 
   if (!cogl_tex)
     return NULL;

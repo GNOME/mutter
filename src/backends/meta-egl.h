@@ -69,19 +69,6 @@ gboolean meta_egl_choose_first_config (MetaEgl       *egl,
                                        EGLConfig     *chosen_config,
                                        GError       **error);
 
-gboolean meta_egl_get_config_attrib (MetaEgl     *egl,
-                                     EGLDisplay   display,
-                                     EGLConfig    config,
-                                     EGLint       attribute,
-                                     EGLint      *value,
-                                     GError     **error);
-
-EGLConfig * meta_egl_choose_all_configs (MetaEgl       *egl,
-                                         EGLDisplay     display,
-                                         const EGLint  *attrib_list,
-                                         EGLint        *out_num_configs,
-                                         GError       **error);
-
 EGLContext meta_egl_create_context (MetaEgl      *egl,
                                     EGLDisplay    display,
                                     EGLConfig     config,
@@ -93,14 +80,6 @@ gboolean meta_egl_destroy_context (MetaEgl   *egl,
                                    EGLDisplay display,
                                    EGLContext context,
                                    GError   **error);
-
-EGLImageKHR meta_egl_create_image (MetaEgl        *egl,
-                                   EGLDisplay      display,
-                                   EGLContext      context,
-                                   EGLenum         target,
-                                   EGLClientBuffer buffer,
-                                   const EGLint   *attrib_list,
-                                   GError        **error);
 
 gboolean meta_egl_destroy_image (MetaEgl    *egl,
                                  EGLDisplay  display,
@@ -119,24 +98,6 @@ EGLImageKHR meta_egl_create_dmabuf_image (MetaEgl         *egl,
                                           const uint64_t  *modifiers,
                                           GError         **error);
 
-EGLSurface meta_egl_create_window_surface (MetaEgl            *egl,
-                                           EGLDisplay          display,
-                                           EGLConfig           config,
-                                           EGLNativeWindowType native_window_type,
-                                           const EGLint       *attrib_list,
-                                           GError            **error);
-
-EGLSurface meta_egl_create_pbuffer_surface (MetaEgl      *egl,
-                                            EGLDisplay    display,
-                                            EGLConfig     config,
-                                            const EGLint *attrib_list,
-                                            GError      **error);
-
-gboolean meta_egl_destroy_surface (MetaEgl   *egl,
-                                   EGLDisplay display,
-                                   EGLSurface surface,
-                                   GError   **error);
-
 EGLDisplay meta_egl_get_platform_display (MetaEgl      *egl,
                                           EGLenum       platform,
                                           void         *native_display,
@@ -154,37 +115,6 @@ gboolean meta_egl_make_current (MetaEgl   *egl,
                                 EGLContext context,
                                 GError   **error);
 
-gboolean meta_egl_bind_wayland_display (MetaEgl            *egl,
-                                        EGLDisplay          display,
-                                        struct wl_display  *wayland_display,
-                                        GError            **error);
-
-gboolean meta_egl_query_wayland_buffer (MetaEgl            *egl,
-                                        EGLDisplay          display,
-                                        struct wl_resource *buffer,
-                                        EGLint              attribute,
-                                        EGLint             *value,
-                                        GError            **error);
-
-gboolean meta_egl_query_device_string (MetaEgl       *egl,
-                                       EGLDeviceEXT   device,
-                                       EGLint         name,
-                                       const char   **out_string,
-                                       GError       **error);
-
-gboolean meta_egl_egl_device_has_extensions (MetaEgl        *egl,
-                                             EGLDeviceEXT    device,
-                                             const char   ***missing_extensions,
-                                             const char     *first_extension,
-                                             ...);
-
-gboolean meta_egl_query_dma_buf_formats (MetaEgl    *egl,
-                                         EGLDisplay  display,
-                                         EGLint      max_formats,
-                                         EGLint     *formats,
-                                         EGLint     *num_formats,
-                                         GError    **error);
-
 gboolean meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
                                            EGLDisplay    display,
                                            EGLint        format,
@@ -193,12 +123,6 @@ gboolean meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
                                            EGLBoolean   *external_only,
                                            EGLint       *num_formats,
                                            GError      **error);
-
-gboolean meta_egl_query_display_attrib (MetaEgl     *egl,
-                                        EGLDisplay   display,
-                                        EGLint       attribute,
-                                        EGLAttrib   *value,
-                                        GError     **error);
 
 gboolean meta_egl_create_sync (MetaEgl           *egl,
                                EGLDisplay         display,

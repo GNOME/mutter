@@ -41,6 +41,13 @@
 
 G_BEGIN_DECLS
 
+#ifndef COGL_GIR_SCANNING
+#define COGL_EGL_ERROR (cogl_egl_error_quark ())
+
+COGL_EXPORT
+GQuark cogl_egl_error_quark (void);
+#endif
+
 typedef enum _CoglEGLWinsysFeature
 {
   COGL_EGL_WINSYS_FEATURE_SWAP_REGION                   = 1L << 0,
@@ -132,5 +139,179 @@ gboolean cogl_renderer_egl_set_damage_region (CoglRendererEGL *renderer_egl,
                                               EGLSurface       surface,
                                               const EGLint    *rects,
                                               EGLint           n_rects);
+
+/**
+ * cogl_renderer_egl_has_extensions: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_has_extensions (CoglRendererEGL   *renderer_egl,
+                                           const char      ***missing_extensions,
+                                           const char        *first_extension,
+                                           ...);
+
+/**
+ * cogl_renderer_egl_query_string: (skip)
+ */
+COGL_EXPORT
+const char * cogl_renderer_egl_query_string (CoglRendererEGL *renderer_egl,
+                                             EGLint           name);
+
+/**
+ * cogl_renderer_egl_choose_first_config: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_choose_first_config (CoglRendererEGL  *renderer_egl,
+                                                const EGLint     *attrib_list,
+                                                EGLConfig        *chosen_config,
+                                                GError          **error);
+
+/**
+ * cogl_renderer_egl_choose_all_configs: (skip)
+ */
+COGL_EXPORT
+EGLConfig * cogl_renderer_egl_choose_all_configs (CoglRendererEGL  *renderer_egl,
+                                                  const EGLint     *attrib_list,
+                                                  EGLint           *out_num_configs,
+                                                  GError          **error);
+
+/**
+ * cogl_renderer_egl_get_config_attrib: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_get_config_attrib (CoglRendererEGL  *renderer_egl,
+                                              EGLConfig         config,
+                                              EGLint            attribute,
+                                              EGLint           *value,
+                                              GError          **error);
+
+/**
+ * cogl_renderer_egl_create_window_surface: (skip)
+ */
+COGL_EXPORT
+EGLSurface cogl_renderer_egl_create_window_surface (CoglRendererEGL     *renderer_egl,
+                                                    EGLConfig            config,
+                                                    EGLNativeWindowType  native_window,
+                                                    const EGLint        *attrib_list,
+                                                    GError             **error);
+
+/**
+ * cogl_renderer_egl_create_pbuffer_surface: (skip)
+ */
+COGL_EXPORT
+EGLSurface cogl_renderer_egl_create_pbuffer_surface (CoglRendererEGL  *renderer_egl,
+                                                     EGLConfig         config,
+                                                     const EGLint     *attrib_list,
+                                                     GError          **error);
+
+/**
+ * cogl_renderer_egl_destroy_surface: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_destroy_surface (CoglRendererEGL  *renderer_egl,
+                                            EGLSurface        surface,
+                                            GError          **error);
+
+/**
+ * cogl_renderer_egl_create_image: (skip)
+ */
+COGL_EXPORT
+EGLImageKHR cogl_renderer_egl_create_image (CoglRendererEGL  *renderer_egl,
+                                            EGLContext        context,
+                                            EGLenum           target,
+                                            EGLClientBuffer   buffer,
+                                            const EGLint     *attrib_list,
+                                            GError          **error);
+
+/**
+ * cogl_renderer_egl_destroy_image: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_destroy_image (CoglRendererEGL  *renderer_egl,
+                                          EGLImageKHR       image,
+                                          GError          **error);
+
+/**
+ * cogl_renderer_egl_create_dmabuf_image: (skip)
+ */
+COGL_EXPORT
+EGLImageKHR cogl_renderer_egl_create_dmabuf_image (CoglRendererEGL  *renderer_egl,
+                                                   unsigned int      width,
+                                                   unsigned int      height,
+                                                   uint32_t          drm_format,
+                                                   uint32_t          n_planes,
+                                                   const int        *fds,
+                                                   const uint32_t   *strides,
+                                                   const uint32_t   *offsets,
+                                                   const uint64_t   *modifiers,
+                                                   GError          **error);
+
+/**
+ * cogl_renderer_egl_bind_wayland_display: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_bind_wayland_display (CoglRendererEGL   *renderer_egl,
+                                                 struct wl_display *wayland_display,
+                                                 GError           **error);
+
+/**
+ * cogl_renderer_egl_query_wayland_buffer: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_query_wayland_buffer (CoglRendererEGL     *renderer_egl,
+                                                 struct wl_resource  *buffer,
+                                                 EGLint               attribute,
+                                                 EGLint              *value,
+                                                 GError             **error);
+
+/**
+ * cogl_renderer_egl_query_dma_buf_formats: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_query_dma_buf_formats (CoglRendererEGL  *renderer_egl,
+                                                  EGLint            max_formats,
+                                                  EGLint           *formats,
+                                                  EGLint           *num_formats,
+                                                  GError          **error);
+
+/**
+ * cogl_renderer_egl_query_dma_buf_modifiers: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_query_dma_buf_modifiers (CoglRendererEGL  *renderer_egl,
+                                                    EGLint            format,
+                                                    EGLint            max_modifiers,
+                                                    EGLuint64KHR     *modifiers,
+                                                    EGLBoolean       *external_only,
+                                                    EGLint           *num_modifiers,
+                                                    GError          **error);
+
+/**
+ * cogl_renderer_egl_query_display_attrib: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_query_display_attrib (CoglRendererEGL  *renderer_egl,
+                                                 EGLint            attribute,
+                                                 EGLAttrib        *value,
+                                                 GError          **error);
+
+/**
+ * cogl_renderer_egl_query_device_string: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_query_device_string (CoglRendererEGL  *renderer_egl,
+                                                EGLDeviceEXT      device,
+                                                EGLint            name,
+                                                const char      **out_string,
+                                                GError          **error);
+
+/**
+ * cogl_renderer_egl_device_has_extensions: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_device_has_extensions (CoglRendererEGL   *renderer_egl,
+                                                  EGLDeviceEXT       device,
+                                                  const char      ***missing_extensions,
+                                                  const char        *first_extension,
+                                                  ...);
 
 G_END_DECLS

@@ -169,7 +169,7 @@ cogl_context_egl_initable_init (GInitable     *initable,
 
   g_return_val_if_fail (cogl_display_egl_get_egl_context (egl_display), FALSE);
 
-  cogl_renderer_egl_check_extensions (renderer);
+  cogl_renderer_egl_init_extensions (renderer);
 
   if (!cogl_driver_update_features (driver, renderer, error))
     return FALSE;
@@ -463,12 +463,4 @@ cogl_context_egl_get_codegen_source_buffer (CoglContextEGL *context_egl)
   CoglContextEGLPrivate *priv =
     cogl_context_egl_get_instance_private (context_egl);
   return priv->codegen_source_buffer;
-}
-
-EGLDisplay
-cogl_context_get_egl_display (CoglContext *context)
-{
-  CoglRenderer *renderer = cogl_context_get_renderer (context);
-
-  return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
 }

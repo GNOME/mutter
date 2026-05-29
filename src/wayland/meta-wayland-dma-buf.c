@@ -47,7 +47,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-egl-ext.h"
-#include "backends/meta-egl.h"
 #include "cogl/cogl.h"
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
@@ -165,20 +164,19 @@ should_send_modifiers_native (MetaBackend *backend)
 static gboolean
 should_send_modifiers (MetaBackend *backend)
 {
-  MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+  CoglRendererEGL *renderer_egl =
+    COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
 
   if (META_IS_BACKEND_NATIVE (backend))
     return should_send_modifiers_native (backend);
 
-  return meta_egl_has_extensions (egl,
-                                  egl_display,
-                                  NULL,
-                                  "EGL_EXT_image_dma_buf_import_modifiers",
-                                  NULL);
+  return cogl_renderer_egl_has_extensions (renderer_egl,
+                                           NULL,
+                                           "EGL_EXT_image_dma_buf_import_modifiers",
+                                           NULL);
 }
 
 static gboolean
@@ -364,10 +362,10 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   MetaContext *context =
     meta_wayland_compositor_get_context (buffer->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+  CoglRendererEGL *renderer_egl =
+    COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
   MetaWaylandDmaBufBuffer *dma_buf = buffer->dma_buf.dma_buf;
   MetaMultiTextureFormat multi_format;
   CoglPixelFormat cogl_format;
@@ -413,17 +411,16 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
           modifiers[n_planes] = dma_buf->drm_modifier;
         }
 
-      egl_image = meta_egl_create_dmabuf_image (egl,
-                                                egl_display,
-                                                dma_buf->width,
-                                                dma_buf->height,
-                                                dma_buf->drm_format,
-                                                n_planes,
-                                                dma_buf->fds,
-                                                dma_buf->strides,
-                                                dma_buf->offsets,
-                                                modifiers,
-                                                error);
+      egl_image = cogl_renderer_egl_create_dmabuf_image (renderer_egl,
+                                                         dma_buf->width,
+                                                         dma_buf->height,
+                                                         dma_buf->drm_format,
+                                                         n_planes,
+                                                         dma_buf->fds,
+                                                         dma_buf->strides,
+                                                         dma_buf->offsets,
+                                                         modifiers,
+                                                         error);
       if (egl_image == EGL_NO_IMAGE_KHR)
         return FALSE;
 
@@ -436,7 +433,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
                                                          flags,
                                                          error);
 
-      meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+      cogl_renderer_egl_destroy_image (renderer_egl, egl_image, NULL);
 
       if (!cogl_texture)
         return FALSE;
@@ -473,19 +470,18 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
           g_return_val_if_fail (plane_format_info != NULL, FALSE);
           drm_format = plane_format_info->drm_format;
 
-          egl_image = meta_egl_create_dmabuf_image (egl,
-                                                    egl_display,
-                                                    dma_buf->width /
-                                                    horizontal_factor,
-                                                    dma_buf->height /
-                                                    vertical_factor,
-                                                    drm_format,
-                                                    1,
-                                                    &dma_buf->fds[plane_index],
-                                                    &dma_buf->strides[plane_index],
-                                                    &dma_buf->offsets[plane_index],
-                                                    &dma_buf->drm_modifier,
-                                                    error);
+          egl_image = cogl_renderer_egl_create_dmabuf_image (renderer_egl,
+                                                             dma_buf->width /
+                                                             horizontal_factor,
+                                                             dma_buf->height /
+                                                             vertical_factor,
+                                                             drm_format,
+                                                             1,
+                                                             &dma_buf->fds[plane_index],
+                                                             &dma_buf->strides[plane_index],
+                                                             &dma_buf->offsets[plane_index],
+                                                             &dma_buf->drm_modifier,
+                                                             error);
           if (egl_image == EGL_NO_IMAGE_KHR)
             return FALSE;
 
@@ -498,7 +494,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
                                                              flags,
                                                              error);
 
-          meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+          cogl_renderer_egl_destroy_image (renderer_egl, egl_image, NULL);
 
           if (!cogl_texture)
             return FALSE;
@@ -1688,12 +1684,11 @@ dma_buf_bind (struct wl_client *client,
 
 static void
 add_format (MetaWaylandDmaBufManager *dma_buf_manager,
-            EGLDisplay                egl_display,
+            CoglRendererEGL          *renderer_egl,
             uint32_t                  drm_format)
 {
   MetaContext *context = dma_buf_manager->compositor->context;
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaEgl *egl = meta_backend_get_egl (backend);
   EGLint num_modifiers;
   g_autofree EGLuint64KHR *modifiers = NULL;
   g_autoptr (GError) error = NULL;
@@ -1705,17 +1700,19 @@ add_format (MetaWaylandDmaBufManager *dma_buf_manager,
 
   /* First query the number of available modifiers, then allocate an array,
    * then fill the array. */
-  if (!meta_egl_query_dma_buf_modifiers (egl, egl_display, drm_format, 0, NULL,
-                                         NULL, &num_modifiers, NULL))
+  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl, drm_format, 0,
+                                                  NULL, NULL, &num_modifiers,
+                                                  NULL))
     goto add_fallback;
 
   if (num_modifiers == 0)
     goto add_fallback;
 
   modifiers = g_new0 (uint64_t, num_modifiers);
-  if (!meta_egl_query_dma_buf_modifiers (egl, egl_display, drm_format,
-                                         num_modifiers, modifiers, NULL,
-                                         &num_modifiers, &error))
+  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl, drm_format,
+                                                  num_modifiers, modifiers,
+                                                  NULL, &num_modifiers,
+                                                  &error))
     {
       g_warning ("Failed to query modifiers for format 0x%" PRIu32 ": %s",
                  drm_format, error->message);
@@ -1786,12 +1783,9 @@ init_format_table (MetaWaylandDmaBufManager *dma_buf_manager)
 
 static gboolean
 init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
-              EGLDisplay                 egl_display,
+              CoglRendererEGL           *renderer_egl,
               GError                   **error)
 {
-  MetaContext *context = dma_buf_manager->compositor->context;
-  MetaBackend *backend = meta_context_get_backend (context);
-  MetaEgl *egl = meta_backend_get_egl (backend);
   EGLint num_formats;
   g_autofree EGLint *driver_formats = NULL;
   int i;
@@ -1800,8 +1794,8 @@ init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
   dma_buf_manager->formats = g_array_new (FALSE, FALSE,
                                           sizeof (MetaWaylandDmaBufFormat));
 
-  if (!meta_egl_query_dma_buf_formats (egl, egl_display, 0, NULL, &num_formats,
-                                       error))
+  if (!cogl_renderer_egl_query_dma_buf_formats (renderer_egl, 0, NULL,
+                                                &num_formats, error))
     return FALSE;
 
   if (num_formats == 0)
@@ -1812,8 +1806,9 @@ init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
     }
 
   driver_formats = g_new0 (EGLint, num_formats);
-  if (!meta_egl_query_dma_buf_formats (egl, egl_display, num_formats,
-                                       driver_formats, &num_formats, error))
+  if (!cogl_renderer_egl_query_dma_buf_formats (renderer_egl, num_formats,
+                                                driver_formats, &num_formats,
+                                                error))
     return FALSE;
 
   for (i = 0; i < num_formats; i++)
@@ -1821,7 +1816,7 @@ init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
       format_info = meta_format_info_from_drm_format (driver_formats[i]);
       if (format_info && format_info->multi_texture_format !=
           META_MULTI_TEXTURE_FORMAT_INVALID)
-        add_format (dma_buf_manager, egl_display, driver_formats[i]);
+        add_format (dma_buf_manager, renderer_egl, driver_formats[i]);
     }
 
   if (dma_buf_manager->formats->len == 0)
@@ -1871,10 +1866,10 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
   MetaContext *context =
     meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+  CoglRendererEGL *renderer_egl =
+    COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
   dev_t device_id = 0;
   int protocol_version;
   EGLDeviceEXT egl_device;
@@ -1884,20 +1879,20 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
   const char *device_path = NULL;
   struct stat device_stat;
 
-  g_assert (backend && egl && clutter_backend && cogl_context && egl_display);
+  g_assert (backend && clutter_backend && cogl_context);
 
-  if (!meta_egl_has_extensions (egl, egl_display, NULL,
-                                "EGL_EXT_image_dma_buf_import_modifiers",
-                                NULL))
+  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
+                                         "EGL_EXT_image_dma_buf_import_modifiers",
+                                         NULL))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                    "Missing 'EGL_EXT_image_dma_buf_import_modifiers'");
       return NULL;
     }
 
-  if (!meta_egl_query_display_attrib (egl, egl_display,
-                                      EGL_DEVICE_EXT, &attrib,
-                                      &local_error))
+  if (!cogl_renderer_egl_query_display_attrib (renderer_egl,
+                                               EGL_DEVICE_EXT, &attrib,
+                                               &local_error))
     {
       g_warning ("Failed to query EGL device from primary EGL display: %s",
                  local_error->message);
@@ -1906,13 +1901,13 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
     }
   egl_device = (EGLDeviceEXT) attrib;
 
-  if (meta_egl_egl_device_has_extensions (egl, egl_device, NULL,
-                                          "EGL_EXT_device_drm_render_node",
-                                          NULL))
+  if (cogl_renderer_egl_device_has_extensions (renderer_egl, egl_device, NULL,
+                                               "EGL_EXT_device_drm_render_node",
+                                               NULL))
     {
-      if (!meta_egl_query_device_string (egl, egl_device,
-                                         EGL_DRM_RENDER_NODE_FILE_EXT,
-                                         &device_path, &local_error))
+      if (!cogl_renderer_egl_query_device_string (renderer_egl, egl_device,
+                                                  EGL_DRM_RENDER_NODE_FILE_EXT,
+                                                  &device_path, &local_error))
         {
           g_warning ("Failed to query EGL render node path: %s",
                      local_error->message);
@@ -1921,13 +1916,13 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
     }
 
   if (!device_path &&
-      meta_egl_egl_device_has_extensions (egl, egl_device, NULL,
-                                          "EGL_EXT_device_drm",
-                                          NULL))
+      cogl_renderer_egl_device_has_extensions (renderer_egl, egl_device, NULL,
+                                               "EGL_EXT_device_drm",
+                                               NULL))
     {
-      if (!meta_egl_query_device_string (egl, egl_device,
-                                         EGL_DRM_DEVICE_FILE_EXT,
-                                         &device_path, &local_error))
+      if (!cogl_renderer_egl_query_device_string (renderer_egl, egl_device,
+                                                  EGL_DRM_DEVICE_FILE_EXT,
+                                                  &device_path, &local_error))
         {
           g_warning ("Failed to query EGL render node path: %s",
                      local_error->message);
@@ -1964,7 +1959,7 @@ initialize:
   dma_buf_manager->compositor = compositor;
   dma_buf_manager->main_device_id = device_id;
 
-  if (!init_formats (dma_buf_manager, egl_display, &local_error))
+  if (!init_formats (dma_buf_manager, renderer_egl, &local_error))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "No supported formats detected: %s", local_error->message);
