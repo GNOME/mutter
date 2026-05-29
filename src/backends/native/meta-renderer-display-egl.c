@@ -19,7 +19,6 @@
 
 #include "backends/native/meta-renderer-display-egl-private.h"
 
-#include "backends/meta-egl.h"
 #include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "cogl/cogl.h"
@@ -66,11 +65,6 @@ meta_renderer_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
     cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  MetaRendererNative *renderer = renderer_gpu_data->renderer_native;
-  MetaBackend *backend = meta_renderer_get_backend (META_RENDERER (renderer));
-  MetaEgl *egl = meta_backend_get_egl (backend);
-  EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
 
   switch (renderer_gpu_data->mode)
     {
@@ -82,8 +76,7 @@ meta_renderer_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
         };
 
         return meta_renderer_native_choose_gbm_format (NULL,
-                                                       egl,
-                                                       egl_display,
+                                                       COGL_RENDERER_EGL (cogl_renderer),
                                                        attributes,
                                                        formats,
                                                        G_N_ELEMENTS (formats),
@@ -124,15 +117,9 @@ meta_renderer_display_egl_setup (CoglDisplay  *cogl_display,
 }
 
 static EGLSurface
-create_dummy_pbuffer_surface (CoglRenderer  *cogl_renderer,
-                              EGLDisplay     egl_display,
-                              GError       **error)
+create_dummy_pbuffer_surface (CoglRendererEGL  *renderer_egl,
+                              GError          **error)
 {
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  MetaRendererNative *renderer = renderer_gpu_data->renderer_native;
-  MetaBackend *backend = meta_renderer_get_backend (META_RENDERER (renderer));
-  MetaEgl *egl = meta_backend_get_egl (backend);
   EGLConfig pbuffer_config;
   static const EGLint pbuffer_config_attribs[] = {
     EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
@@ -149,13 +136,15 @@ create_dummy_pbuffer_surface (CoglRenderer  *cogl_renderer,
     EGL_NONE
   };
 
-  if (!meta_egl_choose_first_config (egl, egl_display, pbuffer_config_attribs,
-                                     &pbuffer_config, error))
+  if (!cogl_renderer_egl_choose_first_config (renderer_egl,
+                                              pbuffer_config_attribs,
+                                              &pbuffer_config, error))
     return EGL_NO_SURFACE;
 
-  return meta_egl_create_pbuffer_surface (egl, egl_display,
-                                          pbuffer_config, pbuffer_attribs,
-                                          error);
+  return cogl_renderer_egl_create_pbuffer_surface (renderer_egl,
+                                                   pbuffer_config,
+                                                   pbuffer_attribs,
+                                                   error);
 }
 
 static gboolean
@@ -165,14 +154,12 @@ meta_renderer_display_egl_context_created (CoglDisplayEGL  *cogl_display_egl,
   CoglRenderer *cogl_renderer =
     cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
-  EGLDisplay egl_display = cogl_renderer_egl_get_edisplay (renderer_egl);
 
   if (!cogl_renderer_egl_has_feature (renderer_egl,
                                       COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT))
     {
       cogl_display_egl_set_dummy_surface (cogl_display_egl,
-                                          create_dummy_pbuffer_surface (cogl_renderer,
-                                                                        egl_display,
+                                          create_dummy_pbuffer_surface (renderer_egl,
                                                                         error));
       if (cogl_display_egl_get_dummy_surface (cogl_display_egl) == EGL_NO_SURFACE)
         return FALSE;
@@ -197,19 +184,12 @@ meta_renderer_display_egl_cleanup_context (CoglDisplayEGL *cogl_display_egl)
 {
   CoglRenderer *cogl_renderer =
     cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
 
   if (cogl_display_egl_get_dummy_surface (cogl_display_egl) != EGL_NO_SURFACE)
     {
-      meta_egl_destroy_surface (egl,
-                                egl_display,
-                                cogl_display_egl_get_dummy_surface (cogl_display_egl),
-                                NULL);
+      cogl_renderer_egl_destroy_surface (COGL_RENDERER_EGL (cogl_renderer),
+                                         cogl_display_egl_get_dummy_surface (cogl_display_egl),
+                                         NULL);
       cogl_display_egl_set_dummy_surface (cogl_display_egl, EGL_NO_SURFACE);
     }
 }
