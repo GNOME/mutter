@@ -109,17 +109,6 @@ struct _CoglTextureDriverGLClass
                                  GLenum               dest_gl_type,
                                  uint8_t             *dest);
 
-  /*
-   * The driver may impose constraints on what formats can be used to store
-   * texture data read from textures. For example GLES currently only supports
-   * RGBA_8888, and so we need to manually convert the data if the final
-   * destination has another format.
-   */
-  CoglPixelFormat (* find_best_gl_get_data_format) (CoglTextureDriverGL *driver,
-                                                    CoglContext         *context,
-                                                    CoglPixelFormat      format,
-                                                    GLenum              *closest_gl_format,
-                                                    GLenum              *closest_gl_type);
 };
 
 #define COGL_TYPE_TEXTURE_DRIVER_GL (cogl_texture_driver_gl_get_type ())

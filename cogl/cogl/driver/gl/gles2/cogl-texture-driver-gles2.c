@@ -429,30 +429,24 @@ cogl_texture_driver_gles2_gl_get_tex_image (CoglTextureDriverGL *driver,
 }
 
 static CoglPixelFormat
-cogl_texture_driver_gles2_find_best_gl_get_data_format (CoglTextureDriverGL *driver,
-                                                        CoglContext         *context,
-                                                        CoglPixelFormat      format,
-                                                        GLenum              *closest_gl_format,
-                                                        GLenum              *closest_gl_type)
+cogl_texture_driver_gles2_find_best_get_data_format (CoglTextureDriver *driver,
+                                                     CoglContext       *context,
+                                                     CoglPixelFormat    format)
 {
-  /* Find closest format that's supported by GL
-     (Can't use _cogl_pixel_format_to_gl since available formats
-      when reading pixels on GLES are severely limited) */
-  *closest_gl_format = GL_RGBA;
-  *closest_gl_type = GL_UNSIGNED_BYTE;
   return COGL_PIXEL_FORMAT_RGBA_8888;
 }
 
 static void
 cogl_texture_driver_gles2_class_init (CoglTextureDriverGLES2Class *klass)
 {
+  CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
   CoglTextureDriverGLClass *driver_gl_klass = COGL_TEXTURE_DRIVER_GL_CLASS (klass);
 
+  driver_klass->find_best_get_data_format = cogl_texture_driver_gles2_find_best_get_data_format;
   driver_gl_klass->gen = cogl_texture_driver_gles2_gen;
   driver_gl_klass->upload_subregion_to_gl = cogl_texture_driver_gles2_upload_subregion_to_gl;
   driver_gl_klass->upload_to_gl = cogl_texture_driver_gles2_upload_to_gl;
   driver_gl_klass->gl_get_tex_image = cogl_texture_driver_gles2_gl_get_tex_image;
-  driver_gl_klass->find_best_gl_get_data_format = cogl_texture_driver_gles2_find_best_gl_get_data_format;
 }
 
 static void
