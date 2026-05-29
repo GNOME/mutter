@@ -60,6 +60,13 @@ struct _CoglTextureDriverClass
                                       int                width,
                                       int                height,
                                       CoglPixelFormat    internal_format);
+
+  /* The driver may impose constraints on what formats can be used to store
+   * texture data read from textures.
+   */
+  CoglPixelFormat (* find_best_get_data_format) (CoglTextureDriver *driver,
+                                                 CoglContext       *context,
+                                                 CoglPixelFormat    format);
 };
 
 CoglDriver * cogl_texture_driver_get_driver (CoglTextureDriver *tex_driver);

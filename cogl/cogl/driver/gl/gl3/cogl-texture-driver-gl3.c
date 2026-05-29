@@ -343,11 +343,9 @@ cogl_texture_driver_gl3_gl_get_tex_image (CoglTextureDriverGL *tex_driver,
 }
 
 static CoglPixelFormat
-cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriverGL *tex_driver,
-                                                      CoglContext         *context,
-                                                      CoglPixelFormat      format,
-                                                      GLenum              *closest_gl_format,
-                                                      GLenum              *closest_gl_type)
+cogl_texture_driver_gl3_find_best_get_data_format (CoglTextureDriver *tex_driver,
+                                                   CoglContext       *context,
+                                                   CoglPixelFormat    format)
 {
   CoglDriver *driver = cogl_context_get_driver (context);
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
@@ -356,20 +354,21 @@ cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriverGL *tex_d
   return driver_klass->pixel_format_to_gl (driver_gl,
                                            format,
                                            NULL, /* don't need */
-                                           closest_gl_format,
-                                           closest_gl_type);
+                                           NULL,
+                                           NULL);
 }
 
 static void
 cogl_texture_driver_gl3_class_init (CoglTextureDriverGL3Class *klass)
 {
+  CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
   CoglTextureDriverGLClass *driver_gl_klass = COGL_TEXTURE_DRIVER_GL_CLASS (klass);
 
+  driver_klass->find_best_get_data_format = cogl_texture_driver_gl3_find_best_get_data_format;
   driver_gl_klass->gen = cogl_texture_driver_gl3_gen;
   driver_gl_klass->upload_subregion_to_gl = cogl_texture_driver_gl3_upload_subregion_to_gl;
   driver_gl_klass->upload_to_gl = cogl_texture_driver_gl3_upload_to_gl;
   driver_gl_klass->gl_get_tex_image = cogl_texture_driver_gl3_gl_get_tex_image;
-  driver_gl_klass->find_best_gl_get_data_format = cogl_texture_driver_gl3_find_best_gl_get_data_format;
 }
 
 static void
