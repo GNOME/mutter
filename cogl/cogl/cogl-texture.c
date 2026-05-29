@@ -193,6 +193,26 @@ cogl_texture_foreach_leaf (CoglTexture             *texture,
 }
 
 static void
+get_first_leaf_cb (CoglTexture2D *leaf,
+                   void          *user_data)
+{
+  CoglTexture2D **first_leaf = user_data;
+
+  if (!*first_leaf)
+    *first_leaf = leaf;
+}
+
+CoglTexture2D *
+cogl_texture_get_first_leaf (CoglTexture *texture)
+{
+  CoglTexture2D *first_leaf = NULL;
+
+  cogl_texture_foreach_leaf (texture, get_first_leaf_cb, &first_leaf);
+
+  return first_leaf;
+}
+
+static void
 pre_paint_leaf_cb (CoglTexture2D *leaf,
                    void          *user_data)
 {
@@ -205,7 +225,6 @@ static void
 cogl_texture_default_pre_paint (CoglTexture              *tex,
                                 CoglTexturePrePaintFlags  flags)
 {
-
   cogl_texture_foreach_leaf (tex, pre_paint_leaf_cb, &flags);
 }
 
@@ -300,10 +319,21 @@ _cogl_texture_needs_premult_conversion (CoglPixelFormat src_format,
 gboolean
 cogl_texture_is_get_data_supported (CoglTexture *texture)
 {
-  if (COGL_TEXTURE_GET_CLASS (texture)->is_get_data_supported)
-    return COGL_TEXTURE_GET_CLASS (texture)->is_get_data_supported (texture);
-  else
-    return TRUE;
+  CoglTexture2D *leaf;
+  CoglTextureDriver *tex_driver;
+  CoglTextureDriverClass *tex_driver_klass;
+
+  if (!cogl_texture_is_allocated (texture))
+    cogl_texture_allocate (texture, NULL);
+
+  leaf = cogl_texture_get_first_leaf (texture);
+  if (!leaf)
+    return FALSE;
+
+  tex_driver = cogl_texture_get_driver (COGL_TEXTURE (leaf));
+  tex_driver_klass = COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
+
+  return tex_driver_klass->texture_2d_is_get_data_supported (tex_driver, leaf);
 }
 
 unsigned int
@@ -398,15 +428,28 @@ _cogl_texture_get_level_size (CoglTexture *texture,
     *depth = current_depth;
 }
 
+static void
+count_leaves_cb (CoglTexture2D *leaf,
+                 void          *user_data)
+{
+  int *count = user_data;
+
+  (*count)++;
+}
+
 gboolean
 cogl_texture_is_sliced (CoglTexture *texture)
 {
+  int count = 0;
+
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
 
   if (!cogl_texture_is_allocated (texture))
     cogl_texture_allocate (texture, NULL);
 
-  return COGL_TEXTURE_GET_CLASS (texture)->is_sliced (texture);
+  cogl_texture_foreach_leaf (texture, count_leaves_cb, &count);
+
+  return count > 1;
 }
 
 /* If this returns FALSE, that implies _foreach_sub_texture_in_region
@@ -423,17 +466,27 @@ _cogl_texture_can_hardware_repeat (CoglTexture *texture)
 
 gboolean
 cogl_texture_get_gl_texture (CoglTexture *texture,
-			     GLuint *out_gl_handle,
-			     GLenum *out_gl_target)
+                             GLuint      *out_gl_handle,
+                             GLenum      *out_gl_target)
 {
+  CoglTexture2D *leaf;
+
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
 
   if (!cogl_texture_is_allocated (texture))
     cogl_texture_allocate (texture, NULL);
 
-  return COGL_TEXTURE_GET_CLASS (texture)->get_gl_texture (texture,
-                                                           out_gl_handle,
-                                                           out_gl_target);
+  leaf = cogl_texture_get_first_leaf (texture);
+  if (!leaf)
+    return FALSE;
+
+  if (out_gl_handle)
+    *out_gl_handle = leaf->gl_texture;
+
+  if (out_gl_target)
+    *out_gl_target = leaf->gl_target;
+
+  return leaf->gl_texture ? TRUE : FALSE;
 }
 
 void
