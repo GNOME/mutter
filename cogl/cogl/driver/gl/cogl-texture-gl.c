@@ -80,26 +80,6 @@ _cogl_texture_gl_prep_alignment_for_pixels_download (CoglDriver *driver,
   GE (driver, glPixelStorei (GL_PACK_ALIGNMENT, alignment));
 }
 
-void
-_cogl_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *texture,
-                                                 unsigned int wrap_mode_s,
-                                                 unsigned int wrap_mode_t)
-{
-  COGL_TEXTURE_GET_CLASS (texture)->gl_flush_legacy_texobj_wrap_modes (texture,
-                                                                       wrap_mode_s,
-                                                                       wrap_mode_t);
-}
-
-void
-_cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *texture,
-                                              unsigned int min_filter,
-                                              unsigned int mag_filter)
-{
-  COGL_TEXTURE_GET_CLASS (texture)->gl_flush_legacy_texobj_filters (texture,
-                                                                    min_filter,
-                                                                    mag_filter);
-}
-
 GLenum
 _cogl_texture_gl_get_format (CoglTexture *texture)
 {
