@@ -39,9 +39,6 @@
 #include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-journal-private.h"
-#include "cogl/cogl-framebuffer-private.h"
-#include "cogl/driver/gl/cogl-driver-gl-private.h"
 
 #include <string.h>
 #include <math.h>
@@ -163,36 +160,6 @@ _cogl_texture_2d_transform_quad_coords (CoglTexture *tex,
   return COGL_TRANSFORM_NO_REPEAT;
 }
 
-static void
-_cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
-{
-  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-
-  /* Only update if the mipmaps are dirty */
-  if ((flags & COGL_TEXTURE_NEEDS_MIPMAP) &&
-      tex_2d->auto_mipmap && tex_2d->mipmaps_dirty)
-    {
-      CoglContext *ctx = cogl_texture_get_context (tex);
-      CoglDriver *driver = cogl_context_get_driver (ctx);
-      CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
-      CoglTextureDriverClass *tex_driver_klass =
-        COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
-
-      /* Since we are about to ask the GPU to generate mipmaps of tex, we
-       * better make sure tex is up-to-date.
-       */
-      _cogl_texture_flush_journal_rendering (tex);
-
-      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH) &&
-          _cogl_texture_get_associated_framebuffers (tex))
-        GE (driver, glFlush ());
-
-      tex_driver_klass->texture_2d_generate_mipmap (tex_driver, tex_2d);
-
-      tex_2d->mipmaps_dirty = FALSE;
-    }
-}
-
 static gboolean
 _cogl_texture_2d_set_region (CoglTexture *tex,
                              int src_x,
@@ -267,7 +234,6 @@ cogl_texture_2d_foreach_leaf (CoglTexture              *tex,
 static void
 cogl_texture_2d_class_init (CoglTexture2DClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CoglTextureClass *texture_class = COGL_TEXTURE_CLASS (klass);
 
   texture_class->foreach_leaf_texture = cogl_texture_2d_foreach_leaf;
@@ -277,7 +243,6 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
   texture_class->can_hardware_repeat = _cogl_texture_2d_can_hardware_repeat;
   texture_class->transform_coords = _cogl_texture_2d_transform_coords;
   texture_class->transform_quad_coords = _cogl_texture_2d_transform_quad_coords;
-  texture_class->pre_paint = _cogl_texture_2d_pre_paint;
   texture_class->get_format = _cogl_texture_2d_get_format;
 }
 
@@ -384,47 +349,6 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
 
   return tex_2d;
 }
-
-#if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
-/* NB: The reason we require the width, height and format to be passed
- * even though they may seem redundant is because GLES 1/2 don't
- * provide a way to query these properties. */
-CoglTexture *
-cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
-                                    int width,
-                                    int height,
-                                    CoglPixelFormat format,
-                                    EGLImageKHR image,
-                                    CoglEglImageFlags flags,
-                                    GError **error)
-{
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglTextureLoader *loader;
-  CoglTexture *tex;
-
-  g_return_val_if_fail (cogl_driver_has_feature
-                        (driver,
-                        COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE),
-                        NULL);
-
-  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE);
-  loader->src.egl_image.image = image;
-  loader->src.egl_image.width = width;
-  loader->src.egl_image.height = height;
-  loader->src.egl_image.format = format;
-  loader->src.egl_image.flags = flags;
-
-  tex = _cogl_texture_2d_create_base (ctx, width, height, format, loader);
-
-  if (!cogl_texture_allocate (COGL_TEXTURE (tex), error))
-    {
-      g_object_unref (tex);
-      return NULL;
-    }
-
-  return tex;
-}
-#endif /* defined (HAVE_EGL) && defined (EGL_KHR_image_base) */
 
 void
 _cogl_texture_2d_externally_modified (CoglTexture *texture)
