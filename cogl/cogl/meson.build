@@ -64,10 +64,6 @@ cogl_winsys_headers = [
   'winsys/cogl-onscreen-egl.h',
 ]
 
-cogl_winsys_nonintrospected_headers = [
-  'winsys/cogl-winsys-egl-feature-functions.h',
-]
-
 cogl_nonintrospected_headers = [
 ]
 
@@ -293,7 +289,6 @@ if have_egl
     'cogl-renderer-egl-private.h',
     'winsys/cogl-onscreen-egl.c',
     'winsys/cogl-onscreen-egl.h',
-    'winsys/cogl-winsys-egl-feature-functions.h',
   ]
 endif
 
@@ -326,7 +321,6 @@ cogl_introspected_headers = [
 cogl_headers_all = [
   cogl_introspected_headers,
   cogl_nonintrospected_headers,
-  cogl_winsys_nonintrospected_headers,
 ]
 
 libmutter_cogl_name = 'mutter-cogl-' + libmutter_api_version
@@ -376,9 +370,6 @@ install_headers(cogl_gl_prototype_headers,
   subdir: cogl_cogl_includesubdir / 'gl-prototypes')
 
 install_headers(cogl_winsys_headers,
-  subdir: cogl_cogl_includesubdir / 'winsys')
-
-install_headers(cogl_winsys_nonintrospected_headers,
   subdir: cogl_cogl_includesubdir / 'winsys')
 
 pkg.generate(libmutter_cogl,
