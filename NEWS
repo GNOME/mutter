@@ -1,3 +1,31 @@
+49.6
+====
+* Fix applying pango scale attributes to text [AnonymouX47; !4964]
+* Fix moving minimized maximized windows to a different monitor [Jonas; !4958]
+* Configure primary GPU in headless mode if it does't support KMS [Vivek; !4561]
+* Use fewer buffers for screencast streams [Georges; !4983]
+* Only queue clipped redraws when mapped [Sebastian; !4990]
+* Fix XReconfigureWMWindow() resizing window when not requested [Robert; !5010]
+* Fix DND sometimes failing with reused data sources [Sebastian; !5009]
+* Fix size increases when quickly unmaximizing window by drag [Jonas; !4856]
+* Fix cursor position hint for Xwayland if scaling is used [Olivier; !4989]
+* Fix fullscreening of edge tiled windows [Jonas; !4960]
+* Scale the hotspot location for tablet tool cursors [Olivier; !5026]
+* Fix activating & popup from button release events [Jonas; !4792]
+* Fix moving maximized windows to another monitor via keyboard [Jonas; !4852]
+* Do not unfullscreen fullscreened window on unmaximize [Zhiyi; !5069]
+* Fixed crashes [Jonas, Marco, Michel; !4982, !5038, !5031, !5061,
+  !5074, !5076]
+* Misc. bug fixes and cleanups [Daniel, Jonas, Bilal, Denis, Sebastian,
+  AnonymouX47, Zhiyi, Michel, Vasiliy; !4985, !4979, !4978, !5004, !5005,
+  !5034, !4998, !5015] !4984, !5035, !5054, !5060, !4853]
+
+Contributors:
+  AnonymouX47, Georges Basile Stavracas Neto, Robert Brown, Michel Dänzer,
+  Bilal Elmoussaoui, Olivier Fourdan, Denis Garaev, Vivek Kasireddy,
+  Sebastian Keller, Vasiliy Stelmachenok, Marco Trevisan (Treviño),
+  Daniel van Vugt, Zhiyi Zhang, Jonas Ådahl
+
 49.5
 ====
 * Fix re-enabling touchscreen after power save mode [Lorenzo; !4899]
