@@ -37,8 +37,9 @@
  * Pixel Buffers API.
  */
 
-#include "cogl-driver-private.h"
 #include "config.h"
+
+#include "cogl-driver-private.h"
 
 #include <stdio.h>
 #include <string.h>

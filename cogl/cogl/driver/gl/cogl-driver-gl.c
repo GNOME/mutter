@@ -26,6 +26,8 @@
  * SOFTWARE.
  */
 
+#include "config.h"
+
 #include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
