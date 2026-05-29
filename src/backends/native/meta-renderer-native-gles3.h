@@ -23,13 +23,12 @@
 
 #include <gbm.h>
 
-#include "backends/meta-egl.h"
 #include "backends/meta-gles3.h"
+#include "cogl/cogl.h"
 #include "mtk/mtk.h"
 
-gboolean meta_renderer_native_gles3_blit_shared_bo (MetaEgl          *egl,
-                                                    MetaGles3        *gles3,
-                                                    EGLDisplay        egl_display,
+gboolean meta_renderer_native_gles3_blit_shared_bo (MetaGles3        *gles3,
+                                                    CoglRendererEGL  *renderer_egl,
                                                     EGLContext        egl_context,
                                                     EGLImageKHR       dst_egl_image,
                                                     EGLImageKHR       src_egl_image,

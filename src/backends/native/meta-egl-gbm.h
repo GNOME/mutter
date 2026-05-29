@@ -26,9 +26,8 @@
 #include <gbm.h>
 #include <glib-object.h>
 
-#include "backends/meta-egl.h"
+#include "cogl/cogl.h"
 
-EGLImageKHR meta_egl_ensure_gbm_bo_egl_image (MetaEgl        *egl,
-                                              EGLDisplay      egl_display,
-                                              struct gbm_bo  *shared_bo,
-                                              GError        **error);
+EGLImageKHR meta_egl_ensure_gbm_bo_egl_image (CoglRendererEGL  *renderer_egl,
+                                              struct gbm_bo    *shared_bo,
+                                              GError          **error);

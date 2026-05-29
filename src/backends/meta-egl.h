@@ -28,12 +28,9 @@
 #include <EGL/eglmesaext.h>
 #include <glib-object.h>
 
-#define META_EGL_ERROR meta_egl_error_quark ()
-
 #define META_TYPE_EGL (meta_egl_get_type ())
 G_DECLARE_FINAL_TYPE (MetaEgl, meta_egl, META, EGL, GObject)
 
-GQuark meta_egl_error_quark (void);
 
 gboolean
 meta_extensions_string_has_extensions_valist (const char   *extensions_str,
@@ -41,107 +38,6 @@ meta_extensions_string_has_extensions_valist (const char   *extensions_str,
                                               const char   *first_extension,
                                               va_list       var_args);
 
-gboolean meta_egl_has_extensions (MetaEgl      *egl,
-                                  EGLDisplay    display,
-                                  const char ***missing_extensions,
-                                  const char   *first_extension,
-                                  ...);
-
-const char * meta_egl_query_string (MetaEgl    *egl,
-                                    EGLDisplay  display,
-                                    EGLint      name);
-
-gboolean meta_egl_initialize (MetaEgl   *egl,
-                              EGLDisplay display,
-                              GError   **error);
-
-gboolean meta_egl_bind_api (MetaEgl  *egl,
-                            EGLenum   api,
-                            GError  **error);
-
 gpointer meta_egl_get_proc_address (MetaEgl    *egl,
                                     const char *procname,
                                     GError    **error);
-
-gboolean meta_egl_choose_first_config (MetaEgl       *egl,
-                                       EGLDisplay     display,
-                                       const EGLint  *attrib_list,
-                                       EGLConfig     *chosen_config,
-                                       GError       **error);
-
-EGLContext meta_egl_create_context (MetaEgl      *egl,
-                                    EGLDisplay    display,
-                                    EGLConfig     config,
-                                    EGLContext    share_context,
-                                    const EGLint *attrib_list,
-                                    GError      **error);
-
-gboolean meta_egl_destroy_context (MetaEgl   *egl,
-                                   EGLDisplay display,
-                                   EGLContext context,
-                                   GError   **error);
-
-gboolean meta_egl_destroy_image (MetaEgl    *egl,
-                                 EGLDisplay  display,
-                                 EGLImageKHR image,
-                                 GError    **error);
-
-EGLImageKHR meta_egl_create_dmabuf_image (MetaEgl         *egl,
-                                          EGLDisplay       egl_display,
-                                          unsigned int     width,
-                                          unsigned int     height,
-                                          uint32_t         drm_format,
-                                          uint32_t         n_planes,
-                                          const int       *fds,
-                                          const uint32_t  *strides,
-                                          const uint32_t  *offsets,
-                                          const uint64_t  *modifiers,
-                                          GError         **error);
-
-EGLDisplay meta_egl_get_platform_display (MetaEgl      *egl,
-                                          EGLenum       platform,
-                                          void         *native_display,
-                                          const EGLint *attrib_list,
-                                          GError      **error);
-
-gboolean meta_egl_terminate (MetaEgl   *egl,
-                             EGLDisplay display,
-                             GError   **error);
-
-gboolean meta_egl_make_current (MetaEgl   *egl,
-                                EGLDisplay display,
-                                EGLSurface draw,
-                                EGLSurface read,
-                                EGLContext context,
-                                GError   **error);
-
-gboolean meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
-                                           EGLDisplay    display,
-                                           EGLint        format,
-                                           EGLint        max_modifiers,
-                                           EGLuint64KHR *modifiers,
-                                           EGLBoolean   *external_only,
-                                           EGLint       *num_formats,
-                                           GError      **error);
-
-gboolean meta_egl_create_sync (MetaEgl           *egl,
-                               EGLDisplay         display,
-                               EGLenum            type,
-                               const EGLAttrib   *attrib_list,
-                               EGLSync           *egl_sync,
-                               GError           **error);
-
-gboolean meta_egl_destroy_sync (MetaEgl     *egl,
-                                EGLDisplay   display,
-                                EGLSync      sync,
-                                GError     **error);
-
-gboolean meta_egl_wait_sync (MetaEgl     *egl,
-                             EGLDisplay   display,
-                             EGLSync      sync,
-                             EGLint       flags,
-                             GError     **error);
-
-int meta_egl_create_sync_fd (MetaEgl     *egl,
-                             EGLDisplay   display,
-                             GError     **error);

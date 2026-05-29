@@ -32,7 +32,6 @@
 #include <gio/gio.h>
 #include <string.h>
 
-#include "backends/meta-egl-ext.h"
 #include "backends/meta-gles3.h"
 #include "backends/meta-gles3-table.h"
 #include "meta/meta-debug.h"
@@ -82,11 +81,10 @@ get_quark_for_egl_context (EGLContext egl_context)
 }
 
 static gboolean
-can_blit_buffer (ContextData *context_data,
-                 MetaEgl     *egl,
-                 EGLDisplay   egl_display,
-                 uint32_t     drm_format,
-                 uint64_t     drm_modifier)
+can_blit_buffer (ContextData     *context_data,
+                 CoglRendererEGL *renderer_egl,
+                 uint32_t         drm_format,
+                 uint64_t         drm_modifier)
 {
   EGLint num_modifiers;
   EGLuint64KHR *modifiers;
@@ -108,9 +106,9 @@ can_blit_buffer (ContextData *context_data,
         return other_support->can_blit;
     }
 
-  if (!meta_egl_has_extensions (egl, egl_display, NULL,
-                                "EGL_EXT_image_dma_buf_import_modifiers",
-                                NULL))
+  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
+                                         "EGL_EXT_image_dma_buf_import_modifiers",
+                                         NULL))
     {
       meta_topic (META_DEBUG_RENDER,
                   "No support for EGL_EXT_image_dma_buf_import_modifiers, "
@@ -118,9 +116,9 @@ can_blit_buffer (ContextData *context_data,
       goto out;
     }
 
-  if (!meta_egl_query_dma_buf_modifiers (egl, egl_display,
-                                         drm_format, 0, NULL, NULL,
-                                         &num_modifiers, &error))
+  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl,
+                                                   drm_format, 0, NULL, NULL,
+                                                   &num_modifiers, &error))
     {
       meta_topic (META_DEBUG_RENDER,
                   "Failed to query supported DMA buffer modifiers (%s), "
@@ -134,10 +132,10 @@ can_blit_buffer (ContextData *context_data,
 
   modifiers = g_alloca0 (sizeof (EGLuint64KHR) * num_modifiers);
   external_only = g_alloca0 (sizeof (EGLBoolean) * num_modifiers);
-  if (!meta_egl_query_dma_buf_modifiers (egl, egl_display,
-                                         drm_format, num_modifiers,
-                                         modifiers, external_only,
-                                         &num_modifiers, &error))
+  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl,
+                                                   drm_format, num_modifiers,
+                                                   modifiers, external_only,
+                                                   &num_modifiers, &error))
     {
       g_warning ("Failed to requery supported DMA buffer modifiers: %s",
                  error->message);
@@ -459,9 +457,8 @@ paint_egl_image (ContextData      *context_data,
 }
 
 gboolean
-meta_renderer_native_gles3_blit_shared_bo (MetaEgl          *egl,
-                                           MetaGles3        *gles3,
-                                           EGLDisplay        egl_display,
+meta_renderer_native_gles3_blit_shared_bo (MetaGles3        *gles3,
+                                           CoglRendererEGL  *renderer_egl,
                                            EGLContext        egl_context,
                                            EGLImageKHR       dst_egl_image,
                                            EGLImageKHR       src_egl_image,
@@ -491,7 +488,7 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl          *egl,
     }
 
   can_blit = can_blit_buffer (context_data,
-                              egl, egl_display,
+                              renderer_egl,
                               gbm_bo_get_format (shared_bo),
                               gbm_bo_get_modifier (shared_bo));
 

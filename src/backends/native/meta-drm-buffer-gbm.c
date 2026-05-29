@@ -278,15 +278,13 @@ meta_drm_buffer_gbm_copy_to_framebuffer (CoglScanout      *scanout,
   MetaDeviceFile *device_file = meta_drm_buffer_get_device_file (buffer);
   MetaDevicePool *device_pool = meta_device_file_get_pool (device_file);
   MetaBackend *backend = meta_device_pool_get_backend (device_pool);
-  MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   EGLImageKHR egl_image;
   CoglPixelFormat cogl_format;
   CoglPixelFormat dst_format;
@@ -299,8 +297,7 @@ meta_drm_buffer_gbm_copy_to_framebuffer (CoglScanout      *scanout,
   const MetaFormatInfo *format_info;
   g_autoptr (CoglPipeline) pipeline = NULL;
 
-  egl_image = meta_egl_ensure_gbm_bo_egl_image (egl,
-                                                egl_display,
+  egl_image = meta_egl_ensure_gbm_bo_egl_image (renderer_egl,
                                                 buffer_gbm->bo,
                                                 error);
 

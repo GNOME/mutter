@@ -33,15 +33,13 @@ typedef struct _GbmBoUserData
 {
   EGLImageKHR egl_image;
 
-  MetaEgl *egl;
-  EGLDisplay egl_display;
+  CoglRendererEGL *renderer_egl;
 } GbmBoUserData;
 
 static EGLImageKHR
-create_gbm_bo_egl_image (MetaEgl        *egl,
-                         EGLDisplay      egl_display,
-                         struct gbm_bo  *shared_bo,
-                         GError        **error)
+create_gbm_bo_egl_image (CoglRendererEGL  *renderer_egl,
+                         struct gbm_bo    *shared_bo,
+                         GError          **error)
 {
   g_autofd int shared_bo_fd = -1;
   unsigned int width;
@@ -88,17 +86,16 @@ create_gbm_bo_egl_image (MetaEgl        *egl,
   else
     use_modifiers = TRUE;
 
-  egl_image = meta_egl_create_dmabuf_image (egl,
-                                            egl_display,
-                                            width,
-                                            height,
-                                            format,
-                                            n_planes,
-                                            fds,
-                                            strides,
-                                            offsets,
-                                            use_modifiers ? modifiers : NULL,
-                                            error);
+  egl_image = cogl_renderer_egl_create_dmabuf_image (renderer_egl,
+                                                     width,
+                                                     height,
+                                                     format,
+                                                     n_planes,
+                                                     fds,
+                                                     strides,
+                                                     offsets,
+                                                     use_modifiers ? modifiers : NULL,
+                                                     error);
 
   return egl_image;
 }
@@ -110,10 +107,9 @@ free_gbm_bo_egl_image (struct gbm_bo *bo,
   GbmBoUserData *user_data = data;
   g_autoptr (GError) error = NULL;
 
-  if (!meta_egl_destroy_image (user_data->egl,
-                               user_data->egl_display,
-                               user_data->egl_image,
-                               &error))
+  if (!cogl_renderer_egl_destroy_image (user_data->renderer_egl,
+                                        user_data->egl_image,
+                                        &error))
     {
       g_warning ("Could not destroy EGLImage attached to GBM BO: %s", error->message);
     }
@@ -122,10 +118,9 @@ free_gbm_bo_egl_image (struct gbm_bo *bo,
 }
 
 EGLImageKHR
-meta_egl_ensure_gbm_bo_egl_image (MetaEgl        *egl,
-                                  EGLDisplay      egl_display,
-                                  struct gbm_bo  *bo,
-                                  GError        **error)
+meta_egl_ensure_gbm_bo_egl_image (CoglRendererEGL  *renderer_egl,
+                                  struct gbm_bo    *bo,
+                                  GError          **error)
 {
   GbmBoUserData *bo_user_data = NULL;
 
@@ -135,17 +130,13 @@ meta_egl_ensure_gbm_bo_egl_image (MetaEgl        *egl,
     {
       EGLImageKHR egl_image = EGL_NO_IMAGE;
 
-      egl_image = create_gbm_bo_egl_image (egl,
-                                           egl_display,
-                                           bo,
-                                           error);
+      egl_image = create_gbm_bo_egl_image (renderer_egl, bo, error);
 
       if (!egl_image)
         return EGL_NO_IMAGE;
 
       bo_user_data = g_new0 (GbmBoUserData, 1);
-      bo_user_data->egl = egl;
-      bo_user_data->egl_display = egl_display;
+      bo_user_data->renderer_egl = renderer_egl;
       bo_user_data->egl_image = egl_image;
 
       gbm_bo_set_user_data (bo, bo_user_data, free_gbm_bo_egl_image);
