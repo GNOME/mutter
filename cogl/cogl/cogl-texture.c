@@ -321,9 +321,6 @@ gboolean
 cogl_texture_is_get_data_supported (CoglTexture *texture)
 {
   CoglTexture2D *leaf;
-  CoglTextureDriver *tex_driver;
-  CoglTextureDriverClass *tex_driver_klass;
-
   if (!cogl_texture_is_allocated (texture))
     cogl_texture_allocate (texture, NULL);
 
@@ -331,10 +328,7 @@ cogl_texture_is_get_data_supported (CoglTexture *texture)
   if (!leaf)
     return FALSE;
 
-  tex_driver = cogl_texture_get_driver (COGL_TEXTURE (leaf));
-  tex_driver_klass = COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
-
-  return tex_driver_klass->texture_2d_is_get_data_supported (tex_driver, leaf);
+  return leaf->is_get_data_supported;
 }
 
 unsigned int

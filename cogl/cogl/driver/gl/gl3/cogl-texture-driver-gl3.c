@@ -40,13 +40,11 @@
 #include "cogl/cogl-bitmap.h"
 #include "cogl/cogl-bitmap-private.h"
 #include "cogl/cogl-texture-private.h"
-#include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/driver/gl/gl3/cogl-texture-driver-gl3-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
-#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
 
@@ -362,70 +360,10 @@ cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriverGL *tex_d
                                            closest_gl_type);
 }
 
-static gboolean
-cogl_texture_driver_gl3_is_get_data_supported (CoglTextureDriver *driver,
-                                               CoglTexture2D     *tex_2d)
-{
-  return tex_2d->is_get_data_supported;
-}
-
-static void
-cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *tex_driver,
-                                                CoglTexture2D     *tex_2d,
-                                                CoglPixelFormat    format,
-                                                int                rowstride,
-                                                uint8_t           *data)
-{
-  CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
-  CoglTextureDriverGL *tex_driver_gl =
-    COGL_TEXTURE_DRIVER_GL (tex_driver);
-  CoglTextureDriverGLClass *tex_driver_klass =
-    COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
-  CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
-  uint8_t bpp;
-  int width = cogl_texture_get_width (COGL_TEXTURE (tex_2d));
-  GLenum gl_format;
-  GLenum gl_type;
-
-  g_return_if_fail (format != COGL_PIXEL_FORMAT_ANY);
-  g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
-
-  bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
-
-  driver_klass->pixel_format_to_gl (driver_gl,
-                                    format,
-                                    NULL, /* internal format */
-                                    &gl_format,
-                                    &gl_type);
-
-  driver_klass->prep_gl_for_pixels_download (driver_gl,
-                                             width,
-                                             rowstride,
-                                             bpp);
-
-  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (tex_2d);
-
-  _cogl_bind_gl_texture_transient (ctx, tex_gl->gl_target,
-                                   tex_gl->gl_texture);
-
-  tex_driver_klass->gl_get_tex_image (tex_driver_gl,
-                                      ctx,
-                                      tex_gl->gl_target,
-                                      gl_format,
-                                      gl_type,
-                                      data);
-}
-
 static void
 cogl_texture_driver_gl3_class_init (CoglTextureDriverGL3Class *klass)
 {
-  CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
   CoglTextureDriverGLClass *driver_gl_klass = COGL_TEXTURE_DRIVER_GL_CLASS (klass);
-
-  driver_klass->texture_2d_is_get_data_supported = cogl_texture_driver_gl3_is_get_data_supported;
-  driver_klass->texture_2d_get_data = cogl_texture_driver_gl3_texture_2d_gl_get_data;
 
   driver_gl_klass->gen = cogl_texture_driver_gl3_gen;
   driver_gl_klass->upload_subregion_to_gl = cogl_texture_driver_gl3_upload_subregion_to_gl;
