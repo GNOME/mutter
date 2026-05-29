@@ -757,3 +757,16 @@ cogl_parse_gl_version (const char *version_string,
 
   return TRUE;
 }
+
+gboolean
+cogl_check_extension (const char   *name,
+                      char * const *ext)
+{
+  while (*ext)
+    if (!strcmp (name, *ext))
+      return TRUE;
+    else
+      ext++;
+
+  return FALSE;
+}

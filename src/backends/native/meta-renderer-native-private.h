@@ -27,7 +27,6 @@
 
 #pragma once
 
-#include "backends/meta-gles3.h"
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-renderer-native.h"
 
@@ -69,10 +68,6 @@ typedef struct _MetaRendererNativeGpuData
 
   gulong crtc_needs_flush_handler_id;
 } MetaRendererNativeGpuData;
-
-MetaEgl * meta_renderer_native_get_egl (MetaRendererNative *renderer_native);
-
-MetaGles3 * meta_renderer_native_get_gles3 (MetaRendererNative *renderer_native);
 
 MetaRendererNativeGpuData * meta_renderer_native_get_gpu_data (MetaRendererNative *renderer_native,
                                                                MetaGpuKms         *gpu_kms);

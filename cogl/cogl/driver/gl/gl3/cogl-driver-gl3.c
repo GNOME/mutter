@@ -604,7 +604,7 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
                                      gl_minor,
                                      gl_extensions);
 
-  if (_cogl_check_extension ("GL_MESA_pack_invert", gl_extensions))
+  if (cogl_check_extension ("GL_MESA_pack_invert", gl_extensions))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_MESA_PACK_INVERT,
                              TRUE);
@@ -634,8 +634,8 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
                              TRUE);
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 3) ||
-      _cogl_check_extension ("GL_ARB_texture_swizzle", gl_extensions) ||
-      _cogl_check_extension ("GL_EXT_texture_swizzle", gl_extensions))
+      cogl_check_extension ("GL_ARB_texture_swizzle", gl_extensions) ||
+      cogl_check_extension ("GL_EXT_texture_swizzle", gl_extensions))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_TEXTURE_SWIZZLE, TRUE);
 

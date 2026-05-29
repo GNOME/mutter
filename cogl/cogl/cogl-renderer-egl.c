@@ -30,6 +30,7 @@
 
 #include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-debug.h"
+#include "cogl/cogl-driver-gl.h"
 #include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-renderer-private.h"
@@ -324,37 +325,37 @@ cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
 
   priv->private_features = 0;
 
-  if (_cogl_check_extension ("EGL_NOK_swap_region", split_extensions))
+  if (cogl_check_extension ("EGL_NOK_swap_region", split_extensions))
     {
       GET_EGL_PROC_ADDR (eglSwapBuffersRegionNOK);
       if (priv->eglSwapBuffersRegionNOK)
         priv->private_features |= COGL_EGL_WINSYS_FEATURE_SWAP_REGION;
     }
 
-  if (_cogl_check_extension ("EGL_KHR_swap_buffers_with_damage", split_extensions))
+  if (cogl_check_extension ("EGL_KHR_swap_buffers_with_damage", split_extensions))
     GET_EGL_PROC_ADDR (eglSwapBuffersWithDamageKHR);
 
-  if (_cogl_check_extension ("EGL_EXT_swap_buffers_with_damage", split_extensions))
+  if (cogl_check_extension ("EGL_EXT_swap_buffers_with_damage", split_extensions))
     GET_EGL_PROC_ADDR (eglSwapBuffersWithDamageEXT);
 
-  if (_cogl_check_extension ("EGL_KHR_partial_update", split_extensions))
+  if (cogl_check_extension ("EGL_KHR_partial_update", split_extensions))
     {
       GET_EGL_PROC_ADDR (eglSetDamageRegionKHR);
       if (priv->eglSetDamageRegionKHR)
         priv->private_features |= COGL_EGL_WINSYS_FEATURE_BUFFER_AGE;
     }
 
-  if (_cogl_check_extension ("EGL_KHR_create_context", split_extensions))
+  if (cogl_check_extension ("EGL_KHR_create_context", split_extensions))
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT;
 
-  if (_cogl_check_extension ("EGL_KHR_no_config_context", split_extensions))
+  if (cogl_check_extension ("EGL_KHR_no_config_context", split_extensions))
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT;
 
-  if (_cogl_check_extension ("EGL_EXT_buffer_age", split_extensions))
+  if (cogl_check_extension ("EGL_EXT_buffer_age", split_extensions))
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_BUFFER_AGE;
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
-  if (_cogl_check_extension ("EGL_KHR_fence_sync", split_extensions))
+  if (cogl_check_extension ("EGL_KHR_fence_sync", split_extensions))
     {
       GET_EGL_PROC_ADDR (eglCreateSyncKHR);
       GET_EGL_PROC_ADDR (eglDestroySyncKHR);
@@ -364,7 +365,7 @@ cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
 #endif
 
 #ifdef EGL_ANDROID_native_fence_sync
-  if (_cogl_check_extension ("EGL_ANDROID_native_fence_sync", split_extensions))
+  if (cogl_check_extension ("EGL_ANDROID_native_fence_sync", split_extensions))
     {
       GET_EGL_PROC_ADDR (eglDupNativeFenceFDANDROID);
       if (priv->eglDupNativeFenceFDANDROID)
@@ -372,25 +373,25 @@ cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
     }
 #endif
 
-  if (_cogl_check_extension ("EGL_KHR_surfaceless_context", split_extensions))
+  if (cogl_check_extension ("EGL_KHR_surfaceless_context", split_extensions))
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT;
 
-  if (_cogl_check_extension ("EGL_IMG_context_priority", split_extensions))
+  if (cogl_check_extension ("EGL_IMG_context_priority", split_extensions))
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY;
 
-  if (_cogl_check_extension ("EGL_KHR_image_base", split_extensions))
+  if (cogl_check_extension ("EGL_KHR_image_base", split_extensions))
     {
       GET_EGL_PROC_ADDR (eglCreateImageKHR);
       GET_EGL_PROC_ADDR (eglDestroyImageKHR);
     }
 
-  if (_cogl_check_extension ("EGL_WL_bind_wayland_display", split_extensions))
+  if (cogl_check_extension ("EGL_WL_bind_wayland_display", split_extensions))
     {
       GET_EGL_PROC_ADDR (eglBindWaylandDisplayWL);
       GET_EGL_PROC_ADDR (eglQueryWaylandBufferWL);
     }
 
-  if (_cogl_check_extension ("EGL_EXT_image_dma_buf_import_modifiers", split_extensions))
+  if (cogl_check_extension ("EGL_EXT_image_dma_buf_import_modifiers", split_extensions))
     {
       GET_EGL_PROC_ADDR (eglQueryDmaBufFormatsEXT);
       GET_EGL_PROC_ADDR (eglQueryDmaBufModifiersEXT);

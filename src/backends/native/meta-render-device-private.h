@@ -21,7 +21,6 @@
 #include <gio/gio.h>
 #include <glib-object.h>
 
-#include "backends/meta-egl.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
