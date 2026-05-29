@@ -1,3 +1,35 @@
+50.2
+====
+* Fix size increases when quickly unmaximizing window by drag [Jonas; !4856]
+* Fix cursor position hint for Xwayland if scaling is used [Olivier; !4989]
+* Fix fullscreening of edge tiled windows [Jonas; !4960]
+* Scale the hotspot location for tablet tool cursors [Olivier; !5026]
+* Fix moving maximized windows to another monitor via keyboard [Jonas; !4852]
+* Fix alt-tab with sloppy/mouse focus [Jonas; !5036]
+* Implement support for version 2 of text_input_v3 protocol [Carlos; !3600]
+* Ignore repeated events for double click counting [Lukáš; !4883]
+* Fix DND data offers on touch [Alessandro; !5057]
+* Make DND with tablets work across surfaces [Carlos; !5043]
+* Do not unfullscreen fullscreened window on unmaximize [Zhiyi; !5069]
+* Fix broken switch-monitor mapping on stylus buttons [Peter; !5073]
+* Fixed crashes [Marco, Carlos, Jonas, Michel; !5038, !5064, !5031, !5061,
+  !5063, !5072, !5074, !5076]
+* Misc. bug fixes and cleanups [Jonas, Marco, Gert-dev, Denis, Sebastian,
+  AnonymouX47, Bilal, Zhiyi, Christian, Michel, Vasiliy; !5027, !4984, !5037,
+  !5025, !5034, !4998, !5015, !5035, !5011, !5054, !5052, !5053, !4963, !5060,
+  !4853, !5040]
+
+Contributors:
+  AnonymouX47, Alessandro Astone, Michel Dänzer, Bilal Elmoussaoui,
+  Olivier Fourdan, Denis Garaev, Carlos Garnacho, Gert-dev, Christian Glombek,
+  Peter Hutterer, Saikeo Kavhanxay, Sebastian Keller, Vasiliy Stelmachenok,
+  Marco Trevisan (Treviño), Lukáš Tyrychtr, Zhiyi Zhang, Jonas Ådahl
+
+Translators:
+  Nathan Follens [nl], Jose Riha [sk], Danial Behzadi [fa],
+  Saikeo Kavhanxay [lo], Christian Kirbach [de], Aefgh Threenine [th],
+  Kjartan Maraas [nb]
+
 50.1
 ====
 * Allow setting paint debug flags from environment [Jonas; !4973]
