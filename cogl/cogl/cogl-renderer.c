@@ -62,7 +62,6 @@ typedef struct _CoglRendererPrivate
   GObject parent_instance;
 
   gboolean connected;
-  CoglDriverId driver_override;
   CoglDriver *driver;
 
   CoglDriverId driver_id;
@@ -165,38 +164,6 @@ cogl_renderer_error_quark (void)
   return g_quark_from_static_string ("cogl-renderer-error-quark");
 }
 
-typedef gboolean (*CoglDriverCallback) (CoglDriverId  driver_id,
-                                        void         *user_data);
-
-static void
-foreach_driver_description (CoglDriverId        driver_override,
-                            CoglDriverCallback  callback,
-                            void               *user_data)
-{
-  int i;
-
-  if (driver_override != COGL_DRIVER_ID_ANY)
-    {
-      for (i = 0; i < G_N_ELEMENTS (_cogl_drivers); i++)
-        {
-          if (_cogl_drivers[i] == driver_override)
-            {
-              callback (_cogl_drivers[i], user_data);
-              return;
-            }
-        }
-
-      g_warn_if_reached ();
-      return;
-    }
-
-  for (i = 0; i < G_N_ELEMENTS (_cogl_drivers); i++)
-    {
-      if (!callback (_cogl_drivers[i], user_data))
-        return;
-    }
-}
-
 static CoglDriverId
 driver_name_to_id (const char *name)
 {
@@ -207,140 +174,64 @@ driver_name_to_id (const char *name)
   else if (g_ascii_strcasecmp ("nop", name) == 0)
     return COGL_DRIVER_ID_NOP;
 
-  g_warn_if_reached ();
   return COGL_DRIVER_ID_ANY;
 }
 
-static const char *
-driver_id_to_name (CoglDriverId id)
-{
-  switch (id)
-    {
-      case COGL_DRIVER_ID_GL3:
-        return "gl3";
-      case COGL_DRIVER_ID_GLES2:
-        return "gles2";
-      case COGL_DRIVER_ID_NOP:
-        return "nop";
-      case COGL_DRIVER_ID_ANY:
-        g_warn_if_reached ();
-        return "any";
-    }
-
-  g_warn_if_reached ();
-  return "unknown";
-}
-
-/* XXX this is still uglier than it needs to be */
 static gboolean
-satisfy_constraints (CoglDriverId  driver_id,
-                     void         *user_data)
-{
-  CoglDriverId *state = user_data;
-
-  *state = driver_id;
-
-  return FALSE;
-}
-
-static gboolean
-_cogl_renderer_choose_driver (CoglRenderer *renderer,
-                              GError **error)
+_cogl_renderer_choose_driver (CoglRenderer  *renderer,
+                              GError       **error)
 {
   CoglRendererPrivate *priv =
     cogl_renderer_get_instance_private (renderer);
-  g_autoptr (GError) local_error = NULL;
   const char *driver_name = g_getenv ("COGL_DRIVER");
-  CoglDriverId picked_driver, driver_override;
-  const char *invalid_override = NULL;
+  CoglDriverId driver_override = COGL_DRIVER_ID_ANY;
   int i;
-
-  picked_driver = driver_override = COGL_DRIVER_ID_ANY;
 
   if (driver_name)
     {
       driver_override = driver_name_to_id (driver_name);
       if (driver_override == COGL_DRIVER_ID_ANY)
-        invalid_override = driver_name;
-    }
-
-  if (priv->driver_override != COGL_DRIVER_ID_ANY)
-    {
-      if (driver_override != COGL_DRIVER_ID_ANY &&
-          priv->driver_override != driver_override)
         {
           g_set_error (error, COGL_RENDERER_ERROR,
                        COGL_RENDERER_ERROR_BAD_CONSTRAINT,
-                       "Application driver selection conflicts with driver "
-                       "specified in configuration");
+                       "Driver \"%s\" is not available",
+                       driver_name);
           return FALSE;
         }
-
-      driver_override = priv->driver_override;
     }
 
   if (driver_override != COGL_DRIVER_ID_ANY)
     {
-      gboolean found = FALSE;
+      priv->driver_id = driver_override;
 
-      for (i = 0; i < G_N_ELEMENTS (_cogl_drivers); i++)
-        {
-          if (_cogl_drivers[i] == driver_override)
-            {
-              found = TRUE;
-              break;
-            }
-        }
-      if (!found)
-        invalid_override = driver_id_to_name (driver_override);
+      if (!COGL_RENDERER_GET_CLASS (renderer)->load_driver (renderer,
+                                                            driver_override,
+                                                            error))
+        return FALSE;
+
+      return TRUE;
     }
 
-  if (invalid_override)
+  for (i = 0; i < G_N_ELEMENTS (_cogl_drivers); i++)
     {
-      g_set_error (error, COGL_RENDERER_ERROR,
-                   COGL_RENDERER_ERROR_BAD_CONSTRAINT,
-                   "Driver \"%s\" is not available",
-                   invalid_override);
-      return FALSE;
-    }
+      CoglDriverId candidate = _cogl_drivers[i];
 
+      if (candidate == COGL_DRIVER_ID_NOP)
+        continue;
 
-  foreach_driver_description (driver_override,
-                              satisfy_constraints,
-                              &picked_driver);
-
-  if (picked_driver == COGL_DRIVER_ID_ANY)
-    {
-      g_set_error (error, COGL_RENDERER_ERROR,
-                   COGL_RENDERER_ERROR_BAD_CONSTRAINT,
-                   "No suitable driver found");
-      return FALSE;
-    }
-
-  priv->driver_id = picked_driver;
-
-  if (!COGL_RENDERER_GET_CLASS (renderer)->load_driver (renderer,
-                                                        picked_driver,
-                                                        &local_error))
-    {
-      if (local_error)
+      if (COGL_RENDERER_GET_CLASS (renderer)->load_driver (renderer,
+                                                           candidate,
+                                                           NULL))
         {
-          g_propagate_error (error, g_steal_pointer (&local_error));
-
-          return FALSE;
-        }
-      else
-        {
-          /* If load_driver fails but no error was set, fallback to NOP driver */
-          priv->driver_id = COGL_DRIVER_ID_NOP;
-          priv->driver = g_object_new (COGL_TYPE_DRIVER_NOP, NULL);
-
+          priv->driver_id = candidate;
           return TRUE;
         }
-
     }
 
-  return TRUE;
+  g_set_error (error, COGL_RENDERER_ERROR,
+               COGL_RENDERER_ERROR_BAD_CONSTRAINT,
+               "No suitable driver found");
+  return FALSE;
 }
 
 /* Final connection API */
@@ -355,10 +246,10 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
   if (priv->connected)
     return TRUE;
 
-  if (!_cogl_renderer_choose_driver (renderer, error))
+  if (class->connect && !class->connect (renderer, error))
     return FALSE;
 
-  if (class->connect && !class->connect (renderer, error))
+  if (!_cogl_renderer_choose_driver (renderer, error))
     return FALSE;
 
   priv->connected = TRUE;
@@ -384,17 +275,6 @@ cogl_renderer_set_driver (CoglRenderer *renderer,
   priv->driver = driver;
 }
 
-void
-cogl_renderer_set_driver_id (CoglRenderer *renderer,
-                             CoglDriverId  driver)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  g_return_if_fail (!priv->connected);
-
-  priv->driver_override = driver;
-}
 
 CoglDriverId
 cogl_renderer_get_driver_id (CoglRenderer *renderer)
