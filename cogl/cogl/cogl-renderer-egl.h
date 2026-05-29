@@ -94,4 +94,43 @@ COGL_EXPORT
 gboolean cogl_renderer_egl_has_feature (CoglRendererEGL      *renderer_egl,
                                         CoglEGLWinsysFeature  feature);
 
+/**
+ * cogl_renderer_egl_destroy_sync: (skip)
+ */
+COGL_EXPORT
+void cogl_renderer_egl_destroy_sync (CoglRendererEGL *renderer_egl);
+
+COGL_EXPORT
+gboolean cogl_renderer_egl_has_swap_buffers_with_damage (CoglRendererEGL *renderer_egl);
+
+/**
+ * cogl_renderer_egl_swap_buffers_with_damage: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_swap_buffers_with_damage (CoglRendererEGL *renderer_egl,
+                                                     EGLSurface       surface,
+                                                     const EGLint    *rects,
+                                                     EGLint           n_rects);
+
+/**
+ * cogl_renderer_egl_swap_buffers_region: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_swap_buffers_region (CoglRendererEGL *renderer_egl,
+                                                EGLSurface       surface,
+                                                EGLint           n_rects,
+                                                const EGLint    *rects);
+
+COGL_EXPORT
+gboolean cogl_renderer_egl_has_set_damage_region (CoglRendererEGL *renderer_egl);
+
+/**
+ * cogl_renderer_egl_set_damage_region: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_set_damage_region (CoglRendererEGL *renderer_egl,
+                                              EGLSurface       surface,
+                                              const EGLint    *rects,
+                                              EGLint           n_rects);
+
 G_END_DECLS
