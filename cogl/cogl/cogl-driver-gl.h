@@ -3,7 +3,7 @@
  *
  * A Low Level GPU Graphics and Utilities API
  *
- * Copyright (C) 2010,2013 Intel Corporation.
+ * Copyright (C) 2025 Red Hat.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,19 +24,52 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
- *
  */
 
 #pragma once
 
-#include "cogl/cogl-pipeline.h"
-#include "cogl/cogl-context.h"
-#include "cogl/cogl-flags.h"
+#if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
+#error "Only <cogl/cogl.h> can be included directly."
+#endif
+
+#include <glib-object.h>
+
+#include "cogl/cogl-driver.h"
+#include "cogl/cogl-renderer.h"
 
 G_BEGIN_DECLS
 
-#define I_(str)  (g_intern_static_string ((str)))
+typedef struct _CoglDriverGLPrivate CoglDriverGLPrivate;
 
+#define COGL_TYPE_DRIVER_GL (cogl_driver_gl_get_type ())
+
+COGL_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CoglDriverGL,
+                          cogl_driver_gl,
+                          COGL,
+                          DRIVER_GL,
+                          CoglDriver)
+
+/**
+ * cogl_driver_gl_get_private: (skip)
+ */
+COGL_EXPORT
+CoglDriverGLPrivate *cogl_driver_gl_get_private (CoglDriverGL * driver);
+
+COGL_EXPORT
+unsigned int cogl_driver_gl_get_gl_error (CoglDriverGL *driver);
+
+/**
+ * cogl_driver_gl_get_gl_extensions:
+ *
+ * Returns: (transfer full): a %NULL-terminated array of extension strings
+ */
+COGL_EXPORT
+char ** cogl_driver_gl_get_gl_extensions (CoglDriverGL *driver,
+                                          CoglRenderer *renderer);
+
+COGL_EXPORT
+gboolean cogl_check_extension (const char   *name,
+                               char * const *ext);
 
 G_END_DECLS

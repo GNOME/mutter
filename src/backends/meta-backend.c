@@ -39,7 +39,6 @@
  * - Interacting with logind (using the appropriate D-Bus interface)
  * - Querying UPower (over D-Bus) to know when the lid is closed
  * - Setup Remote Desktop / Screencasting (#MetaRemoteDesktop)
- * - Setup the #MetaEgl object
  *
  * Note that the #MetaBackend is not a subclass of [class@Clutter.Backend].
  * It is responsible for creating the correct one, based on the backend that is
@@ -147,9 +146,6 @@ struct _MetaBackendPrivate
   MetaColorManager *color_manager;
   MetaLauncher *launcher;
   MetaUdev *udev;
-#ifdef HAVE_EGL
-  MetaEgl *egl;
-#endif
   MetaSettings *settings;
   MetaDbusSessionWatcher *dbus_session_watcher;
   MetaRemoteAccessController *remote_access_controller;
@@ -278,9 +274,6 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->upower_proxy);
 
   g_clear_object (&priv->settings);
- #ifdef HAVE_EGL
-  g_clear_object (&priv->egl);
- #endif
 #ifdef HAVE_LIBWACOM
   g_clear_pointer (&priv->wacom_db, libwacom_database_destroy);
 #endif
@@ -1307,10 +1300,6 @@ meta_backend_initable_init (GInitable     *initable,
     }
 #endif
 
-#ifdef HAVE_EGL
-  priv->egl = g_object_new (META_TYPE_EGL, NULL);
-#endif
-
   if (META_BACKEND_GET_CLASS (backend)->init_basic &&
       !META_BACKEND_GET_CLASS (backend)->init_basic (backend, error))
     return FALSE;
@@ -1536,16 +1525,6 @@ meta_backend_get_renderer (MetaBackend *backend)
 
   return priv->renderer;
 }
-
-#ifdef HAVE_EGL
-MetaEgl *
-meta_backend_get_egl (MetaBackend *backend)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  return priv->egl;
-}
-#endif /* HAVE_EGL */
 
 /**
  * meta_backend_get_settings: (skip)

@@ -790,7 +790,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                                COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA, TRUE);
     }
 
-  if (_cogl_check_extension ("GL_ANGLE_pack_reverse_row_order", gl_extensions))
+  if (cogl_check_extension ("GL_ANGLE_pack_reverse_row_order", gl_extensions))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_MESA_PACK_INVERT, TRUE);
 
@@ -806,7 +806,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
 
-  if (_cogl_check_extension ("GL_OES_element_index_uint", gl_extensions))
+  if (cogl_check_extension ("GL_OES_element_index_uint", gl_extensions))
     {
       cogl_driver_set_feature (driver,
                                COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
@@ -836,12 +836,12 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                              COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE,
                              TRUE);
 
-  if (_cogl_check_extension ("GL_OES_packed_depth_stencil", gl_extensions))
+  if (cogl_check_extension ("GL_OES_packed_depth_stencil", gl_extensions))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_OES_PACKED_DEPTH_STENCIL,
                              TRUE);
 
-  if (_cogl_check_extension ("GL_EXT_texture_format_BGRA8888", gl_extensions))
+  if (cogl_check_extension ("GL_EXT_texture_format_BGRA8888", gl_extensions))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_TEXTURE_FORMAT_BGRA8888, TRUE);
 
@@ -853,22 +853,22 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 2) ||
       (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) &&
-       _cogl_check_extension ("GL_OES_texture_half_float", gl_extensions) &&
-       _cogl_check_extension ("GL_EXT_color_buffer_half_float", gl_extensions)))
+       cogl_check_extension ("GL_OES_texture_half_float", gl_extensions) &&
+       cogl_check_extension ("GL_EXT_color_buffer_half_float", gl_extensions)))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
 
-  if (_cogl_check_extension ("GL_EXT_unpack_subimage", gl_extensions))
+  if (cogl_check_extension ("GL_EXT_unpack_subimage", gl_extensions))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_UNPACK_SUBIMAGE, TRUE);
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) ||
-      _cogl_check_extension ("GL_EXT_texture_rg", gl_extensions))
+      cogl_check_extension ("GL_EXT_texture_rg", gl_extensions))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_TEXTURE_RG,
                              TRUE);
 
-  if (_cogl_check_extension ("GL_EXT_texture_lod_bias", gl_extensions))
+  if (cogl_check_extension ("GL_EXT_texture_lod_bias", gl_extensions))
     {
       cogl_driver_set_feature (driver,
                                COGL_FEATURE_ID_TEXTURE_LOD_BIAS, TRUE);
@@ -882,7 +882,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
     }
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 1) &&
-      _cogl_check_extension ("GL_EXT_texture_norm16", gl_extensions))
+      cogl_check_extension ("GL_EXT_texture_norm16", gl_extensions))
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_TEXTURE_NORM16,
                              TRUE);

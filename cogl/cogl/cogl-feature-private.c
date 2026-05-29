@@ -114,8 +114,8 @@ _cogl_feature_check (CoglRenderer *renderer,
                                    namespace, namespace_len);
               g_string_append_c (full_extension_name, '_');
               g_string_append (full_extension_name, extension);
-              if (_cogl_check_extension (full_extension_name->str,
-                                         extensions))
+              if (cogl_check_extension (full_extension_name->str,
+                                        extensions))
                 break;
             }
 

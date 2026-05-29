@@ -31,7 +31,6 @@
 #include "backends/meta-a11y-manager.h"
 #include "backends/meta-backend-types.h"
 #include "backends/meta-cursor-renderer.h"
-#include "backends/meta-egl.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-keymap-description-private.h"
@@ -140,7 +139,6 @@ META_EXPORT_TEST
 MetaCursorRenderer * meta_backend_get_cursor_renderer (MetaBackend *backend);
 META_EXPORT_TEST
 MetaRenderer * meta_backend_get_renderer (MetaBackend *backend);
-MetaEgl * meta_backend_get_egl (MetaBackend *backend);
 
 MetaDbusSessionWatcher * meta_backend_get_dbus_session_watcher (MetaBackend *backend);
 

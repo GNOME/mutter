@@ -49,7 +49,6 @@
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-manager.h"
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/meta-gles3.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-cursor-renderer-native.h"
@@ -84,8 +83,6 @@ struct _MetaRendererNative
   MetaRenderer parent;
 
   MetaGpuKms *primary_gpu_kms;
-
-  MetaGles3 *gles3;
 
   gboolean use_modifiers;
   gboolean send_modifiers;
@@ -131,9 +128,16 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
       MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
       CoglRendererEGL *renderer_egl =
         COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
+      CoglContext *cogl_context =
+        meta_renderer_native_get_cogl_context (renderer_native);
 
-      meta_renderer_native_gles3_forget_context (renderer_native->gles3,
-                                                 renderer_gpu_data->secondary.egl_context);
+      if (cogl_context)
+        {
+          CoglDriver *driver = cogl_context_get_driver (cogl_context);
+
+          meta_renderer_native_gles3_forget_context (driver,
+                                                     renderer_gpu_data->secondary.egl_context);
+        }
 
       cogl_renderer_egl_destroy_context (renderer_egl,
                                          renderer_gpu_data->secondary.egl_context,
@@ -214,14 +218,6 @@ meta_create_renderer_native_gpu_data (void)
   return renderer_gpu_data;
 }
 
-MetaEgl *
-meta_renderer_native_get_egl (MetaRendererNative *renderer_native)
-{
-  MetaRenderer *renderer = META_RENDERER (renderer_native);
-
-  return meta_backend_get_egl (meta_renderer_get_backend (renderer));
-}
-
 gboolean
 meta_renderer_native_send_modifiers (MetaRendererNative *renderer_native)
 {
@@ -240,11 +236,6 @@ meta_renderer_native_has_addfb2 (MetaRendererNative *renderer_native)
   return renderer_native->has_addfb2;
 }
 
-MetaGles3 *
-meta_renderer_native_get_gles3 (MetaRendererNative *renderer_native)
-{
-  return renderer_native->gles3;
-}
 
 gboolean
 meta_renderer_native_has_pending_mode_sets (MetaRendererNative *renderer_native)
@@ -1203,17 +1194,6 @@ create_secondary_egl_context (CoglRendererEGL  *renderer_egl,
 }
 
 static void
-meta_renderer_native_ensure_gles3 (MetaRendererNative *renderer_native)
-{
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-
-  if (renderer_native->gles3)
-    return;
-
-  renderer_native->gles3 = meta_gles3_new (egl);
-}
-
-static void
 maybe_restore_cogl_egl_api (MetaRendererNative *renderer_native)
 {
   CoglContext *cogl_context;
@@ -1269,8 +1249,6 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   EGLConfig egl_config;
   EGLContext egl_context;
   CoglContext *cogl_context;
-  CoglDisplay *cogl_display;
-  const char **missing_gl_extensions;
   const char *egl_vendor;
 
   egl_display = meta_render_device_get_egl_display (render_device);
@@ -1297,8 +1275,6 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   if (egl_context == EGL_NO_CONTEXT)
     goto out;
 
-  meta_renderer_native_ensure_gles3 (renderer_native);
-
   if (!cogl_renderer_egl_make_current (renderer_egl,
                                        EGL_NO_SURFACE,
                                        EGL_NO_SURFACE,
@@ -1309,22 +1285,23 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       goto out;
     }
 
-  if (!meta_gles3_has_extensions (renderer_native->gles3,
-                                  &missing_gl_extensions,
-                                  "GL_OES_EGL_image_external",
-                                  NULL))
+  cogl_context = meta_renderer_native_get_cogl_context (renderer_native);
+  if (cogl_context)
     {
-      char *missing_gl_extensions_str;
+      CoglDriver *driver = cogl_context_get_driver (cogl_context);
+      CoglRenderer *cogl_renderer =
+        cogl_display_get_renderer (cogl_context_get_display (cogl_context));
+      g_auto (GStrv) gl_extensions =
+        cogl_driver_gl_get_gl_extensions (COGL_DRIVER_GL (driver),
+                                          cogl_renderer);
 
-      missing_gl_extensions_str = g_strjoinv (", ",
-                                              (char **) missing_gl_extensions);
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Missing OpenGL ES extensions: %s",
-                   missing_gl_extensions_str);
-      g_free (missing_gl_extensions_str);
-      g_free (missing_gl_extensions);
-
-      goto out;
+      if (!cogl_check_extension ("GL_OES_EGL_image_external",
+                                 gl_extensions))
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Missing OpenGL ES extensions: GL_OES_EGL_image_external");
+          goto out;
+        }
     }
 
   renderer_gpu_data->secondary.egl_context = egl_context;
@@ -1347,7 +1324,8 @@ out:
   cogl_context = meta_renderer_native_get_cogl_context (renderer_native);
   if (cogl_context)
     {
-      cogl_display = cogl_context_get_display (cogl_context);
+      CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+
       cogl_display_egl_ensure_current (COGL_DISPLAY_EGL (cogl_display));
     }
   return ret;
@@ -1858,7 +1836,6 @@ meta_renderer_native_finalize (GObject *object)
                      g_source_remove);
 
   g_hash_table_destroy (renderer_native->gpu_datas);
-  g_clear_object (&renderer_native->gles3);
 
   G_OBJECT_CLASS (meta_renderer_native_parent_class)->finalize (object);
 }

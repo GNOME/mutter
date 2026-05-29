@@ -27,6 +27,7 @@ cogl_headers = [
   'cogl-display.h',
   'cogl-dma-buf-handle.h',
   'cogl-driver.h',
+  'cogl-driver-gl.h',
   'cogl-framebuffer.h',
   'cogl-frame-info.h',
   'cogl-graphene.h',

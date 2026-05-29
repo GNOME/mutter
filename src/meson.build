@@ -426,17 +426,7 @@ endif
 
 if have_egl
   mutter_sources += [
-    'backends/meta-egl.c',
     'backends/meta-egl-ext.h',
-    'backends/meta-egl.h',
-  ]
-endif
-
-if have_gles2
-  mutter_sources += [
-    'backends/meta-gles3.c',
-    'backends/meta-gles3.h',
-    'backends/meta-gles3-table.h',
   ]
 endif
 

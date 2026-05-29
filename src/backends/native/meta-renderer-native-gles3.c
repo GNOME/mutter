@@ -22,27 +22,23 @@
 
 #include "config.h"
 
-#define GL_GLEXT_PROTOTYPES
-
 #include "backends/native/meta-renderer-native-gles3.h"
 
-#include <GLES3/gl3.h>
 #include <drm_fourcc.h>
 #include <errno.h>
 #include <gio/gio.h>
 #include <string.h>
 
-#include "backends/meta-gles3.h"
-#include "backends/meta-gles3-table.h"
+#include "cogl/cogl.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "meta/meta-debug.h"
 #include "mtk/mtk.h"
 
-/*
- * GL/gl.h being included may conflict with gl3.h on some architectures.
- * Make sure that hasn't happened on any architecture.
- */
-#ifdef GL_VERSION_1_1
-#error "Somehow included OpenGL headers when we shouldn't have"
+#ifndef GL_TEXTURE_EXTERNAL_OES
+#define GL_TEXTURE_EXTERNAL_OES 0x8D65
+#endif
+#ifndef GL_TEXTURE_WRAP_R_OES
+#define GL_TEXTURE_WRAP_R_OES 0x8072
 #endif
 
 #define TRIANGLE_COUNT_PER_RECTANGLE 2
@@ -164,26 +160,29 @@ out:
 }
 
 static GLuint
-load_shader (const char *src,
+load_shader (CoglDriver *driver,
+             const char *src,
              GLenum      type)
 {
-  GLuint shader = glCreateShader (type);
+  GLuint shader;
+
+  GE_RET (shader, driver, glCreateShader (type));
 
   if (shader)
     {
       GLint compiled;
 
-      glShaderSource (shader, 1, &src, NULL);
-      glCompileShader (shader);
-      glGetShaderiv (shader, GL_COMPILE_STATUS, &compiled);
+      GE (driver, glShaderSource (shader, 1, &src, NULL));
+      GE (driver, glCompileShader (shader));
+      GE (driver, glGetShaderiv (shader, GL_COMPILE_STATUS, &compiled));
       if (!compiled)
         {
           GLchar log[1024];
 
-          glGetShaderInfoLog (shader, sizeof (log) - 1, NULL, log);
+          GE (driver, glGetShaderInfoLog (shader, sizeof (log) - 1, NULL, log));
           log[sizeof (log) - 1] = '\0';
           g_warning ("load_shader compile failed: %s", log);
-          glDeleteShader (shader);
+          GE (driver, glDeleteShader (shader));
           shader = 0;
         }
     }
@@ -193,7 +192,7 @@ load_shader (const char *src,
 
 static void
 ensure_shader_program (ContextData *context_data,
-                       MetaGles3   *gles3)
+                       CoglDriver  *driver)
 {
   static const char vertex_shader_source[] =
     "#version 100\n"
@@ -228,34 +227,41 @@ ensure_shader_program (ContextData *context_data,
   if (context_data->shader_program)
     return;
 
-  shader_program = glCreateProgram ();
+  GE_RET (shader_program, driver, glCreateProgram ());
   g_return_if_fail (shader_program);
   context_data->shader_program = shader_program;
 
-  vertex_shader = load_shader (vertex_shader_source, GL_VERTEX_SHADER);
+  vertex_shader = load_shader (driver, vertex_shader_source, GL_VERTEX_SHADER);
   g_return_if_fail (vertex_shader);
-  fragment_shader = load_shader (fragment_shader_source, GL_FRAGMENT_SHADER);
+  fragment_shader = load_shader (driver, fragment_shader_source, GL_FRAGMENT_SHADER);
   g_return_if_fail (fragment_shader);
 
-  GLBAS (gles3, glAttachShader, (shader_program, vertex_shader));
-  GLBAS (gles3, glAttachShader, (shader_program, fragment_shader));
-  GLBAS (gles3, glLinkProgram, (shader_program));
-  GLBAS (gles3, glGetProgramiv, (shader_program, GL_LINK_STATUS, &linked));
+  GE (driver, glAttachShader (shader_program, vertex_shader));
+  GE (driver, glAttachShader (shader_program, fragment_shader));
+  GE (driver, glLinkProgram (shader_program));
+  GE (driver, glGetProgramiv (shader_program, GL_LINK_STATUS, &linked));
   if (!linked)
     {
       GLchar log[1024];
 
-      glGetProgramInfoLog (shader_program, sizeof (log) - 1, NULL, log);
+      GE (driver, glGetProgramInfoLog (shader_program, sizeof (log) - 1, NULL, log));
       log[sizeof (log) - 1] = '\0';
       g_warning ("Link failed: %s", log);
       return;
     }
 
-  GLBAS (gles3, glUseProgram, (shader_program));
+  GE (driver, glUseProgram (shader_program));
 }
 
 static void
-blit_egl_image (MetaGles3        *gles3,
+clear_gl_errors (CoglDriver *driver)
+{
+  while (cogl_driver_gl_get_gl_error (COGL_DRIVER_GL (driver)) != GL_NO_ERROR)
+    ;
+}
+
+static void
+blit_egl_image (CoglDriver       *driver,
                 EGLImageKHR       egl_image,
                 int               width,
                 int               height,
@@ -266,30 +272,30 @@ blit_egl_image (MetaGles3        *gles3,
   int i;
   int n_rectangles = mtk_region_num_rectangles (region);
 
-  meta_gles3_clear_error (gles3);
+  clear_gl_errors (driver);
 
-  GLBAS (gles3, glViewport, (0, 0, width, height));
+  GE (driver, glViewport (0, 0, width, height));
 
-  GLBAS (gles3, glGenFramebuffers, (1, &framebuffer));
-  GLBAS (gles3, glBindFramebuffer, (GL_READ_FRAMEBUFFER, framebuffer));
+  GE (driver, glGenFramebuffers (1, &framebuffer));
+  GE (driver, glBindFramebuffer (GL_READ_FRAMEBUFFER, framebuffer));
 
-  GLBAS (gles3, glActiveTexture, (GL_TEXTURE0));
-  GLBAS (gles3, glGenTextures, (1, &texture));
-  GLBAS (gles3, glBindTexture, (GL_TEXTURE_2D, texture));
-  GLEXT (gles3, glEGLImageTargetTexture2DOES, (GL_TEXTURE_2D, egl_image));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                                  GL_NEAREST));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                                  GL_NEAREST));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                                  GL_CLAMP_TO_EDGE));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                                  GL_CLAMP_TO_EDGE));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_R_OES,
-                                  GL_CLAMP_TO_EDGE));
+  GE (driver, glActiveTexture (GL_TEXTURE0));
+  GE (driver, glGenTextures (1, &texture));
+  GE (driver, glBindTexture (GL_TEXTURE_2D, texture));
+  GE (driver, glEGLImageTargetTexture2D (GL_TEXTURE_2D, egl_image));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                               GL_NEAREST));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                               GL_NEAREST));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                               GL_CLAMP_TO_EDGE));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                               GL_CLAMP_TO_EDGE));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_R_OES,
+                               GL_CLAMP_TO_EDGE));
 
-  GLBAS (gles3, glFramebufferTexture2D, (GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                         GL_TEXTURE_2D, texture, 0));
+  GE (driver, glFramebufferTexture2D (GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                      GL_TEXTURE_2D, texture, 0));
 
   for (i = 0; i < n_rectangles; ++i)
     {
@@ -303,20 +309,20 @@ blit_egl_image (MetaGles3        *gles3,
       x2 = x1 + rectangle.width;
       y2 = y1 + rectangle.height;
 
-      GLBAS (gles3, glBlitFramebuffer, (x1, y1, x2, y2,
-                                        x1, y1, x2, y2,
-                                        GL_COLOR_BUFFER_BIT,
-                                        GL_NEAREST));
+      GE (driver, glBlitFramebuffer (x1, y1, x2, y2,
+                                     x1, y1, x2, y2,
+                                     GL_COLOR_BUFFER_BIT,
+                                     GL_NEAREST));
     }
 
 
-  GLBAS (gles3, glDeleteTextures, (1, &texture));
-  GLBAS (gles3, glDeleteFramebuffers, (1, &framebuffer));
+  GE (driver, glDeleteTextures (1, &texture));
+  GE (driver, glDeleteFramebuffers (1, &framebuffer));
 }
 
 static void
 paint_egl_image (ContextData      *context_data,
-                 MetaGles3        *gles3,
+                 CoglDriver       *driver,
                  EGLImageKHR       egl_image,
                  int               width,
                  int               height,
@@ -388,76 +394,76 @@ paint_egl_image (ContextData      *context_data,
       rectangle_vertices[23] = v2;
     }
 
-  meta_gles3_clear_error (gles3);
-  ensure_shader_program (context_data, gles3);
+  clear_gl_errors (driver);
+  ensure_shader_program (context_data, driver);
 
   g_return_if_fail (context_data->shader_program);
 
-  GLBAS (gles3, glViewport, (0, 0, width, height));
+  GE (driver, glViewport (0, 0, width, height));
 
-  GLBAS (gles3, glGenVertexArrays, (1, &vertex_array_object));
-  GLBAS (gles3, glBindVertexArray, (vertex_array_object));
+  GE (driver, glGenVertexArrays (1, &vertex_array_object));
+  GE (driver, glBindVertexArray (vertex_array_object));
 
-  GLBAS (gles3, glGenBuffers, (1, &vertex_buffer_object));
-  GLBAS (gles3, glBindBuffer, (GL_ARRAY_BUFFER,
-                               vertex_buffer_object));
-  GLBAS (gles3, glBufferData, (GL_ARRAY_BUFFER,
-                               vertices_size,
-                               vertices,
-                               GL_DYNAMIC_DRAW));
+  GE (driver, glGenBuffers (1, &vertex_buffer_object));
+  GE (driver, glBindBuffer (GL_ARRAY_BUFFER,
+                            vertex_buffer_object));
+  GE (driver, glBufferData (GL_ARRAY_BUFFER,
+                            vertices_size,
+                            vertices,
+                            GL_DYNAMIC_DRAW));
 
-  position_attrib = glGetAttribLocation (context_data->shader_program,
-                                         "position");
-  GLBAS (gles3, glEnableVertexAttribArray, (position_attrib));
-  GLBAS (gles3, glVertexAttribPointer,
-         (position_attrib, 2, GL_INT, GL_FALSE, 4 * sizeof (GLint),
-          NULL));
+  GE_RET (position_attrib, driver,
+          glGetAttribLocation (context_data->shader_program, "position"));
+  GE (driver, glEnableVertexAttribArray (position_attrib));
+  GE (driver, glVertexAttribPointer (position_attrib, 2, GL_INT, GL_FALSE,
+                                     4 * sizeof (GLint), NULL));
 
-  texcoord_attrib = glGetAttribLocation (context_data->shader_program,
-                                         "texcoord");
-  GLBAS (gles3, glEnableVertexAttribArray, (texcoord_attrib));
-  GLBAS (gles3, glVertexAttribPointer,
-         (texcoord_attrib, 2, GL_INT, GL_FALSE, 4 * sizeof (GLint),
-          (void*)(sizeof(GLint) * 2)));
+  GE_RET (texcoord_attrib, driver,
+          glGetAttribLocation (context_data->shader_program, "texcoord"));
+  GE (driver, glEnableVertexAttribArray (texcoord_attrib));
+  GE (driver, glVertexAttribPointer (texcoord_attrib, 2, GL_INT, GL_FALSE,
+                                     4 * sizeof (GLint),
+                                     (void*)(sizeof(GLint) * 2)));
 
-  framebuffer_width_uniform = glGetUniformLocation (context_data->shader_program,
-                                                    "framebuffer_width");
-  GLBAS (gles3, glUniform1f, (framebuffer_width_uniform, width));
+  GE_RET (framebuffer_width_uniform, driver,
+          glGetUniformLocation (context_data->shader_program,
+                                "framebuffer_width"));
+  GE (driver, glUniform1f (framebuffer_width_uniform, width));
 
-  framebuffer_height_uniform = glGetUniformLocation (context_data->shader_program,
-                                                     "framebuffer_height");
-  GLBAS (gles3, glUniform1f, (framebuffer_height_uniform, height));
+  GE_RET (framebuffer_height_uniform, driver,
+          glGetUniformLocation (context_data->shader_program,
+                                "framebuffer_height"));
+  GE (driver, glUniform1f (framebuffer_height_uniform, height));
 
-  GLBAS (gles3, glActiveTexture, (GL_TEXTURE0));
-  GLBAS (gles3, glGenTextures, (1, &texture));
-  GLBAS (gles3, glBindTexture, (GL_TEXTURE_EXTERNAL_OES, texture));
-  GLEXT (gles3, glEGLImageTargetTexture2DOES, (GL_TEXTURE_EXTERNAL_OES,
-                                               egl_image));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_EXTERNAL_OES,
-                                  GL_TEXTURE_MAG_FILTER,
-                                  GL_NEAREST));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_EXTERNAL_OES,
-                                  GL_TEXTURE_MIN_FILTER,
-                                  GL_NEAREST));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_EXTERNAL_OES,
-                                  GL_TEXTURE_WRAP_S,
-                                  GL_CLAMP_TO_EDGE));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_EXTERNAL_OES,
-                                  GL_TEXTURE_WRAP_T,
-                                  GL_CLAMP_TO_EDGE));
+  GE (driver, glActiveTexture (GL_TEXTURE0));
+  GE (driver, glGenTextures (1, &texture));
+  GE (driver, glBindTexture (GL_TEXTURE_EXTERNAL_OES, texture));
+  GE (driver, glEGLImageTargetTexture2D (GL_TEXTURE_EXTERNAL_OES, egl_image));
+  GE (driver, glTexParameteri (GL_TEXTURE_EXTERNAL_OES,
+                               GL_TEXTURE_MAG_FILTER,
+                               GL_NEAREST));
+  GE (driver, glTexParameteri (GL_TEXTURE_EXTERNAL_OES,
+                               GL_TEXTURE_MIN_FILTER,
+                               GL_NEAREST));
+  GE (driver, glTexParameteri (GL_TEXTURE_EXTERNAL_OES,
+                               GL_TEXTURE_WRAP_S,
+                               GL_CLAMP_TO_EDGE));
+  GE (driver, glTexParameteri (GL_TEXTURE_EXTERNAL_OES,
+                               GL_TEXTURE_WRAP_T,
+                               GL_CLAMP_TO_EDGE));
 
-  GLBAS (gles3, glDrawArrays, (GL_TRIANGLES, 0,
-                               TRIANGLE_COUNT_PER_RECTANGLE *
-                               VERTICES_PER_TRIANGLE *
-                               n_rectangles));
+  GE (driver, glDrawArrays (GL_TRIANGLES, 0,
+                            TRIANGLE_COUNT_PER_RECTANGLE *
+                            VERTICES_PER_TRIANGLE *
+                            n_rectangles));
 
-  GLBAS (gles3, glDeleteTextures, (1, &texture));
-  GLBAS (gles3, glDeleteBuffers, (1, &vertex_buffer_object));
-  GLBAS (gles3, glDeleteVertexArrays, (1, &vertex_array_object));
+  GE (driver, glDeleteTextures (1, &texture));
+  GE (driver, glDeleteBuffers (1, &vertex_buffer_object));
+  GE (driver, glDeleteVertexArrays (1, &vertex_array_object));
 }
 
 gboolean
-meta_renderer_native_gles3_blit_shared_bo (MetaGles3        *gles3,
+meta_renderer_native_gles3_blit_shared_bo (CoglDriver       *driver,
                                            CoglRendererEGL  *renderer_egl,
                                            EGLContext        egl_context,
                                            EGLImageKHR       dst_egl_image,
@@ -474,14 +480,14 @@ meta_renderer_native_gles3_blit_shared_bo (MetaGles3        *gles3,
   gboolean can_blit;
 
   context_data_quark = get_quark_for_egl_context (egl_context);
-  context_data = g_object_get_qdata (G_OBJECT (gles3), context_data_quark);
+  context_data = g_object_get_qdata (G_OBJECT (driver), context_data_quark);
   if (!context_data)
     {
       context_data = g_new0 (ContextData, 1);
       context_data->buffer_support = g_array_new (FALSE, FALSE,
                                                   sizeof (BufferTypeSupport));
 
-      g_object_set_qdata_full (G_OBJECT (gles3),
+      g_object_set_qdata_full (G_OBJECT (driver),
                                context_data_quark,
                                context_data,
                                (GDestroyNotify) context_data_free);
@@ -495,30 +501,30 @@ meta_renderer_native_gles3_blit_shared_bo (MetaGles3        *gles3,
   width = gbm_bo_get_width (shared_bo);
   height = gbm_bo_get_height (shared_bo);
 
-  GLBAS (gles3, glGenFramebuffers, (1, &dst_framebuffer));
-  GLBAS (gles3, glBindFramebuffer, (GL_DRAW_FRAMEBUFFER, dst_framebuffer));
-  GLBAS (gles3, glActiveTexture, (GL_TEXTURE0));
-  GLBAS (gles3, glGenTextures, (1, &dst_texture));
-  GLBAS (gles3, glBindTexture, (GL_TEXTURE_2D, dst_texture));
-  GLEXT (gles3, glEGLImageTargetTexture2DOES, (GL_TEXTURE_2D, dst_egl_image));
-  GLBAS (gles3, glFramebufferTexture2D, (GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                         GL_TEXTURE_2D, dst_texture, 0));
+  GE (driver, glGenFramebuffers (1, &dst_framebuffer));
+  GE (driver, glBindFramebuffer (GL_DRAW_FRAMEBUFFER, dst_framebuffer));
+  GE (driver, glActiveTexture (GL_TEXTURE0));
+  GE (driver, glGenTextures (1, &dst_texture));
+  GE (driver, glBindTexture (GL_TEXTURE_2D, dst_texture));
+  GE (driver, glEGLImageTargetTexture2D (GL_TEXTURE_2D, dst_egl_image));
+  GE (driver, glFramebufferTexture2D (GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                      GL_TEXTURE_2D, dst_texture, 0));
 
   if (can_blit)
-    blit_egl_image (gles3, src_egl_image, width, height, region);
+    blit_egl_image (driver, src_egl_image, width, height, region);
   else
-    paint_egl_image (context_data, gles3, src_egl_image, width, height, region);
+    paint_egl_image (context_data, driver, src_egl_image, width, height, region);
 
-  GLBAS (gles3, glDeleteTextures, (1, &dst_texture));
-  GLBAS (gles3, glDeleteFramebuffers, (1, &dst_framebuffer));
+  GE (driver, glDeleteTextures (1, &dst_texture));
+  GE (driver, glDeleteFramebuffers (1, &dst_framebuffer));
   return TRUE;
 }
 
 void
-meta_renderer_native_gles3_forget_context (MetaGles3  *gles3,
+meta_renderer_native_gles3_forget_context (CoglDriver *driver,
                                            EGLContext  egl_context)
 {
   GQuark context_data_quark = get_quark_for_egl_context (egl_context);
 
-  g_object_set_qdata (G_OBJECT (gles3), context_data_quark, NULL);
+  g_object_set_qdata (G_OBJECT (driver), context_data_quark, NULL);
 }

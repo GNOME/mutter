@@ -51,18 +51,6 @@
 #include "cogl/cogl-offscreen.h"
 #include "cogl/cogl-mutter.h"
 
-gboolean
-_cogl_check_extension (const char *name, char * const *ext)
-{
-  while (*ext)
-    if (!strcmp (name, *ext))
-      return TRUE;
-    else
-      ext++;
-
-  return FALSE;
-}
-
 uint32_t
 _cogl_driver_error_quark (void)
 {

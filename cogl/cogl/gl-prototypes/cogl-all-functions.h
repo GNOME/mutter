@@ -182,6 +182,9 @@ COGL_EXT_FUNCTION (void, glBindVertexArray,
 COGL_EXT_FUNCTION (void, glGenVertexArrays,
                    (GLsizei n,
                     GLuint *arrays))
+COGL_EXT_FUNCTION (void, glDeleteVertexArrays,
+                   (GLsizei n,
+                    const GLuint *arrays))
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (map_region, 3, 0,

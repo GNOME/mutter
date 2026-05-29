@@ -1120,10 +1120,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
                              const MtkRegion                      *region,
                              GError                              **error)
 {
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  MetaGles3 *gles3 = meta_renderer_native_get_gles3 (renderer_native);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (cogl_context);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   MetaRenderDevice *render_device;
   CoglRendererEGL *renderer_egl;
@@ -1208,7 +1207,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   blit_region = build_secondary_gpu_damage_region (secondary_gpu_state,
                                                    src_bo, buffer_age);
 
-  if (!meta_renderer_native_gles3_blit_shared_bo (gles3,
+  if (!meta_renderer_native_gles3_blit_shared_bo (driver,
                                                   renderer_egl,
                                                   renderer_gpu_data->secondary.egl_context,
                                                   dst_egl_image,

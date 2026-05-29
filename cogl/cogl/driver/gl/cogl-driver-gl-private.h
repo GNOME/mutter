@@ -29,6 +29,7 @@
 #pragma once
 
 #include "config.h"
+#include "cogl/cogl-driver-gl.h"
 #include "cogl/cogl-driver-private.h"
 
 #if defined(HAVE_GL)
@@ -78,12 +79,6 @@ typedef struct _CoglDriverGLPrivate
 } CoglDriverGLPrivate;
 
 
-G_DECLARE_DERIVABLE_TYPE (CoglDriverGL,
-                          cogl_driver_gl,
-                          COGL,
-                          DRIVER_GL,
-                          CoglDriver);
-
 struct _CoglDriverGLClass
 {
   CoglDriverClass parent_class;
@@ -126,10 +121,6 @@ struct _CoglDriverGLClass
                                     int          *n_values);
 };
 
-#define COGL_TYPE_DRIVER_GL (cogl_driver_gl_get_type ())
-
-CoglDriverGLPrivate * cogl_driver_gl_get_private (CoglDriverGL *driver);
-
 gboolean cogl_driver_gl_is_es (CoglDriverGL *driver);
 
 void cogl_driver_gl_get_glsl_version (CoglDriverGL *driver,
@@ -144,21 +135,7 @@ gboolean cogl_driver_gl_catch_out_of_memory (CoglDriverGL *driver,
 const char * cogl_driver_gl_get_gl_string (CoglDriverGL  *driver,
                                            GLenum         name);
 
-/*
- * cogl_driver_gl_get_gl_extensions:
- * @driver: A CoglDriverGL
- * @renderer: A CoglRenderer
- *
- * Return value: a NULL-terminated array of strings representing the
- *   supported extensions by the current driver. This array is owned
- *   by the caller and should be freed with g_strfreev().
- */
-char ** cogl_driver_gl_get_gl_extensions (CoglDriverGL *driver,
-                                          CoglRenderer *renderer);
-
 const char * cogl_driver_gl_get_gl_version (CoglDriverGL *driver);
-
-GLenum cogl_driver_gl_get_gl_error (CoglDriverGL *driver);
 
 GLint cogl_driver_gl_get_max_activateable_texture_units (CoglDriverGL *driver);
 
