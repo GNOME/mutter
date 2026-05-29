@@ -290,8 +290,8 @@ typedef struct _ValidateTexCoordsState
  */
 static gboolean
 validate_tex_coords_cb (CoglPipeline *pipeline,
-                        int layer_index,
-                        void *user_data)
+                        int           layer_index,
+                        void         *user_data)
 {
   ValidateTexCoordsState *state = user_data;
   CoglTexture *texture;

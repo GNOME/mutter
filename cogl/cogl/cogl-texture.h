@@ -260,7 +260,7 @@ cogl_texture_is_sliced (CoglTexture *texture);
  *   if the handle was invalid
  */
 COGL_EXPORT gboolean
-cogl_texture_get_gl_texture (CoglTexture *texture,
+cogl_texture_get_gl_texture (CoglTexture  *texture,
                              unsigned int *out_gl_handle,
                              unsigned int *out_gl_target);
 

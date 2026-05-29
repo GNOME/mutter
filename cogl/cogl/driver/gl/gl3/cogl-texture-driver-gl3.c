@@ -46,6 +46,7 @@
 #include "cogl/driver/gl/gl3/cogl-texture-driver-gl3-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
 
@@ -404,12 +405,14 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *tex_driver,
                                              rowstride,
                                              bpp);
 
-  _cogl_bind_gl_texture_transient (ctx, tex_2d->gl_target,
-                                   tex_2d->gl_texture);
+  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (tex_2d);
+
+  _cogl_bind_gl_texture_transient (ctx, tex_gl->gl_target,
+                                   tex_gl->gl_texture);
 
   tex_driver_klass->gl_get_tex_image (tex_driver_gl,
                                       ctx,
-                                      tex_2d->gl_target,
+                                      tex_gl->gl_target,
                                       gl_format,
                                       gl_type,
                                       data);

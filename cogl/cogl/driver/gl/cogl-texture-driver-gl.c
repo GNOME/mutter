@@ -50,10 +50,13 @@ static void
 cogl_texture_driver_gl_texture_2d_free (CoglTextureDriver *driver,
                                         CoglTexture2D     *tex_2d)
 {
-  if (tex_2d->gl_texture)
+  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (tex_2d);
+
+  if (tex_gl->gl_texture)
     _cogl_delete_gl_texture (cogl_texture_get_context (COGL_TEXTURE (tex_2d)),
                              cogl_texture_driver_get_driver (driver),
-                             tex_2d->gl_texture);
+                             tex_gl->gl_texture);
+
 }
 
 static gboolean
@@ -98,6 +101,7 @@ allocate_with_size (CoglTexture2D     *tex_2d,
                     CoglTextureLoader *loader,
                     GError           **error)
 {
+  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (tex_2d);
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglPixelFormat internal_format;
   int width = loader->src.sized.width;
@@ -143,12 +147,11 @@ allocate_with_size (CoglTexture2D     *tex_2d,
                                       GL_TEXTURE_2D,
                                       internal_format);
 
-  tex_2d->gl_internal_format = gl_intformat;
+  tex_gl->gl_internal_format = gl_intformat;
 
   _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                    gl_texture);
 
-  /* Clear any GL errors */
   cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
 
   GE (driver, glTexImage2D (GL_TEXTURE_2D, 0, gl_intformat,
@@ -160,8 +163,8 @@ allocate_with_size (CoglTexture2D     *tex_2d,
       return FALSE;
     }
 
-  tex_2d->gl_texture = gl_texture;
-  tex_2d->gl_internal_format = gl_intformat;
+  tex_gl->gl_texture = gl_texture;
+  tex_gl->gl_internal_format = gl_intformat;
 
   tex_2d->internal_format = internal_format;
 
@@ -175,6 +178,7 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
                       CoglTextureLoader *loader,
                       GError           **error)
 {
+  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (tex_2d);
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
   CoglBitmap *bmp = loader->src.bitmap.bitmap;
@@ -227,14 +231,14 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
                                     NULL,
                                     NULL);
 
-  tex_2d->gl_texture = tex_driver_klass->gen (tex_driver_gl,
+  tex_gl->gl_texture = tex_driver_klass->gen (tex_driver_gl,
                                               ctx,
                                               GL_TEXTURE_2D,
                                               internal_format);
   if (!tex_driver_klass->upload_to_gl (tex_driver_gl,
                                        ctx,
                                        GL_TEXTURE_2D,
-                                       tex_2d->gl_texture,
+                                       tex_gl->gl_texture,
                                        upload_bmp,
                                        gl_intformat,
                                        gl_format,
@@ -245,7 +249,7 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
       return FALSE;
     }
 
-  tex_2d->gl_internal_format = gl_intformat;
+  tex_gl->gl_internal_format = gl_intformat;
 
   g_object_unref (upload_bmp);
 
@@ -262,6 +266,7 @@ allocate_from_egl_image (CoglTexture2D     *tex_2d,
                          CoglTextureLoader *loader,
                          GError           **error)
 {
+  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (tex_2d);
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglContext *ctx = cogl_texture_get_context (tex);
   CoglPixelFormat internal_format = loader->src.egl_image.format;
@@ -271,7 +276,7 @@ allocate_from_egl_image (CoglTexture2D     *tex_2d,
   CoglTextureDriverGLClass *tex_driver_klass =
     COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
 
-  tex_2d->gl_texture = tex_driver_klass->gen (tex_driver_gl,
+  tex_gl->gl_texture = tex_driver_klass->gen (tex_driver_gl,
                                               ctx,
                                               GL_TEXTURE_2D,
                                               internal_format);
@@ -282,7 +287,7 @@ allocate_from_egl_image (CoglTexture2D     *tex_2d,
     {
       CoglDriver *driver = cogl_context_get_driver (ctx);
 
-      GE (driver, glDeleteTextures (1, &tex_2d->gl_texture));
+      GE (driver, glDeleteTextures (1, &tex_gl->gl_texture));
       return FALSE;
     }
 
@@ -352,7 +357,7 @@ cogl_texture_driver_gl_texture_2d_copy_from_framebuffer (CoglTextureDriver *tex_
                                          ~COGL_FRAMEBUFFER_STATE_CLIP));
 
   _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
-                                   tex_2d->gl_texture);
+                                   COGL_TEXTURE_2D_GL (tex_2d)->gl_texture);
 
   GE (driver, glCopyTexSubImage2D (GL_TEXTURE_2D,
                                    0, /* level */
@@ -475,11 +480,18 @@ cogl_texture_driver_gl_texture_2d_copy_from_bitmap (CoglTextureDriver *tex_drive
   return status;
 }
 
+static GType
+cogl_texture_driver_gl_texture_2d_get_type (CoglTextureDriver *driver)
+{
+  return COGL_TYPE_TEXTURE_2D_GL;
+}
+
 static void
 cogl_texture_driver_gl_class_init (CoglTextureDriverGLClass *klass)
 {
   CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
 
+  driver_klass->texture_2d_get_type = cogl_texture_driver_gl_texture_2d_get_type;
   driver_klass->texture_2d_free = cogl_texture_driver_gl_texture_2d_free;
   driver_klass->texture_2d_can_create = cogl_texture_driver_gl_texture_2d_can_create;
   driver_klass->texture_2d_allocate = cogl_texture_driver_gl_texture_2d_allocate;
