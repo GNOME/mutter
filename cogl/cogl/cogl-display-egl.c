@@ -31,7 +31,7 @@
 #include "cogl/cogl-display-egl.h"
 #include "cogl/cogl-display-egl-private.h"
 #include "cogl/cogl-renderer-egl.h"
-#include "cogl/cogl-renderer-egl-private.h"
+#include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-renderer-private.h"
 
 typedef struct _CoglDisplayEGLPrivate
@@ -207,13 +207,8 @@ cogl_display_egl_destroy (CoglDisplay *display)
 {
   CoglRenderer *renderer = cogl_display_get_renderer (display);
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
-  CoglRendererEGLPrivate *priv_renderer =
-    cogl_renderer_egl_get_private (renderer_egl);
-  EGLSyncKHR sync = cogl_renderer_egl_get_sync (renderer_egl);
-  EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
 
-  if (sync != EGL_NO_SYNC_KHR)
-    priv_renderer->pf_eglDestroySync (edpy, sync);
+  cogl_renderer_egl_destroy_sync (renderer_egl);
 
   cleanup_context (display);
 }

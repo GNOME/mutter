@@ -29,9 +29,10 @@
 #include "config.h"
 
 #include "cogl/cogl-renderer-egl.h"
-#include "cogl/cogl-feature-private.h"
-#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-debug.h"
 #include "cogl/cogl-driver-private.h"
+#include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-private.h"
 
 #ifdef HAVE_GL
 #include "cogl/driver/gl/gl3/cogl-driver-gl3-private.h"
@@ -41,6 +42,41 @@
 #endif
 
 #include "cogl/cogl-renderer-egl-private.h"
+
+typedef struct _CoglRendererEGLPrivate
+{
+  GModule *libgl_module;
+
+  CoglEGLWinsysFeature private_features;
+
+  EGLDisplay edisplay;
+
+  EGLint egl_version_major;
+  EGLint egl_version_minor;
+
+  gboolean needs_config;
+
+  /* Sync for latest submitted work */
+  EGLSyncKHR sync;
+
+  /* EGL extension function pointers */
+  PFNEGLSWAPBUFFERSREGIONNOKPROC eglSwapBuffersRegionNOK;
+
+  PFNEGLSWAPBUFFERSWITHDAMAGEKHRPROC eglSwapBuffersWithDamageKHR;
+  PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC eglSwapBuffersWithDamageEXT;
+
+  PFNEGLSETDAMAGEREGIONKHRPROC eglSetDamageRegionKHR;
+
+#if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
+  PFNEGLCREATESYNCKHRPROC eglCreateSyncKHR;
+  PFNEGLDESTROYSYNCKHRPROC eglDestroySyncKHR;
+#endif
+
+#ifdef EGL_ANDROID_native_fence_sync
+  PFNEGLDUPNATIVEFENCEFDANDROIDPROC eglDupNativeFenceFDANDROID;
+#endif
+} CoglRendererEGLPrivate;
+
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglRendererEGL, cogl_renderer_egl, COGL_TYPE_RENDERER)
 
@@ -134,7 +170,9 @@ cogl_renderer_egl_get_proc_address (CoglRenderer *renderer,
   return result;
 }
 
-/* Updates all the function pointers */
+#define GET_EGL_PROC_ADDR(proc) \
+  priv->proc = (void *) cogl_renderer_get_proc_address (renderer, #proc)
+
 void
 cogl_renderer_egl_check_extensions (CoglRenderer *renderer)
 {
@@ -143,7 +181,6 @@ cogl_renderer_egl_check_extensions (CoglRenderer *renderer)
     cogl_renderer_egl_get_instance_private (renderer_egl);
   const char *egl_extensions;
   char **split_extensions;
-  int i;
 
   egl_extensions = eglQueryString (priv->edisplay, EGL_EXTENSIONS);
   split_extensions = g_strsplit (egl_extensions, " ", 0 /* max_tokens */);
@@ -151,16 +188,60 @@ cogl_renderer_egl_check_extensions (CoglRenderer *renderer)
   COGL_NOTE (WINSYS, "  EGL Extensions: %s", egl_extensions);
 
   priv->private_features = 0;
-  for (i = 0; i < G_N_ELEMENTS (winsys_feature_data); i++)
-    if (_cogl_feature_check (renderer,
-                             "EGL", winsys_feature_data + i, 0, 0,
-                             COGL_DRIVER_ID_GL3, /* the driver isn't used */
-                             split_extensions,
-                             priv))
-      {
-        priv->private_features |=
-          winsys_feature_data[i].feature_flags_private;
-      }
+
+  if (_cogl_check_extension ("EGL_NOK_swap_region", split_extensions))
+    {
+      GET_EGL_PROC_ADDR (eglSwapBuffersRegionNOK);
+      if (priv->eglSwapBuffersRegionNOK)
+        priv->private_features |= COGL_EGL_WINSYS_FEATURE_SWAP_REGION;
+    }
+
+  if (_cogl_check_extension ("EGL_KHR_swap_buffers_with_damage", split_extensions))
+    GET_EGL_PROC_ADDR (eglSwapBuffersWithDamageKHR);
+
+  if (_cogl_check_extension ("EGL_EXT_swap_buffers_with_damage", split_extensions))
+    GET_EGL_PROC_ADDR (eglSwapBuffersWithDamageEXT);
+
+  if (_cogl_check_extension ("EGL_KHR_partial_update", split_extensions))
+    {
+      GET_EGL_PROC_ADDR (eglSetDamageRegionKHR);
+      if (priv->eglSetDamageRegionKHR)
+        priv->private_features |= COGL_EGL_WINSYS_FEATURE_BUFFER_AGE;
+    }
+
+  if (_cogl_check_extension ("EGL_KHR_create_context", split_extensions))
+    priv->private_features |= COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT;
+
+  if (_cogl_check_extension ("EGL_KHR_no_config_context", split_extensions))
+    priv->private_features |= COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT;
+
+  if (_cogl_check_extension ("EGL_EXT_buffer_age", split_extensions))
+    priv->private_features |= COGL_EGL_WINSYS_FEATURE_BUFFER_AGE;
+
+#if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
+  if (_cogl_check_extension ("EGL_KHR_fence_sync", split_extensions))
+    {
+      GET_EGL_PROC_ADDR (eglCreateSyncKHR);
+      GET_EGL_PROC_ADDR (eglDestroySyncKHR);
+      if (priv->eglCreateSyncKHR && priv->eglDestroySyncKHR)
+        priv->private_features |= COGL_EGL_WINSYS_FEATURE_FENCE_SYNC;
+    }
+#endif
+
+#ifdef EGL_ANDROID_native_fence_sync
+  if (_cogl_check_extension ("EGL_ANDROID_native_fence_sync", split_extensions))
+    {
+      GET_EGL_PROC_ADDR (eglDupNativeFenceFDANDROID);
+      if (priv->eglDupNativeFenceFDANDROID)
+        priv->private_features |= COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC;
+    }
+#endif
+
+  if (_cogl_check_extension ("EGL_KHR_surfaceless_context", split_extensions))
+    priv->private_features |= COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT;
+
+  if (_cogl_check_extension ("EGL_IMG_context_priority", split_extensions))
+    priv->private_features |= COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY;
 
   g_strfreev (split_extensions);
 }
@@ -198,10 +279,10 @@ cogl_renderer_egl_get_sync_fd (CoglRenderer *renderer)
     cogl_renderer_egl_get_instance_private (renderer_egl);
   int fd;
 
-  if (!priv->pf_eglDupNativeFenceFD)
+  if (!priv->eglDupNativeFenceFDANDROID)
     return -1;
 
-  fd = priv->pf_eglDupNativeFenceFD (priv->edisplay, priv->sync);
+  fd = priv->eglDupNativeFenceFDANDROID (priv->edisplay, priv->sync);
   if (fd == EGL_NO_NATIVE_FENCE_FD_ANDROID)
     return -1;
 
@@ -215,13 +296,13 @@ cogl_renderer_egl_update_sync (CoglRenderer *renderer)
   CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_instance_private (renderer_egl);
 
-  if (!priv->pf_eglDestroySync || !priv->pf_eglCreateSync)
+  if (!priv->eglDestroySyncKHR || !priv->eglCreateSyncKHR)
     return;
 
   if (priv->sync != EGL_NO_SYNC_KHR)
-    priv->pf_eglDestroySync (priv->edisplay, priv->sync);
+    priv->eglDestroySyncKHR (priv->edisplay, priv->sync);
 
-  priv->sync = priv->pf_eglCreateSync (priv->edisplay,
+  priv->sync = priv->eglCreateSyncKHR (priv->edisplay,
                                        EGL_SYNC_NATIVE_FENCE_ANDROID, NULL);
 }
 #endif
@@ -255,12 +336,6 @@ CoglRendererEGL *
 cogl_renderer_egl_new (void)
 {
   return g_object_new (COGL_TYPE_RENDERER_EGL, NULL);
-}
-
-CoglRendererEGLPrivate *
-cogl_renderer_egl_get_private (CoglRendererEGL *renderer_egl)
-{
-  return cogl_renderer_egl_get_instance_private (renderer_egl);
 }
 
 void
@@ -307,4 +382,108 @@ cogl_renderer_egl_has_feature (CoglRendererEGL      *renderer_egl,
 
   priv = cogl_renderer_egl_get_instance_private (renderer_egl);
   return !!(priv->private_features & feature);
+}
+
+void
+cogl_renderer_egl_destroy_sync (CoglRendererEGL *renderer_egl)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_if_fail (COGL_IS_RENDERER_EGL (renderer_egl));
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+#if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
+  if (priv->sync != EGL_NO_SYNC_KHR && priv->eglDestroySyncKHR)
+    {
+      priv->eglDestroySyncKHR (priv->edisplay, priv->sync);
+      priv->sync = EGL_NO_SYNC_KHR;
+    }
+#endif
+}
+
+gboolean
+cogl_renderer_egl_has_swap_buffers_with_damage (CoglRendererEGL *renderer_egl)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  return priv->eglSwapBuffersWithDamageKHR ||
+         priv->eglSwapBuffersWithDamageEXT;
+}
+
+gboolean
+cogl_renderer_egl_swap_buffers_with_damage (CoglRendererEGL *renderer_egl,
+                                            EGLSurface       surface,
+                                            const EGLint    *rects,
+                                            EGLint           n_rects)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (priv->eglSwapBuffersWithDamageKHR)
+    return priv->eglSwapBuffersWithDamageKHR (priv->edisplay, surface,
+                                              rects, n_rects) != EGL_FALSE;
+
+  if (priv->eglSwapBuffersWithDamageEXT)
+    return priv->eglSwapBuffersWithDamageEXT (priv->edisplay, surface,
+                                              rects, n_rects) != EGL_FALSE;
+
+  return FALSE;
+}
+
+gboolean
+cogl_renderer_egl_swap_buffers_region (CoglRendererEGL *renderer_egl,
+                                       EGLSurface       surface,
+                                       EGLint           n_rects,
+                                       const EGLint    *rects)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!priv->eglSwapBuffersRegionNOK)
+    return FALSE;
+
+  return priv->eglSwapBuffersRegionNOK (priv->edisplay, surface,
+                                        n_rects, rects) != EGL_FALSE;
+}
+
+gboolean
+cogl_renderer_egl_has_set_damage_region (CoglRendererEGL *renderer_egl)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  return priv->eglSetDamageRegionKHR != NULL;
+}
+
+gboolean
+cogl_renderer_egl_set_damage_region (CoglRendererEGL *renderer_egl,
+                                     EGLSurface       surface,
+                                     const EGLint    *rects,
+                                     EGLint           n_rects)
+{
+  CoglRendererEGLPrivate *priv;
+
+  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
+
+  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!priv->eglSetDamageRegionKHR)
+    return FALSE;
+
+  return priv->eglSetDamageRegionKHR (priv->edisplay, surface,
+                                      (EGLint *) rects, n_rects) != EGL_FALSE;
 }
