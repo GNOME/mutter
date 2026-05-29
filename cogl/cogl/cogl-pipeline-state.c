@@ -43,10 +43,6 @@
 
 #include "string.h"
 
-#ifndef GL_FUNC_ADD
-#define GL_FUNC_ADD 0x8006
-#endif
-
 static gboolean
 _cogl_pipeline_color_equal (CoglPipeline *authority0,
                             CoglPipeline *authority1)
@@ -106,10 +102,10 @@ _cogl_pipeline_blend_state_equal (CoglPipeline *authority0,
       blend_state1->blend_dst_factor_rgb)
     return FALSE;
 
-  if (blend_state0->blend_src_factor_rgb == GL_ONE_MINUS_CONSTANT_COLOR ||
-      blend_state0->blend_src_factor_rgb == GL_CONSTANT_COLOR ||
-      blend_state0->blend_dst_factor_rgb == GL_ONE_MINUS_CONSTANT_COLOR ||
-      blend_state0->blend_dst_factor_rgb == GL_CONSTANT_COLOR)
+  if (blend_state0->blend_src_factor_rgb == COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR ||
+      blend_state0->blend_src_factor_rgb == COGL_PIPELINE_BLEND_FACTOR_CONSTANT_COLOR ||
+      blend_state0->blend_dst_factor_rgb == COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR ||
+      blend_state0->blend_dst_factor_rgb == COGL_PIPELINE_BLEND_FACTOR_CONSTANT_COLOR)
     {
       if (!cogl_color_equal (&blend_state0->blend_constant,
                              &blend_state1->blend_constant))
@@ -444,31 +440,31 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline)
   return authority->big_state->alpha_state.alpha_func_reference;
 }
 
-static GLenum
-arg_to_gl_blend_factor (CoglBlendStringArgument *arg)
+static CoglPipelineBlendFactor
+arg_to_blend_factor (CoglBlendStringArgument *arg)
 {
   if (arg->source.is_zero)
-    return GL_ZERO;
+    return COGL_PIPELINE_BLEND_FACTOR_ZERO;
   if (arg->factor.is_one)
-    return GL_ONE;
+    return COGL_PIPELINE_BLEND_FACTOR_ONE;
   else if (arg->factor.is_src_alpha_saturate)
-    return GL_SRC_ALPHA_SATURATE;
+    return COGL_PIPELINE_BLEND_FACTOR_SRC_ALPHA_SATURATE;
   else if (arg->factor.source.info->type ==
            COGL_BLEND_STRING_COLOR_SOURCE_SRC_COLOR)
     {
       if (arg->factor.source.mask != COGL_BLEND_STRING_CHANNEL_MASK_ALPHA)
         {
           if (arg->factor.source.one_minus)
-            return GL_ONE_MINUS_SRC_COLOR;
+            return COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
           else
-            return GL_SRC_COLOR;
+            return COGL_PIPELINE_BLEND_FACTOR_SRC_COLOR;
         }
       else
         {
           if (arg->factor.source.one_minus)
-            return GL_ONE_MINUS_SRC_ALPHA;
+            return COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
           else
-            return GL_SRC_ALPHA;
+            return COGL_PIPELINE_BLEND_FACTOR_SRC_ALPHA;
         }
     }
   else if (arg->factor.source.info->type ==
@@ -477,16 +473,16 @@ arg_to_gl_blend_factor (CoglBlendStringArgument *arg)
       if (arg->factor.source.mask != COGL_BLEND_STRING_CHANNEL_MASK_ALPHA)
         {
           if (arg->factor.source.one_minus)
-            return GL_ONE_MINUS_DST_COLOR;
+            return COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
           else
-            return GL_DST_COLOR;
+            return COGL_PIPELINE_BLEND_FACTOR_DST_COLOR;
         }
       else
         {
           if (arg->factor.source.one_minus)
-            return GL_ONE_MINUS_DST_ALPHA;
+            return COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
           else
-            return GL_DST_ALPHA;
+            return COGL_PIPELINE_BLEND_FACTOR_DST_ALPHA;
         }
     }
   else if (arg->factor.source.info->type ==
@@ -495,42 +491,42 @@ arg_to_gl_blend_factor (CoglBlendStringArgument *arg)
       if (arg->factor.source.mask != COGL_BLEND_STRING_CHANNEL_MASK_ALPHA)
         {
           if (arg->factor.source.one_minus)
-            return GL_ONE_MINUS_CONSTANT_COLOR;
+            return COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
           else
-            return GL_CONSTANT_COLOR;
+            return COGL_PIPELINE_BLEND_FACTOR_CONSTANT_COLOR;
         }
       else
         {
           if (arg->factor.source.one_minus)
-            return GL_ONE_MINUS_CONSTANT_ALPHA;
+            return COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
           else
-            return GL_CONSTANT_ALPHA;
+            return COGL_PIPELINE_BLEND_FACTOR_CONSTANT_ALPHA;
         }
     }
 
   g_warning ("Unable to determine valid blend factor from blend string\n");
-  return GL_ONE;
+  return COGL_PIPELINE_BLEND_FACTOR_ONE;
 }
 
 static void
-setup_blend_state (CoglBlendStringStatement *statement,
-                   GLenum *blend_equation,
-                   GLint *blend_src_factor,
-                   GLint *blend_dst_factor)
+setup_blend_state (CoglBlendStringStatement    *statement,
+                   CoglPipelineBlendEquation   *blend_equation,
+                   CoglPipelineBlendFactor     *blend_src_factor,
+                   CoglPipelineBlendFactor     *blend_dst_factor)
 {
   switch (statement->function->type)
     {
     case COGL_BLEND_STRING_FUNCTION_ADD:
-      *blend_equation = GL_FUNC_ADD;
+      *blend_equation = COGL_PIPELINE_BLEND_EQUATION_ADD;
       break;
     /* TODO - add more */
     default:
       g_warning ("Unsupported blend function given");
-      *blend_equation = GL_FUNC_ADD;
+      *blend_equation = COGL_PIPELINE_BLEND_EQUATION_ADD;
     }
 
-  *blend_src_factor = arg_to_gl_blend_factor (&statement->args[0]);
-  *blend_dst_factor = arg_to_gl_blend_factor (&statement->args[1]);
+  *blend_src_factor = arg_to_blend_factor (&statement->args[0]);
+  *blend_dst_factor = arg_to_blend_factor (&statement->args[1]);
 }
 
 gboolean
@@ -1201,10 +1197,10 @@ _cogl_pipeline_hash_blend_state (CoglPipeline *authority,
     _cogl_util_one_at_a_time_hash (hash, &blend_state->blend_dst_factor_alpha,
                                    sizeof (blend_state->blend_dst_factor_alpha));
 
-  if (blend_state->blend_src_factor_rgb == GL_ONE_MINUS_CONSTANT_COLOR ||
-      blend_state->blend_src_factor_rgb == GL_CONSTANT_COLOR ||
-      blend_state->blend_dst_factor_rgb == GL_ONE_MINUS_CONSTANT_COLOR ||
-      blend_state->blend_dst_factor_rgb == GL_CONSTANT_COLOR)
+  if (blend_state->blend_src_factor_rgb == COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR ||
+      blend_state->blend_src_factor_rgb == COGL_PIPELINE_BLEND_FACTOR_CONSTANT_COLOR ||
+      blend_state->blend_dst_factor_rgb == COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR ||
+      blend_state->blend_dst_factor_rgb == COGL_PIPELINE_BLEND_FACTOR_CONSTANT_COLOR)
     {
       hash =
         _cogl_util_one_at_a_time_hash (hash, &blend_state->blend_constant,

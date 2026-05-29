@@ -169,13 +169,13 @@ typedef struct
 typedef struct
 {
   /* Determines how this pipeline is blended with other primitives */
-  GLenum    blend_equation_rgb;
-  GLenum    blend_equation_alpha;
-  GLint     blend_src_factor_alpha;
-  GLint     blend_dst_factor_alpha;
+  CoglPipelineBlendEquation blend_equation_rgb;
+  CoglPipelineBlendEquation blend_equation_alpha;
+  CoglPipelineBlendFactor blend_src_factor_alpha;
+  CoglPipelineBlendFactor blend_dst_factor_alpha;
   CoglColor blend_constant;
-  GLint     blend_src_factor_rgb;
-  GLint     blend_dst_factor_rgb;
+  CoglPipelineBlendFactor blend_src_factor_rgb;
+  CoglPipelineBlendFactor blend_dst_factor_rgb;
 } CoglPipelineBlendState;
 
 typedef struct
