@@ -21,9 +21,9 @@
 #include "backends/native/meta-render-device-private.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-egl.h"
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
+#include "backends/native/meta-renderer-egl.h"
 #include "cogl/cogl-context-private.h"
 
 enum
@@ -44,7 +44,7 @@ typedef struct _MetaRenderDevicePrivate
 
   MetaDeviceFile *device_file;
 
-  EGLDisplay egl_display;
+  MetaRendererEgl *renderer_egl;
 
   gboolean is_hardware_rendering;
 } MetaRenderDevicePrivate;
@@ -58,53 +58,43 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaRenderDevice, meta_render_device,
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          initable_iface_init))
 
-static EGLDisplay
-meta_render_device_create_egl_display (MetaRenderDevice  *render_device,
-                                       GError           **error)
-{
-  MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
-
-  return klass->create_egl_display (render_device, error);
-}
-
 static void
 detect_hardware_rendering (MetaRenderDevice *render_device)
 {
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
-  MetaEgl *egl = meta_backend_get_egl (priv->backend);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (priv->renderer_egl);
+  EGLDisplay egl_display;
   g_autoptr (GError) error = NULL;
   EGLint *attributes;
   EGLContext egl_context;
   const char *renderer_str;
 
+  egl_display = cogl_renderer_egl_get_edisplay (renderer_egl);
+
+  eglBindAPI (EGL_OPENGL_ES_API);
+
   attributes = (EGLint[]) {
     EGL_CONTEXT_CLIENT_VERSION, 2,
     EGL_NONE
   };
-  egl_context = meta_egl_create_context (egl,
-                                         priv->egl_display,
-                                         EGL_NO_CONFIG_KHR,
-                                         EGL_NO_CONTEXT,
-                                         attributes,
-                                         &error);
+  egl_context = eglCreateContext (egl_display,
+                                  EGL_NO_CONFIG_KHR,
+                                  EGL_NO_CONTEXT,
+                                  attributes);
   if (egl_context == EGL_NO_CONTEXT)
     {
-      meta_topic (META_DEBUG_RENDER, "Failed to create EGLContext for %s: %s",
-                  meta_device_file_get_path (priv->device_file),
-                  error->message);
+      meta_topic (META_DEBUG_RENDER, "Failed to create EGLContext for %s",
+                  meta_device_file_get_path (priv->device_file));
       return;
     }
 
-  if (!meta_egl_make_current (egl,
-                              priv->egl_display,
-                              EGL_NO_SURFACE,
-                              EGL_NO_SURFACE,
-                              egl_context,
-                              &error))
+  if (!eglMakeCurrent (egl_display,
+                       EGL_NO_SURFACE,
+                       EGL_NO_SURFACE,
+                       egl_context))
     {
-      g_warning ("Failed to detect hardware rendering: eglMakeCurrent(): %s",
-                 error->message);
+      g_warning ("Failed to detect hardware rendering: eglMakeCurrent failed");
       goto out_has_context;
     }
 
@@ -117,12 +107,12 @@ detect_hardware_rendering (MetaRenderDevice *render_device)
   priv->is_hardware_rendering = TRUE;
 
 out_current_context:
-  meta_egl_make_current (egl, priv->egl_display,
-                         EGL_NO_SURFACE, EGL_NO_SURFACE,
-                         EGL_NO_CONTEXT, NULL);
+  eglMakeCurrent (egl_display,
+                  EGL_NO_SURFACE, EGL_NO_SURFACE,
+                  EGL_NO_CONTEXT);
 
 out_has_context:
-  meta_egl_destroy_context (egl, priv->egl_display, egl_context, NULL);
+  eglDestroyContext (egl_display, egl_context);
 }
 
 static void
@@ -130,22 +120,20 @@ init_egl (MetaRenderDevice *render_device)
 {
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
-  MetaEgl *egl = meta_backend_get_egl (priv->backend);
   g_autoptr (GError) error = NULL;
-  EGLDisplay egl_display;
+  MetaRendererEgl *renderer_egl;
 
-  meta_egl_bind_api (egl, EGL_OPENGL_ES_API, NULL);
+  renderer_egl = meta_renderer_egl_new (render_device);
+  priv->renderer_egl = renderer_egl;
 
-  egl_display = meta_render_device_create_egl_display (render_device, &error);
-  if (egl_display == EGL_NO_DISPLAY)
+  if (!cogl_renderer_connect (COGL_RENDERER (renderer_egl), &error))
     {
-      meta_topic (META_DEBUG_RENDER, "Failed to create EGLDisplay for %s: %s",
+      meta_topic (META_DEBUG_RENDER, "Failed to connect renderer for %s: %s",
                   meta_device_file_get_path (priv->device_file),
                   error->message);
+      g_clear_object (&priv->renderer_egl);
       return;
     }
-
-  priv->egl_display = egl_display;
   detect_hardware_rendering (render_device);
 }
 
@@ -221,13 +209,8 @@ meta_render_device_dispose (GObject *object)
   MetaRenderDevice *render_device = META_RENDER_DEVICE (object);
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
-  MetaEgl *egl = meta_backend_get_egl (priv->backend);
 
-  if (priv->egl_display != EGL_NO_DISPLAY)
-    {
-      meta_egl_terminate (egl, priv->egl_display, NULL);
-      priv->egl_display = EGL_NO_DISPLAY;
-    }
+  g_clear_object (&priv->renderer_egl);
 
   G_OBJECT_CLASS (meta_render_device_parent_class)->dispose (object);
 }
@@ -285,10 +268,6 @@ meta_render_device_class_init (MetaRenderDeviceClass *klass)
 static void
 meta_render_device_init (MetaRenderDevice *render_device)
 {
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
-
-  priv->egl_display = EGL_NO_DISPLAY;
 }
 
 MetaBackend *
@@ -315,7 +294,19 @@ meta_render_device_get_egl_display (MetaRenderDevice *render_device)
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
 
-  return priv->egl_display;
+  if (priv->renderer_egl)
+    return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (priv->renderer_egl));
+
+  return EGL_NO_DISPLAY;
+}
+
+MetaRendererEgl *
+meta_render_device_get_renderer_egl (MetaRenderDevice *render_device)
+{
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+
+  return priv->renderer_egl;
 }
 
 gboolean

@@ -19,7 +19,7 @@
 
 #include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-drm-buffer.h"
-#include "backends/native/meta-render-device.h"
+#include "backends/native/meta-render-device-private.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-cogl-drm-formats.h"
@@ -86,9 +86,14 @@ meta_renderer_egl_connect (CoglRenderer  *cogl_renderer,
                            GError       **error)
 {
   MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
+  MetaRenderDeviceClass *render_device_class =
+    META_RENDER_DEVICE_GET_CLASS (renderer_egl->render_device);
   EGLDisplay egl_display;
 
-  egl_display = meta_render_device_get_egl_display (renderer_egl->render_device);
+  egl_display = render_device_class->create_egl_display (renderer_egl->render_device,
+                                                         error);
+  if (egl_display == EGL_NO_DISPLAY)
+    return FALSE;
 
   cogl_renderer_egl_set_edisplay (COGL_RENDERER_EGL (cogl_renderer),
                                   egl_display);

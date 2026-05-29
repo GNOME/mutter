@@ -197,9 +197,6 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
   if (backend->cogl_context == NULL)
     goto error;
 
-  /* the display owns the renderer and the swap chain */
-  g_object_unref (backend->cogl_renderer);
-
   return TRUE;
 
 error:
