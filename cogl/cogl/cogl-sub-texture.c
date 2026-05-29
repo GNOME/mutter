@@ -200,9 +200,9 @@ _cogl_sub_texture_can_hardware_repeat (CoglTexture *tex)
 }
 
 static void
-_cogl_sub_texture_transform_coords_to_gl (CoglTexture *tex,
-                                          float *s,
-                                          float *t)
+_cogl_sub_texture_transform_coords (CoglTexture *tex,
+                                    float       *s,
+                                    float       *t)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
   CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (sub_tex->full_texture);
@@ -214,12 +214,12 @@ _cogl_sub_texture_transform_coords_to_gl (CoglTexture *tex,
   *t = ((*t * cogl_texture_get_height (tex) + sub_tex->sub_y) /
         cogl_texture_get_height (sub_tex->full_texture));
 
-  klass->transform_coords_to_gl (sub_tex->full_texture, s, t);
+  klass->transform_coords (sub_tex->full_texture, s, t);
 }
 
 static CoglTransformResult
-_cogl_sub_texture_transform_quad_coords_to_gl (CoglTexture *tex,
-                                               float *coords)
+_cogl_sub_texture_transform_quad_coords (CoglTexture *tex,
+                                         float       *coords)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
   CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (sub_tex->full_texture);
@@ -233,7 +233,7 @@ _cogl_sub_texture_transform_quad_coords_to_gl (CoglTexture *tex,
 
   _cogl_sub_texture_map_quad (sub_tex, coords);
 
-  return klass->transform_quad_coords_to_gl (sub_tex->full_texture, coords);
+  return klass->transform_quad_coords (sub_tex->full_texture, coords);
 }
 
 static gboolean
@@ -294,8 +294,8 @@ cogl_sub_texture_class_init (CoglSubTextureClass *klass)
   texture_class->set_region = _cogl_sub_texture_set_region;
   texture_class->foreach_sub_texture_in_region = _cogl_sub_texture_foreach_sub_texture_in_region;
   texture_class->can_hardware_repeat = _cogl_sub_texture_can_hardware_repeat;
-  texture_class->transform_coords_to_gl = _cogl_sub_texture_transform_coords_to_gl;
-  texture_class->transform_quad_coords_to_gl = _cogl_sub_texture_transform_quad_coords_to_gl;
+  texture_class->transform_coords = _cogl_sub_texture_transform_coords;
+  texture_class->transform_quad_coords = _cogl_sub_texture_transform_quad_coords;
   texture_class->get_format = _cogl_sub_texture_get_format;
 }
 

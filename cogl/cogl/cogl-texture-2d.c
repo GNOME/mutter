@@ -150,17 +150,17 @@ _cogl_texture_2d_can_hardware_repeat (CoglTexture *tex)
 }
 
 static void
-_cogl_texture_2d_transform_coords_to_gl (CoglTexture *tex,
-                                         float *s,
-                                         float *t)
+_cogl_texture_2d_transform_coords (CoglTexture *tex,
+                                   float       *s,
+                                   float       *t)
 {
   /* The texture coordinates map directly so we don't need to do
      anything */
 }
 
 static CoglTransformResult
-_cogl_texture_2d_transform_quad_coords_to_gl (CoglTexture *tex,
-                                              float *coords)
+_cogl_texture_2d_transform_quad_coords (CoglTexture *tex,
+                                        float       *coords)
 {
   /* The texture coordinates map directly so we don't need to do
      anything other than check for repeats */
@@ -294,8 +294,8 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
   texture_class->set_region = _cogl_texture_2d_set_region;
   texture_class->get_data = _cogl_texture_2d_get_data;
   texture_class->can_hardware_repeat = _cogl_texture_2d_can_hardware_repeat;
-  texture_class->transform_coords_to_gl = _cogl_texture_2d_transform_coords_to_gl;
-  texture_class->transform_quad_coords_to_gl = _cogl_texture_2d_transform_quad_coords_to_gl;
+  texture_class->transform_coords = _cogl_texture_2d_transform_coords;
+  texture_class->transform_quad_coords = _cogl_texture_2d_transform_quad_coords;
   texture_class->pre_paint = _cogl_texture_2d_pre_paint;
   texture_class->get_format = _cogl_texture_2d_get_format;
 }

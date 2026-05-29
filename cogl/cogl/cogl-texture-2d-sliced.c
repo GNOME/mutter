@@ -749,9 +749,9 @@ _cogl_texture_2d_sliced_can_hardware_repeat (CoglTexture *tex)
 }
 
 static void
-_cogl_texture_2d_sliced_transform_coords_to_gl (CoglTexture *tex,
-                                                float *s,
-                                                float *t)
+_cogl_texture_2d_sliced_transform_coords (CoglTexture *tex,
+                                          float       *s,
+                                          float       *t)
 {
   CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
   CoglSpan *x_span;
@@ -770,12 +770,12 @@ _cogl_texture_2d_sliced_transform_coords_to_gl (CoglTexture *tex,
   /* Let the child texture further transform the coords */
   slice_tex = g_array_index (tex_2ds->slice_textures, CoglTexture2D *, 0);
 
-  COGL_TEXTURE_GET_CLASS (slice_tex)->transform_coords_to_gl (COGL_TEXTURE (slice_tex), s, t);
+  COGL_TEXTURE_GET_CLASS (slice_tex)->transform_coords (COGL_TEXTURE (slice_tex), s, t);
 }
 
 static CoglTransformResult
-_cogl_texture_2d_sliced_transform_quad_coords_to_gl (CoglTexture *tex,
-                                                     float *coords)
+_cogl_texture_2d_sliced_transform_quad_coords (CoglTexture *tex,
+                                               float       *coords)
 {
   gboolean need_repeat = FALSE;
   int i;
@@ -795,8 +795,8 @@ _cogl_texture_2d_sliced_transform_quad_coords_to_gl (CoglTexture *tex,
   if (need_repeat && !_cogl_texture_2d_sliced_can_hardware_repeat (tex))
     return COGL_TRANSFORM_SOFTWARE_REPEAT;
 
-  _cogl_texture_2d_sliced_transform_coords_to_gl (tex, coords + 0, coords + 1);
-  _cogl_texture_2d_sliced_transform_coords_to_gl (tex, coords + 2, coords + 3);
+  _cogl_texture_2d_sliced_transform_coords (tex, coords + 0, coords + 1);
+  _cogl_texture_2d_sliced_transform_coords (tex, coords + 2, coords + 3);
 
   return (need_repeat
           ? COGL_TRANSFORM_HARDWARE_REPEAT : COGL_TRANSFORM_NO_REPEAT);
@@ -1052,8 +1052,8 @@ cogl_texture_2d_sliced_class_init (CoglTexture2DSlicedClass *klass)
   texture_class->set_region = _cogl_texture_2d_sliced_set_region;
   texture_class->foreach_sub_texture_in_region = _cogl_texture_2d_sliced_foreach_sub_texture_in_region;
   texture_class->can_hardware_repeat = _cogl_texture_2d_sliced_can_hardware_repeat;
-  texture_class->transform_coords_to_gl = _cogl_texture_2d_sliced_transform_coords_to_gl;
-  texture_class->transform_quad_coords_to_gl = _cogl_texture_2d_sliced_transform_quad_coords_to_gl;
+  texture_class->transform_coords = _cogl_texture_2d_sliced_transform_coords;
+  texture_class->transform_quad_coords = _cogl_texture_2d_sliced_transform_quad_coords;
   texture_class->get_format = _cogl_texture_2d_sliced_get_format;
 }
 

@@ -144,11 +144,11 @@ struct _CoglTextureClass
 
   gboolean (* can_hardware_repeat) (CoglTexture *tex);
 
-  void (* transform_coords_to_gl) (CoglTexture *tex,
-                                   float       *s,
-                                   float       *t);
-  CoglTransformResult (* transform_quad_coords_to_gl) (CoglTexture *tex,
-                                                       float       *coords);
+  void (* transform_coords) (CoglTexture *tex,
+                             float       *s,
+                             float       *t);
+  CoglTransformResult (* transform_quad_coords) (CoglTexture *tex,
+                                                 float       *coords);
 
   void (* pre_paint) (CoglTexture             *tex,
                       CoglTexturePrePaintFlags flags);
