@@ -36,6 +36,7 @@
 #include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-util.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 
@@ -89,5 +90,33 @@ _cogl_texture_gl_get_format (CoglTexture *texture)
 
   g_return_val_if_fail (leaf != NULL, GL_RGBA);
 
-  return leaf->gl_internal_format;
+  return COGL_TEXTURE_2D_GL (leaf)->gl_internal_format;
+}
+
+gboolean
+cogl_texture_get_gl_texture (CoglTexture *texture,
+                             GLuint *out_gl_handle,
+                             GLenum *out_gl_target)
+{
+  CoglTexture2D *leaf;
+  CoglTexture2DGL *leaf_gl;
+
+  g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
+
+  if (!cogl_texture_is_allocated (texture))
+    cogl_texture_allocate (texture, NULL);
+
+  leaf = cogl_texture_get_first_leaf (texture);
+  if (!leaf)
+    return FALSE;
+
+  leaf_gl = COGL_TEXTURE_2D_GL (leaf);
+
+  if (out_gl_handle)
+    *out_gl_handle = leaf_gl->gl_texture;
+
+  if (out_gl_target)
+    *out_gl_target = leaf_gl->gl_target;
+
+  return leaf_gl->gl_texture ? TRUE : FALSE;
 }

@@ -39,7 +39,25 @@
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture.h"
+#include "cogl/cogl-texture-2d-private.h"
 
+#define COGL_TYPE_TEXTURE_2D_GL (cogl_texture_2d_gl_get_type ())
+
+G_DECLARE_FINAL_TYPE (CoglTexture2DGL, cogl_texture_2d_gl,
+                      COGL, TEXTURE_2D_GL, CoglTexture2D)
+
+struct _CoglTexture2DGL
+{
+  CoglTexture2D parent_instance;
+
+  GLenum gl_internal_format;
+  GLuint gl_texture;
+  GLenum gl_target;
+  GLenum gl_legacy_texobj_min_filter;
+  GLenum gl_legacy_texobj_mag_filter;
+  GLint gl_legacy_texobj_wrap_mode_s;
+  GLint gl_legacy_texobj_wrap_mode_t;
+};
 
 #if defined (HAVE_EGL)
 gboolean

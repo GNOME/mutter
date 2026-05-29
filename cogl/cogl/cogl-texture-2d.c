@@ -47,7 +47,7 @@
 #include <string.h>
 #include <math.h>
 
-G_DEFINE_FINAL_TYPE (CoglTexture2D, cogl_texture_2d, COGL_TYPE_TEXTURE)
+G_DEFINE_TYPE (CoglTexture2D, cogl_texture_2d, COGL_TYPE_TEXTURE)
 
 
 static void
@@ -80,8 +80,11 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
 {
   CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglTextureDriver *tex_driver = cogl_driver_create_texture_driver (driver);
+  CoglTextureDriverClass *tex_driver_klass =
+    COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
+  GType tex_type = tex_driver_klass->texture_2d_get_type (tex_driver);
 
-  CoglTexture2D *tex_2d = g_object_new (COGL_TYPE_TEXTURE_2D,
+  CoglTexture2D *tex_2d = g_object_new (tex_type,
                                         "context", ctx,
                                         "texture-driver", tex_driver,
                                         "width", width,
@@ -89,12 +92,6 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                                         "loader", loader,
                                         "format", internal_format,
                                         NULL);
-
-  tex_2d->mipmaps_dirty = TRUE;
-  tex_2d->auto_mipmap = TRUE;
-  tex_2d->is_get_data_supported = TRUE;
-
-  tex_2d->gl_target = GL_TEXTURE_2D;
 
   return COGL_TEXTURE (tex_2d);
 }
@@ -303,15 +300,9 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
 static void
 cogl_texture_2d_init (CoglTexture2D *self)
 {
-  self->gl_texture = 0;
-
-  /* We default to GL_LINEAR for both filters */
-  self->gl_legacy_texobj_min_filter = GL_LINEAR;
-  self->gl_legacy_texobj_mag_filter = GL_LINEAR;
-
-  /* Wrap mode not yet set */
-  self->gl_legacy_texobj_wrap_mode_s = GL_FALSE;
-  self->gl_legacy_texobj_wrap_mode_t = GL_FALSE;
+  self->auto_mipmap = TRUE;
+  self->mipmaps_dirty = TRUE;
+  self->is_get_data_supported = TRUE;
 }
 
 CoglTexture *

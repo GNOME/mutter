@@ -465,31 +465,6 @@ _cogl_texture_can_hardware_repeat (CoglTexture *texture)
   return COGL_TEXTURE_GET_CLASS (texture)->can_hardware_repeat (texture);
 }
 
-gboolean
-cogl_texture_get_gl_texture (CoglTexture *texture,
-			     GLuint *out_gl_handle,
-			     GLenum *out_gl_target)
-{
-  CoglTexture2D *leaf;
-
-  g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
-
-  if (!cogl_texture_is_allocated (texture))
-    cogl_texture_allocate (texture, NULL);
-
-  leaf = cogl_texture_get_first_leaf (texture);
-  if (!leaf)
-    return FALSE;
-
-  if (out_gl_handle)
-    *out_gl_handle = leaf->gl_texture;
-
-  if (out_gl_target)
-    *out_gl_target = leaf->gl_target;
-
-  return leaf->gl_texture ? TRUE : FALSE;
-}
-
 void
 _cogl_texture_pre_paint (CoglTexture *texture, CoglTexturePrePaintFlags flags)
 {

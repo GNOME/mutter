@@ -49,6 +49,9 @@ struct _CoglTextureDriverClass
 {
   GObjectClass parent_class;
 
+  /* Returns the GType of the driver-specific CoglTexture2D subclass */
+  GType (* texture_2d_get_type) (CoglTextureDriver *driver);
+
   /* Destroys any driver specific resources associated with the given
   * 2D texture. */
   void (* texture_2d_free) (CoglTextureDriver *driver,
