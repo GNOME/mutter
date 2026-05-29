@@ -198,13 +198,63 @@ _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture)
     }
 }
 
-static gboolean
-blend_factor_uses_constant (GLenum blend_factor)
+static GLenum
+blend_equation_to_gl (CoglPipelineBlendEquation equation)
 {
-  return (blend_factor == GL_CONSTANT_COLOR ||
-          blend_factor == GL_ONE_MINUS_CONSTANT_COLOR ||
-          blend_factor == GL_CONSTANT_ALPHA ||
-          blend_factor == GL_ONE_MINUS_CONSTANT_ALPHA);
+  switch (equation)
+    {
+    case COGL_PIPELINE_BLEND_EQUATION_ADD:
+      return GL_FUNC_ADD;
+    }
+  g_return_val_if_reached (GL_FUNC_ADD);
+}
+
+static GLenum
+blend_factor_to_gl (CoglPipelineBlendFactor factor)
+{
+  switch (factor)
+    {
+    case COGL_PIPELINE_BLEND_FACTOR_ZERO:
+      return GL_ZERO;
+    case COGL_PIPELINE_BLEND_FACTOR_ONE:
+      return GL_ONE;
+    case COGL_PIPELINE_BLEND_FACTOR_SRC_COLOR:
+      return GL_SRC_COLOR;
+    case COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_SRC_COLOR:
+      return GL_ONE_MINUS_SRC_COLOR;
+    case COGL_PIPELINE_BLEND_FACTOR_DST_COLOR:
+      return GL_DST_COLOR;
+    case COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_DST_COLOR:
+      return GL_ONE_MINUS_DST_COLOR;
+    case COGL_PIPELINE_BLEND_FACTOR_SRC_ALPHA:
+      return GL_SRC_ALPHA;
+    case COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA:
+      return GL_ONE_MINUS_SRC_ALPHA;
+    case COGL_PIPELINE_BLEND_FACTOR_DST_ALPHA:
+      return GL_DST_ALPHA;
+    case COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_DST_ALPHA:
+      return GL_ONE_MINUS_DST_ALPHA;
+    case COGL_PIPELINE_BLEND_FACTOR_CONSTANT_COLOR:
+      return GL_CONSTANT_COLOR;
+    case COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR:
+      return GL_ONE_MINUS_CONSTANT_COLOR;
+    case COGL_PIPELINE_BLEND_FACTOR_CONSTANT_ALPHA:
+      return GL_CONSTANT_ALPHA;
+    case COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA:
+      return GL_ONE_MINUS_CONSTANT_ALPHA;
+    case COGL_PIPELINE_BLEND_FACTOR_SRC_ALPHA_SATURATE:
+      return GL_SRC_ALPHA_SATURATE;
+    }
+  g_return_val_if_reached (GL_ONE);
+}
+
+static gboolean
+blend_factor_uses_constant (CoglPipelineBlendFactor blend_factor)
+{
+  return (blend_factor == COGL_PIPELINE_BLEND_FACTOR_CONSTANT_COLOR ||
+          blend_factor == COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR ||
+          blend_factor == COGL_PIPELINE_BLEND_FACTOR_CONSTANT_ALPHA ||
+          blend_factor == COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA);
 }
 
 static void
@@ -298,13 +348,13 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
           GE (driver, glBlendColor (red, green, blue, alpha));
         }
 
-      GE (driver, glBlendEquationSeparate (blend_state->blend_equation_rgb,
-                                           blend_state->blend_equation_alpha));
+      GE (driver, glBlendEquationSeparate (blend_equation_to_gl (blend_state->blend_equation_rgb),
+                                           blend_equation_to_gl (blend_state->blend_equation_alpha)));
 
-      GE (driver, glBlendFuncSeparate (blend_state->blend_src_factor_rgb,
-                                       blend_state->blend_dst_factor_rgb,
-                                       blend_state->blend_src_factor_alpha,
-                                       blend_state->blend_dst_factor_alpha));
+      GE (driver, glBlendFuncSeparate (blend_factor_to_gl (blend_state->blend_src_factor_rgb),
+                                       blend_factor_to_gl (blend_state->blend_dst_factor_rgb),
+                                       blend_factor_to_gl (blend_state->blend_src_factor_alpha),
+                                       blend_factor_to_gl (blend_state->blend_dst_factor_alpha)));
     }
 
   if (pipelines_difference & COGL_PIPELINE_STATE_DEPTH)

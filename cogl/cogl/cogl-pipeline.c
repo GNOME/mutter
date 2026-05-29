@@ -225,14 +225,14 @@ create_default_big_state (void)
   alpha_state->alpha_func_reference = 0.0;
 
   /* Not the same as the GL default, but seems saner... */
-  blend_state->blend_equation_rgb = GL_FUNC_ADD;
-  blend_state->blend_equation_alpha = GL_FUNC_ADD;
-  blend_state->blend_src_factor_alpha = GL_ONE;
-  blend_state->blend_dst_factor_alpha = GL_ONE_MINUS_SRC_ALPHA;
+  blend_state->blend_equation_rgb = COGL_PIPELINE_BLEND_EQUATION_ADD;
+  blend_state->blend_equation_alpha = COGL_PIPELINE_BLEND_EQUATION_ADD;
+  blend_state->blend_src_factor_alpha = COGL_PIPELINE_BLEND_FACTOR_ONE;
+  blend_state->blend_dst_factor_alpha = COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
   cogl_color_init_from_4f (&blend_state->blend_constant,
                             0.0, 0.0, 0.0, 0.0);
-  blend_state->blend_src_factor_rgb = GL_ONE;
-  blend_state->blend_dst_factor_rgb = GL_ONE_MINUS_SRC_ALPHA;
+  blend_state->blend_src_factor_rgb = COGL_PIPELINE_BLEND_FACTOR_ONE;
+  blend_state->blend_dst_factor_rgb = COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
   cull_face_state->mode = COGL_PIPELINE_CULL_FACE_MODE_NONE;
   cull_face_state->front_winding = COGL_WINDING_COUNTER_CLOCKWISE;
@@ -733,10 +733,10 @@ _cogl_pipeline_needs_blending_enabled (CoglPipeline *pipeline,
    * disable blending is to use an equation of
    * "RGBA=ADD(SRC_COLOR, 0)" that's the first thing we check
    * for... */
-  if (blend_state->blend_equation_rgb == GL_FUNC_ADD &&
-      blend_state->blend_equation_alpha == GL_FUNC_ADD &&
-      blend_state->blend_src_factor_alpha == GL_ONE &&
-      blend_state->blend_dst_factor_alpha == GL_ZERO)
+  if (blend_state->blend_equation_rgb == COGL_PIPELINE_BLEND_EQUATION_ADD &&
+      blend_state->blend_equation_alpha == COGL_PIPELINE_BLEND_EQUATION_ADD &&
+      blend_state->blend_src_factor_alpha == COGL_PIPELINE_BLEND_FACTOR_ONE &&
+      blend_state->blend_dst_factor_alpha == COGL_PIPELINE_BLEND_FACTOR_ZERO)
     {
       return FALSE;
     }
@@ -750,16 +750,16 @@ _cogl_pipeline_needs_blending_enabled (CoglPipeline *pipeline,
    * also effectively requires no blending.
    */
 
-  if (blend_state->blend_equation_rgb != GL_FUNC_ADD ||
-      blend_state->blend_equation_alpha != GL_FUNC_ADD)
+  if (blend_state->blend_equation_rgb != COGL_PIPELINE_BLEND_EQUATION_ADD ||
+      blend_state->blend_equation_alpha != COGL_PIPELINE_BLEND_EQUATION_ADD)
     return TRUE;
 
-  if (blend_state->blend_src_factor_alpha != GL_ONE ||
-      blend_state->blend_dst_factor_alpha != GL_ONE_MINUS_SRC_ALPHA)
+  if (blend_state->blend_src_factor_alpha != COGL_PIPELINE_BLEND_FACTOR_ONE ||
+      blend_state->blend_dst_factor_alpha != COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA)
     return TRUE;
 
-  if (blend_state->blend_src_factor_rgb != GL_ONE ||
-      blend_state->blend_dst_factor_rgb != GL_ONE_MINUS_SRC_ALPHA)
+  if (blend_state->blend_src_factor_rgb != COGL_PIPELINE_BLEND_FACTOR_ONE ||
+      blend_state->blend_dst_factor_rgb != COGL_PIPELINE_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA)
     return TRUE;
 
   /* Given the above constraints, it's now a case of finding any
