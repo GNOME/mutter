@@ -188,8 +188,8 @@ _cogl_texture_2d_transform_quad_coords_to_gl (CoglTexture *tex,
 
 static gboolean
 _cogl_texture_2d_get_gl_texture (CoglTexture *tex,
-                                 GLuint *out_gl_handle,
-                                 GLenum *out_gl_target)
+                                 GLuint      *out_gl_handle,
+                                 GLenum      *out_gl_target)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
 
@@ -230,12 +230,6 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
 
       tex_2d->mipmaps_dirty = FALSE;
     }
-}
-
-static void
-_cogl_texture_2d_ensure_non_quad_rendering (CoglTexture *tex)
-{
-  /* Nothing needs to be done */
 }
 
 static gboolean
@@ -319,6 +313,14 @@ _cogl_texture_2d_get_gl_format (CoglTexture *tex)
 }
 
 static void
+cogl_texture_2d_foreach_leaf (CoglTexture             *tex,
+                              CoglLeafTextureCallback  callback,
+                              void                    *user_data)
+{
+  callback (COGL_TEXTURE_2D (tex), user_data);
+}
+
+static void
 cogl_texture_2d_class_init (CoglTexture2DClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -335,12 +337,10 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
   texture_class->transform_coords_to_gl = _cogl_texture_2d_transform_coords_to_gl;
   texture_class->transform_quad_coords_to_gl = _cogl_texture_2d_transform_quad_coords_to_gl;
   texture_class->get_gl_texture = _cogl_texture_2d_get_gl_texture;
-  texture_class->gl_flush_legacy_texobj_filters = _cogl_texture_2d_gl_flush_legacy_texobj_filters;
   texture_class->pre_paint = _cogl_texture_2d_pre_paint;
-  texture_class->ensure_non_quad_rendering = _cogl_texture_2d_ensure_non_quad_rendering;
-  texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_texture_2d_get_format;
   texture_class->get_gl_format = _cogl_texture_2d_get_gl_format;
+  texture_class->foreach_leaf_texture = cogl_texture_2d_foreach_leaf;
 }
 
 static void
