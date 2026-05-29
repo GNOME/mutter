@@ -90,12 +90,82 @@ cogl_texture_2d_gl_init (CoglTexture2DGL *self)
 }
 
 static void
+cogl_texture_2d_gl_pre_paint (CoglTexture              *tex,
+                              CoglTexturePrePaintFlags  flags)
+{
+  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
+
+  if ((flags & COGL_TEXTURE_NEEDS_MIPMAP) &&
+      tex_2d->auto_mipmap && tex_2d->mipmaps_dirty)
+    {
+      CoglContext *ctx = cogl_texture_get_context (tex);
+      CoglDriver *driver = cogl_context_get_driver (ctx);
+      CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
+      CoglTextureDriverClass *tex_driver_klass =
+        COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
+
+      _cogl_texture_flush_journal_rendering (tex);
+
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH) &&
+          _cogl_texture_get_associated_framebuffers (tex))
+        GE (driver, glFlush ());
+
+      tex_driver_klass->texture_2d_generate_mipmap (tex_driver, tex_2d);
+
+      tex_2d->mipmaps_dirty = FALSE;
+    }
+}
+
+static void
 cogl_texture_2d_gl_class_init (CoglTexture2DGLClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  CoglTextureClass *texture_class = COGL_TEXTURE_CLASS (klass);
 
   gobject_class->dispose = cogl_texture_2d_gl_dispose;
+  texture_class->pre_paint = cogl_texture_2d_gl_pre_paint;
 }
+
+#if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
+/* NB: The reason we require the width, height and format to be passed
+ * even though they may seem redundant is because GLES 1/2 don't
+ * provide a way to query these properties. */
+CoglTexture *
+cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
+                                    int width,
+                                    int height,
+                                    CoglPixelFormat format,
+                                    EGLImageKHR image,
+                                    CoglEglImageFlags flags,
+                                    GError **error)
+{
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglTextureLoader *loader;
+  CoglTexture *tex;
+
+  g_return_val_if_fail (cogl_driver_has_feature
+                        (driver,
+                        COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE),
+                        NULL);
+
+  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE);
+  loader->src.egl_image.image = image;
+  loader->src.egl_image.width = width;
+  loader->src.egl_image.height = height;
+  loader->src.egl_image.format = format;
+  loader->src.egl_image.flags = flags;
+
+  tex = _cogl_texture_2d_create_base (ctx, width, height, format, loader);
+
+  if (!cogl_texture_allocate (COGL_TEXTURE (tex), error))
+    {
+      g_object_unref (tex);
+      return NULL;
+    }
+
+  return tex;
+}
+#endif /* defined (HAVE_EGL) && defined (EGL_KHR_image_base) */
 
 #if defined (HAVE_EGL)
 gboolean
