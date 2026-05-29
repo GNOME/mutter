@@ -152,6 +152,123 @@ gboolean cogl_renderer_egl_has_extensions (CoglRendererEGL   *renderer_egl,
                                            ...);
 
 /**
+ * cogl_renderer_egl_has_client_extensions: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_has_client_extensions (CoglRendererEGL   *renderer_egl,
+                                                  const char      ***missing_extensions,
+                                                  const char        *first_extension,
+                                                  ...);
+
+/**
+ * cogl_renderer_egl_display_has_extensions: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_display_has_extensions (CoglRendererEGL   *renderer_egl,
+                                                   EGLDisplay         display,
+                                                   const char      ***missing_extensions,
+                                                   const char        *first_extension,
+                                                   ...);
+
+/**
+ * cogl_renderer_egl_get_platform_display: (skip)
+ */
+COGL_EXPORT
+EGLDisplay cogl_renderer_egl_get_platform_display (CoglRendererEGL  *renderer_egl,
+                                                   EGLenum           platform,
+                                                   void             *native_display,
+                                                   const EGLint     *attrib_list,
+                                                   GError          **error);
+
+/**
+ * cogl_renderer_egl_initialize: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_initialize (CoglRendererEGL  *renderer_egl,
+                                       EGLDisplay        display,
+                                       GError          **error);
+
+/**
+ * cogl_renderer_egl_terminate: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_terminate (CoglRendererEGL  *renderer_egl,
+                                      EGLDisplay        display,
+                                      GError          **error);
+
+/**
+ * cogl_renderer_egl_query_devices: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_query_devices (CoglRendererEGL  *renderer_egl,
+                                          EGLint            max_devices,
+                                          EGLDeviceEXT     *devices,
+                                          EGLint           *num_devices,
+                                          GError          **error);
+
+/**
+ * cogl_renderer_egl_create_context: (skip)
+ */
+COGL_EXPORT
+EGLContext cogl_renderer_egl_create_context (CoglRendererEGL  *renderer_egl,
+                                             EGLConfig         config,
+                                             EGLContext        share_context,
+                                             const EGLint     *attrib_list,
+                                             GError          **error);
+
+/**
+ * cogl_renderer_egl_destroy_context: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_destroy_context (CoglRendererEGL  *renderer_egl,
+                                            EGLContext        context,
+                                            GError          **error);
+
+/**
+ * cogl_renderer_egl_make_current: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_make_current (CoglRendererEGL  *renderer_egl,
+                                         EGLSurface        draw,
+                                         EGLSurface        read,
+                                         EGLContext        context,
+                                         GError          **error);
+
+/**
+ * cogl_renderer_egl_create_egl_sync: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_create_egl_sync (CoglRendererEGL  *renderer_egl,
+                                            EGLenum           type,
+                                            const EGLAttrib  *attrib_list,
+                                            EGLSync          *egl_sync,
+                                            GError          **error);
+
+/**
+ * cogl_renderer_egl_destroy_egl_sync: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_destroy_egl_sync (CoglRendererEGL  *renderer_egl,
+                                             EGLSync           sync,
+                                             GError          **error);
+
+/**
+ * cogl_renderer_egl_wait_egl_sync: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_wait_egl_sync (CoglRendererEGL  *renderer_egl,
+                                          EGLSync           sync,
+                                          EGLint            flags,
+                                          GError          **error);
+
+/**
+ * cogl_renderer_egl_create_sync_fd: (skip)
+ */
+COGL_EXPORT
+int cogl_renderer_egl_create_sync_fd (CoglRendererEGL  *renderer_egl,
+                                      GError          **error);
+
+/**
  * cogl_renderer_egl_query_string: (skip)
  */
 COGL_EXPORT

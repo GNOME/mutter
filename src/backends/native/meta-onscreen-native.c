@@ -1121,13 +1121,12 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
                              GError                              **error)
 {
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   MetaGles3 *gles3 = meta_renderer_native_get_gles3 (renderer_native);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   MetaRenderDevice *render_device;
-  EGLDisplay egl_display;
+  CoglRendererEGL *renderer_egl;
   MetaDrmBufferGbm *dst_buffer_gbm = NULL, *src_buffer_gbm;
   struct gbm_bo *dst_bo, *src_bo;
   EGLSync egl_sync = EGL_NO_SYNC;
@@ -1144,14 +1143,14 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
     sync_fd = meta_frame_native_steal_sync_fd (frame_native);
 
   render_device = renderer_gpu_data->render_device;
-  egl_display = meta_render_device_get_egl_display (render_device);
+  renderer_egl =
+    COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
 
-  if (!meta_egl_make_current (egl,
-                              egl_display,
-                              EGL_NO_SURFACE,
-                              EGL_NO_SURFACE,
-                              renderer_gpu_data->secondary.egl_context,
-                              error))
+  if (!cogl_renderer_egl_make_current (renderer_egl,
+                                       EGL_NO_SURFACE,
+                                       EGL_NO_SURFACE,
+                                       renderer_gpu_data->secondary.egl_context,
+                                       error))
     {
       g_prefix_error (error, "Failed to make current: ");
       goto done;
@@ -1165,22 +1164,20 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
       attribs[1] = g_steal_fd (&sync_fd);
       attribs[2] = EGL_NONE;
 
-      if (!meta_egl_create_sync (egl,
-                                 egl_display,
-                                 EGL_SYNC_NATIVE_FENCE_ANDROID,
-                                 attribs,
-                                 &egl_sync,
-                                 error))
+      if (!cogl_renderer_egl_create_egl_sync (renderer_egl,
+                                              EGL_SYNC_NATIVE_FENCE_ANDROID,
+                                              attribs,
+                                              &egl_sync,
+                                              error))
         {
           g_prefix_error (error, "Failed to create EGLSync on secondary GPU: ");
           goto done;
         }
 
-      if (!meta_egl_wait_sync (egl,
-                               egl_display,
-                               egl_sync,
-                               0,
-                               error))
+      if (!cogl_renderer_egl_wait_egl_sync (renderer_egl,
+                                            egl_sync,
+                                            0,
+                                            error))
         {
           g_prefix_error (error, "Failed to wait for EGLSync on secondary GPU: ");
           goto done;
@@ -1189,7 +1186,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
 
   src_buffer_gbm = META_DRM_BUFFER_GBM (primary_gpu_fb);
   src_bo = meta_drm_buffer_gbm_get_bo (src_buffer_gbm);
-  src_egl_image = meta_egl_ensure_gbm_bo_egl_image (egl, egl_display, src_bo, error);
+  src_egl_image = meta_egl_ensure_gbm_bo_egl_image (renderer_egl, src_bo, error);
 
   if (!src_egl_image)
     {
@@ -1200,7 +1197,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   dst_buffer_gbm = get_secondary_gpu_buffer_and_age (secondary_gpu_state,
                                                      &buffer_age);
   dst_bo = meta_drm_buffer_gbm_get_bo (dst_buffer_gbm);
-  dst_egl_image = meta_egl_ensure_gbm_bo_egl_image (egl, egl_display, dst_bo, error);
+  dst_egl_image = meta_egl_ensure_gbm_bo_egl_image (renderer_egl, dst_bo, error);
   if (!dst_egl_image)
     {
       g_prefix_error (error, "Failed to create EGL image from buffer object for secondary GPU: ");
@@ -1211,9 +1208,8 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   blit_region = build_secondary_gpu_damage_region (secondary_gpu_state,
                                                    src_bo, buffer_age);
 
-  if (!meta_renderer_native_gles3_blit_shared_bo (egl,
-                                                  gles3,
-                                                  egl_display,
+  if (!meta_renderer_native_gles3_blit_shared_bo (gles3,
+                                                  renderer_egl,
                                                   renderer_gpu_data->secondary.egl_context,
                                                   dst_egl_image,
                                                   src_egl_image,
@@ -1225,7 +1221,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
       goto done;
     }
 
-  sync_fd = meta_egl_create_sync_fd (egl, egl_display, error);
+  sync_fd = cogl_renderer_egl_create_sync_fd (renderer_egl, error);
   if (sync_fd < 0)
     {
       g_prefix_error (error, "Failed to create sync fd: ");
@@ -1239,10 +1235,9 @@ done:
     {
       g_autoptr (GError) local_error = NULL;
 
-      if (!meta_egl_destroy_sync (egl,
-                                  egl_display,
-                                  egl_sync,
-                                  &local_error))
+      if (!cogl_renderer_egl_destroy_egl_sync (renderer_egl,
+                                               egl_sync,
+                                               &local_error))
         g_warning ("Failed to destroy secondary GPU EGLSync: %s", local_error->message);
     }
 

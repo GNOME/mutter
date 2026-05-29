@@ -128,18 +128,16 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
   if (renderer_gpu_data->secondary.egl_context != EGL_NO_CONTEXT)
     {
       MetaRenderDevice *render_device = renderer_gpu_data->render_device;
-      EGLDisplay egl_display =
-        meta_render_device_get_egl_display (render_device);
       MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-      MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+      CoglRendererEGL *renderer_egl =
+        COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
 
       meta_renderer_native_gles3_forget_context (renderer_native->gles3,
                                                  renderer_gpu_data->secondary.egl_context);
 
-      meta_egl_destroy_context (egl,
-                                egl_display,
-                                renderer_gpu_data->secondary.egl_context,
-                                NULL);
+      cogl_renderer_egl_destroy_context (renderer_egl,
+                                         renderer_gpu_data->secondary.egl_context,
+                                         NULL);
     }
 
   if (renderer_gpu_data->crtc_needs_flush_handler_id)
@@ -1118,11 +1116,9 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
 }
 
 static gboolean
-create_secondary_egl_config (MetaEgl                    *egl,
-                             MetaRendererNativeGpuData  *renderer_gpu_data,
-                             EGLDisplay                  egl_display,
-                             EGLConfig                  *egl_config,
-                             GError                    **error)
+create_secondary_egl_config (CoglRendererEGL  *renderer_egl,
+                             EGLConfig        *egl_config,
+                             GError          **error)
 {
   EGLint attributes[] = {
     EGL_RED_SIZE, 1,
@@ -1135,11 +1131,10 @@ create_secondary_egl_config (MetaEgl                    *egl,
     EGL_NONE
   };
 
-  return meta_egl_choose_first_config (egl,
-                                       egl_display,
-                                       attributes,
-                                       egl_config,
-                                       error);
+  return cogl_renderer_egl_choose_first_config (renderer_egl,
+                                                attributes,
+                                                egl_config,
+                                                error);
 }
 
 static const char *
@@ -1159,10 +1154,9 @@ egl_context_priority_to_string (EGLint priority)
 }
 
 static EGLContext
-create_secondary_egl_context (MetaEgl   *egl,
-                              EGLDisplay egl_display,
-                              EGLConfig  egl_config,
-                              GError   **error)
+create_secondary_egl_context (CoglRendererEGL  *renderer_egl,
+                              EGLConfig         egl_config,
+                              GError          **error)
 {
   EGLint attributes[5];
   int i = 0;
@@ -1172,9 +1166,9 @@ create_secondary_egl_context (MetaEgl   *egl,
   attributes[i++] = EGL_CONTEXT_CLIENT_VERSION;
   attributes[i++] = 3;
 
-  if (meta_egl_has_extensions (egl, egl_display,
-                               NULL,
-                               "EGL_IMG_context_priority", NULL))
+  if (cogl_renderer_egl_has_extensions (renderer_egl,
+                                        NULL,
+                                        "EGL_IMG_context_priority", NULL))
     {
       attributes[i++] = EGL_CONTEXT_PRIORITY_LEVEL_IMG;
       attributes[i++] = EGL_CONTEXT_PRIORITY_HIGH_IMG;
@@ -1184,15 +1178,16 @@ create_secondary_egl_context (MetaEgl   *egl,
 
   attributes[i++] = EGL_NONE;
 
-  egl_context = meta_egl_create_context (egl,
-                                         egl_display,
-                                         egl_config,
-                                         EGL_NO_CONTEXT,
-                                         attributes,
-                                         error);
+  egl_context = cogl_renderer_egl_create_context (renderer_egl,
+                                                  egl_config,
+                                                  EGL_NO_CONTEXT,
+                                                  attributes,
+                                                  error);
 
   if (supports_priority)
     {
+      EGLDisplay egl_display =
+        cogl_renderer_egl_get_edisplay (renderer_egl);
       EGLint value = EGL_CONTEXT_PRIORITY_MEDIUM_IMG;
 
       eglQueryContext (egl_display, egl_context,
@@ -1267,7 +1262,8 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
 {
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaRenderDevice *render_device = renderer_gpu_data->render_device;
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  CoglRendererEGL *renderer_egl =
+    COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
   gboolean ret = FALSE;
   EGLDisplay egl_display;
   EGLConfig egl_config;
@@ -1292,27 +1288,24 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       goto out;
     }
 
-  meta_egl_bind_api (egl, EGL_OPENGL_ES_API, NULL);
+  eglBindAPI (EGL_OPENGL_ES_API);
 
-  if (!create_secondary_egl_config (egl, renderer_gpu_data, egl_display,
-                                    &egl_config, error))
+  if (!create_secondary_egl_config (renderer_egl, &egl_config, error))
     goto out;
 
-  egl_context = create_secondary_egl_context (egl, egl_display, egl_config,
-                                              error);
+  egl_context = create_secondary_egl_context (renderer_egl, egl_config, error);
   if (egl_context == EGL_NO_CONTEXT)
     goto out;
 
   meta_renderer_native_ensure_gles3 (renderer_native);
 
-  if (!meta_egl_make_current (egl,
-                              egl_display,
-                              EGL_NO_SURFACE,
-                              EGL_NO_SURFACE,
-                              egl_context,
-                              error))
+  if (!cogl_renderer_egl_make_current (renderer_egl,
+                                       EGL_NO_SURFACE,
+                                       EGL_NO_SURFACE,
+                                       egl_context,
+                                       error))
     {
-      meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
+      cogl_renderer_egl_destroy_context (renderer_egl, egl_context, NULL);
       goto out;
     }
 
@@ -1340,11 +1333,11 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
                  META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU);
 
   renderer_gpu_data->secondary.has_EGL_EXT_image_dma_buf_import_modifiers =
-    meta_egl_has_extensions (egl, egl_display, NULL,
-                             "EGL_EXT_image_dma_buf_import_modifiers",
-                             NULL);
+    cogl_renderer_egl_has_extensions (renderer_egl, NULL,
+                                      "EGL_EXT_image_dma_buf_import_modifiers",
+                                      NULL);
 
-  egl_vendor = meta_egl_query_string (egl, egl_display, EGL_VENDOR);
+  egl_vendor = cogl_renderer_egl_query_string (renderer_egl, EGL_VENDOR);
   if (!g_strcmp0 (egl_vendor, "NVIDIA"))
     renderer_gpu_data->secondary.is_nvidia = TRUE;
 
