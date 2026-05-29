@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include "cogl/cogl-gl-header.h"
 #include "cogl/cogl-texture-driver.h"
 
 G_DECLARE_DERIVABLE_TYPE (CoglTextureDriverGL,

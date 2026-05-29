@@ -30,8 +30,16 @@
 
 #pragma once
 
+#include "config.h"
+
 #include "cogl/cogl-context.h"
-#include "cogl/cogl-gl-header.h"
+
+#if defined(HAVE_GL)
+#include <GL/gl.h>
+#elif defined(HAVE_GLES2)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
 
 /* These aren't defined in the GLES headers */
 #ifndef GL_CLAMP_TO_BORDER

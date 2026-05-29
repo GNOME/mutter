@@ -28,13 +28,22 @@
 
 #pragma once
 
+#include "config.h"
+#include "cogl/cogl-driver-private.h"
+
 #include "cogl/cogl-context-egl.h"
 #include "cogl/cogl-macros.h"
 #include "cogl/cogl-bitmask.h"
 #include "cogl/cogl-clip-stack.h"
-#include "cogl/cogl-gl-header.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-types.h"
+
+#if defined(HAVE_GL)
+#include <GL/gl.h>
+#elif defined(HAVE_GLES2)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
 
 GLuint
 cogl_context_egl_get_current_gl_program (CoglContextEGL *context_egl);
