@@ -124,8 +124,6 @@ struct _CoglTextureClass
                            CoglBitmap  *bitmap,
                            GError     **error);
 
-  gboolean (* is_get_data_supported) (CoglTexture *texture);
-
   /* This should copy the image data of the texture into @data. The
      requested format will have been first passed through
      TextureDriverClass.find_best_gl_get_data_format so it should
@@ -144,8 +142,6 @@ struct _CoglTextureClass
                                           CoglTextureForeachCallback  callback,
                                           void                       *user_data);
 
-  gboolean (* is_sliced) (CoglTexture *tex);
-
   gboolean (* can_hardware_repeat) (CoglTexture *tex);
 
   void (* transform_coords_to_gl) (CoglTexture *tex,
@@ -154,16 +150,11 @@ struct _CoglTextureClass
   CoglTransformResult (* transform_quad_coords_to_gl) (CoglTexture *tex,
                                                        float       *coords);
 
-  gboolean (* get_gl_texture) (CoglTexture *tex,
-                               GLuint      *out_gl_handle,
-                               GLenum      *out_gl_target);
-
   void (* pre_paint) (CoglTexture             *tex,
                       CoglTexturePrePaintFlags flags);
   void (* ensure_non_quad_rendering) (CoglTexture *tex);
 
   CoglPixelFormat (* get_format) (CoglTexture *tex);
-  GLenum (* get_gl_format) (CoglTexture *tex);
 
   void (* foreach_leaf_texture) (CoglTexture              *texture,
                                  CoglLeafTextureCallback   callback,
@@ -174,6 +165,9 @@ void
 cogl_texture_foreach_leaf (CoglTexture              *texture,
                            CoglLeafTextureCallback   callback,
                            void                     *user_data);
+
+CoglTexture2D *
+cogl_texture_get_first_leaf (CoglTexture *texture);
 
 gboolean
 _cogl_texture_can_hardware_repeat (CoglTexture *texture);
