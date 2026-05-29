@@ -345,8 +345,6 @@ meta_stream_get_preferred_modifier (MetaStream      *stream,
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   MetaRenderDevice *render_device =
     renderer_gpu_data->render_device;
-  MetaRendererNative *renderer_native =
-    renderer_gpu_data->renderer_native;
   int dmabuf_fd;
   uint32_t stride;
   uint32_t offset;
@@ -390,28 +388,32 @@ meta_stream_get_preferred_modifier (MetaStream      *stream,
       if (use_implicit_modifier)
         {
           *preferred_modifier = DRM_FORMAT_MOD_INVALID;
-          fb = meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                                width, height,
-                                                                format_info->drm_format,
-                                                                1,
-                                                                &dmabuf_fd,
-                                                                &stride,
-                                                                &offset,
-                                                                NULL,
-                                                                &error);
+          fb = cogl_renderer_create_dma_buf_framebuffer (cogl_renderer,
+                                                         cogl_context,
+                                                         width, height,
+                                                         format_info->drm_format,
+                                                         format,
+                                                         1,
+                                                         &dmabuf_fd,
+                                                         &stride,
+                                                         &offset,
+                                                         NULL,
+                                                         &error);
         }
       else
         {
           *preferred_modifier = meta_drm_buffer_get_modifier (dmabuf);
-          fb = meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                                width, height,
-                                                                format_info->drm_format,
-                                                                1,
-                                                                &dmabuf_fd,
-                                                                &stride,
-                                                                &offset,
-                                                                preferred_modifier,
-                                                                &error);
+          fb = cogl_renderer_create_dma_buf_framebuffer (cogl_renderer,
+                                                         cogl_context,
+                                                         width, height,
+                                                         format_info->drm_format,
+                                                         format,
+                                                         1,
+                                                         &dmabuf_fd,
+                                                         &stride,
+                                                         &offset,
+                                                         preferred_modifier,
+                                                         &error);
         }
       close (dmabuf_fd);
 

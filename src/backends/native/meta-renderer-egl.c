@@ -226,16 +226,18 @@ meta_renderer_egl_create_dma_buf (CoglRenderer     *cogl_renderer,
           }
 
         dmabuf_fb =
-          meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                           width,
-                                                           height,
-                                                           drm_format,
-                                                           n_planes,
-                                                           fds,
-                                                           strides,
-                                                           offsets,
-                                                           plane_modifiers,
-                                                           error);
+          cogl_renderer_create_dma_buf_framebuffer (cogl_renderer,
+                                                    meta_renderer_native_get_cogl_context (renderer_native),
+                                                    width,
+                                                    height,
+                                                    drm_format,
+                                                    format,
+                                                    n_planes,
+                                                    fds,
+                                                    strides,
+                                                    offsets,
+                                                    plane_modifiers,
+                                                    error);
         if (!dmabuf_fb)
           {
             close_fds (fds, n_planes);
