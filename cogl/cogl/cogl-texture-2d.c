@@ -79,17 +79,6 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
   return COGL_TEXTURE (tex_2d);
 }
 
-static gboolean
-_cogl_texture_2d_allocate (CoglTexture *tex,
-                           GError **error)
-{
-  CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
-  CoglTextureDriverClass *tex_driver_klass =
-    COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
-
-  return tex_driver_klass->texture_2d_allocate (tex_driver, tex, error);
-}
-
 void
 _cogl_texture_2d_copy_from_framebuffer (CoglTexture2D *tex_2d,
                                         int src_x,
@@ -102,23 +91,18 @@ _cogl_texture_2d_copy_from_framebuffer (CoglTexture2D *tex_2d,
                                         int level)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
-  CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
-  CoglTextureDriverClass *tex_driver_klass =
-    COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
-
   /* Assert that the storage for this texture has been allocated */
   cogl_texture_allocate (tex, NULL); /* (abort on error) */
 
-  tex_driver_klass->texture_2d_copy_from_framebuffer (tex_driver,
-                                                      tex_2d,
-                                                      src_x,
-                                                      src_y,
-                                                      width,
-                                                      height,
-                                                      src_fb,
-                                                      dst_x,
-                                                      dst_y,
-                                                      level);
+  COGL_TEXTURE_2D_GET_CLASS (tex_2d)->copy_from_framebuffer (tex_2d,
+                                                             src_x,
+                                                             src_y,
+                                                             width,
+                                                             height,
+                                                             src_fb,
+                                                             dst_x,
+                                                             dst_y,
+                                                             level);
 
   tex_2d->mipmaps_dirty = TRUE;
 }
@@ -173,21 +157,17 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
                              GError **error)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
-  CoglTextureDriverClass *tex_driver_klass =
-    COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
 
-  if (!tex_driver_klass->texture_2d_copy_from_bitmap (tex_driver,
-                                                      tex_2d,
-                                                      src_x,
-                                                      src_y,
-                                                      width,
-                                                      height,
-                                                      bmp,
-                                                      dst_x,
-                                                      dst_y,
-                                                      level,
-                                                      error))
+  if (!COGL_TEXTURE_2D_GET_CLASS (tex_2d)->copy_from_bitmap (tex_2d,
+                                                             src_x,
+                                                             src_y,
+                                                             width,
+                                                             height,
+                                                             bmp,
+                                                             dst_x,
+                                                             dst_y,
+                                                             level,
+                                                             error))
     {
       return FALSE;
     }
@@ -195,26 +175,6 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
   tex_2d->mipmaps_dirty = TRUE;
 
   return TRUE;
-}
-
-static gboolean
-_cogl_texture_2d_get_data (CoglTexture *tex,
-                           CoglPixelFormat format,
-                           int rowstride,
-                           uint8_t *data)
-{
-  CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
-  CoglTextureDriverClass *tex_driver_klass =
-    COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
-
-  if (tex_driver_klass->texture_2d_get_data)
-    {
-      CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-      tex_driver_klass->texture_2d_get_data (tex_driver, tex_2d, format, rowstride, data);
-      return TRUE;
-    }
-  else
-    return FALSE;
 }
 
 static CoglPixelFormat
@@ -237,9 +197,7 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
   CoglTextureClass *texture_class = COGL_TEXTURE_CLASS (klass);
 
   texture_class->foreach_leaf_texture = cogl_texture_2d_foreach_leaf;
-  texture_class->allocate = _cogl_texture_2d_allocate;
   texture_class->set_region = _cogl_texture_2d_set_region;
-  texture_class->get_data = _cogl_texture_2d_get_data;
   texture_class->can_hardware_repeat = _cogl_texture_2d_can_hardware_repeat;
   texture_class->transform_coords = _cogl_texture_2d_transform_coords;
   texture_class->transform_quad_coords = _cogl_texture_2d_transform_quad_coords;
@@ -251,7 +209,7 @@ cogl_texture_2d_init (CoglTexture2D *self)
 {
   self->auto_mipmap = TRUE;
   self->mipmaps_dirty = TRUE;
-  self->is_get_data_supported = TRUE;
+  self->is_get_data_supported = FALSE;
 }
 
 CoglTexture *

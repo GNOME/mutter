@@ -46,7 +46,30 @@ struct _CoglTexture2D
 
 struct _CoglTexture2DClass
 {
-   CoglTextureClass parent_class;
+  CoglTextureClass parent_class;
+
+  void (* copy_from_framebuffer) (CoglTexture2D   *tex_2d,
+                                  int              src_x,
+                                  int              src_y,
+                                  int              width,
+                                  int              height,
+                                  CoglFramebuffer *src_fb,
+                                  int              dst_x,
+                                  int              dst_y,
+                                  int              level);
+
+  void (* generate_mipmap) (CoglTexture2D *tex_2d);
+
+  gboolean (* copy_from_bitmap) (CoglTexture2D *tex_2d,
+                                 int            src_x,
+                                 int            src_y,
+                                 int            width,
+                                 int            height,
+                                 CoglBitmap    *bitmap,
+                                 int            dst_x,
+                                 int            dst_y,
+                                 int            level,
+                                 GError       **error);
 };
 
 CoglTexture *

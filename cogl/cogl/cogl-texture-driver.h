@@ -60,62 +60,6 @@ struct _CoglTextureDriverClass
                                       int                width,
                                       int                height,
                                       CoglPixelFormat    internal_format);
-
-  /* Allocates (uninitialized) storage for the given texture according
-  * to the configured size and format of the texture */
-  gboolean (* texture_2d_allocate) (CoglTextureDriver *driver,
-                                    CoglTexture       *tex,
-                                    GError           **error);
-
-  /* Initialize the specified region of storage of the given texture
-  * with the contents of the specified framebuffer region
-  */
-  void (* texture_2d_copy_from_framebuffer) (CoglTextureDriver *driver,
-                                             CoglTexture2D     *tex_2d,
-                                             int                src_x,
-                                             int                src_y,
-                                             int                width,
-                                             int                height,
-                                             CoglFramebuffer   *src_fb,
-                                             int                dst_x,
-                                             int                dst_y,
-                                             int                level);
-
-  /* Update all mipmap levels > 0 */
-  void (* texture_2d_generate_mipmap) (CoglTextureDriver *driver,
-                                       CoglTexture2D     *tex_2d);
-
-  /* Initialize the specified region of storage of the given texture
-  * with the contents of the specified bitmap region
-  *
-  * Since this may need to create the underlying storage first
-  * it may throw a NO_MEMORY error.
-  */
-  gboolean (* texture_2d_copy_from_bitmap) (CoglTextureDriver *driver,
-                                            CoglTexture2D     *tex_2d,
-                                            int                src_x,
-                                            int                src_y,
-                                            int                width,
-                                            int                height,
-                                            CoglBitmap        *bitmap,
-                                            int                dst_x,
-                                            int                dst_y,
-                                            int                level,
-                                            GError           **error);
-
-  gboolean (* texture_2d_is_get_data_supported) (CoglTextureDriver *driver,
-                                                 CoglTexture2D     *tex_2d);
-
-  /* Reads back the full contents of the given texture and write it to
-  * @data in the given @format and with the given @rowstride.
-  *
-  * This is optional
-  */
-  void (* texture_2d_get_data) (CoglTextureDriver *driver,
-                                CoglTexture2D     *tex_2d,
-                                CoglPixelFormat    format,
-                                int                rowstride,
-                                uint8_t           *data);
 };
 
 CoglDriver * cogl_texture_driver_get_driver (CoglTextureDriver *tex_driver);

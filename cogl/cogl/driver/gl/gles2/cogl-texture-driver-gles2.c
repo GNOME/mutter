@@ -443,20 +443,10 @@ cogl_texture_driver_gles2_find_best_gl_get_data_format (CoglTextureDriverGL *dri
   return COGL_PIXEL_FORMAT_RGBA_8888;
 }
 
-static gboolean
-cogl_texture_driver_gles2_texture_2d_is_get_data_supported (CoglTextureDriver *driver,
-                                                            CoglTexture2D     *tex_2d)
-{
-  return FALSE;
-}
-
 static void
 cogl_texture_driver_gles2_class_init (CoglTextureDriverGLES2Class *klass)
 {
-  CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
   CoglTextureDriverGLClass *driver_gl_klass = COGL_TEXTURE_DRIVER_GL_CLASS (klass);
-
-  driver_klass->texture_2d_is_get_data_supported = cogl_texture_driver_gles2_texture_2d_is_get_data_supported;
 
   driver_gl_klass->gen = cogl_texture_driver_gles2_gen;
   driver_gl_klass->upload_subregion_to_gl = cogl_texture_driver_gles2_upload_subregion_to_gl;
