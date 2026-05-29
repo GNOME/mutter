@@ -207,13 +207,13 @@ typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
  * cogl_texture_2d_new_from_egl_image: (skip)
  */
 COGL_EXPORT CoglTexture *
-cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
-                                    int width,
-                                    int height,
-                                    CoglPixelFormat format,
-                                    EGLImageKHR image,
-                                    CoglEglImageFlags flags,
-                                    GError **error);
+cogl_texture_2d_new_from_egl_image (CoglContext        *ctx,
+                                    int                 width,
+                                    int                 height,
+                                    CoglPixelFormat     format,
+                                    EGLImageKHR         image,
+                                    CoglEglImageFlags   flags,
+                                    GError            **error);
 #endif
 
 /**
