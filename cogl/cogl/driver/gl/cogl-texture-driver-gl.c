@@ -46,19 +46,6 @@
 
 G_DEFINE_TYPE (CoglTextureDriverGL, cogl_texture_driver_gl, COGL_TYPE_TEXTURE_DRIVER)
 
-static void
-cogl_texture_driver_gl_texture_2d_free (CoglTextureDriver *driver,
-                                        CoglTexture2D     *tex_2d)
-{
-  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (tex_2d);
-
-  if (tex_gl->gl_texture)
-    _cogl_delete_gl_texture (cogl_texture_get_context (COGL_TEXTURE (tex_2d)),
-                             cogl_texture_driver_get_driver (driver),
-                             tex_gl->gl_texture);
-
-}
-
 static gboolean
 cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *tex_driver,
                                               CoglContext       *ctx,
@@ -492,7 +479,6 @@ cogl_texture_driver_gl_class_init (CoglTextureDriverGLClass *klass)
   CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
 
   driver_klass->texture_2d_get_type = cogl_texture_driver_gl_texture_2d_get_type;
-  driver_klass->texture_2d_free = cogl_texture_driver_gl_texture_2d_free;
   driver_klass->texture_2d_can_create = cogl_texture_driver_gl_texture_2d_can_create;
   driver_klass->texture_2d_allocate = cogl_texture_driver_gl_texture_2d_allocate;
   driver_klass->texture_2d_copy_from_framebuffer = cogl_texture_driver_gl_texture_2d_copy_from_framebuffer;

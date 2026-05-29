@@ -47,19 +47,86 @@
 G_DEFINE_FINAL_TYPE (CoglTexture2DGL, cogl_texture_2d_gl, COGL_TYPE_TEXTURE_2D)
 
 static void
-cogl_texture_2d_gl_init (CoglTexture2DGL *self)
+cogl_texture_2d_gl_dispose (GObject *object)
 {
-  self->gl_texture = 0;
-  self->gl_target = GL_TEXTURE_2D;
-  self->gl_legacy_texobj_min_filter = GL_LINEAR;
-  self->gl_legacy_texobj_mag_filter = GL_LINEAR;
-  self->gl_legacy_texobj_wrap_mode_s = GL_FALSE;
-  self->gl_legacy_texobj_wrap_mode_t = GL_FALSE;
+  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (object);
+  CoglTexture *tex = COGL_TEXTURE (object);
+  CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
+  CoglDriver *driver = cogl_texture_driver_get_driver (tex_driver);
+
+  if (tex_gl->gl_texture)
+    {
+      CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
+      CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
+
+      for (int i = 0; i < priv->texture_units->len; i++)
+        {
+          CoglTextureUnit *unit =
+            &g_array_index (priv->texture_units, CoglTextureUnit, i);
+
+          if (unit->gl_texture == tex_gl->gl_texture)
+            {
+              unit->gl_texture = 0;
+              unit->gl_target = 0;
+              unit->dirty_gl_texture = FALSE;
+            }
+        }
+
+      GE (driver, glDeleteTextures (1, &tex_gl->gl_texture));
+      tex_gl->gl_texture = 0;
+    }
+
+  G_OBJECT_CLASS (cogl_texture_2d_gl_parent_class)->dispose (object);
+}
+
+static void
+cogl_texture_2d_gl_init (CoglTexture2DGL *tex_gl)
+{
+  tex_gl->gl_target = GL_TEXTURE_2D;
+  tex_gl->gl_legacy_texobj_min_filter = GL_LINEAR;
+  tex_gl->gl_legacy_texobj_mag_filter = GL_LINEAR;
+  tex_gl->gl_legacy_texobj_wrap_mode_s = GL_FALSE;
+  tex_gl->gl_legacy_texobj_wrap_mode_t = GL_FALSE;
+}
+
+static void
+cogl_texture_2d_gl_pre_paint (CoglTexture              *tex,
+                              CoglTexturePrePaintFlags  flags)
+{
+  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
+
+  if ((flags & COGL_TEXTURE_NEEDS_MIPMAP) &&
+      tex_2d->auto_mipmap && tex_2d->mipmaps_dirty)
+    {
+      CoglContext *ctx = cogl_texture_get_context (tex);
+      CoglDriver *driver = cogl_context_get_driver (ctx);
+      CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
+      CoglTextureDriverClass *tex_driver_klass =
+        COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
+
+      _cogl_texture_flush_journal_rendering (tex);
+
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH))
+        {
+          const GList *fbs = _cogl_texture_get_associated_framebuffers (tex);
+
+          g_list_foreach ((GList *) fbs, (GFunc) cogl_framebuffer_flush, NULL);
+        }
+
+      tex_driver_klass->texture_2d_generate_mipmap (tex_driver, tex_2d);
+
+      tex_2d->mipmaps_dirty = FALSE;
+    }
 }
 
 static void
 cogl_texture_2d_gl_class_init (CoglTexture2DGLClass *klass)
 {
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  CoglTextureClass *texture_class = COGL_TEXTURE_CLASS (klass);
+
+  gobject_class->dispose = cogl_texture_2d_gl_dispose;
+  texture_class->pre_paint = cogl_texture_2d_gl_pre_paint;
 }
 
 #if defined (HAVE_EGL)

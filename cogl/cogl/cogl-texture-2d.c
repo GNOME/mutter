@@ -39,10 +39,6 @@
 #include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-journal-private.h"
-#include "cogl/cogl-framebuffer-private.h"
-#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
-#include "cogl/driver/gl/cogl-driver-gl-private.h"
 
 #include <string.h>
 #include <math.h>
@@ -50,19 +46,6 @@
 G_DEFINE_ABSTRACT_TYPE (CoglTexture2D, cogl_texture_2d, COGL_TYPE_TEXTURE)
 
 
-static void
-cogl_texture_2d_dispose (GObject *object)
-{
-  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (object);
-  CoglTexture *tex = COGL_TEXTURE (tex_2d);
-  CoglTextureDriver *texture_driver = cogl_texture_get_driver (tex);
-  CoglTextureDriverClass *tex_driver_class =
-    COGL_TEXTURE_DRIVER_GET_CLASS (texture_driver);
-
-  tex_driver_class->texture_2d_free (texture_driver, tex_2d);
-
-  G_OBJECT_CLASS (cogl_texture_2d_parent_class)->dispose (object);
-}
 
 void
 cogl_texture_2d_set_auto_mipmap (CoglTexture2D *tex,
@@ -177,37 +160,6 @@ _cogl_texture_2d_transform_quad_coords (CoglTexture *tex,
   return COGL_TRANSFORM_NO_REPEAT;
 }
 
-static void
-_cogl_texture_2d_pre_paint (CoglTexture             *tex,
-                            CoglTexturePrePaintFlags flags)
-{
-  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-
-  /* Only update if the mipmaps are dirty */
-  if ((flags & COGL_TEXTURE_NEEDS_MIPMAP) &&
-      tex_2d->auto_mipmap && tex_2d->mipmaps_dirty)
-    {
-      CoglContext *ctx = cogl_texture_get_context (tex);
-      CoglDriver *driver = cogl_context_get_driver (ctx);
-      CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
-      CoglTextureDriverClass *tex_driver_klass =
-        COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
-
-      /* Since we are about to ask the GPU to generate mipmaps of tex, we
-       * better make sure tex is up-to-date.
-       */
-      _cogl_texture_flush_journal_rendering (tex);
-
-      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH) &&
-          _cogl_texture_get_associated_framebuffers (tex))
-        GE (driver, glFlush ());
-
-      tex_driver_klass->texture_2d_generate_mipmap (tex_driver, tex_2d);
-
-      tex_2d->mipmaps_dirty = FALSE;
-    }
-}
-
 static gboolean
 _cogl_texture_2d_set_region (CoglTexture *tex,
                              int src_x,
@@ -282,10 +234,7 @@ cogl_texture_2d_foreach_leaf (CoglTexture             *tex,
 static void
 cogl_texture_2d_class_init (CoglTexture2DClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CoglTextureClass *texture_class = COGL_TEXTURE_CLASS (klass);
-
-  gobject_class->dispose = cogl_texture_2d_dispose;
 
   texture_class->allocate = _cogl_texture_2d_allocate;
   texture_class->set_region = _cogl_texture_2d_set_region;
@@ -293,7 +242,6 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
   texture_class->can_hardware_repeat = _cogl_texture_2d_can_hardware_repeat;
   texture_class->transform_coords = _cogl_texture_2d_transform_coords;
   texture_class->transform_quad_coords = _cogl_texture_2d_transform_quad_coords;
-  texture_class->pre_paint = _cogl_texture_2d_pre_paint;
   texture_class->get_format = _cogl_texture_2d_get_format;
   texture_class->foreach_leaf_texture = cogl_texture_2d_foreach_leaf;
 }
