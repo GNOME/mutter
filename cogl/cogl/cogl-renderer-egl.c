@@ -202,6 +202,8 @@ cogl_renderer_egl_load_driver (CoglRenderer  *renderer,
     cogl_renderer_egl_get_instance_private (renderer_egl);
   const char *libgl_name = NULL;
   CoglDriver *driver = NULL;
+  EGLContext test_context;
+  EGLint attribs[7];
 
 #ifdef HAVE_GL
   if (driver_id == COGL_DRIVER_ID_GL3)
@@ -218,26 +220,63 @@ cogl_renderer_egl_load_driver (CoglRenderer  *renderer,
     }
 #endif
 
-  /* Return early to fallback to NOP driver */
   if (driver == NULL)
     return FALSE;
 
-  cogl_renderer_set_driver (renderer, driver);
+  g_clear_pointer (&priv->libgl_module, g_module_close);
 
-  if (libgl_name)
+  priv->libgl_module = g_module_open (libgl_name,
+                                      G_MODULE_BIND_LAZY);
+
+  if (priv->libgl_module == NULL)
     {
-      priv->libgl_module = g_module_open (libgl_name,
-                                          G_MODULE_BIND_LAZY);
-
-      if (priv->libgl_module == NULL)
-        {
-          g_set_error (error, COGL_DRIVER_ERROR,
-                       COGL_DRIVER_ERROR_FAILED_TO_LOAD_LIBRARY,
-                       "Failed to dynamically open the GL library \"%s\"",
-                       libgl_name);
-          return FALSE;
-        }
+      g_object_unref (driver);
+      g_set_error (error, COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_FAILED_TO_LOAD_LIBRARY,
+                   "Failed to dynamically open the GL library \"%s\"",
+                   libgl_name);
+      return FALSE;
     }
+
+  if (driver_id == COGL_DRIVER_ID_GL3)
+    {
+      eglBindAPI (EGL_OPENGL_API);
+
+      attribs[0] = EGL_CONTEXT_MAJOR_VERSION_KHR;
+      attribs[1] = 3;
+      attribs[2] = EGL_CONTEXT_MINOR_VERSION_KHR;
+      attribs[3] = 1;
+      attribs[4] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
+      attribs[5] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
+      attribs[6] = EGL_NONE;
+    }
+  else
+    {
+      eglBindAPI (EGL_OPENGL_ES_API);
+
+      attribs[0] = EGL_CONTEXT_CLIENT_VERSION;
+      attribs[1] = 2;
+      attribs[2] = EGL_NONE;
+    }
+
+  test_context = eglCreateContext (priv->edisplay,
+                                   EGL_NO_CONFIG_KHR,
+                                   EGL_NO_CONTEXT,
+                                   attribs);
+  if (test_context == EGL_NO_CONTEXT)
+    {
+      g_object_unref (driver);
+      g_clear_pointer (&priv->libgl_module, g_module_close);
+      g_set_error (error, COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_FAILED_TO_LOAD_LIBRARY,
+                   "Failed to create test EGL context for driver \"%s\"",
+                   libgl_name);
+      return FALSE;
+    }
+
+  eglDestroyContext (priv->edisplay, test_context);
+
+  cogl_renderer_set_driver (renderer, driver);
 
   return TRUE;
 }
@@ -251,7 +290,7 @@ cogl_renderer_egl_get_proc_address (CoglRenderer *renderer,
     cogl_renderer_egl_get_instance_private (renderer_egl);
   GCallback result = eglGetProcAddress (name);
 
-  if (result == NULL)
+  if (result == NULL && priv->libgl_module != NULL)
     g_module_symbol (priv->libgl_module,
                      name, (gpointer *)&result);
 
