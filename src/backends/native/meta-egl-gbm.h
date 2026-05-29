@@ -26,7 +26,7 @@
 #include <gbm.h>
 #include <glib-object.h>
 
-#include "backends/meta-egl.h"
+#include "cogl/cogl.h"
 
 typedef enum _MetaEglGpuSlot
 {
@@ -35,8 +35,7 @@ typedef enum _MetaEglGpuSlot
   _META_EGL_NUM_GPU_SLOTS
 } MetaEglGpuSlot;
 
-EGLImageKHR meta_egl_ensure_gbm_bo_egl_image (MetaEgl         *egl,
-                                              EGLDisplay       egl_display,
-                                              struct gbm_bo   *shared_bo,
-                                              MetaEglGpuSlot   gpu_slot,
-                                              GError         **error);
+EGLImageKHR meta_egl_ensure_gbm_bo_egl_image (CoglRendererEGL  *renderer_egl,
+                                              struct gbm_bo    *shared_bo,
+                                              MetaEglGpuSlot    gpu_slot,
+                                              GError          **error);

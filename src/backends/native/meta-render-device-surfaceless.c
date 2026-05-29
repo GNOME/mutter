@@ -20,8 +20,8 @@
 
 #include "backends/native/meta-render-device-surfaceless.h"
 
-#include "backends/meta-backend-private.h"
-#include "backends/meta-egl.h"
+#include "backends/native/meta-render-device-private.h"
+#include "cogl/cogl.h"
 
 struct _MetaRenderDeviceSurfaceless
 {
@@ -35,13 +35,13 @@ static EGLDisplay
 meta_render_device_surfaceless_create_egl_display (MetaRenderDevice  *render_device,
                                                    GError           **error)
 {
-  MetaBackend *backend = meta_render_device_get_backend (render_device);
-  MetaEgl *egl = meta_backend_get_egl (backend);
+  CoglRendererEGL *renderer_egl =
+    COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
   EGLDisplay egl_display;
 
-  if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
-                                "EGL_MESA_platform_surfaceless",
-                                NULL))
+  if (!cogl_renderer_egl_has_client_extensions (renderer_egl, NULL,
+                                                "EGL_MESA_platform_surfaceless",
+                                                NULL))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Missing EGL platform required for surfaceless context: "
@@ -49,16 +49,16 @@ meta_render_device_surfaceless_create_egl_display (MetaRenderDevice  *render_dev
       return EGL_NO_DISPLAY;
     }
 
-  egl_display = meta_egl_get_platform_display (egl,
-                                               EGL_PLATFORM_SURFACELESS_MESA,
-                                               EGL_DEFAULT_DISPLAY,
-                                               NULL, error);
+  egl_display = cogl_renderer_egl_get_platform_display (renderer_egl,
+                                                        EGL_PLATFORM_SURFACELESS_MESA,
+                                                        EGL_DEFAULT_DISPLAY,
+                                                        NULL, error);
   if (egl_display == EGL_NO_DISPLAY)
     return EGL_NO_DISPLAY;
 
-  if (!meta_egl_initialize (egl, egl_display, error))
+  if (!cogl_renderer_egl_initialize (renderer_egl, egl_display, error))
     {
-      meta_egl_terminate (egl, egl_display, NULL);
+      cogl_renderer_egl_terminate (renderer_egl, egl_display, NULL);
       return EGL_NO_DISPLAY;
     }
 
