@@ -52,11 +52,6 @@ struct _CoglTextureDriverClass
   /* Returns the GType of the driver-specific CoglTexture2D subclass */
   GType (* texture_2d_get_type) (CoglTextureDriver *driver);
 
-  /* Destroys any driver specific resources associated with the given
-  * 2D texture. */
-  void (* texture_2d_free) (CoglTextureDriver *driver,
-                            CoglTexture2D     *tex_2d);
-
   /* Returns TRUE if the driver can support creating a 2D texture with
   * the given geometry and specified internal format.
   */
