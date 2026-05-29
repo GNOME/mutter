@@ -124,6 +124,19 @@ struct _CoglRendererClass
 
   gboolean (* is_dma_buf_supported) (CoglRenderer *renderer);
 
+  CoglFramebuffer * (* create_dma_buf_framebuffer) (CoglRenderer     *renderer,
+                                                    CoglContext      *context,
+                                                    uint32_t          width,
+                                                    uint32_t          height,
+                                                    uint32_t          drm_format,
+                                                    CoglPixelFormat   cogl_format,
+                                                    int               n_planes,
+                                                    const int        *fds,
+                                                    const uint32_t   *strides,
+                                                    const uint32_t   *offsets,
+                                                    const uint64_t   *modifiers,
+                                                    GError          **error);
+
   void (* update_sync) (CoglRenderer *renderer);
 
   int (* get_sync_fd) (CoglRenderer *renderer);
@@ -241,6 +254,23 @@ cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
  */
 COGL_EXPORT gboolean
 cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer);
+
+/**
+ * cogl_renderer_create_dma_buf_framebuffer: (skip)
+ */
+COGL_EXPORT CoglFramebuffer *
+cogl_renderer_create_dma_buf_framebuffer (CoglRenderer     *renderer,
+                                          CoglContext      *context,
+                                          uint32_t          width,
+                                          uint32_t          height,
+                                          uint32_t          drm_format,
+                                          CoglPixelFormat   cogl_format,
+                                          int               n_planes,
+                                          const int        *fds,
+                                          const uint32_t   *strides,
+                                          const uint32_t   *offsets,
+                                          const uint64_t   *modifiers,
+                                          GError          **error);
 
 /**
  * cogl_renderer_bind_api:

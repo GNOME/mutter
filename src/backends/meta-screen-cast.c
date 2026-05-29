@@ -87,6 +87,11 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
     meta_screen_cast_get_backend (screen_cast);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  CoglContext *cogl_context =
+    meta_renderer_native_get_cogl_context (renderer_native);
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  CoglRenderer *cogl_renderer =
+    cogl_display_get_renderer (cogl_display);
   MetaRenderDevice *render_device =
     get_render_device (screen_cast);
   int dmabuf_fd;
@@ -130,28 +135,32 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
       if (use_implicit_modifier)
         {
           *preferred_modifier = DRM_FORMAT_MOD_INVALID;
-          fb = meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                                width, height,
-                                                                format_info->drm_format,
-                                                                1,
-                                                                &dmabuf_fd,
-                                                                &stride,
-                                                                &offset,
-                                                                NULL,
-                                                                &error);
+          fb = cogl_renderer_create_dma_buf_framebuffer (cogl_renderer,
+                                                         cogl_context,
+                                                         width, height,
+                                                         format_info->drm_format,
+                                                         format,
+                                                         1,
+                                                         &dmabuf_fd,
+                                                         &stride,
+                                                         &offset,
+                                                         NULL,
+                                                         &error);
         }
       else
         {
           *preferred_modifier = meta_drm_buffer_get_modifier (dmabuf);
-          fb = meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                                width, height,
-                                                                format_info->drm_format,
-                                                                1,
-                                                                &dmabuf_fd,
-                                                                &stride,
-                                                                &offset,
-                                                                preferred_modifier,
-                                                                &error);
+          fb = cogl_renderer_create_dma_buf_framebuffer (cogl_renderer,
+                                                         cogl_context,
+                                                         width, height,
+                                                         format_info->drm_format,
+                                                         format,
+                                                         1,
+                                                         &dmabuf_fd,
+                                                         &stride,
+                                                         &offset,
+                                                         preferred_modifier,
+                                                         &error);
         }
       close (dmabuf_fd);
 

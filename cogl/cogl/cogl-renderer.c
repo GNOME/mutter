@@ -485,6 +485,37 @@ cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer)
     return FALSE;
 }
 
+CoglFramebuffer *
+cogl_renderer_create_dma_buf_framebuffer (CoglRenderer     *renderer,
+                                          CoglContext      *context,
+                                          uint32_t          width,
+                                          uint32_t          height,
+                                          uint32_t          drm_format,
+                                          CoglPixelFormat   cogl_format,
+                                          int               n_planes,
+                                          const int        *fds,
+                                          const uint32_t   *strides,
+                                          const uint32_t   *offsets,
+                                          const uint64_t   *modifiers,
+                                          GError          **error)
+{
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
+
+  if (class->create_dma_buf_framebuffer)
+    return class->create_dma_buf_framebuffer (renderer, context,
+                                              width, height,
+                                              drm_format, cogl_format,
+                                              n_planes,
+                                              fds, strides,
+                                              offsets, modifiers,
+                                              error);
+
+  g_set_error (error, COGL_RENDERER_ERROR,
+               COGL_RENDERER_ERROR_BAD_CONSTRAINT,
+               "DMA buf framebuffers not supported by this renderer");
+  return NULL;
+}
+
 void
 cogl_renderer_bind_api (CoglRenderer *renderer)
 {

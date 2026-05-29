@@ -31,7 +31,9 @@
 #include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-debug.h"
 #include "cogl/cogl-driver-private.h"
+#include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-renderer-private.h"
+#include "cogl/cogl-texture-2d.h"
 #include "cogl/cogl-private.h"
 
 #ifdef HAVE_GL
@@ -376,6 +378,65 @@ cogl_renderer_egl_connect (CoglRenderer   *renderer,
   return TRUE;
 }
 
+static CoglFramebuffer *
+cogl_renderer_egl_create_dma_buf_framebuffer (CoglRenderer     *renderer,
+                                              CoglContext      *context,
+                                              uint32_t          width,
+                                              uint32_t          height,
+                                              uint32_t          drm_format,
+                                              CoglPixelFormat   cogl_format,
+                                              int               n_planes,
+                                              const int        *fds,
+                                              const uint32_t   *strides,
+                                              const uint32_t   *offsets,
+                                              const uint64_t   *modifiers,
+                                              GError          **error)
+{
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  EGLImageKHR egl_image;
+  CoglEglImageFlags flags;
+  CoglTexture *cogl_tex;
+  CoglOffscreen *cogl_fbo;
+
+  egl_image = cogl_renderer_egl_create_dmabuf_image (renderer_egl,
+                                                     width,
+                                                     height,
+                                                     drm_format,
+                                                     n_planes,
+                                                     fds,
+                                                     strides,
+                                                     offsets,
+                                                     modifiers,
+                                                     error);
+  if (egl_image == EGL_NO_IMAGE_KHR)
+    return NULL;
+
+  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
+  cogl_tex = cogl_texture_2d_new_from_egl_image (context,
+                                                 width,
+                                                 height,
+                                                 cogl_format,
+                                                 egl_image,
+                                                 flags,
+                                                 error);
+
+  cogl_renderer_egl_destroy_image (renderer_egl, egl_image, NULL);
+
+  if (!cogl_tex)
+    return NULL;
+
+  cogl_fbo = cogl_offscreen_new_with_texture (cogl_tex);
+  g_object_unref (cogl_tex);
+
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
+    {
+      g_object_unref (cogl_fbo);
+      return NULL;
+    }
+
+  return COGL_FRAMEBUFFER (cogl_fbo);
+}
+
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
 
 static int
@@ -425,6 +486,8 @@ cogl_renderer_egl_class_init (CoglRendererEGLClass *class)
   renderer_class->load_driver = cogl_renderer_egl_load_driver;
   renderer_class->get_proc_address = cogl_renderer_egl_get_proc_address;
   renderer_class->connect = cogl_renderer_egl_connect;
+  renderer_class->create_dma_buf_framebuffer =
+    cogl_renderer_egl_create_dma_buf_framebuffer;
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
   renderer_class->get_sync_fd = cogl_renderer_egl_get_sync_fd;

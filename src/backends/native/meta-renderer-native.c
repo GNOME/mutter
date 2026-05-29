@@ -383,8 +383,8 @@ meta_renderer_native_choose_gbm_format (MetaKmsPlane     *kms_plane,
   return FALSE;
 }
 
-static CoglContext *
-cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
+CoglContext *
+meta_renderer_native_get_cogl_context (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
@@ -395,73 +395,6 @@ cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
     return NULL;
 
   return clutter_backend_get_cogl_context (clutter_backend);
-}
-
-CoglFramebuffer *
-meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_native,
-                                                 uint32_t             width,
-                                                 uint32_t             height,
-                                                 uint32_t             drm_format,
-                                                 int                  n_planes,
-                                                 int                 *fds,
-                                                 uint32_t            *strides,
-                                                 uint32_t            *offsets,
-                                                 uint64_t            *modifiers,
-                                                 GError             **error)
-{
-  CoglContext *cogl_context =
-    cogl_context_from_renderer_native (renderer_native);
-  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
-  EGLImageKHR egl_image;
-  CoglPixelFormat cogl_format;
-  CoglEglImageFlags flags;
-  CoglTexture *cogl_tex;
-  CoglOffscreen *cogl_fbo;
-  const MetaFormatInfo *format_info;
-
-  format_info = meta_format_info_from_drm_format (drm_format);
-  g_assert (format_info);
-  cogl_format = format_info->cogl_format;
-
-  egl_image = cogl_renderer_egl_create_dmabuf_image (renderer_egl,
-                                                     width,
-                                                     height,
-                                                     drm_format,
-                                                     n_planes,
-                                                     fds,
-                                                     strides,
-                                                     offsets,
-                                                     modifiers,
-                                                     error);
-  if (egl_image == EGL_NO_IMAGE_KHR)
-    return NULL;
-
-  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
-  cogl_tex = cogl_texture_2d_new_from_egl_image (cogl_context,
-                                                 width,
-                                                 height,
-                                                 cogl_format,
-                                                 egl_image,
-                                                 flags,
-                                                 error);
-
-  cogl_renderer_egl_destroy_image (renderer_egl, egl_image, NULL);
-
-  if (!cogl_tex)
-    return NULL;
-
-  cogl_fbo = cogl_offscreen_new_with_texture (cogl_tex);
-  g_object_unref (cogl_tex);
-
-  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
-    {
-      g_object_unref (cogl_fbo);
-      return NULL;
-    }
-
-  return COGL_FRAMEBUFFER (cogl_fbo);
 }
 
 static void
@@ -809,7 +742,7 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
                                        GError               **error)
 {
   CoglContext *cogl_context =
-    cogl_context_from_renderer_native (renderer_native);
+    meta_renderer_native_get_cogl_context (renderer_native);
   CoglOffscreen *fb;
   CoglTexture *tex;
 
@@ -882,7 +815,7 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   CoglContext *cogl_context =
-    cogl_context_from_renderer_native (renderer_native);
+    meta_renderer_native_get_cogl_context (renderer_native);
   CoglDriver *cogl_driver = cogl_context_get_driver (cogl_context);
   MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
 
@@ -911,7 +844,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
   MetaColorDevice *color_device =
     meta_color_manager_get_color_device (color_manager, monitor);
   CoglContext *cogl_context =
-    cogl_context_from_renderer_native (renderer_native);
+    meta_renderer_native_get_cogl_context (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
@@ -1288,7 +1221,7 @@ maybe_restore_cogl_egl_api (MetaRendererNative *renderer_native)
   CoglDisplay *cogl_display;
   CoglRenderer *cogl_renderer;
 
-  cogl_context = cogl_context_from_renderer_native (renderer_native);
+  cogl_context = meta_renderer_native_get_cogl_context (renderer_native);
   if (!cogl_context)
     return;
 
@@ -1414,7 +1347,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   ret = TRUE;
 out:
   maybe_restore_cogl_egl_api (renderer_native);
-  cogl_context = cogl_context_from_renderer_native (renderer_native);
+  cogl_context = meta_renderer_native_get_cogl_context (renderer_native);
   if (cogl_context)
     {
       cogl_display = cogl_context_get_display (cogl_context);

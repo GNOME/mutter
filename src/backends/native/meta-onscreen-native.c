@@ -1282,6 +1282,10 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   MetaDrmBuffer *buffer;
   int width, height;
   CoglFramebuffer *dmabuf_fb;
+  CoglContext *cogl_context;
+  CoglDisplay *cogl_display;
+  CoglRenderer *cogl_renderer;
+  const MetaFormatInfo *format_info;
   int dmabuf_fd;
   g_autoptr (GError) error = NULL;
   uint32_t stride;
@@ -1315,7 +1319,8 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   g_assert (cogl_framebuffer_get_width (framebuffer) == width);
   g_assert (cogl_framebuffer_get_height (framebuffer) == height);
 
-  g_assert (meta_format_info_from_drm_format (drm_format));
+  format_info = meta_format_info_from_drm_format (drm_format);
+  g_assert (format_info);
 
   dmabuf_fd = meta_drm_buffer_dumb_ensure_dmabuf_fd (buffer_dumb, &error);
   if (dmabuf_fd < 0)
@@ -1325,18 +1330,23 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
       return NULL;
     }
 
+  cogl_context = meta_renderer_native_get_cogl_context (renderer_native);
+  cogl_display = cogl_context_get_display (cogl_context);
+  cogl_renderer = cogl_display_get_renderer (cogl_display);
+
   modifier = DRM_FORMAT_MOD_LINEAR;
-  dmabuf_fb =
-    meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                     width,
-                                                     height,
-                                                     drm_format,
-                                                     1,
-                                                     &dmabuf_fd,
-                                                     &stride,
-                                                     &offset,
-                                                     &modifier,
-                                                     &error);
+  dmabuf_fb = cogl_renderer_create_dma_buf_framebuffer (cogl_renderer,
+                                                        cogl_context,
+                                                        width,
+                                                        height,
+                                                        drm_format,
+                                                        format_info->cogl_format,
+                                                        1,
+                                                        &dmabuf_fd,
+                                                        &stride,
+                                                        &offset,
+                                                        &modifier,
+                                                        &error);
 
   if (error)
     {

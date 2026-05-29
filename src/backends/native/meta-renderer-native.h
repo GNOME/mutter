@@ -73,6 +73,9 @@ gboolean meta_renderer_native_use_modifiers (MetaRendererNative *renderer_native
 
 gboolean meta_renderer_native_has_addfb2 (MetaRendererNative *renderer_native);
 
+CoglContext * meta_renderer_native_get_cogl_context (MetaRendererNative *renderer_native);
+
+
 gboolean meta_renderer_native_choose_gbm_format (MetaKmsPlane     *kms_plane,
                                                  CoglRendererEGL  *renderer_egl,
                                                  EGLint           *attributes,
