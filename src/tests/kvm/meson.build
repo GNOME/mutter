@@ -41,6 +41,8 @@ foreach test_case: privileged_tests
   endforeach
   vm_env = ' '.join(vm_env_entries)
 
+  should_fail = test_case.get('should_fail', false)
+
   test('kvm-' + test_case['name'], virtme_run,
     suite: ['core', 'mutter/kvm', 'mutter/kvm/' + test_case['suite']],
     depends: [
@@ -59,5 +61,6 @@ foreach test_case: privileged_tests
     ],
     is_parallel: false,
     timeout: 60,
+    should_fail: should_fail,
   )
 endforeach

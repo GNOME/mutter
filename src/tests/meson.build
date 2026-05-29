@@ -1103,6 +1103,8 @@ foreach test_case: test_cases
 
   test_depends = [ default_plugin ] + test_case.get('depends', [])
 
+  should_fail = test_case.get('should_fail', false)
+
   args = test_case.get('args', [])
 
   message('test @0@ args: @1@'.format(test_case['name'], args))
@@ -1113,6 +1115,7 @@ foreach test_case: test_cases
     depends: test_depends,
     is_parallel: false,
     timeout: test_case.get('timeout', 60),
+    should_fail: should_fail,
   )
 endforeach
 
@@ -1239,6 +1242,8 @@ if have_kvm_tests or have_tty_tests
       install_rpath: pkglibdir,
     )
 
+    should_fail = test_case.get('should_fail', false)
+
     foreach variant: variants
       variables = variant[1] + {
         'META_DBUS_RUNNER_DISABLE_UMOCKDEV': '1',
@@ -1256,6 +1261,7 @@ if have_kvm_tests or have_tty_tests
           'executable': test_executable,
           'variables': variables,
           'env': variant_env,
+          'should_fail': should_fail,
         },
       ]
     endforeach
@@ -1410,13 +1416,15 @@ if have_installed_tests
     installed_tests_cdata.set('testargs', ' '.join(args))
     installed_tests_cdata.set('runnerargs', ' '.join(runner_args))
 
-    configure_file(
-      input: 'generic.test.in',
-      output: test_case['name'] + '.test',
-      configuration: installed_tests_cdata,
-      install: true,
-      install_dir: mutter_installed_tests_datadir,
-    )
+    if not test_case.get('should_fail', false)
+      configure_file(
+        input: 'generic.test.in',
+        output: test_case['name'] + '.test',
+        configuration: installed_tests_cdata,
+        install: true,
+        install_dir: mutter_installed_tests_datadir,
+      )
+    endif
   endforeach
 
 endif
