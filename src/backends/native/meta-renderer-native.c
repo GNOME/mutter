@@ -794,7 +794,7 @@ meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          primary_gpu_kms);
 
-  renderer_egl = meta_renderer_egl_new (renderer_gpu_data->render_device);
+  renderer_egl = meta_render_device_get_renderer_egl (renderer_gpu_data->render_device);
   meta_renderer_egl_set_renderer_gpu_data (renderer_egl, renderer_gpu_data);
 
   return COGL_RENDERER (renderer_egl);
@@ -1864,8 +1864,8 @@ meta_renderer_native_finalize (GObject *object)
   g_clear_handle_id (&renderer_native->release_unused_gpus_idle_id,
                      mtk_source_remove);
 
-  g_hash_table_destroy (renderer_native->gpu_datas);
   g_clear_object (&renderer_native->gles3);
+  g_clear_pointer (&renderer_native->gpu_datas, g_hash_table_destroy);
 
   G_OBJECT_CLASS (meta_renderer_native_parent_class)->finalize (object);
 }

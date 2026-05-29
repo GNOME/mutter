@@ -93,7 +93,7 @@ cogl_display_set_property (GObject      *object,
   switch (prop_id)
     {
     case PROP_RENDERER:
-      priv->renderer = g_value_dup_object (value);
+      priv->renderer = g_value_get_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -115,7 +115,7 @@ cogl_display_dispose (GObject *object)
       priv->setup = FALSE;
     }
 
-  g_clear_object (&priv->renderer);
+  priv->renderer = NULL;
 
   G_OBJECT_CLASS (cogl_display_parent_class)->dispose (object);
 }
