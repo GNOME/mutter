@@ -260,26 +260,26 @@ _cogl_atlas_texture_can_hardware_repeat (CoglTexture *tex)
 }
 
 static void
-_cogl_atlas_texture_transform_coords_to_gl (CoglTexture *tex,
-                                            float *s,
-                                            float *t)
+_cogl_atlas_texture_transform_coords (CoglTexture *tex,
+                                      float       *s,
+                                      float       *t)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
   CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (atlas_tex->sub_texture);
 
   /* Forward on to the sub texture */
-  klass->transform_coords_to_gl (atlas_tex->sub_texture, s, t);
+  klass->transform_coords (atlas_tex->sub_texture, s, t);
 }
 
 static CoglTransformResult
-_cogl_atlas_texture_transform_quad_coords_to_gl (CoglTexture *tex,
-                                                 float *coords)
+_cogl_atlas_texture_transform_quad_coords (CoglTexture *tex,
+                                           float       *coords)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
   CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (atlas_tex->sub_texture);
 
   /* Forward on to the sub texture */
-  return klass->transform_quad_coords_to_gl (atlas_tex->sub_texture, coords);
+  return klass->transform_quad_coords (atlas_tex->sub_texture, coords);
 }
 
 static void
@@ -752,8 +752,8 @@ cogl_atlas_texture_class_init (CoglAtlasTextureClass *klass)
   texture_class->set_region = _cogl_atlas_texture_set_region;
   texture_class->foreach_sub_texture_in_region = _cogl_atlas_texture_foreach_sub_texture_in_region;
   texture_class->can_hardware_repeat = _cogl_atlas_texture_can_hardware_repeat;
-  texture_class->transform_coords_to_gl = _cogl_atlas_texture_transform_coords_to_gl;
-  texture_class->transform_quad_coords_to_gl = _cogl_atlas_texture_transform_quad_coords_to_gl;
+  texture_class->transform_coords = _cogl_atlas_texture_transform_coords;
+  texture_class->transform_quad_coords = _cogl_atlas_texture_transform_quad_coords;
   texture_class->pre_paint = _cogl_atlas_texture_pre_paint;
   texture_class->ensure_non_quad_rendering = _cogl_atlas_texture_ensure_non_quad_rendering;
   texture_class->get_format = _cogl_atlas_texture_get_format;
