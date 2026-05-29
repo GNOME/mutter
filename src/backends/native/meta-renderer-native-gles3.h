@@ -23,11 +23,10 @@
 
 #include <gbm.h>
 
-#include "backends/meta-gles3.h"
 #include "cogl/cogl.h"
 #include "mtk/mtk.h"
 
-gboolean meta_renderer_native_gles3_blit_shared_bo (MetaGles3        *gles3,
+gboolean meta_renderer_native_gles3_blit_shared_bo (CoglDriver       *driver,
                                                     CoglRendererEGL  *renderer_egl,
                                                     EGLContext        egl_context,
                                                     EGLImageKHR       dst_egl_image,
@@ -36,5 +35,5 @@ gboolean meta_renderer_native_gles3_blit_shared_bo (MetaGles3        *gles3,
                                                     const MtkRegion  *region,
                                                     GError          **error);
 
-void meta_renderer_native_gles3_forget_context (MetaGles3  *gles3,
+void meta_renderer_native_gles3_forget_context (CoglDriver *driver,
                                                 EGLContext  egl_context);

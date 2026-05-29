@@ -34,6 +34,8 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
+#include "cogl/cogl-pixel-format.h"
+
 /**
  * CoglGraphicsResetStatus:
  * @COGL_GRAPHICS_RESET_STATUS_NO_ERROR:
