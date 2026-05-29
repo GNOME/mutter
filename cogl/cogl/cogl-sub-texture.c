@@ -40,7 +40,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-texture-2d.h"
-#include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 #include <string.h>
 #include <math.h>
@@ -187,14 +186,6 @@ _cogl_sub_texture_allocate (CoglTexture *tex,
 }
 
 static gboolean
-_cogl_sub_texture_is_sliced (CoglTexture *tex)
-{
-  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
-
-  return cogl_texture_is_sliced (sub_tex->full_texture);
-}
-
-static gboolean
 _cogl_sub_texture_can_hardware_repeat (CoglTexture *tex)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
@@ -246,18 +237,6 @@ _cogl_sub_texture_transform_quad_coords_to_gl (CoglTexture *tex,
 }
 
 static gboolean
-_cogl_sub_texture_get_gl_texture (CoglTexture *tex,
-                                  GLuint *out_gl_handle,
-                                  GLenum *out_gl_target)
-{
-  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
-
-  return cogl_texture_get_gl_texture (sub_tex->full_texture,
-                                      out_gl_handle,
-                                      out_gl_target);
-}
-
-static gboolean
 _cogl_sub_texture_set_region (CoglTexture *tex,
                               int src_x,
                               int src_y,
@@ -294,28 +273,12 @@ _cogl_sub_texture_set_region (CoglTexture *tex,
                                                error);
 }
 
-static gboolean
-_cogl_sub_texture_is_get_data_supported (CoglTexture *tex)
-{
-  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
-
-  return cogl_texture_is_get_data_supported (sub_tex->full_texture);
-}
-
 static CoglPixelFormat
 _cogl_sub_texture_get_format (CoglTexture *tex)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
 
   return cogl_texture_get_format (sub_tex->full_texture);
-}
-
-static GLenum
-_cogl_sub_texture_get_gl_format (CoglTexture *tex)
-{
-  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
-
-  return _cogl_texture_gl_get_format (sub_tex->full_texture);
 }
 
 static void
@@ -329,15 +292,11 @@ cogl_sub_texture_class_init (CoglSubTextureClass *klass)
   texture_class->foreach_leaf_texture = cogl_sub_texture_foreach_leaf;
   texture_class->allocate = _cogl_sub_texture_allocate;
   texture_class->set_region = _cogl_sub_texture_set_region;
-  texture_class->is_get_data_supported = _cogl_sub_texture_is_get_data_supported;
   texture_class->foreach_sub_texture_in_region = _cogl_sub_texture_foreach_sub_texture_in_region;
-  texture_class->is_sliced = _cogl_sub_texture_is_sliced;
   texture_class->can_hardware_repeat = _cogl_sub_texture_can_hardware_repeat;
   texture_class->transform_coords_to_gl = _cogl_sub_texture_transform_coords_to_gl;
   texture_class->transform_quad_coords_to_gl = _cogl_sub_texture_transform_quad_coords_to_gl;
-  texture_class->get_gl_texture = _cogl_sub_texture_get_gl_texture;
   texture_class->get_format = _cogl_sub_texture_get_format;
-  texture_class->get_gl_format = _cogl_sub_texture_get_gl_format;
 }
 
 static void

@@ -32,6 +32,8 @@
 #include <strings.h>
 
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-texture-2d-private.h"
 #include "cogl/cogl-util.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
@@ -83,5 +85,9 @@ _cogl_texture_gl_prep_alignment_for_pixels_download (CoglDriver *driver,
 GLenum
 _cogl_texture_gl_get_format (CoglTexture *texture)
 {
-  return COGL_TEXTURE_GET_CLASS (texture)->get_gl_format (texture);
+  CoglTexture2D *leaf = cogl_texture_get_first_leaf (texture);
+
+  g_return_val_if_fail (leaf != NULL, GL_RGBA);
+
+  return leaf->gl_internal_format;
 }

@@ -47,7 +47,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-spans.h"
 #include "cogl/cogl-journal-private.h"
-#include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -727,23 +726,6 @@ _cogl_texture_2d_sliced_allocate (CoglTexture *tex,
 }
 
 static gboolean
-_cogl_texture_2d_sliced_is_sliced (CoglTexture *tex)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-
-  /* It's only after allocating a sliced texture that we will know
-   * whether it really needed to be sliced... */
-  if (!cogl_texture_is_allocated (tex))
-    cogl_texture_allocate (tex, NULL);
-
-  if (tex_2ds->slice_x_spans->len != 1 ||
-      tex_2ds->slice_y_spans->len != 1)
-    return TRUE;
-  else
-    return FALSE;
-}
-
-static gboolean
 _cogl_texture_2d_sliced_can_hardware_repeat (CoglTexture *tex)
 {
   CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
@@ -776,7 +758,7 @@ _cogl_texture_2d_sliced_transform_coords_to_gl (CoglTexture *tex,
   CoglSpan *y_span;
   CoglTexture2D *slice_tex;
 
-  g_assert (!_cogl_texture_2d_sliced_is_sliced (tex));
+  g_assert (!cogl_texture_is_sliced (tex));
 
   /* Don't include the waste in the texture coordinates */
   x_span = &g_array_index (tex_2ds->slice_x_spans, CoglSpan, 0);
@@ -803,7 +785,7 @@ _cogl_texture_2d_sliced_transform_quad_coords_to_gl (CoglTexture *tex,
    * could likely lead to visual inconsistency if the fallback involves
    * dropping layers, so this might be the right thing to do anyways.
    */
-  if (_cogl_texture_2d_sliced_is_sliced (tex))
+  if (cogl_texture_is_sliced (tex))
     return COGL_TRANSFORM_SOFTWARE_REPEAT;
 
   for (i = 0; i < 4; i++)
@@ -818,40 +800,6 @@ _cogl_texture_2d_sliced_transform_quad_coords_to_gl (CoglTexture *tex,
 
   return (need_repeat
           ? COGL_TRANSFORM_HARDWARE_REPEAT : COGL_TRANSFORM_NO_REPEAT);
-}
-
-static gboolean
-_cogl_texture_2d_sliced_get_gl_texture (CoglTexture *tex,
-                                        GLuint *out_gl_handle,
-                                        GLenum *out_gl_target)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-  CoglTexture2D *slice_tex;
-
-  if (tex_2ds->slice_textures == NULL)
-    return FALSE;
-
-  if (tex_2ds->slice_textures->len < 1)
-    return FALSE;
-
-  slice_tex = g_array_index (tex_2ds->slice_textures, CoglTexture2D *, 0);
-
-  return cogl_texture_get_gl_texture (COGL_TEXTURE (slice_tex),
-                                      out_gl_handle, out_gl_target);
-}
-
-static GLenum
-_cogl_texture_2d_sliced_get_gl_format (CoglTexture *tex)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-  CoglTexture2D *slice_tex;
-
-  /* Assert that we've allocated our slices at this point */
-  cogl_texture_allocate (tex, NULL); /* (abort on error) */
-
-  /* Pass the call on to the first slice */
-  slice_tex = g_array_index (tex_2ds->slice_textures, CoglTexture2D *, 0);
-  return _cogl_texture_gl_get_format (COGL_TEXTURE (slice_tex));
 }
 
 static gboolean
@@ -1103,13 +1051,10 @@ cogl_texture_2d_sliced_class_init (CoglTexture2DSlicedClass *klass)
   texture_class->allocate = _cogl_texture_2d_sliced_allocate;
   texture_class->set_region = _cogl_texture_2d_sliced_set_region;
   texture_class->foreach_sub_texture_in_region = _cogl_texture_2d_sliced_foreach_sub_texture_in_region;
-  texture_class->is_sliced = _cogl_texture_2d_sliced_is_sliced;
   texture_class->can_hardware_repeat = _cogl_texture_2d_sliced_can_hardware_repeat;
   texture_class->transform_coords_to_gl = _cogl_texture_2d_sliced_transform_coords_to_gl;
   texture_class->transform_quad_coords_to_gl = _cogl_texture_2d_sliced_transform_quad_coords_to_gl;
-  texture_class->get_gl_texture = _cogl_texture_2d_sliced_get_gl_texture;
   texture_class->get_format = _cogl_texture_2d_sliced_get_format;
-  texture_class->get_gl_format = _cogl_texture_2d_sliced_get_gl_format;
 }
 
 static void

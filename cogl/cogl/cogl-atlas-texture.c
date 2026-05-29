@@ -45,7 +45,6 @@
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-atlas-private.h"
 #include "cogl/cogl-sub-texture.h"
-#include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 #include <stdlib.h>
 
@@ -252,15 +251,6 @@ cogl_atlas_texture_foreach_leaf (CoglTexture              *tex,
 }
 
 static gboolean
-_cogl_atlas_texture_is_sliced (CoglTexture *tex)
-{
-  CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
-
-  /* Forward on to the sub texture */
-  return cogl_texture_is_sliced (atlas_tex->sub_texture);
-}
-
-static gboolean
 _cogl_atlas_texture_can_hardware_repeat (CoglTexture *tex)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
@@ -290,19 +280,6 @@ _cogl_atlas_texture_transform_quad_coords_to_gl (CoglTexture *tex,
 
   /* Forward on to the sub texture */
   return klass->transform_quad_coords_to_gl (atlas_tex->sub_texture, coords);
-}
-
-static gboolean
-_cogl_atlas_texture_get_gl_texture (CoglTexture *tex,
-                                    GLuint *out_gl_handle,
-                                    GLenum *out_gl_target)
-{
-  CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
-
-  /* Forward on to the sub texture */
-  return cogl_texture_get_gl_texture (atlas_tex->sub_texture,
-                                      out_gl_handle,
-                                      out_gl_target);
 }
 
 static void
@@ -564,15 +541,6 @@ _cogl_atlas_texture_get_format (CoglTexture *tex)
   return atlas_tex->internal_format;
 }
 
-static GLenum
-_cogl_atlas_texture_get_gl_format (CoglTexture *tex)
-{
-  CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
-
-  /* Forward on to the sub texture */
-  return _cogl_texture_gl_get_format (atlas_tex->sub_texture);
-}
-
 static gboolean
 _cogl_atlas_texture_can_use_format (CoglPixelFormat format)
 {
@@ -783,16 +751,12 @@ cogl_atlas_texture_class_init (CoglAtlasTextureClass *klass)
   texture_class->allocate = _cogl_atlas_texture_allocate;
   texture_class->set_region = _cogl_atlas_texture_set_region;
   texture_class->foreach_sub_texture_in_region = _cogl_atlas_texture_foreach_sub_texture_in_region;
-  texture_class->is_sliced = _cogl_atlas_texture_is_sliced;
   texture_class->can_hardware_repeat = _cogl_atlas_texture_can_hardware_repeat;
-
   texture_class->transform_coords_to_gl = _cogl_atlas_texture_transform_coords_to_gl;
   texture_class->transform_quad_coords_to_gl = _cogl_atlas_texture_transform_quad_coords_to_gl;
-  texture_class->get_gl_texture = _cogl_atlas_texture_get_gl_texture;
   texture_class->pre_paint = _cogl_atlas_texture_pre_paint;
   texture_class->ensure_non_quad_rendering = _cogl_atlas_texture_ensure_non_quad_rendering;
   texture_class->get_format = _cogl_atlas_texture_get_format;
-  texture_class->get_gl_format = _cogl_atlas_texture_get_gl_format;
 }
 
 static void

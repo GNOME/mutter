@@ -144,12 +144,6 @@ _cogl_texture_2d_copy_from_framebuffer (CoglTexture2D *tex_2d,
 }
 
 static gboolean
-_cogl_texture_2d_is_sliced (CoglTexture *tex)
-{
-  return FALSE;
-}
-
-static gboolean
 _cogl_texture_2d_can_hardware_repeat (CoglTexture *tex)
 {
   return TRUE;
@@ -184,22 +178,6 @@ _cogl_texture_2d_transform_quad_coords_to_gl (CoglTexture *tex,
 
   /* No repeat is needed */
   return COGL_TRANSFORM_NO_REPEAT;
-}
-
-static gboolean
-_cogl_texture_2d_get_gl_texture (CoglTexture *tex,
-                                 GLuint *out_gl_handle,
-                                 GLenum *out_gl_target)
-{
-  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-
-  if (out_gl_target)
-    *out_gl_target = tex_2d->gl_target;
-
-  if (out_gl_handle)
-    *out_gl_handle = tex_2d->gl_texture;
-
-  return tex_2d->gl_texture ? TRUE : FALSE;
 }
 
 static void
@@ -270,17 +248,6 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
 }
 
 static gboolean
-_cogl_texture_2d_is_get_data_supported (CoglTexture *tex)
-{
-  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
-  CoglTextureDriverClass *tex_driver_klass =
-    COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
-
-  return tex_driver_klass->texture_2d_is_get_data_supported (tex_driver, tex_2d);
-}
-
-static gboolean
 _cogl_texture_2d_get_data (CoglTexture *tex,
                            CoglPixelFormat format,
                            int rowstride,
@@ -306,12 +273,6 @@ _cogl_texture_2d_get_format (CoglTexture *tex)
   return COGL_TEXTURE_2D (tex)->internal_format;
 }
 
-static GLenum
-_cogl_texture_2d_get_gl_format (CoglTexture *tex)
-{
-  return COGL_TEXTURE_2D (tex)->gl_internal_format;
-}
-
 static void
 cogl_texture_2d_foreach_leaf (CoglTexture              *tex,
                               CoglLeafTextureCallback   callback,
@@ -331,16 +292,12 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
   texture_class->foreach_leaf_texture = cogl_texture_2d_foreach_leaf;
   texture_class->allocate = _cogl_texture_2d_allocate;
   texture_class->set_region = _cogl_texture_2d_set_region;
-  texture_class->is_get_data_supported = _cogl_texture_2d_is_get_data_supported;
   texture_class->get_data = _cogl_texture_2d_get_data;
-  texture_class->is_sliced = _cogl_texture_2d_is_sliced;
   texture_class->can_hardware_repeat = _cogl_texture_2d_can_hardware_repeat;
   texture_class->transform_coords_to_gl = _cogl_texture_2d_transform_coords_to_gl;
   texture_class->transform_quad_coords_to_gl = _cogl_texture_2d_transform_quad_coords_to_gl;
-  texture_class->get_gl_texture = _cogl_texture_2d_get_gl_texture;
   texture_class->pre_paint = _cogl_texture_2d_pre_paint;
   texture_class->get_format = _cogl_texture_2d_get_format;
-  texture_class->get_gl_format = _cogl_texture_2d_get_gl_format;
 }
 
 static void
