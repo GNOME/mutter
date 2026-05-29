@@ -72,64 +72,95 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
 }
 #endif /* defined (HAVE_EGL) */
 
-void
-_cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture *tex,
-                                                 GLenum min_filter,
-                                                 GLenum mag_filter)
+typedef struct
 {
-  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglContext *ctx = cogl_texture_get_context (tex);
+  GLenum min_filter;
+  GLenum mag_filter;
+} FlushFiltersData;
+
+static void
+flush_legacy_texobj_filters_cb (CoglTexture2D *tex_2d,
+                                void          *user_data)
+{
+  FlushFiltersData *d = user_data;
+  CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
   CoglDriver *driver = cogl_context_get_driver (ctx);
 
-  if (min_filter == tex_2d->gl_legacy_texobj_min_filter
-      && mag_filter == tex_2d->gl_legacy_texobj_mag_filter)
+  if (d->min_filter == tex_2d->gl_legacy_texobj_min_filter
+      && d->mag_filter == tex_2d->gl_legacy_texobj_mag_filter)
     return;
 
   /* Store new values */
-  tex_2d->gl_legacy_texobj_min_filter = min_filter;
-  tex_2d->gl_legacy_texobj_mag_filter = mag_filter;
+  tex_2d->gl_legacy_texobj_min_filter = d->min_filter;
+  tex_2d->gl_legacy_texobj_mag_filter = d->mag_filter;
 
   /* Apply new filters to the texture */
   _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                    tex_2d->gl_texture);
-  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter));
-  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, d->mag_filter));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, d->min_filter));
 
   if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
-      min_filter != GL_NEAREST &&
-      min_filter != GL_LINEAR)
+      d->min_filter != GL_NEAREST &&
+      d->min_filter != GL_LINEAR)
     {
-      GLfloat bias = _cogl_texture_min_filter_get_lod_bias (min_filter);
+      GLfloat bias = _cogl_texture_min_filter_get_lod_bias (d->min_filter);
 
       GE (driver, glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, bias));
     }
 }
 
 void
-_cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
-                                                    GLenum wrap_mode_s,
-                                                    GLenum wrap_mode_t)
+_cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *tex,
+                                              GLenum       min_filter,
+                                              GLenum       mag_filter)
 {
-  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglContext *ctx = cogl_texture_get_context (tex);
+  FlushFiltersData d = { min_filter, mag_filter };
+
+  cogl_texture_foreach_leaf (tex, flush_legacy_texobj_filters_cb, &d);
+}
+
+typedef struct
+{
+  GLenum wrap_mode_s;
+  GLenum wrap_mode_t;
+} FlushWrapData;
+
+static void
+flush_legacy_texobj_wrap_modes_cb (CoglTexture2D *tex_2d,
+                                   void          *user_data)
+{
+  FlushWrapData *d = user_data;
+  CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
   CoglDriver *driver = cogl_context_get_driver (ctx);
+
 
   /* Only set the wrap mode if it's different from the current value
      to avoid too many GL calls. Texture 2D doesn't make use of the r
      coordinate so we can ignore its wrap mode */
-  if (tex_2d->gl_legacy_texobj_wrap_mode_s != wrap_mode_s ||
-      tex_2d->gl_legacy_texobj_wrap_mode_t != wrap_mode_t)
+  if (tex_2d->gl_legacy_texobj_wrap_mode_s != d->wrap_mode_s ||
+      tex_2d->gl_legacy_texobj_wrap_mode_t != d->wrap_mode_t)
     {
       _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                        tex_2d->gl_texture);
       GE (driver, glTexParameteri (GL_TEXTURE_2D,
                                    GL_TEXTURE_WRAP_S,
-                                   wrap_mode_s));
+                                   d->wrap_mode_s));
       GE (driver, glTexParameteri (GL_TEXTURE_2D,
                                    GL_TEXTURE_WRAP_T,
-                                   wrap_mode_t));
+                                   d->wrap_mode_t));
 
-      tex_2d->gl_legacy_texobj_wrap_mode_s = wrap_mode_s;
-      tex_2d->gl_legacy_texobj_wrap_mode_t = wrap_mode_t;
+      tex_2d->gl_legacy_texobj_wrap_mode_s = d->wrap_mode_s;
+      tex_2d->gl_legacy_texobj_wrap_mode_t = d->wrap_mode_t;
     }
+}
+
+void
+_cogl_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
+                                                 GLenum       wrap_mode_s,
+                                                 GLenum       wrap_mode_t)
+{
+  FlushWrapData d = { wrap_mode_s, wrap_mode_t };
+
+  cogl_texture_foreach_leaf (tex, flush_legacy_texobj_wrap_modes_cb, &d);
 }

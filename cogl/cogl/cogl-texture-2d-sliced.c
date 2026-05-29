@@ -840,84 +840,6 @@ _cogl_texture_2d_sliced_get_gl_texture (CoglTexture *tex,
                                       out_gl_handle, out_gl_target);
 }
 
-static void
-_cogl_texture_2d_sliced_gl_flush_legacy_texobj_filters (CoglTexture *tex,
-                                                        GLenum min_filter,
-                                                        GLenum mag_filter)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-  CoglTexture2D *slice_tex;
-  int i;
-
-  g_return_if_fail (tex_2ds->slice_textures != NULL);
-
-  /* Apply new filters to every slice. The slice texture itself should
-     cache the value and avoid resubmitting the same filter value to
-     GL */
-  for (i = 0; i < tex_2ds->slice_textures->len; i++)
-    {
-      slice_tex = g_array_index (tex_2ds->slice_textures, CoglTexture2D *, i);
-      _cogl_texture_gl_flush_legacy_texobj_filters (COGL_TEXTURE (slice_tex),
-                                                    min_filter, mag_filter);
-    }
-}
-
-static void
-_cogl_texture_2d_sliced_pre_paint (CoglTexture *tex,
-                                   CoglTexturePrePaintFlags flags)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-  int i;
-
-  g_return_if_fail (tex_2ds->slice_textures != NULL);
-
-  /* Pass the pre-paint on to every slice */
-  for (i = 0; i < tex_2ds->slice_textures->len; i++)
-    {
-      CoglTexture2D *slice_tex = g_array_index (tex_2ds->slice_textures,
-                                                CoglTexture2D *, i);
-      _cogl_texture_pre_paint (COGL_TEXTURE (slice_tex), flags);
-    }
-}
-
-static void
-_cogl_texture_2d_sliced_ensure_non_quad_rendering (CoglTexture *tex)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-  int i;
-
-  g_return_if_fail (tex_2ds->slice_textures != NULL);
-
-  /* Pass the call on to every slice */
-  for (i = 0; i < tex_2ds->slice_textures->len; i++)
-    {
-      CoglTexture2D *slice_tex = g_array_index (tex_2ds->slice_textures,
-                                                CoglTexture2D *, i);
-      COGL_TEXTURE_GET_CLASS (slice_tex)->ensure_non_quad_rendering (COGL_TEXTURE (slice_tex));
-    }
-}
-
-static void
-_cogl_texture_2d_sliced_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
-                                                           GLenum wrap_mode_s,
-                                                           GLenum wrap_mode_t)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-  int i;
-
-  /* Pass the set wrap mode on to all of the child textures */
-  for (i = 0; i < tex_2ds->slice_textures->len; i++)
-    {
-      CoglTexture2D *slice_tex = g_array_index (tex_2ds->slice_textures,
-                                                CoglTexture2D *,
-                                                i);
-
-      _cogl_texture_gl_flush_legacy_texobj_wrap_modes (COGL_TEXTURE (slice_tex),
-                                                       wrap_mode_s,
-                                                       wrap_mode_t);
-    }
-}
-
 static GLenum
 _cogl_texture_2d_sliced_get_gl_format (CoglTexture *tex)
 {
@@ -1154,6 +1076,22 @@ _cogl_texture_2d_sliced_get_format (CoglTexture *tex)
 }
 
 static void
+_cogl_texture_2d_sliced_foreach_leaf (CoglTexture              *tex,
+                                      CoglLeafTextureCallback   callback,
+                                      void                     *user_data)
+{
+  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
+  int i;
+
+  for (i = 0; i < tex_2ds->slice_textures->len; i++)
+    {
+      CoglTexture2D *slice =
+        g_array_index (tex_2ds->slice_textures, CoglTexture2D *, i);
+      callback (slice, user_data);
+    }
+}
+
+static void
 cogl_texture_2d_sliced_class_init (CoglTexture2DSlicedClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -1161,6 +1099,7 @@ cogl_texture_2d_sliced_class_init (CoglTexture2DSlicedClass *klass)
 
   gobject_class->dispose = cogl_texture_2d_sliced_dispose;
 
+  texture_class->foreach_leaf_texture = _cogl_texture_2d_sliced_foreach_leaf;
   texture_class->allocate = _cogl_texture_2d_sliced_allocate;
   texture_class->set_region = _cogl_texture_2d_sliced_set_region;
   texture_class->foreach_sub_texture_in_region = _cogl_texture_2d_sliced_foreach_sub_texture_in_region;
@@ -1169,10 +1108,6 @@ cogl_texture_2d_sliced_class_init (CoglTexture2DSlicedClass *klass)
   texture_class->transform_coords_to_gl = _cogl_texture_2d_sliced_transform_coords_to_gl;
   texture_class->transform_quad_coords_to_gl = _cogl_texture_2d_sliced_transform_quad_coords_to_gl;
   texture_class->get_gl_texture = _cogl_texture_2d_sliced_get_gl_texture;
-  texture_class->gl_flush_legacy_texobj_filters = _cogl_texture_2d_sliced_gl_flush_legacy_texobj_filters;
-  texture_class->pre_paint = _cogl_texture_2d_sliced_pre_paint;
-  texture_class->ensure_non_quad_rendering = _cogl_texture_2d_sliced_ensure_non_quad_rendering;
-  texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_texture_2d_sliced_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_texture_2d_sliced_get_format;
   texture_class->get_gl_format = _cogl_texture_2d_sliced_get_gl_format;
 }

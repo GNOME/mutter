@@ -38,6 +38,9 @@
 #include "cogl/cogl-texture-2d.h"
 #include "cogl/cogl-texture-driver.h"
 
+typedef void (* CoglLeafTextureCallback) (CoglTexture2D *leaf_texture,
+                                          void          *user_data);
+
 
 /* Encodes three possibiloities result of transforming a quad */
 typedef enum
@@ -155,23 +158,22 @@ struct _CoglTextureClass
                                GLuint      *out_gl_handle,
                                GLenum      *out_gl_target);
 
-  /* OpenGL driver specific virtual function */
-  void (* gl_flush_legacy_texobj_filters) (CoglTexture *tex,
-                                           GLenum       min_filter,
-                                           GLenum       mag_filter);
-
   void (* pre_paint) (CoglTexture             *tex,
                       CoglTexturePrePaintFlags flags);
   void (* ensure_non_quad_rendering) (CoglTexture *tex);
 
-  /* OpenGL driver specific virtual function */
-  void (* gl_flush_legacy_texobj_wrap_modes) (CoglTexture *tex,
-                                              GLenum       wrap_mode_s,
-                                              GLenum       wrap_mode_t);
-
   CoglPixelFormat (* get_format) (CoglTexture *tex);
   GLenum (* get_gl_format) (CoglTexture *tex);
+
+  void (* foreach_leaf_texture) (CoglTexture              *texture,
+                                 CoglLeafTextureCallback   callback,
+                                 void                     *user_data);
 };
+
+void
+cogl_texture_foreach_leaf (CoglTexture              *texture,
+                           CoglLeafTextureCallback   callback,
+                           void                     *user_data);
 
 gboolean
 _cogl_texture_can_hardware_repeat (CoglTexture *texture);

@@ -162,15 +162,13 @@ _cogl_sub_texture_foreach_sub_texture_in_region (
 }
 
 static void
-_cogl_sub_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
-                                                     GLenum wrap_mode_s,
-                                                     GLenum wrap_mode_t)
+cogl_sub_texture_foreach_leaf (CoglTexture              *tex,
+                               CoglLeafTextureCallback   callback,
+                               void                     *user_data)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
 
-  _cogl_texture_gl_flush_legacy_texobj_wrap_modes (sub_tex->full_texture,
-                                                   wrap_mode_s,
-                                                   wrap_mode_t);
+  cogl_texture_foreach_leaf (sub_tex->full_texture, callback, user_data);
 }
 
 static gboolean
@@ -259,31 +257,6 @@ _cogl_sub_texture_get_gl_texture (CoglTexture *tex,
                                       out_gl_target);
 }
 
-static void
-_cogl_sub_texture_gl_flush_legacy_texobj_filters (CoglTexture *tex,
-                                                  GLenum min_filter,
-                                                  GLenum mag_filter)
-{
-  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
-
-  _cogl_texture_gl_flush_legacy_texobj_filters (sub_tex->full_texture,
-                                                min_filter, mag_filter);
-}
-
-static void
-_cogl_sub_texture_pre_paint (CoglTexture *tex,
-                             CoglTexturePrePaintFlags flags)
-{
-  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
-
-  _cogl_texture_pre_paint (sub_tex->full_texture, flags);
-}
-
-static void
-_cogl_sub_texture_ensure_non_quad_rendering (CoglTexture *tex)
-{
-}
-
 static gboolean
 _cogl_sub_texture_set_region (CoglTexture *tex,
                               int src_x,
@@ -353,6 +326,7 @@ cogl_sub_texture_class_init (CoglSubTextureClass *klass)
 
   gobject_class->dispose = cogl_sub_texture_dispose;
 
+  texture_class->foreach_leaf_texture = cogl_sub_texture_foreach_leaf;
   texture_class->allocate = _cogl_sub_texture_allocate;
   texture_class->set_region = _cogl_sub_texture_set_region;
   texture_class->is_get_data_supported = _cogl_sub_texture_is_get_data_supported;
@@ -362,10 +336,6 @@ cogl_sub_texture_class_init (CoglSubTextureClass *klass)
   texture_class->transform_coords_to_gl = _cogl_sub_texture_transform_coords_to_gl;
   texture_class->transform_quad_coords_to_gl = _cogl_sub_texture_transform_quad_coords_to_gl;
   texture_class->get_gl_texture = _cogl_sub_texture_get_gl_texture;
-  texture_class->gl_flush_legacy_texobj_filters = _cogl_sub_texture_gl_flush_legacy_texobj_filters;
-  texture_class->pre_paint = _cogl_sub_texture_pre_paint;
-  texture_class->ensure_non_quad_rendering = _cogl_sub_texture_ensure_non_quad_rendering;
-  texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_sub_texture_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_sub_texture_get_format;
   texture_class->get_gl_format = _cogl_sub_texture_get_gl_format;
 }

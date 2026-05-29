@@ -55,6 +55,7 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-sub-texture.h"
 #include "cogl/driver/gl/cogl-texture-driver-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -181,6 +182,33 @@ cogl_texture_set_property (GObject      *gobject,
     }
 }
 
+void
+cogl_texture_foreach_leaf (CoglTexture              *texture,
+                           CoglLeafTextureCallback   callback,
+                           void                     *user_data)
+{
+  COGL_TEXTURE_GET_CLASS (texture)->foreach_leaf_texture (texture,
+                                                          callback,
+                                                          user_data);
+}
+
+static void
+pre_paint_leaf_cb (CoglTexture2D *leaf,
+                   void          *user_data)
+{
+  CoglTexturePrePaintFlags *flags = user_data;
+
+  _cogl_texture_pre_paint (COGL_TEXTURE (leaf), *flags);
+}
+
+static void
+cogl_texture_default_pre_paint (CoglTexture              *tex,
+                                CoglTexturePrePaintFlags   flags)
+{
+
+  cogl_texture_foreach_leaf (tex, pre_paint_leaf_cb, &flags);
+}
+
 static void
 cogl_texture_class_init (CoglTextureClass *klass)
 {
@@ -188,6 +216,8 @@ cogl_texture_class_init (CoglTextureClass *klass)
 
   gobject_class->dispose = cogl_texture_dispose;
   gobject_class->set_property = cogl_texture_set_property;
+
+  klass->pre_paint = cogl_texture_default_pre_paint;
 
   obj_props[PROP_CONTEXT] =
     g_param_spec_object ("context", NULL, NULL,
