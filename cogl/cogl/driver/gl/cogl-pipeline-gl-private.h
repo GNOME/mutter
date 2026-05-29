@@ -133,11 +133,6 @@ _cogl_bind_gl_texture_transient (CoglContext *ctx,
                                  GLuint       gl_texture);
 
 void
-_cogl_delete_gl_texture (CoglContext *ctx,
-                         CoglDriver  *driver,
-                         GLuint       gl_texture);
-
-void
 _cogl_pipeline_flush_gl_state (CoglContext *context,
                                CoglPipeline *pipeline,
                                CoglFramebuffer *framebuffer,

@@ -47,6 +47,38 @@
 G_DEFINE_FINAL_TYPE (CoglTexture2DGL, cogl_texture_2d_gl, COGL_TYPE_TEXTURE_2D)
 
 static void
+cogl_texture_2d_gl_dispose (GObject *object)
+{
+  CoglTexture2DGL *tex_gl = COGL_TEXTURE_2D_GL (object);
+  CoglTexture *tex = COGL_TEXTURE (object);
+  CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
+  CoglDriver *driver = cogl_texture_driver_get_driver (tex_driver);
+
+  if (tex_gl->gl_texture)
+    {
+      CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
+      CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
+
+      for (int i = 0; i < priv->texture_units->len; i++)
+        {
+          CoglTextureUnit *unit =
+            &g_array_index (priv->texture_units, CoglTextureUnit, i);
+
+          if (unit->gl_texture == tex_gl->gl_texture)
+            {
+              unit->gl_texture = 0;
+              unit->gl_target = 0;
+              unit->dirty_gl_texture = FALSE;
+            }
+        }
+
+      GE (driver, glDeleteTextures (1, &tex_gl->gl_texture));
+    }
+
+  G_OBJECT_CLASS (cogl_texture_2d_gl_parent_class)->dispose (object);
+}
+
+static void
 cogl_texture_2d_gl_init (CoglTexture2DGL *self)
 {
   self->gl_texture = 0;
@@ -60,6 +92,9 @@ cogl_texture_2d_gl_init (CoglTexture2DGL *self)
 static void
 cogl_texture_2d_gl_class_init (CoglTexture2DGLClass *klass)
 {
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->dispose = cogl_texture_2d_gl_dispose;
 }
 
 #if defined (HAVE_EGL)

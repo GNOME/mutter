@@ -168,31 +168,6 @@ _cogl_bind_gl_texture_transient (CoglContext *ctx,
   unit->dirty_gl_texture = TRUE;
 }
 
-void
-_cogl_delete_gl_texture (CoglContext *ctx,
-                         CoglDriver  *driver,
-                         GLuint       gl_texture)
-{
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
-  CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
-  int i;
-
-  for (i = 0; i < priv->texture_units->len; i++)
-    {
-      CoglTextureUnit *unit =
-        &g_array_index (priv->texture_units, CoglTextureUnit, i);
-
-      if (unit->gl_texture == gl_texture)
-        {
-          unit->gl_texture = 0;
-          unit->gl_target = 0;
-          unit->dirty_gl_texture = FALSE;
-        }
-    }
-
-  GE (driver, glDeleteTextures (1, &gl_texture));
-}
-
 /* Whenever the underlying GL texture storage of a CoglTexture is
  * changed (e.g. due to migration out of a texture atlas) then we are
  * notified. This lets us ensure that we reflush that texture's state
@@ -462,7 +437,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
        * _cogl_pipeline_flush_gl_state().
        *
        * NB: we get notified whenever glDeleteTextures is used (see
-       * _cogl_delete_gl_texture()) where we invalidate
+       * cogl_texture_2d_gl_dispose()) where we invalidate
        * unit->gl_texture references to deleted textures so it's safe
        * to compare unit->gl_texture with gl_texture.  (Without the
        * hook it would be possible to delete a GL texture and create a
