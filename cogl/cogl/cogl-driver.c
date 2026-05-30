@@ -141,3 +141,14 @@ cogl_driver_set_feature (CoglDriver    *driver,
 
   COGL_FLAGS_SET (priv->features, feature, value);
 }
+
+gboolean
+cogl_driver_texture_2d_size_supported (CoglDriver      *driver,
+                                       CoglPixelFormat  format,
+                                       int              width,
+                                       int              height)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  return klass->texture_2d_size_supported (driver, format, width, height);
+}

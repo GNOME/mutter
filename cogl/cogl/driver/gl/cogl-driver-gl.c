@@ -444,6 +444,32 @@ cogl_driver_gl_pipeline_pre_change_notify (CoglDriver        *driver,
   cogl_pipeline_progend_glsl_pre_change_notify (pipeline, change, new_color);
 }
 
+static gboolean
+cogl_driver_gl_texture_2d_size_supported (CoglDriver      *driver,
+                                          CoglPixelFormat  format,
+                                          int              width,
+                                          int              height)
+{
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
+  CoglDriverGLClass *driver_gl_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
+  GLenum gl_intformat;
+  GLenum gl_format;
+  GLenum gl_type;
+
+  driver_gl_klass->pixel_format_to_gl (driver_gl,
+                                       format,
+                                       &gl_intformat,
+                                       &gl_format,
+                                       &gl_type);
+
+  return driver_gl_klass->texture_size_supported (driver_gl,
+                                                  GL_TEXTURE_2D,
+                                                  gl_intformat,
+                                                  gl_format,
+                                                  gl_type,
+                                                  width, height);
+}
+
 static void
 cogl_driver_gl_pipeline_layer_pre_change_notify (CoglDriver             *driver,
                                                  CoglPipeline           *owner,
@@ -476,6 +502,7 @@ cogl_driver_gl_class_init (CoglDriverGLClass *klass)
   driver_klass->set_uniform = cogl_driver_gl_set_uniform; /* XXX name is weird... */
   driver_klass->pipeline_pre_change_notify = cogl_driver_gl_pipeline_pre_change_notify;
   driver_klass->pipeline_layer_pre_change_notify = cogl_driver_gl_pipeline_layer_pre_change_notify;
+  driver_klass->texture_2d_size_supported = cogl_driver_gl_texture_2d_size_supported;
 }
 
 static void
