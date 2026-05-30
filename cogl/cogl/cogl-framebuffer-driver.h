@@ -97,6 +97,15 @@ struct _CoglFramebufferDriverClass
                                CoglRenderbuffers     *renderbuffers);
 
   CoglRenderbuffers * (* peek_renderbuffers) (CoglFramebufferDriver *driver);
+  void (* blit) (CoglFramebufferDriver *driver,
+                 int                    src_x1,
+                 int                    src_y1,
+                 int                    src_x2,
+                 int                    src_y2,
+                 int                    dst_x1,
+                 int                    dst_y1,
+                 int                    dst_x2,
+                 int                    dst_y2);
 };
 
 CoglFramebuffer *
@@ -159,3 +168,13 @@ cogl_framebuffer_driver_peek_renderbuffers (CoglFramebufferDriver *driver);
 void
 cogl_framebuffer_driver_bind_renderbuffers (CoglFramebufferDriver *driver,
                                             CoglRenderbuffers     *renderbuffers);
+void
+cogl_framebuffer_driver_blit (CoglFramebufferDriver *driver,
+                              int                    src_x1,
+                              int                    src_y1,
+                              int                    src_x2,
+                              int                    src_y2,
+                              int                    dst_x1,
+                              int                    dst_y1,
+                              int                    dst_x2,
+                              int                    dst_y2);
