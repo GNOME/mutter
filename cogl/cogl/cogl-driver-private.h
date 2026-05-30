@@ -108,6 +108,11 @@ struct _CoglDriverClass
                                        CoglPipelineState  change,
                                        const CoglColor   *new_color);
 
+  gboolean (* texture_2d_size_supported) (CoglDriver      *driver,
+                                         CoglPixelFormat  format,
+                                         int              width,
+                                         int              height);
+
   void (* pipeline_layer_pre_change_notify) (CoglDriver             *driver,
                                              CoglPipeline           *owner,
                                              CoglPipelineLayer      *layer,
@@ -128,6 +133,11 @@ CoglTextureDriver * cogl_driver_create_texture_driver (CoglDriver *driver);
 gboolean cogl_driver_update_features (CoglDriver   *driver,
                                       CoglRenderer *renderer,
                                       GError      **error);
+
+gboolean cogl_driver_texture_2d_size_supported (CoglDriver      *driver,
+                                                CoglPixelFormat  format,
+                                                int              width,
+                                                int              height);
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 
