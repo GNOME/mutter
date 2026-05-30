@@ -46,7 +46,6 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-primitives-private.h"
 #include "cogl/cogl-trace.h"
-#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/winsys/cogl-winsys.h"
 
 enum
@@ -2046,10 +2045,8 @@ get_line_count (CoglVerticesMode mode, int n_vertices)
     {
       return 2 * n_vertices - 3;
     }
-    /* In the journal we are a bit sneaky and actually use GL_QUADS
-     * which isn't actually a valid CoglVerticesMode! */
 #ifdef HAVE_GL
-  else if (mode == GL_QUADS && (n_vertices % 4) == 0)
+  else if (mode == COGL_VERTICES_MODE_QUADS && (n_vertices % 4) == 0)
     {
       return n_vertices;
     }
@@ -2134,10 +2131,8 @@ get_wire_line_indices (CoglContext *ctx,
           add_line (line_indices, base, indices, indices_type, i - 2, i, &pos);
         }
     }
-    /* In the journal we are a bit sneaky and actually use GL_QUADS
-     * which isn't actually a valid CoglVerticesMode! */
 #ifdef HAVE_GL
-  else if (mode == GL_QUADS && (n_vertices_in % 4) == 0)
+  else if (mode == COGL_VERTICES_MODE_QUADS && (n_vertices_in % 4) == 0)
     {
       for (i = 0; i < n_vertices_in; i += 4)
         {

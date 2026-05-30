@@ -153,6 +153,7 @@ typedef enum
  * @COGL_VERTICES_MODE_TRIANGLES: FIXME, equivalent to `GL_TRIANGLES`
  * @COGL_VERTICES_MODE_TRIANGLE_STRIP: FIXME, equivalent to `GL_TRIANGLE_STRIP`
  * @COGL_VERTICES_MODE_TRIANGLE_FAN: FIXME, equivalent to `GL_TRIANGLE_FAN`
+ * @COGL_VERTICES_MODE_QUADS: FIXME, equivalent to `GL_QUADS`
  *
  * Different ways of interpreting vertices when drawing.
  */
@@ -164,7 +165,8 @@ typedef enum
   COGL_VERTICES_MODE_LINE_STRIP = 0x0003,
   COGL_VERTICES_MODE_TRIANGLES = 0x0004,
   COGL_VERTICES_MODE_TRIANGLE_STRIP = 0x0005,
-  COGL_VERTICES_MODE_TRIANGLE_FAN = 0x0006
+  COGL_VERTICES_MODE_TRIANGLE_FAN = 0x0006,
+  COGL_VERTICES_MODE_QUADS = 0x0007
 } CoglVerticesMode;
 
 /* NB: The above definitions are taken from gl.h equivalents */
