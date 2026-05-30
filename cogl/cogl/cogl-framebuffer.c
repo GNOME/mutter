@@ -1519,8 +1519,8 @@ cogl_framebuffer_blit_box (CoglFramebuffer *framebuffer,
                            int              dst_x_offset,
                            int              dst_y_offset)
 {
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglFramebufferPrivate *dst_priv =
+    cogl_framebuffer_get_instance_private (dst);
   int dst_x1, dst_y1, dst_x2, dst_y2;
 
   dst_x1 = src_x1 + dst_x_offset;
@@ -1546,10 +1546,9 @@ cogl_framebuffer_blit_box (CoglFramebuffer *framebuffer,
       src_y2 = src_y1 - (dst_y2 - dst_y1);
     }
 
-  GE (driver, glBlitFramebuffer (src_x1, src_y1, src_x2, src_y2,
-                                 dst_x1, dst_y1, dst_x2, dst_y2,
-                                 GL_COLOR_BUFFER_BIT,
-                                 GL_NEAREST));
+  cogl_framebuffer_driver_blit (dst_priv->driver,
+                                src_x1, src_y1, src_x2, src_y2,
+                                dst_x1, dst_y1, dst_x2, dst_y2);
 }
 
 gboolean

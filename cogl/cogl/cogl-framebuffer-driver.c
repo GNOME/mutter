@@ -179,6 +179,24 @@ cogl_framebuffer_driver_bind_renderbuffers (CoglFramebufferDriver *driver,
   klass->bind_renderbuffers (driver, renderbuffers);
 }
 
+void
+cogl_framebuffer_driver_blit (CoglFramebufferDriver *driver,
+                              int                    src_x1,
+                              int                    src_y1,
+                              int                    src_x2,
+                              int                    src_y2,
+                              int                    dst_x1,
+                              int                    dst_y1,
+                              int                    dst_x2,
+                              int                    dst_y2)
+{
+  COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->blit (driver,
+                                                    src_x1, src_y1,
+                                                    src_x2, src_y2,
+                                                    dst_x1, dst_y1,
+                                                    dst_x2, dst_y2);
+}
+
 static void
 cogl_framebuffer_driver_get_property (GObject    *object,
                                       guint       prop_id,
@@ -301,6 +319,19 @@ cogl_framebuffer_real_bind_renderbuffers (CoglFramebufferDriver *driver,
 }
 
 static void
+cogl_framebuffer_real_blit (CoglFramebufferDriver *driver,
+                            int                    src_x1,
+                            int                    src_y1,
+                            int                    src_x2,
+                            int                    src_y2,
+                            int                    dst_x1,
+                            int                    dst_y1,
+                            int                    dst_x2,
+                            int                    dst_y2)
+{
+}
+
+static void
 cogl_framebuffer_driver_init (CoglFramebufferDriver *driver)
 {
 }
@@ -333,4 +364,5 @@ cogl_framebuffer_driver_class_init (CoglFramebufferDriverClass *klass)
     cogl_framebuffer_real_read_pixels_into_bitmap;
   klass->bind_renderbuffers = cogl_framebuffer_real_bind_renderbuffers;
   klass->peek_renderbuffers = cogl_framebuffer_real_peek_renderbuffers;
+  klass->blit = cogl_framebuffer_real_blit;
 }

@@ -652,6 +652,26 @@ EXIT:
 }
 
 static void
+cogl_gl_framebuffer_blit (CoglFramebufferDriver *fb_driver,
+                          int                    src_x1,
+                          int                    src_y1,
+                          int                    src_x2,
+                          int                    src_y2,
+                          int                    dst_x1,
+                          int                    dst_y1,
+                          int                    dst_x2,
+                          int                    dst_y2)
+{
+  CoglContext *ctx = context_from_driver (fb_driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+
+  GE (driver, glBlitFramebuffer (src_x1, src_y1, src_x2, src_y2,
+                                 dst_x1, dst_y1, dst_x2, dst_y2,
+                                 GL_COLOR_BUFFER_BIT,
+                                 GL_NEAREST));
+}
+
+static void
 cogl_gl_framebuffer_init (CoglGlFramebuffer *gl_framebuffer)
 {
 }
@@ -670,4 +690,5 @@ cogl_gl_framebuffer_class_init (CoglGlFramebufferClass *klass)
     cogl_gl_framebuffer_draw_indexed_attributes;
   driver_class->read_pixels_into_bitmap =
     cogl_gl_framebuffer_read_pixels_into_bitmap;
+  driver_class->blit = cogl_gl_framebuffer_blit;
 }
