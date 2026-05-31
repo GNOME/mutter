@@ -38,13 +38,6 @@
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-driver-private.h"
 
-#if defined(HAVE_GL)
-#include <GL/gl.h>
-#elif defined(HAVE_GLES2)
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#endif
-
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-pipeline-layer-private.h"
 #include "cogl/cogl-pipeline-layer-state-private.h"
@@ -916,21 +909,21 @@ _cogl_pipeline_layer_needs_combine_separate
        */
       switch (big_state->texture_combine_alpha_op[i])
         {
-        case GL_SRC_ALPHA:
+        case COGL_PIPELINE_COMBINE_OP_SRC_ALPHA:
           switch (big_state->texture_combine_rgb_op[i])
             {
-            case GL_SRC_COLOR:
-            case GL_SRC_ALPHA:
+            case COGL_PIPELINE_COMBINE_OP_SRC_COLOR:
+            case COGL_PIPELINE_COMBINE_OP_SRC_ALPHA:
               break;
             default:
               return FALSE;
             }
           break;
-        case GL_ONE_MINUS_SRC_ALPHA:
+        case COGL_PIPELINE_COMBINE_OP_ONE_MINUS_SRC_ALPHA:
           switch (big_state->texture_combine_rgb_op[i])
             {
-            case GL_ONE_MINUS_SRC_COLOR:
-            case GL_ONE_MINUS_SRC_ALPHA:
+            case COGL_PIPELINE_COMBINE_OP_ONE_MINUS_SRC_COLOR:
+            case COGL_PIPELINE_COMBINE_OP_ONE_MINUS_SRC_ALPHA:
               break;
             default:
               return FALSE;

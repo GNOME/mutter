@@ -469,7 +469,8 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
    * the corresponding CoglPipeline.
    */
   _cogl_texture_gl_flush_legacy_texobj_filters (texture,
-                                                GL_NEAREST, GL_NEAREST);
+                                                COGL_PIPELINE_FILTER_NEAREST,
+                                                COGL_PIPELINE_FILTER_NEAREST);
 
   gl_framebuffer_fbo = g_object_new (COGL_TYPE_GL_FRAMEBUFFER_FBO,
                                      "framebuffer", framebuffer,

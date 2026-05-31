@@ -69,14 +69,13 @@ G_BEGIN_DECLS
  */
 typedef enum
 {
-  COGL_PIPELINE_FILTER_NEAREST = 0x2600,
-  COGL_PIPELINE_FILTER_LINEAR = 0x2601,
-  COGL_PIPELINE_FILTER_NEAREST_MIPMAP_NEAREST = 0x2700,
-  COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST = 0x2701,
-  COGL_PIPELINE_FILTER_NEAREST_MIPMAP_LINEAR = 0x2702,
-  COGL_PIPELINE_FILTER_LINEAR_MIPMAP_LINEAR = 0x2703
+  COGL_PIPELINE_FILTER_NEAREST,
+  COGL_PIPELINE_FILTER_LINEAR,
+  COGL_PIPELINE_FILTER_NEAREST_MIPMAP_NEAREST,
+  COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST,
+  COGL_PIPELINE_FILTER_NEAREST_MIPMAP_LINEAR,
+  COGL_PIPELINE_FILTER_LINEAR_MIPMAP_LINEAR
 } CoglPipelineFilter;
-/* NB: these values come from the equivalents in gl.h */
 
 /**
  * CoglPipelineWrapMode:
@@ -104,20 +103,16 @@ typedef enum
  * artifacts around the edges when the pixels from the other side are
  * merged in if the wrap mode is set to repeat.
  */
-/* GL_ALWAYS is just used here as a value that is known not to clash
- * with any valid GL wrap modes
- *
- * XXX: keep the values in sync with the CoglPipelineWrapModeInternal
- * enum so no conversion is actually needed.
+/* XXX: keep the values in sync with the CoglSamplerCacheWrapMode
+ * enum so no conversion is needed.
  */
 typedef enum
 {
-  COGL_PIPELINE_WRAP_MODE_REPEAT = 0x2901,
-  COGL_PIPELINE_WRAP_MODE_MIRRORED_REPEAT = 0x8370,
-  COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE = 0x812F,
-  COGL_PIPELINE_WRAP_MODE_AUTOMATIC = 0x0207 /* GL_ALWAYS */
+  COGL_PIPELINE_WRAP_MODE_REPEAT,
+  COGL_PIPELINE_WRAP_MODE_MIRRORED_REPEAT,
+  COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
+  COGL_PIPELINE_WRAP_MODE_AUTOMATIC
 } CoglPipelineWrapMode;
-/* NB: these values come from the equivalents in gl.h */
 
 /**
  * cogl_pipeline_set_layer:

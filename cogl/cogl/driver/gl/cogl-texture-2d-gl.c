@@ -90,10 +90,10 @@ static void
 cogl_texture_2d_gl_init (CoglTexture2DGL *tex_gl)
 {
   tex_gl->gl_target = GL_TEXTURE_2D;
-  tex_gl->gl_legacy_texobj_min_filter = GL_LINEAR;
-  tex_gl->gl_legacy_texobj_mag_filter = GL_LINEAR;
-  tex_gl->gl_legacy_texobj_wrap_mode_s = GL_FALSE;
-  tex_gl->gl_legacy_texobj_wrap_mode_t = GL_FALSE;
+  tex_gl->gl_legacy_texobj_min_filter = COGL_PIPELINE_FILTER_LINEAR;
+  tex_gl->gl_legacy_texobj_mag_filter = COGL_PIPELINE_FILTER_LINEAR;
+  tex_gl->gl_legacy_texobj_wrap_mode_s = COGL_SAMPLER_CACHE_WRAP_MODE_REPEAT;
+  tex_gl->gl_legacy_texobj_wrap_mode_t = COGL_SAMPLER_CACHE_WRAP_MODE_REPEAT;
 }
 
 static void
@@ -652,8 +652,8 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
 
 typedef struct
 {
-  GLenum min_filter;
-  GLenum mag_filter;
+  CoglPipelineFilter min_filter;
+  CoglPipelineFilter mag_filter;
 } FlushFiltersData;
 
 static void
@@ -672,15 +672,16 @@ flush_legacy_texobj_filters_cb (CoglTexture2D *tex_2d,
   tex_gl->gl_legacy_texobj_min_filter = d->min_filter;
   tex_gl->gl_legacy_texobj_mag_filter = d->mag_filter;
 
-  /* Apply new filters to the texture */
   _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                    tex_gl->gl_texture);
-  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, d->mag_filter));
-  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, d->min_filter));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                               cogl_pipeline_filter_to_gl (d->mag_filter)));
+  GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                               cogl_pipeline_filter_to_gl (d->min_filter)));
 
   if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
-      d->min_filter != GL_NEAREST &&
-      d->min_filter != GL_LINEAR)
+      d->min_filter != COGL_PIPELINE_FILTER_NEAREST &&
+      d->min_filter != COGL_PIPELINE_FILTER_LINEAR)
     {
       GLfloat bias = _cogl_texture_min_filter_get_lod_bias (d->min_filter);
 
@@ -689,9 +690,9 @@ flush_legacy_texobj_filters_cb (CoglTexture2D *tex_2d,
 }
 
 void
-_cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *tex,
-                                              GLenum       min_filter,
-                                              GLenum       mag_filter)
+_cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture        *tex,
+                                              CoglPipelineFilter  min_filter,
+                                              CoglPipelineFilter  mag_filter)
 {
   FlushFiltersData d = { min_filter, mag_filter };
 
@@ -700,8 +701,8 @@ _cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *tex,
 
 typedef struct
 {
-  GLenum wrap_mode_s;
-  GLenum wrap_mode_t;
+  CoglSamplerCacheWrapMode wrap_mode_s;
+  CoglSamplerCacheWrapMode wrap_mode_t;
 } FlushWrapData;
 
 static void
@@ -724,10 +725,10 @@ flush_legacy_texobj_wrap_modes_cb (CoglTexture2D *tex_2d,
                                        tex_gl->gl_texture);
       GE (driver, glTexParameteri (GL_TEXTURE_2D,
                                    GL_TEXTURE_WRAP_S,
-                                   d->wrap_mode_s));
+                                   cogl_sampler_cache_wrap_mode_to_gl (d->wrap_mode_s)));
       GE (driver, glTexParameteri (GL_TEXTURE_2D,
                                    GL_TEXTURE_WRAP_T,
-                                   d->wrap_mode_t));
+                                   cogl_sampler_cache_wrap_mode_to_gl (d->wrap_mode_t)));
 
       tex_gl->gl_legacy_texobj_wrap_mode_s = d->wrap_mode_s;
       tex_gl->gl_legacy_texobj_wrap_mode_t = d->wrap_mode_t;
@@ -735,9 +736,9 @@ flush_legacy_texobj_wrap_modes_cb (CoglTexture2D *tex_2d,
 }
 
 void
-_cogl_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
-                                                 GLenum       wrap_mode_s,
-                                                 GLenum       wrap_mode_t)
+_cogl_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture              *tex,
+                                                 CoglSamplerCacheWrapMode  wrap_mode_s,
+                                                 CoglSamplerCacheWrapMode  wrap_mode_t)
 {
   FlushWrapData d = { wrap_mode_s, wrap_mode_t };
 

@@ -30,6 +30,7 @@
 #pragma once
 
 #include "cogl/cogl-context.h"
+#include "cogl/cogl-sampler-cache-private.h"
 
 void
 _cogl_texture_gl_prep_alignment_for_pixels_upload (CoglContext *ctx,
@@ -42,21 +43,21 @@ _cogl_texture_gl_prep_alignment_for_pixels_download (CoglDriver *driver,
                                                      int         rowstride);
 
 void
-_cogl_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *texture,
-                                                 unsigned int wrap_mode_s,
-                                                 unsigned int wrap_mode_t);
+_cogl_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture              *texture,
+                                                 CoglSamplerCacheWrapMode  wrap_mode_s,
+                                                 CoglSamplerCacheWrapMode  wrap_mode_t);
 
 void
-_cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *texture,
-                                              unsigned int min_filter,
-                                              unsigned int mag_filter);
+_cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture        *texture,
+                                              CoglPipelineFilter  min_filter,
+                                              CoglPipelineFilter  mag_filter);
 
 GLenum
 _cogl_texture_gl_get_format (CoglTexture *texture);
 
 static inline GLfloat
-_cogl_texture_min_filter_get_lod_bias (GLenum min_filter)
+_cogl_texture_min_filter_get_lod_bias (CoglPipelineFilter min_filter)
 {
-  return (min_filter == GL_NEAREST_MIPMAP_NEAREST ||
-          min_filter == GL_LINEAR_MIPMAP_NEAREST) ? -0.5f : 0.0f;
+  return (min_filter == COGL_PIPELINE_FILTER_NEAREST_MIPMAP_NEAREST ||
+          min_filter == COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST) ? -0.5f : 0.0f;
 }

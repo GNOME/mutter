@@ -53,10 +53,10 @@ struct _CoglTexture2DGL
   GLenum gl_internal_format;
   GLuint gl_texture;
   GLenum gl_target;
-  GLenum gl_legacy_texobj_min_filter;
-  GLenum gl_legacy_texobj_mag_filter;
-  GLint gl_legacy_texobj_wrap_mode_s;
-  GLint gl_legacy_texobj_wrap_mode_t;
+  CoglPipelineFilter gl_legacy_texobj_min_filter;
+  CoglPipelineFilter gl_legacy_texobj_mag_filter;
+  CoglSamplerCacheWrapMode gl_legacy_texobj_wrap_mode_s;
+  CoglSamplerCacheWrapMode gl_legacy_texobj_wrap_mode_t;
 };
 
 #if defined (HAVE_EGL)
@@ -67,11 +67,11 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
 #endif
 
 void
-_cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture *tex,
-                                                 GLenum min_filter,
-                                                 GLenum mag_filter);
+_cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture        *tex,
+                                                 CoglPipelineFilter  min_filter,
+                                                 CoglPipelineFilter  mag_filter);
 
 void
-_cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
-                                                    GLenum wrap_mode_s,
-                                                    GLenum wrap_mode_t);
+_cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes (CoglTexture              *tex,
+                                                    CoglSamplerCacheWrapMode  wrap_mode_s,
+                                                    CoglSamplerCacheWrapMode  wrap_mode_t);

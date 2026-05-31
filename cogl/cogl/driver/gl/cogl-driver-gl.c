@@ -279,6 +279,53 @@ cogl_driver_gl_create_buffer_impl (CoglDriver *driver)
   return g_object_new (COGL_TYPE_BUFFER_IMPL_GL, NULL);
 }
 
+/*
+ * GL/GLES compatibility defines for pipeline thingies:
+ */
+#ifndef GL_CLAMP_TO_BORDER
+#define GL_CLAMP_TO_BORDER 0x812d
+#endif
+
+GLenum
+cogl_sampler_cache_wrap_mode_to_gl (CoglSamplerCacheWrapMode mode)
+{
+  switch (mode)
+    {
+    case COGL_SAMPLER_CACHE_WRAP_MODE_REPEAT:
+      return GL_REPEAT;
+    case COGL_SAMPLER_CACHE_WRAP_MODE_MIRRORED_REPEAT:
+      return GL_MIRRORED_REPEAT;
+    case COGL_SAMPLER_CACHE_WRAP_MODE_CLAMP_TO_EDGE:
+      return GL_CLAMP_TO_EDGE;
+    case COGL_SAMPLER_CACHE_WRAP_MODE_CLAMP_TO_BORDER:
+      return GL_CLAMP_TO_BORDER;
+    case COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC:
+      break;
+    }
+  g_return_val_if_reached (GL_REPEAT);
+}
+
+GLenum
+cogl_pipeline_filter_to_gl (CoglPipelineFilter filter)
+{
+  switch (filter)
+    {
+    case COGL_PIPELINE_FILTER_NEAREST:
+      return GL_NEAREST;
+    case COGL_PIPELINE_FILTER_LINEAR:
+      return GL_LINEAR;
+    case COGL_PIPELINE_FILTER_NEAREST_MIPMAP_NEAREST:
+      return GL_NEAREST_MIPMAP_NEAREST;
+    case COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST:
+      return GL_LINEAR_MIPMAP_NEAREST;
+    case COGL_PIPELINE_FILTER_NEAREST_MIPMAP_LINEAR:
+      return GL_NEAREST_MIPMAP_LINEAR;
+    case COGL_PIPELINE_FILTER_LINEAR_MIPMAP_LINEAR:
+      return GL_LINEAR_MIPMAP_LINEAR;
+    }
+  g_return_val_if_reached (GL_LINEAR);
+}
+
 static void
 cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
                                   CoglSamplerCacheEntry *entry)
@@ -293,17 +340,17 @@ cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
 
       GE (driver, glSamplerParameteri (sampler_object,
                                        GL_TEXTURE_MIN_FILTER,
-                                       entry->min_filter));
+                                       cogl_pipeline_filter_to_gl (entry->min_filter)));
       GE (driver, glSamplerParameteri (sampler_object,
                                        GL_TEXTURE_MAG_FILTER,
-                                       entry->mag_filter));
+                                       cogl_pipeline_filter_to_gl (entry->mag_filter)));
 
       GE (driver, glSamplerParameteri (sampler_object,
                                        GL_TEXTURE_WRAP_S,
-                                       entry->wrap_mode_s));
+                                       cogl_sampler_cache_wrap_mode_to_gl (entry->wrap_mode_s)));
       GE (driver, glSamplerParameteri (sampler_object,
                                        GL_TEXTURE_WRAP_T,
-                                       entry->wrap_mode_t));
+                                       cogl_sampler_cache_wrap_mode_to_gl (entry->wrap_mode_t)));
 
       /* While COGL_FEATURE_ID_SAMPLER_OBJECTS implies support for
        * GL_TEXTURE_LOD_BIAS in GL, the same is not true in GLES. So check,
