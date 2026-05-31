@@ -117,6 +117,9 @@ maybe_launch_devkit (gpointer  dependency,
     return;
 
   launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
+  g_subprocess_launcher_setenv (launcher, "GDK_DEBUG", "no-portals", TRUE);
+  g_subprocess_launcher_setenv (launcher, "GTK_A11Y", "none", TRUE);
+  g_subprocess_launcher_setenv (launcher, "ADW_DISABLE_PORTAL", "1", TRUE);
 
   if (mdk->external_wayland_display)
     {
