@@ -50,8 +50,6 @@
 #include "cogl/driver/gl/cogl-pipeline-fragend-glsl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
-#include "deprecated/cogl-program-private.h"
-#include "deprecated/cogl-shader-private.h"
 
 /* These are used to generalise updating some uniforms that are
    required when building for drivers missing some fixed function
@@ -98,10 +96,6 @@ typedef struct _UnitState
 typedef struct
 {
   unsigned int ref_count;
-
-  /* Age that the user program had last time we generated a GL
-     program. If it's different then we need to relink the program */
-  unsigned int user_program_age;
 
   GLuint program;
 
@@ -710,162 +704,6 @@ _cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
   return TRUE;
 }
 
-static CoglPipelineSnippetList *
-get_fragment_snippets (CoglPipeline *pipeline)
-{
-  pipeline =
-    _cogl_pipeline_get_authority (pipeline,
-                                  COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS);
-
-  return &pipeline->big_state->fragment_snippets;
-}
-
-static CoglPipelineSnippetList *
-get_vertex_snippets (CoglPipeline *pipeline)
-{
-  pipeline =
-    _cogl_pipeline_get_authority (pipeline,
-                                  COGL_PIPELINE_STATE_VERTEX_SNIPPETS);
-
-  return &pipeline->big_state->vertex_snippets;
-}
-
-static gboolean
-needs_recompile (CoglShader   *shader,
-                 CoglPipeline *pipeline,
-                 CoglPipeline *prev)
-{
-  /* XXX: currently the only things that will affect the
-   * boilerplate for user shaders, apart from driver features,
-   * are the pipeline layer-indices, texture-unit-indices and
-   * snippets
-   */
-  CoglPipeline *authority, *authority_prev;
-
-  if (pipeline == prev)
-    return FALSE;
-
-  if (!_cogl_pipeline_layer_and_unit_numbers_equal (prev, pipeline))
-    return TRUE;
-
-  switch (shader->type)
-    {
-    case COGL_SHADER_TYPE_VERTEX:
-      authority =
-        _cogl_pipeline_get_authority (pipeline,
-                                      COGL_PIPELINE_STATE_VERTEX_SNIPPETS);
-      authority_prev =
-        _cogl_pipeline_get_authority (prev,
-                                      COGL_PIPELINE_STATE_VERTEX_SNIPPETS);
-
-      if (!_cogl_pipeline_vertex_snippets_state_equal (authority_prev, authority))
-        return TRUE;
-      break;
-    case COGL_SHADER_TYPE_FRAGMENT:
-      authority =
-        _cogl_pipeline_get_authority (pipeline,
-                                      COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS);
-      authority_prev =
-        _cogl_pipeline_get_authority (prev,
-                                      COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS);
-
-      if (!_cogl_pipeline_fragment_snippets_state_equal (authority_prev, authority))
-        return TRUE;
-      break;
-    default:
-      g_assert_not_reached ();
-      break;
-    }
-
-  return FALSE;
-}
-
-static void
-_cogl_shader_compile_real (CoglShader   *shader,
-                           CoglPipeline *pipeline)
-{
-  g_autoptr(GString) hooks_source = NULL;
-  CoglPipelineSnippetData snippet_data;
-  const char *shader_sources[4];
-  GLenum gl_type;
-  GLint status;
-  CoglContext *ctx = pipeline->context;
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-
-  if (shader->gl_handle)
-    {
-      if (!needs_recompile (shader, pipeline, shader->compilation_pipeline))
-        return;
-
-      GE (driver, glDeleteShader (shader->gl_handle));
-      shader->gl_handle = 0;
-
-      g_clear_object (&shader->compilation_pipeline);
-    }
-
-  hooks_source = g_string_new ("");
-  memset (&snippet_data, 0, sizeof (snippet_data));
-  snippet_data.chain_function = "cogl_main";
-  snippet_data.final_name = "cogl_hooks";
-  snippet_data.source_buf = hooks_source;
-
-  switch (shader->type)
-    {
-    case COGL_SHADER_TYPE_VERTEX:
-      gl_type = GL_VERTEX_SHADER;
-      snippet_data.snippets = get_vertex_snippets (pipeline);
-      snippet_data.hook = COGL_SNIPPET_HOOK_VERTEX;
-      snippet_data.function_prefix = "cogl_vertex_hook";
-      break;
-    case COGL_SHADER_TYPE_FRAGMENT:
-      gl_type = GL_FRAGMENT_SHADER;
-      snippet_data.snippets = get_fragment_snippets (pipeline);
-      snippet_data.hook = COGL_SNIPPET_HOOK_FRAGMENT;
-      snippet_data.function_prefix = "cogl_fragment_hook";
-      break;
-    default:
-      g_assert_not_reached ();
-      break;
-    }
-
-  _cogl_pipeline_snippet_generate_code (&snippet_data);
-
-  shader_sources[0] = "#define main cogl_main\n";
-  shader_sources[1] = shader->source;
-  shader_sources[2] = hooks_source->str;
-  shader_sources[3] = "#undef main\n"
-                      "void main () { cogl_hooks(); }\n";
-
-  GE_RET (shader->gl_handle, driver, glCreateShader (gl_type));
-
-  _cogl_glsl_shader_set_source_with_boilerplate (ctx,
-                                                 shader->gl_handle,
-                                                 gl_type,
-                                                 pipeline,
-                                                 G_N_ELEMENTS (shader_sources),
-                                                 shader_sources,
-                                                 NULL);
-  GE (driver, glCompileShader (shader->gl_handle));
-
-  shader->compilation_pipeline = g_object_ref (pipeline);
-
-  GE (driver, glGetShaderiv (shader->gl_handle, GL_COMPILE_STATUS, &status));
-  if (!status)
-    {
-      char buffer[512];
-      int len = 0;
-
-      GE (driver, glGetShaderInfoLog (shader->gl_handle, 511, &len, buffer));
-      buffer[len] = '\0';
-
-      g_warning ("Failed to compile GLSL program:\n"
-                 "src:\n%s\n"
-                 "error:\n%s\n",
-                 shader->source,
-                 buffer);
-    }
-}
-
 static void
 _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
                                  unsigned long pipelines_difference)
@@ -874,14 +712,11 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
   GLuint gl_program;
   gboolean program_changed = FALSE;
   UpdateUniformsState state;
-  CoglProgram *user_program;
   CoglPipelineCacheEntry *cache_entry = NULL;
   CoglContext *ctx = pipeline->context;
   CoglDriver *driver = cogl_context_get_driver (ctx);
 
   program_state = get_program_state (pipeline);
-
-  user_program = cogl_pipeline_get_user_program (pipeline);
 
   if (program_state == NULL)
     {
@@ -933,37 +768,11 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
         set_program_state (pipeline, program_state);
     }
 
-  /* If the program has changed since the last link then we do
-   * need to relink */
-  if (program_state->program && user_program &&
-       user_program->age != program_state->user_program_age)
-    {
-      GE (driver, glDeleteProgram (program_state->program));
-      program_state->program = 0;
-    }
-
   if (program_state->program == 0)
     {
       GLuint backend_shader;
-      GSList *l;
 
       GE_RET (program_state->program, driver, glCreateProgram ());
-
-      /* Attach all of the shader from the user program */
-      if (user_program)
-        {
-          for (l = user_program->attached_shaders; l; l = l->next)
-            {
-              CoglShader *shader = l->data;
-
-              _cogl_shader_compile_real (shader, pipeline);
-
-              GE (driver, glAttachShader (program_state->program,
-                                          shader->gl_handle));
-            }
-
-          program_state->user_program_age = user_program->age;
-        }
 
       /* Attach any shaders from the GLSL backends */
       if ((backend_shader = _cogl_pipeline_fragend_glsl_get_shader (pipeline)))
@@ -1056,11 +865,6 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
                                               program_state,
                                               gl_program,
                                               program_changed);
-
-  if (user_program)
-    _cogl_program_flush_uniforms (ctx, user_program,
-                                  gl_program,
-                                  program_changed);
 
   /* We need to track the last pipeline that the program was used with
    * so know if we need to update all of the uniforms */

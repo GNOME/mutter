@@ -37,7 +37,6 @@
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-color.h"
 #include "cogl/cogl-depth-state.h"
-#include "cogl/deprecated/cogl-program.h"
 
 G_BEGIN_DECLS
 
@@ -291,61 +290,6 @@ cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
  */
 COGL_EXPORT gboolean
 cogl_pipeline_get_per_vertex_point_size (CoglPipeline *pipeline);
-
-/**
- * cogl_pipeline_get_user_program:
- * @pipeline: a #CoglPipeline object.
- *
- * Queries what user program has been associated with the given
- * @pipeline using cogl_pipeline_set_user_program().
- *
- * Return value: (transfer none): The current user program or %NULL.
- */
-COGL_EXPORT CoglProgram*
-cogl_pipeline_get_user_program (CoglPipeline *pipeline);
-
-/**
- * cogl_pipeline_set_user_program:
- * @pipeline: a #CoglPipeline object.
- * @program: A linked CoglProgram
- *
- * Associates a linked CoglProgram with the given pipeline so that the
- * program can take full control of vertex and/or fragment processing.
- *
- * This is an example of how it can be used to associate an ARBfp
- * program with a #CoglPipeline:
- * ```c
- * CoglShader *shader;
- * CoglProgram *program;
- * CoglPipeline *pipeline;
- *
- * shader = cogl_shader_new (COGL_SHADER_TYPE_FRAGMENT);
- * cogl_shader_source (shader,
- *                     "!!ARBfp1.0\n"
- *                     "MOV result.color,fragment.color;\n"
- *                     "END\n");
- *
- * program = cogl_program_new ();
- * cogl_program_attach_shader (program, shader);
- * cogl_program_link (program);
- *
- * pipeline = cogl_pipeline_new ();
- * cogl_pipeline_set_user_program (pipeline, program);
- *
- * cogl_set_source_color4ub (0xff, 0x00, 0x00, 0xff);
- * cogl_rectangle (0, 0, 100, 100);
- * ```
- *
- * It is possibly worth keeping in mind that this API is not part of
- * the long term design for how we want to expose shaders to Cogl
- * developers (We are planning on deprecating the cogl_program and
- * cogl_shader APIs in favour of a "snippet" framework) but in the
- * meantime we hope this will handle most practical GLSL and ARBfp
- * requirements.
- */
-COGL_EXPORT void
-cogl_pipeline_set_user_program (CoglPipeline *pipeline,
-                                CoglProgram  *program);
 
 /**
  * cogl_pipeline_set_depth_state:

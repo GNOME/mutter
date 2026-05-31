@@ -48,8 +48,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-pipeline-cache.h"
 #include "cogl/driver/gl/cogl-pipeline-fragend-glsl-private.h"
-#include "deprecated/cogl-shader-private.h"
-#include "deprecated/cogl-program-private.h"
 
 #include <glib.h>
 
@@ -299,7 +297,6 @@ _cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
   CoglPipelineFragendShaderState *shader_state;
   CoglPipeline *authority;
   CoglPipelineCacheEntry *cache_entry = NULL;
-  CoglProgram *user_program = cogl_pipeline_get_user_program (pipeline);
   CoglContext *ctx = pipeline->context;
   GString *header_buffer = cogl_context_get_codegen_header_buffer (ctx);
   GString *source_buffer = cogl_context_get_codegen_source_buffer (ctx);
@@ -361,23 +358,6 @@ _cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
        * with the glsl-authority... */
       if (authority != pipeline)
         set_shader_state (pipeline, shader_state);
-    }
-
-  if (user_program)
-    {
-      /* If the user program contains a fragment shader then we don't need
-         to generate one */
-      if (_cogl_program_has_fragment_shader (user_program))
-        {
-          if (shader_state->gl_shader)
-            {
-              CoglDriver *driver = cogl_context_get_driver (ctx);
-
-              GE (driver, glDeleteShader (shader_state->gl_shader));
-              shader_state->gl_shader = 0;
-            }
-          return;
-        }
     }
 
   if (shader_state->gl_shader)

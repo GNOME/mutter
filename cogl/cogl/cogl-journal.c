@@ -776,11 +776,6 @@ can_software_clip_entry (CoglJournalEntry *journal_entry,
      entries using the same pipeline as the previous entry */
   if (prev_journal_entry == NULL || pipeline != prev_journal_entry->pipeline)
     {
-      /* If the pipeline has a user program then we can't reliably modify
-         the texture coordinates */
-      if (cogl_pipeline_get_user_program (pipeline))
-        return FALSE;
-
       /* If any of the pipeline layers have a texture matrix then we can't
          reliably modify the texture coordinates */
       for (layer_num = cogl_pipeline_get_n_layers (pipeline) - 1;
