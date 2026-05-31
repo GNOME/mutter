@@ -86,17 +86,6 @@ cogl_driver_create_texture_driver (CoglDriver *driver)
   return klass->create_texture_driver (driver);
 }
 
-gboolean
-cogl_driver_is_hardware_accelerated (CoglDriver *driver)
-{
-  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
-
-  if (klass->is_hardware_accelerated)
-    return klass->is_hardware_accelerated (driver);
-  else
-    return FALSE;
-}
-
 const char *
 cogl_driver_get_vendor (CoglDriver *driver)
 {

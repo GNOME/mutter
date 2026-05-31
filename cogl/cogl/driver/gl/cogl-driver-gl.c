@@ -96,39 +96,6 @@ cogl_driver_gl_get_gl_vendor (CoglDriver *driver)
                                        GL_VENDOR);
 }
 
-/*
- * This should arguably use something like GLX_MESA_query_renderer, but
- * a) that's GLX-only, and you could add it to EGL too but
- * b) that'd make this a winsys query when really it's not a property of
- *    the winsys but the renderer, and
- * c) only Mesa really supports it anyway, and
- * d) Mesa is the only software renderer of interest.
- *
- * So instead just check a list of known software renderer strings.
- */
-static gboolean
-cogl_driver_gl_is_hardware_accelerated (CoglDriver *driver)
-{
-  const char *renderer = cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver),
-                                                       GL_RENDERER);
-  gboolean software;
-
-  if (!renderer)
-    {
-      g_warning ("OpenGL driver returned NULL as the renderer, "
-                 "something is wrong");
-      return TRUE;
-    }
-
-  software = strstr (renderer, "llvmpipe") != NULL ||
-             strstr (renderer, "softpipe") != NULL ||
-             strstr (renderer, "software rasterizer") != NULL ||
-             strstr (renderer, "Software Rasterizer") != NULL ||
-             strstr (renderer, "SWR");
-
-  return !software;
-}
-
 static CoglGraphicsResetStatus
 cogl_driver_gl_get_graphics_reset_status (CoglDriver *driver)
 {
@@ -468,7 +435,6 @@ cogl_driver_gl_class_init (CoglDriverGLClass *klass)
 
   driver_klass->context_init = cogl_driver_gl_context_init;
   driver_klass->get_vendor = cogl_driver_gl_get_gl_vendor;
-  driver_klass->is_hardware_accelerated = cogl_driver_gl_is_hardware_accelerated;
   driver_klass->get_graphics_reset_status = cogl_driver_gl_get_graphics_reset_status;
   driver_klass->create_framebuffer_driver = cogl_driver_gl_create_framebuffer_driver;
   driver_klass->flush_framebuffer_state = cogl_driver_gl_flush_framebuffer_state;

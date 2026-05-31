@@ -50,8 +50,6 @@ struct _CoglDriverClass
 
   const char * (* get_vendor) (CoglDriver *driver);
 
-  gboolean (* is_hardware_accelerated) (CoglDriver *driver);
-
   CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver *driver);
 
   gboolean (* update_features) (CoglDriver   *driver,
