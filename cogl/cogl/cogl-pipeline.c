@@ -166,10 +166,6 @@ cogl_pipeline_dispose (GObject *object)
 
   cogl_pipeline_unparent (pipeline);
 
-  if (pipeline->differences & COGL_PIPELINE_STATE_USER_SHADER &&
-      pipeline->big_state->user_program)
-    g_object_unref (pipeline->big_state->user_program);
-
   if (pipeline->differences & COGL_PIPELINE_STATE_UNIFORMS)
     {
       CoglPipelineUniformsState *uniforms_state
@@ -228,7 +224,6 @@ create_default_big_state (void)
   CoglPipelineCullFaceState *cull_face_state = &big_state->cull_face_state;
   CoglPipelineUniformsState *uniforms_state = &big_state->uniforms_state;
 
-  big_state->user_program = NULL;
   big_state->point_size = 0.0f;
   cogl_depth_state_init (&big_state->depth_state);
 
@@ -728,17 +723,6 @@ _cogl_pipeline_change_implies_transparency (CoglPipeline *pipeline,
         return TRUE;
     }
 
-  if (changes & COGL_PIPELINE_STATE_USER_SHADER)
-    {
-      /* We can't make any assumptions about the alpha channel if the user
-       * is using an unknown fragment shader.
-       *
-       * TODO: check that it isn't just a vertex shader!
-       */
-      if (cogl_pipeline_get_user_program (pipeline) != NULL)
-        return TRUE;
-    }
-
   if (changes & COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS)
     {
       if (_cogl_pipeline_has_non_layer_fragment_snippets (pipeline))
@@ -918,15 +902,6 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
               sizeof (CoglPipelineBlendState));
     }
 
-  if (differences & COGL_PIPELINE_STATE_USER_SHADER)
-    {
-      if (src->big_state->user_program)
-        big_state->user_program =
-          g_object_ref (src->big_state->user_program);
-      else
-        big_state->user_program = NULL;
-    }
-
   if (differences & COGL_PIPELINE_STATE_DEPTH)
     {
       memcpy (&big_state->depth_state,
@@ -1018,7 +993,6 @@ _cogl_pipeline_init_multi_property_sparse_state (CoglPipeline *pipeline,
     case COGL_PIPELINE_STATE_ALPHA_FUNC_REFERENCE:
     case COGL_PIPELINE_STATE_NON_ZERO_POINT_SIZE:
     case COGL_PIPELINE_STATE_POINT_SIZE:
-    case COGL_PIPELINE_STATE_USER_SHADER:
     case COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE:
     case COGL_PIPELINE_STATE_REAL_BLEND_ENABLE:
       g_return_if_reached ();
@@ -2173,11 +2147,6 @@ _cogl_pipeline_equal (CoglPipeline *pipeline0,
                                                            authorities1[bit]))
             goto done;
           break;
-        case COGL_PIPELINE_STATE_USER_SHADER_INDEX:
-          if (!_cogl_pipeline_user_shader_equal (authorities0[bit],
-                                                 authorities1[bit]))
-            goto done;
-          break;
         case COGL_PIPELINE_STATE_UNIFORMS_INDEX:
           if (!_cogl_pipeline_uniforms_state_equal (authorities0[bit],
                                                     authorities1[bit]))
@@ -2434,7 +2403,7 @@ _cogl_pipeline_init_layer_state_hash_functions (void)
      * pipeline state and update assert
      * in _cogl_pipeline_init_state_hash_functions
      */
-    G_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 14);
+    G_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 13);
   }
 }
 
@@ -2518,8 +2487,6 @@ _cogl_pipeline_init_state_hash_functions (void)
     _cogl_pipeline_hash_alpha_func_reference_state;
   state_hash_functions[COGL_PIPELINE_STATE_BLEND_INDEX] =
     _cogl_pipeline_hash_blend_state;
-  state_hash_functions[COGL_PIPELINE_STATE_USER_SHADER_INDEX] =
-    _cogl_pipeline_hash_user_shader_state;
   state_hash_functions[COGL_PIPELINE_STATE_DEPTH_INDEX] =
     _cogl_pipeline_hash_depth_state;
   state_hash_functions[COGL_PIPELINE_STATE_CULL_FACE_INDEX] =
@@ -2543,7 +2510,7 @@ _cogl_pipeline_init_state_hash_functions (void)
      * pipeline state and update assert
      * in _cogl_pipeline_init_state_hash_functions
      */
-    G_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 14);
+    G_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 13);
   }
 }
 
@@ -2808,7 +2775,6 @@ CoglPipelineState
 _cogl_pipeline_get_state_for_vertex_codegen (CoglContext *context)
 {
   CoglPipelineState state = (COGL_PIPELINE_STATE_LAYERS |
-                             COGL_PIPELINE_STATE_USER_SHADER |
                              COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE |
                              COGL_PIPELINE_STATE_VERTEX_SNIPPETS);
   state |= COGL_PIPELINE_STATE_NON_ZERO_POINT_SIZE;
@@ -2836,7 +2802,6 @@ CoglPipelineState
 _cogl_pipeline_get_state_for_fragment_codegen (CoglContext *context)
 {
   CoglPipelineState state = (COGL_PIPELINE_STATE_LAYERS |
-                             COGL_PIPELINE_STATE_USER_SHADER |
                              COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS |
                              COGL_PIPELINE_STATE_ALPHA_FUNC);
 

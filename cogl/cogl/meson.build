@@ -13,11 +13,6 @@ if have_introspection
   ]
 endif
 
-cogl_deprecated_headers = [
-  'deprecated/cogl-program.h',
-  'deprecated/cogl-shader.h',
-]
-
 cogl_headers = [
   'cogl.h',
   'cogl-atlas.h',
@@ -286,10 +281,6 @@ cogl_sources = [
   'cogl-trace.c',
   'cogl-util.h',
   'cogl.c',
-  'deprecated/cogl-program-private.h',
-  'deprecated/cogl-program.c',
-  'deprecated/cogl-shader-private.h',
-  'deprecated/cogl-shader.c',
   'gl-prototypes/cogl-all-functions.h',
   'winsys/cogl-winsys.c',
 ]
@@ -331,14 +322,12 @@ cogl_sources += [cogl_enums[0]]
 cogl_introspected_headers = [
   cogl_enums[1],
   cogl_headers,
-  cogl_deprecated_headers,
 ]
 
 cogl_headers_all = [
   cogl_introspected_headers,
   cogl_nonintrospected_headers,
   cogl_winsys_nonintrospected_headers,
-  cogl_deprecated_headers,
 ]
 
 libmutter_cogl_name = 'mutter-cogl-' + libmutter_api_version
@@ -383,11 +372,6 @@ install_headers([
     cogl_nonintrospected_headers,
   ],
   subdir: cogl_cogl_includesubdir)
-
-install_headers([
-    cogl_deprecated_headers,
-  ],
-  subdir: cogl_cogl_includesubdir / 'deprecated')
 
 install_headers(cogl_gl_prototype_headers,
   subdir: cogl_cogl_includesubdir / 'gl-prototypes')

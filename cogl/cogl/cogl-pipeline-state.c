@@ -182,14 +182,6 @@ _cogl_pipeline_cull_face_state_equal (CoglPipeline *authority0,
           cull_face_state0->front_winding == cull_face_state1->front_winding);
 }
 
-gboolean
-_cogl_pipeline_user_shader_equal (CoglPipeline *authority0,
-                                  CoglPipeline *authority1)
-{
-  return (authority0->big_state->user_program ==
-          authority1->big_state->user_program);
-}
-
 typedef struct
 {
   const CoglBoxedValue **dst_values;
@@ -649,78 +641,6 @@ cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
 
   _cogl_pipeline_update_authority (pipeline, authority, state,
                                    _cogl_pipeline_blend_state_equal);
-
-  pipeline->dirty_real_blend_enable = TRUE;
-}
-
-CoglProgram*
-cogl_pipeline_get_user_program (CoglPipeline *pipeline)
-{
-  CoglPipeline *authority;
-
-  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), NULL);
-
-  authority =
-    _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_USER_SHADER);
-
-  return authority->big_state->user_program;
-}
-
-/* XXX: for now we don't mind if the program has vertex shaders
- * attached but if we ever make a similar API public we should only
- * allow attaching of programs containing fragment shaders. Eventually
- * we will have a CoglPipeline abstraction to also cover vertex
- * processing.
- */
-void
-cogl_pipeline_set_user_program (CoglPipeline *pipeline,
-                                CoglProgram  *program)
-{
-  CoglPipelineState state = COGL_PIPELINE_STATE_USER_SHADER;
-  CoglPipeline *authority;
-
-  g_return_if_fail (COGL_IS_PIPELINE (pipeline));
-
-  authority = _cogl_pipeline_get_authority (pipeline, state);
-
-  if (authority->big_state->user_program == program)
-    return;
-
-  /* - Flush journal primitives referencing the current state.
-   * - Make sure the pipeline has no dependants so it may be modified.
-   * - If the pipeline isn't currently an authority for the state being
-   *   changed, then initialize that state from the current authority.
-   */
-  _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
-
-  /* If we are the current authority see if we can revert to one of our
-   * ancestors being the authority */
-  if (pipeline == authority &&
-      _cogl_pipeline_get_parent (authority) != NULL)
-    {
-      CoglPipeline *parent = _cogl_pipeline_get_parent (authority);
-      CoglPipeline *old_authority =
-        _cogl_pipeline_get_authority (parent, state);
-
-      if (old_authority->big_state->user_program == program)
-        pipeline->differences &= ~state;
-    }
-  else if (pipeline != authority)
-    {
-      /* If we weren't previously the authority on this state then we
-       * need to extended our differences mask and so it's possible
-       * that some of our ancestry will now become redundant, so we
-       * aim to reparent ourselves if that's true... */
-      pipeline->differences |= state;
-      _cogl_pipeline_prune_redundant_ancestry (pipeline);
-    }
-
-  if (program != NULL)
-    g_object_ref (program);
-  if (authority == pipeline &&
-      pipeline->big_state->user_program != NULL)
-    g_object_unref (pipeline->big_state->user_program);
-  pipeline->big_state->user_program = program;
 
   pipeline->dirty_real_blend_enable = TRUE;
 }
@@ -1299,15 +1219,6 @@ _cogl_pipeline_hash_blend_state (CoglPipeline *authority,
                                    sizeof (blend_state->blend_dst_factor_rgb));
 
   state->hash = hash;
-}
-
-void
-_cogl_pipeline_hash_user_shader_state (CoglPipeline *authority,
-                                       CoglPipelineHashState *state)
-{
-  CoglProgram *user_program = authority->big_state->user_program;
-  state->hash = _cogl_util_one_at_a_time_hash (state->hash, &user_program,
-                                               sizeof (user_program));
 }
 
 void

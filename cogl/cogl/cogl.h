@@ -55,9 +55,6 @@
 #include "cogl/cogl-texture.h"
 #include "cogl/cogl-types.h"
 
-
-#include "cogl/deprecated/cogl-shader.h"
-
 #ifdef COGL_ENABLE_MUTTER_API
 #include "cogl/cogl-mutter.h"
 #endif
