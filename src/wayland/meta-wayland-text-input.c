@@ -831,8 +831,11 @@ update_cursor_location (MetaWaylandSurface *surface,
 {
   MetaWaylandTextInput *text_input = user_data;
 
-  clutter_input_focus_set_cursor_location (text_input->cursor_update.focus,
-                                           &text_input->cursor_update.rect);
+  if (clutter_input_focus_is_focused (text_input->cursor_update.focus))
+    {
+      clutter_input_focus_set_cursor_location (text_input->cursor_update.focus,
+                                               &text_input->cursor_update.rect);
+    }
 
   g_clear_object (&text_input->cursor_update.focus);
   graphene_rect_init (&text_input->cursor_update.rect, 0, 0, 0, 0);
@@ -936,10 +939,13 @@ text_input_commit_state (struct wl_client   *client,
       graphene_rect_init (&text_input->cursor_update.rect,
                           x1, y1, x2 - x1, y2 - y1);
 
-      text_input->cursor_update.signal_id =
-        g_signal_connect (text_input->surface, "pre-state-applied",
-                          G_CALLBACK (update_cursor_location),
-                          text_input);
+      if (text_input->cursor_update.signal_id == 0)
+        {
+          text_input->cursor_update.signal_id =
+            g_signal_connect (text_input->surface, "pre-state-applied",
+                              G_CALLBACK (update_cursor_location),
+                              text_input);
+        }
     }
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_ACTIONS)
