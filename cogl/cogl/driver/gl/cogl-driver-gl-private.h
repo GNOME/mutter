@@ -34,6 +34,7 @@
 
 #include "cogl/cogl-driver-gl.h"
 #include "cogl/cogl-driver-private.h"
+#include "cogl/cogl-sampler-cache-private.h"
 
 #if defined(HAVE_GL)
 #include <GL/gl.h>
@@ -145,6 +146,10 @@ GLint cogl_driver_gl_get_max_activateable_texture_units (CoglDriverGL *driver);
 gboolean cogl_parse_gl_version (const char *version_string,
                                 int        *major_out,
                                 int        *minor_out);
+
+GLenum cogl_sampler_cache_wrap_mode_to_gl (CoglSamplerCacheWrapMode mode);
+
+GLenum cogl_pipeline_filter_to_gl (CoglPipelineFilter filter);
 
 #ifdef COGL_ENABLE_DEBUG
 /* GL error to string conversion */

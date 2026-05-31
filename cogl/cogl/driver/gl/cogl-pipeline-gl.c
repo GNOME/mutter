@@ -52,21 +52,6 @@
 #include <glib.h>
 #include <string.h>
 
-/*
- * GL/GLES compatibility defines for pipeline thingies:
- */
-
-/* These aren't defined in the GLES headers */
-#ifndef GL_POINT_SPRITE
-#define GL_POINT_SPRITE 0x8861
-#endif
-#ifndef GL_COORD_REPLACE
-#define GL_COORD_REPLACE 0x8862
-#endif
-#ifndef GL_CLAMP_TO_BORDER
-#define GL_CLAMP_TO_BORDER 0x812d
-#endif
-
 static void
 texture_unit_init (CoglContext *ctx,
                    CoglTextureUnit *unit,
