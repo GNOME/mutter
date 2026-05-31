@@ -137,6 +137,8 @@ struct _CoglRendererClass
                                                     const uint64_t   *modifiers,
                                                     GError          **error);
 
+  gboolean (* is_hardware_accelerated) (CoglRenderer *renderer);
+
   void (* update_sync) (CoglRenderer *renderer);
 
   int (* get_sync_fd) (CoglRenderer *renderer);
@@ -253,6 +255,15 @@ cogl_renderer_create_dma_buf_framebuffer (CoglRenderer     *renderer,
                                           const uint32_t   *offsets,
                                           const uint64_t   *modifiers,
                                           GError          **error);
+
+/**
+ * cogl_renderer_is_hardware_accelerated:
+ * @renderer: A connected #CoglRenderer
+ *
+ * Returns: %TRUE if the renderer is backed by hardware acceleration
+ */
+COGL_EXPORT gboolean
+cogl_renderer_is_hardware_accelerated (CoglRenderer *renderer);
 
 /**
  * cogl_renderer_bind_api:

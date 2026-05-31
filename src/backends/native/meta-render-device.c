@@ -59,75 +59,6 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaRenderDevice, meta_render_device,
                                                          initable_iface_init))
 
 static void
-detect_hardware_rendering (MetaRenderDevice *render_device)
-{
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
-  ClutterBackend *clutter_backend =
-    meta_backend_get_clutter_backend (priv->backend);
-  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (priv->renderer_egl);
-  EGLDisplay egl_display;
-  g_autoptr (GError) error = NULL;
-  EGLint *attributes;
-  EGLContext egl_context;
-  const char *renderer_str;
-
-  egl_display = cogl_renderer_egl_get_edisplay (renderer_egl);
-
-  eglBindAPI (EGL_OPENGL_ES_API);
-
-  attributes = (EGLint[]) {
-    EGL_CONTEXT_CLIENT_VERSION, 2,
-    EGL_NONE
-  };
-  egl_context = eglCreateContext (egl_display,
-                                  EGL_NO_CONFIG_KHR,
-                                  EGL_NO_CONTEXT,
-                                  attributes);
-  if (egl_context == EGL_NO_CONTEXT)
-    {
-      meta_topic (META_DEBUG_RENDER, "Failed to create EGLContext for %s",
-                  meta_device_file_get_path (priv->device_file));
-      return;
-    }
-
-  if (!eglMakeCurrent (egl_display,
-                       EGL_NO_SURFACE,
-                       EGL_NO_SURFACE,
-                       egl_context))
-    {
-      g_warning ("Failed to detect hardware rendering: eglMakeCurrent failed");
-      goto out_has_context;
-    }
-
-  renderer_str = (const char *) glGetString (GL_RENDERER);
-  if (g_str_has_prefix (renderer_str, "llvmpipe") ||
-      g_str_has_prefix (renderer_str, "softpipe") ||
-      g_str_has_prefix (renderer_str, "swrast"))
-    goto out_current_context;
-
-  priv->is_hardware_rendering = TRUE;
-
-out_current_context:
-  if (clutter_backend)
-    {
-      CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-      CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-
-      cogl_display_egl_ensure_current (COGL_DISPLAY_EGL (cogl_display));
-    }
-  else
-    {
-      eglMakeCurrent (egl_display,
-                      EGL_NO_SURFACE, EGL_NO_SURFACE,
-                      EGL_NO_CONTEXT);
-    }
-
-out_has_context:
-  eglDestroyContext (egl_display, egl_context);
-}
-
-static void
 init_egl (MetaRenderDevice *render_device)
 {
   MetaRenderDevicePrivate *priv =
@@ -146,7 +77,6 @@ init_egl (MetaRenderDevice *render_device)
       g_clear_object (&priv->renderer_egl);
       return;
     }
-  detect_hardware_rendering (render_device);
 }
 
 static gboolean
@@ -327,7 +257,7 @@ meta_render_device_is_hardware_accelerated (MetaRenderDevice *render_device)
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
 
-  return priv->is_hardware_rendering;
+  return cogl_renderer_is_hardware_accelerated (COGL_RENDERER (priv->renderer_egl));
 }
 
 const char *
