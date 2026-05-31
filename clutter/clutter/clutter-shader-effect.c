@@ -681,3 +681,35 @@ clutter_shader_effect_set_uniform (ClutterShaderEffect *effect,
                                             &args);
   va_end (args);
 }
+
+/**
+ * clutter_shader_effect_set_uniform_float:
+ * @effect: a #ClutterShaderEffect
+ * @name: the name of the uniform to set
+ * @n_components: the number of components in the uniform (eg. 3 for a vec3)
+ * @total_count: the total number of floats in @value
+ * @value: (array length=total_count): the array of floats to set @uniform
+ *
+ * Sets a uniform with a float array value. This is a convenience
+ * wrapper around [method@ShaderEffect.set_uniform] usable from
+ * languages that do not support variadic arguments.
+ */
+void
+clutter_shader_effect_set_uniform_float (ClutterShaderEffect *effect,
+                                         const gchar         *name,
+                                         int                  n_components,
+                                         int                  total_count,
+                                         const gfloat        *value)
+{
+  GValue gvalue = G_VALUE_INIT;
+
+  g_return_if_fail (CLUTTER_IS_SHADER_EFFECT (effect));
+  g_return_if_fail (name != NULL);
+  g_return_if_fail (value != NULL);
+
+  g_value_init (&gvalue, CLUTTER_TYPE_SHADER_FLOAT);
+  clutter_value_set_shader_float (&gvalue, total_count, value);
+
+  clutter_shader_effect_add_uniform (effect, name, &gvalue);
+  g_value_unset (&gvalue);
+}

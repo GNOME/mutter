@@ -79,4 +79,11 @@ void            clutter_shader_effect_set_uniform_value (ClutterShaderEffect *ef
                                                          const gchar         *name,
                                                          const GValue        *value);
 
+CLUTTER_EXPORT
+void            clutter_shader_effect_set_uniform_float (ClutterShaderEffect *effect,
+                                                         const gchar         *name,
+                                                         int                  n_components,
+                                                         int                  total_count,
+                                                         const gfloat        *value);
+
 G_END_DECLS
