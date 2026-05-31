@@ -1,5 +1,3 @@
-#define COGL_DISABLE_DEPRECATION_WARNINGS
-
 #include <cogl/cogl.h>
 
 #include <string.h>
@@ -33,8 +31,7 @@ paint (TestState *state)
   CoglTexture *tex;
   CoglColor color;
   GError *error = NULL;
-  CoglShader *shader;
-  CoglProgram *program;
+  CoglSnippet *snippet;
 
   cogl_color_init_from_4f (&color, 0.0, 0.0, 0.0, 1.0);
   cogl_framebuffer_clear (test_fb, COGL_BUFFER_BIT_COLOR, &color);
@@ -58,35 +55,26 @@ paint (TestState *state)
 
   /* Set up a dummy vertex shader that does nothing but the usual
      fixed function transform */
-  shader = cogl_shader_new (COGL_SHADER_TYPE_VERTEX);
-  cogl_shader_source (shader,
-                      "void\n"
-                      "main ()\n"
-                      "{\n"
-                      "  cogl_position_out = "
-                      "cogl_modelview_projection_matrix * "
-                      "cogl_position_in;\n"
-                      "  cogl_color_out = cogl_color_in;\n"
-                      "  cogl_tex_coord_out[0] = cogl_tex_coord_in;\n"
-                      "}\n");
+  snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX,
+                              NULL,
+                              NULL);
+  cogl_snippet_set_replace (snippet,
+                            "cogl_position_out = "
+                            "cogl_modelview_projection_matrix * "
+                            "cogl_position_in;\n"
+                            "cogl_color_out = cogl_color_in;\n"
+                            "cogl_tex_coord_out[0] = cogl_tex_coord_in;\n");
 
-  program = cogl_program_new ();
-  cogl_program_attach_shader (program, shader);
-  cogl_program_link (program);
-
-  g_object_unref (shader);
-
-  /* Draw something without the program */
+  /* Draw something without the snippet */
   cogl_framebuffer_draw_rectangle (test_fb, pipeline,
                                    0, 0, 50, 50);
 
-  /* Draw it again using the program. It should look exactly the same */
-  cogl_pipeline_set_user_program (pipeline, program);
-  g_object_unref (program);
+  /* Draw it again using the snippet. It should look exactly the same */
+  cogl_pipeline_add_snippet (pipeline, snippet);
+  g_object_unref (snippet);
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline,
                                    50, 0, 100, 50);
-  cogl_pipeline_set_user_program (pipeline, NULL);
 
   g_object_unref (pipeline);
 }
