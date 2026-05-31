@@ -45,7 +45,6 @@
 #include "cogl/cogl-pipeline-state-private.h"
 #include "cogl/cogl-glsl-shader-boilerplate.h"
 #include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
-#include "deprecated/cogl-program-private.h"
 
 const CoglPipelineVertend _cogl_pipeline_glsl_vertend;
 
@@ -419,7 +418,6 @@ _cogl_pipeline_vertend_glsl_start (CoglPipeline *pipeline,
 {
   CoglPipelineVertendShaderState *shader_state;
   CoglPipelineCacheEntry *cache_entry = NULL;
-  CoglProgram *user_program = cogl_pipeline_get_user_program (pipeline);
   CoglContext *ctx = pipeline->context;
   GString *header_buffer = cogl_context_get_codegen_header_buffer (ctx);
   GString *source_buffer = cogl_context_get_codegen_source_buffer (ctx);
@@ -471,23 +469,6 @@ _cogl_pipeline_vertend_glsl_start (CoglPipeline *pipeline,
 
       if (authority != pipeline)
         set_shader_state (pipeline, shader_state);
-    }
-
-  if (user_program)
-    {
-      /* If the user program contains a vertex shader then we don't need
-         to generate one */
-      if (_cogl_program_has_vertex_shader (user_program))
-        {
-          if (shader_state->gl_shader)
-            {
-              CoglDriver *driver = cogl_context_get_driver (ctx);
-
-              GE (driver, glDeleteShader (shader_state->gl_shader));
-              shader_state->gl_shader = 0;
-            }
-          return;
-        }
     }
 
   if (shader_state->gl_shader)

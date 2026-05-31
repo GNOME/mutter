@@ -70,10 +70,6 @@ _cogl_pipeline_per_vertex_point_size_equal (CoglPipeline *authority0,
                                             CoglPipeline *authority1);
 
 gboolean
-_cogl_pipeline_user_shader_equal (CoglPipeline *authority0,
-                                  CoglPipeline *authority1);
-
-gboolean
 _cogl_pipeline_cull_face_state_equal (CoglPipeline *authority0,
                                       CoglPipeline *authority1);
 
@@ -104,10 +100,6 @@ _cogl_pipeline_hash_alpha_func_reference_state (CoglPipeline *authority,
 void
 _cogl_pipeline_hash_blend_state (CoglPipeline *authority,
                                  CoglPipelineHashState *state);
-
-void
-_cogl_pipeline_hash_user_shader_state (CoglPipeline *authority,
-                                       CoglPipelineHashState *state);
 
 void
 _cogl_pipeline_hash_depth_state (CoglPipeline *authority,
