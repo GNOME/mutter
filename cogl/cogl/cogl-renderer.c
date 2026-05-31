@@ -396,6 +396,17 @@ cogl_renderer_create_dma_buf_framebuffer (CoglRenderer     *renderer,
   return NULL;
 }
 
+gboolean
+cogl_renderer_is_hardware_accelerated (CoglRenderer *renderer)
+{
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
+
+  if (class->is_hardware_accelerated)
+    return class->is_hardware_accelerated (renderer);
+  else
+    return FALSE;
+}
+
 void
 cogl_renderer_bind_api (CoglRenderer *renderer)
 {

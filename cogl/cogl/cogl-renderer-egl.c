@@ -46,6 +46,12 @@
 
 #include "cogl/cogl-renderer-egl-private.h"
 
+#if defined(HAVE_GL)
+#include <GL/gl.h>
+#elif defined(HAVE_GLES2)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
 
 G_DEFINE_QUARK (cogl-egl-error-quark, cogl_egl_error)
 
@@ -130,6 +136,8 @@ typedef struct _CoglRendererEGLPrivate
   EGLint egl_version_minor;
 
   gboolean needs_config;
+
+  gboolean is_hardware_accelerated;
 
   /* Sync for latest submitted work */
   EGLSyncKHR sync;
@@ -407,6 +415,59 @@ cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
   g_strfreev (split_extensions);
 }
 
+static void
+cogl_renderer_egl_detect_hardware_rendering (CoglRendererEGL *renderer_egl)
+{
+  CoglRendererEGLPrivate *priv =
+    cogl_renderer_egl_get_instance_private (renderer_egl);
+  EGLint attributes[] = {
+    EGL_CONTEXT_CLIENT_VERSION, 2,
+    EGL_NONE
+  };
+  EGLContext egl_context;
+  const char *renderer_str;
+
+  eglBindAPI (EGL_OPENGL_ES_API);
+
+  egl_context = eglCreateContext (priv->edisplay,
+                                  EGL_NO_CONFIG_KHR,
+                                  EGL_NO_CONTEXT,
+                                  attributes);
+  if (egl_context == EGL_NO_CONTEXT)
+    return;
+
+  if (!eglMakeCurrent (priv->edisplay,
+                       EGL_NO_SURFACE,
+                       EGL_NO_SURFACE,
+                       egl_context))
+    {
+      eglDestroyContext (priv->edisplay, egl_context);
+      return;
+    }
+
+  renderer_str = (const char *) glGetString (GL_RENDERER);
+  if (renderer_str &&
+      !g_str_has_prefix (renderer_str, "llvmpipe") &&
+      !g_str_has_prefix (renderer_str, "softpipe") &&
+      !g_str_has_prefix (renderer_str, "swrast"))
+    priv->is_hardware_accelerated = TRUE;
+
+  eglMakeCurrent (priv->edisplay,
+                  EGL_NO_SURFACE, EGL_NO_SURFACE,
+                  EGL_NO_CONTEXT);
+  eglDestroyContext (priv->edisplay, egl_context);
+}
+
+static gboolean
+cogl_renderer_egl_is_hardware_accelerated (CoglRenderer *renderer)
+{
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
+    cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  return priv->is_hardware_accelerated;
+}
+
 static gboolean
 cogl_renderer_egl_connect (CoglRenderer   *renderer,
                            GError        **error)
@@ -426,6 +487,8 @@ cogl_renderer_egl_connect (CoglRenderer   *renderer,
     }
 
   cogl_renderer_egl_init_extensions (renderer);
+
+  cogl_renderer_egl_detect_hardware_rendering (renderer_egl);
 
   return TRUE;
 }
@@ -540,6 +603,7 @@ cogl_renderer_egl_class_init (CoglRendererEGLClass *class)
   renderer_class->connect = cogl_renderer_egl_connect;
   renderer_class->create_dma_buf_framebuffer =
     cogl_renderer_egl_create_dma_buf_framebuffer;
+  renderer_class->is_hardware_accelerated = cogl_renderer_egl_is_hardware_accelerated;
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
   renderer_class->get_sync_fd = cogl_renderer_egl_get_sync_fd;

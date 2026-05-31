@@ -69,16 +69,6 @@ G_DECLARE_DERIVABLE_TYPE (CoglDriver,
 
 typedef struct _CoglDriverClass CoglDriverClass;
 
-/**
- * cogl_driver_is_hardware_accelerated:
- * @driver: a #CoglDriver
- *
- * Returns: %TRUE if the @driver is hardware accelerated, or %FALSE if
- * not.
- */
-COGL_EXPORT
-gboolean cogl_driver_is_hardware_accelerated (CoglDriver *driver);
-
 COGL_EXPORT_TEST
 const char * cogl_driver_get_vendor (CoglDriver *driver);
 
