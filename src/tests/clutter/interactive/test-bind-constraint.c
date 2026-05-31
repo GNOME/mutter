@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <cogl/cogl.h>
 #include <clutter/clutter.h>
 
 #include "tests/clutter-test-utils.h"
@@ -29,23 +30,21 @@ static const gchar *names[N_RECTS] = {
   "South West", "South",  "South East"
 };
 
-static const gchar *desaturare_glsl_shader =
-"uniform sampler2D tex;\n"
-"uniform float factor;\n"
-"\n"
-"vec3 desaturate (const vec3 color, const float desaturation)\n"
-"{\n"
-"  const vec3 gray_conv = vec3 (0.299, 0.587, 0.114);\n"
-"  vec3 gray = vec3 (dot (gray_conv, color));\n"
-"  return vec3 (mix (color.rgb, gray, desaturation));\n"
-"}\n"
-"\n"
-"void main ()\n"
-"{\n"
-"  vec4 color = cogl_color_in * texture2D (tex, vec2 (cogl_tex_coord_in[0].xy));\n"
-"  color.rgb = desaturate (color.rgb, factor);\n"
-"  cogl_color_out = color;\n"
-"}\n";
+static const gchar *desaturate_declarations =
+  "uniform sampler2D tex;\n"
+  "uniform float factor;\n"
+  "\n"
+  "vec3 desaturate (const vec3 color, const float desaturation)\n"
+  "{\n"
+  "  const vec3 gray_conv = vec3 (0.299, 0.587, 0.114);\n"
+  "  vec3 gray = vec3 (dot (gray_conv, color));\n"
+  "  return vec3 (mix (color.rgb, gray, desaturation));\n"
+  "}\n";
+
+static const gchar *desaturate_replace =
+  "  vec4 color = cogl_color_in * texture2D (tex, vec2 (cogl_tex_coord_in[0].xy));\n"
+  "  color.rgb = desaturate (color.rgb, factor);\n"
+  "  cogl_color_out = color;\n";
 
 static gboolean      is_expanded = FALSE;
 
@@ -169,7 +168,8 @@ test_bind_constraint_describe (void)
 }
 
 G_MODULE_EXPORT int
-test_bind_constraint_main (int argc, char *argv[])
+test_bind_constraint_main (int   argc,
+                           char *argv[])
 {
   ClutterActor *stage, *rect;
   ClutterConstraint *constraint;
@@ -204,9 +204,16 @@ test_bind_constraint_main (int argc, char *argv[])
    * properties; so we use the ActorMeta:enabled property to toggle
    * the shader
    */
-  effect = clutter_shader_effect_new (COGL_SHADER_TYPE_FRAGMENT);
-  clutter_shader_effect_set_shader_source (CLUTTER_SHADER_EFFECT (effect),
-                                           desaturare_glsl_shader);
+  {
+    CoglSnippet *snippet;
+
+    snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                                desaturate_declarations,
+                                NULL);
+    cogl_snippet_set_replace (snippet, desaturate_replace);
+    effect = clutter_shader_effect_new_with_snippet (snippet);
+    g_object_unref (snippet);
+  }
   clutter_shader_effect_set_uniform (CLUTTER_SHADER_EFFECT (effect),
                                      "tex", G_TYPE_INT, 1, 0);
   clutter_shader_effect_set_uniform (CLUTTER_SHADER_EFFECT (effect),
