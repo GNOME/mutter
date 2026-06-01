@@ -623,8 +623,6 @@ text_input_destructor (struct wl_resource *resource)
   g_clear_pointer (&text_input->preedit_style.hints, g_array_unref);
   wl_list_remove (wl_resource_get_link (resource));
   reset_text_input_focus (text_input);
-
-  g_clear_object (&text_input->cursor_update.focus);
 }
 
 static void
@@ -831,13 +829,12 @@ update_cursor_location (MetaWaylandSurface *surface,
 {
   MetaWaylandTextInput *text_input = user_data;
 
-  if (clutter_input_focus_is_focused (text_input->cursor_update.focus))
+  if (clutter_input_focus_is_focused (text_input->input_focus))
     {
-      clutter_input_focus_set_cursor_location (text_input->cursor_update.focus,
+      clutter_input_focus_set_cursor_location (text_input->input_focus,
                                                &text_input->cursor_update.rect);
     }
 
-  g_clear_object (&text_input->cursor_update.focus);
   graphene_rect_init (&text_input->cursor_update.rect, 0, 0, 0, 0);
   g_clear_signal_handler (&text_input->cursor_update.signal_id, surface);
 }
@@ -935,7 +932,6 @@ text_input_commit_state (struct wl_client   *client,
                                                      rect.y + rect.height,
                                                      &x2, &y2);
 
-      g_set_object (&text_input->cursor_update.focus, focus);
       graphene_rect_init (&text_input->cursor_update.rect,
                           x1, y1, x2 - x1, y2 - y1);
 
