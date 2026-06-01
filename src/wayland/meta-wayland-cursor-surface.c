@@ -311,6 +311,8 @@ meta_wayland_cursor_surface_constructed (GObject *object)
     }
 
   priv->cursor_sprite = meta_cursor_wayland_new (surface, cursor_tracker);
+
+  G_OBJECT_CLASS (meta_wayland_cursor_surface_parent_class)->constructed (object);
 }
 
 static void
