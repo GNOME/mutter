@@ -220,6 +220,22 @@ struct _MetaPluginClass
    * on screen to draw user attention on the pointer location.
    */
   void (*locate_pointer) (MetaPlugin      *plugin);
+
+  /**
+   * MetaPluginClass::bell_notify:
+   * @plugin: a #MetaPlugin
+   * @display: a #MetaDisplay
+   * @window: (nullable): a #MetaWindow the bell event was received on
+   *
+   * Virtual function called when a bell event is received.
+   *
+   * The default implementation provides a visual bell (screen or window
+   * flash) based on user preferences. Subclasses can override this to
+   * add audible feedback and chain up for the visual part.
+   */
+  void (*bell_notify) (MetaPlugin  *plugin,
+                       MetaDisplay *display,
+                       MetaWindow  *window);
 };
 
 /*

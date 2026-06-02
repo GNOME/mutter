@@ -1535,6 +1535,17 @@ meta_compositor_locate_pointer (MetaCompositor *compositor)
   meta_plugin_manager_locate_pointer (priv->plugin_mgr);
 }
 
+void
+meta_compositor_bell_notify (MetaCompositor *compositor,
+                             MetaDisplay    *display,
+                             MetaWindow     *window)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
+  meta_plugin_manager_bell_notify (priv->plugin_mgr, display, window);
+}
+
 MetaPluginManager *
 meta_compositor_get_plugin_manager (MetaCompositor *compositor)
 {

@@ -318,8 +318,6 @@ mutter_sources = [
   'compositor/meta-window-drag.h',
   'compositor/meta-window-group.c',
   'compositor/meta-window-group-private.h',
-  'core/bell.c',
-  'core/bell.h',
   'core/boxes.c',
   'core/boxes-private.h',
   'core/constraints.c',

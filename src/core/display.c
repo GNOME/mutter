@@ -45,7 +45,6 @@
 #include "compositor/meta-compositor-native.h"
 #include "compositor/meta-compositor-server.h"
 #include "cogl/cogl.h"
-#include "core/bell.h"
 #include "core/boxes-private.h"
 #include "core/display-private.h"
 #include "core/events.h"
@@ -866,8 +865,6 @@ meta_display_new (MetaContext  *context,
 
   display->workspace_manager = meta_workspace_manager_new (display);
 
-  display->bell = meta_bell_new (display);
-
   display->selection = meta_selection_new (display);
   meta_clipboard_manager_init (display);
 
@@ -1086,7 +1083,6 @@ meta_display_close (MetaDisplay *display,
 
   g_signal_handlers_disconnect_by_func (stage, on_is_grabbed_changed, display);
 
-  g_clear_object (&display->bell);
   g_clear_object (&display->startup_notification);
   g_clear_object (&display->workspace_manager);
   g_clear_object (&display->sound_player);

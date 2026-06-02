@@ -20,7 +20,8 @@
 
 #include "wayland/meta-wayland-system-bell.h"
 
-#include "core/bell.h"
+#include "compositor/compositor-private.h"
+#include "core/display-private.h"
 #include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland.h"
@@ -56,10 +57,10 @@ system_bell_ring (struct wl_client   *client,
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaDisplay *display = meta_context_get_display (context);
 
-  if (surface_resource)
-    meta_bell_notify (display, find_window_from_resource (surface_resource));
-  else
-    meta_bell_notify (display, NULL);
+  meta_compositor_bell_notify (display->compositor, display,
+                               surface_resource
+                                 ? find_window_from_resource (surface_resource)
+                                 : NULL);
 }
 
 static const struct xdg_system_bell_v1_interface system_bell_implementation =

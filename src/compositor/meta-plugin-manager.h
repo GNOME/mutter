@@ -94,5 +94,9 @@ MetaInhibitShortcutsDialog *
 
 void meta_plugin_manager_locate_pointer (MetaPluginManager *mgr);
 
+void meta_plugin_manager_bell_notify (MetaPluginManager *mgr,
+                                      MetaDisplay       *display,
+                                      MetaWindow        *window);
+
 META_EXPORT_TEST
 MetaPlugin * meta_plugin_manager_get_plugin (MetaPluginManager *plugin_mgr);

@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include "compositor/compositor-private.h"
-#include "core/bell.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"

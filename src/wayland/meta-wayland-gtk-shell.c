@@ -22,7 +22,7 @@
 
 #include "wayland/meta-wayland-gtk-shell.h"
 
-#include "core/bell.h"
+#include "compositor/compositor-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface-private.h"
@@ -550,11 +550,11 @@ gtk_shell_system_bell (struct wl_client   *client,
       if (!window)
         return;
 
-      meta_bell_notify (display, window);
+      meta_compositor_bell_notify (display->compositor, display, window);
     }
   else
     {
-      meta_bell_notify (display, NULL);
+      meta_compositor_bell_notify (display->compositor, display, NULL);
     }
 }
 

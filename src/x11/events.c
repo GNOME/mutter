@@ -32,7 +32,7 @@
 
 #include "backends/meta-cursor-tracker-private.h"
 #include "cogl/cogl.h"
-#include "core/bell.h"
+#include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
@@ -1227,16 +1227,7 @@ notify_bell (MetaX11Display *x11_display,
         window = display->focus_window;
     }
   x11_display->last_bell_time = xkb_ev->time;
-  if (!meta_bell_notify (display, window) &&
-      meta_prefs_bell_is_audible ())
-    {
-      /* Force a classic bell if the libcanberra bell failed. */
-      XkbForceDeviceBell (x11_display->xdisplay,
-                          xkb_bell_event->device,
-                          xkb_bell_event->bell_class,
-                          xkb_bell_event->bell_id,
-                          xkb_bell_event->percent);
-    }
+  meta_compositor_bell_notify (display->compositor, display, window);
 }
 
 static void

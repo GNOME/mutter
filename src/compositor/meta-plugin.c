@@ -35,7 +35,11 @@
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-plugin-manager.h"
+#include "core/display-private.h"
+#include "core/util-private.h"
+#include "core/window-private.h"
 #include "meta/display.h"
+#include "meta/prefs.h"
 #include "meta/util.h"
 
 
@@ -46,9 +50,49 @@ typedef struct _MetaPluginPrivate
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaPlugin, meta_plugin, G_TYPE_OBJECT);
 
+#define MIN_TIME_BETWEEN_VISUAL_ALERTS_MS 500
+#define MIN_TIME_BETWEEN_DOUBLE_VISUAL_ALERT_MS 3000
+
+static void
+meta_plugin_real_bell_notify (MetaPlugin  *plugin,
+                              MetaDisplay *display,
+                              MetaWindow  *window)
+{
+  int64_t now_us;
+  int64_t time_difference_ms;
+  int n_flashes;
+
+  if (!meta_prefs_get_visual_bell ())
+    return;
+
+  now_us = g_get_monotonic_time ();
+  time_difference_ms = us2ms (now_us - display->last_visual_bell_time_us);
+
+  if (time_difference_ms < MIN_TIME_BETWEEN_VISUAL_ALERTS_MS)
+    return;
+
+  display->last_visual_bell_time_us = now_us;
+
+  n_flashes = (time_difference_ms < MIN_TIME_BETWEEN_DOUBLE_VISUAL_ALERT_MS) ? 1 : 2;
+
+  switch (meta_prefs_get_visual_bell_type ())
+    {
+    case G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH:
+      meta_compositor_flash_display (display->compositor, display, n_flashes);
+      break;
+    case G_DESKTOP_VISUAL_BELL_FRAME_FLASH:
+      if (window)
+        meta_compositor_flash_window (display->compositor, window, n_flashes);
+      else
+        meta_compositor_flash_display (display->compositor, display, n_flashes);
+      break;
+    }
+}
+
 static void
 meta_plugin_class_init (MetaPluginClass *klass)
 {
+  klass->bell_notify = meta_plugin_real_bell_notify;
 }
 
 static void

@@ -89,6 +89,10 @@ MetaInhibitShortcutsDialog * meta_compositor_create_inhibit_shortcuts_dialog (Me
 
 void meta_compositor_locate_pointer (MetaCompositor *compositor);
 
+void meta_compositor_bell_notify (MetaCompositor *compositor,
+                                  MetaDisplay    *display,
+                                  MetaWindow     *window);
+
 gboolean meta_compositor_is_unredirect_inhibited (MetaCompositor *compositor);
 
 MetaDisplay * meta_compositor_get_display (MetaCompositor *compositor);

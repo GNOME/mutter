@@ -44,7 +44,6 @@
 #include "meta/meta-x11-types.h"
 #endif
 
-typedef struct _MetaBell       MetaBell;
 typedef struct _MetaStack      MetaStack;
 
 typedef enum
@@ -145,7 +144,6 @@ struct _MetaDisplay
   guint work_area_later;
   guint check_fullscreen_later;
 
-  MetaBell *bell;
   int64_t last_visual_bell_time_us;
   MetaWorkspaceManager *workspace_manager;
 

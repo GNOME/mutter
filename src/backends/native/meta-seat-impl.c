@@ -43,7 +43,6 @@
 #include "backends/native/meta-keyboard-a11y-private.h"
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"
-#include "core/bell.h"
 
 #include "meta-private-enum-types.h"
 

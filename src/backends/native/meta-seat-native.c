@@ -37,7 +37,8 @@
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"
-#include "core/bell.h"
+#include "compositor/compositor-private.h"
+#include "core/display-private.h"
 #include "meta/meta-keymap-description.h"
 
 #include "meta-private-enum-types.h"
@@ -347,7 +348,7 @@ meta_seat_native_bell_notify (ClutterSeat *seat)
   MetaContext *context = meta_backend_get_context (seat_native->backend);
   MetaDisplay *display = meta_context_get_display (context);
 
-  meta_bell_notify (display, NULL);
+  meta_compositor_bell_notify (display->compositor, display, NULL);
 }
 
 static ClutterKeymap *

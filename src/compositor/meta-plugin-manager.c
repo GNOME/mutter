@@ -447,6 +447,17 @@ meta_plugin_manager_locate_pointer (MetaPluginManager *plugin_mgr)
     klass->locate_pointer (plugin);
 }
 
+void
+meta_plugin_manager_bell_notify (MetaPluginManager *plugin_mgr,
+                                 MetaDisplay       *display,
+                                 MetaWindow        *window)
+{
+  MetaPlugin *plugin = plugin_mgr->plugin;
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
+
+  klass->bell_notify (plugin, display, window);
+}
+
 MetaPlugin *
 meta_plugin_manager_get_plugin (MetaPluginManager *plugin_mgr)
 {

@@ -49,7 +49,6 @@
 #include "backends/native/meta-sprite-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
-#include "core/bell.h"
 #include "meta/meta-backend.h"
 
 struct _MetaClutterBackendNative
