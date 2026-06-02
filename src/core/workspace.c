@@ -449,72 +449,6 @@ meta_workspace_queue_calc_showing  (MetaWorkspace *workspace)
 }
 
 static void
-workspace_switch_sound (MetaWorkspace *from,
-                        MetaWorkspace *to)
-{
-  MetaSoundPlayer *player;
-  MetaWorkspaceLayout layout;
-  int n_workspaces;
-  int from_idx, to_idx;
-  int i;
-  int x, y;
-  const char *sound_name;
-
-  n_workspaces = meta_workspace_manager_get_n_workspaces (from->manager);
-  from_idx = meta_workspace_index(from);
-  to_idx = meta_workspace_index(to);
-
-  meta_workspace_manager_calc_workspace_layout (from->manager,
-                                                n_workspaces,
-                                                from_idx,
-                                                &layout);
-
-  for (i = 0; i < n_workspaces; i++)
-    {
-      if (layout.grid[i] == to_idx)
-        break;
-    }
-
-  if (i >= n_workspaces)
-    {
-      g_warning ("Failed to find destination workspace in layout");
-      goto finish;
-    }
-
-  y = i / layout.cols;
-  x = i % layout.cols;
-
-  /* We priorize horizontal over vertical movements here. The
-     rationale for this is that horizontal movements are probably more
-     interesting for sound effects because speakers are usually
-     positioned on a horizontal and not a vertical axis. i.e. your
-     spatial "Woosh!" effects will easily be able to encode horizontal
-     movement but not such much vertical movement. */
-
-  if (x < layout.current_col)
-    sound_name = "desktop-switch-left";
-  else if (x > layout.current_col)
-    sound_name = "desktop-switch-right";
-  else if (y < layout.current_row)
-    sound_name = "desktop-switch-up";
-  else if (y > layout.current_row)
-    sound_name = "desktop-switch-down";
-  else
-    {
-      g_warn_if_reached ();
-      goto finish;
-    }
-
-  player = meta_display_get_sound_player (from->display);
-  meta_sound_player_play_from_theme (player,
-                                     sound_name, _("Workspace switched"),
-                                     NULL);
-
- finish:
-  meta_workspace_manager_free_workspace_layout (&layout);
-}
-
-static void
 workspace_a11y_notification (MetaWorkspace *workspace)
 {
   MetaContext *context = meta_display_get_context (workspace->display);
@@ -587,9 +521,6 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
    * a current resize or move operation */
   if (window_drag)
     meta_window_drag_update_edges (window_drag);
-
-  if (workspace->manager->active_workspace)
-    workspace_switch_sound (workspace->manager->active_workspace, workspace);
 
   /* Note that old can be NULL; e.g. when starting up */
   old = workspace->manager->active_workspace;
