@@ -141,3 +141,12 @@ then
      https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
      1.48
 fi
+
+if ! pkgconf --atleast-version 44.4 gnome-qr-4
+then
+  ./$SCRIPTS_DIR/install-meson-project.sh \
+     "${OPTIONS[@]}" \
+     https://gitlab.gnome.org/GNOME/gnome-desktop.git \
+     --commit 577dd63bf237e3a86134057cb647e21876609cf7 \
+     master
+fi
