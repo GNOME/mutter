@@ -20,10 +20,13 @@
 
 #include "config.h"
 
+#include <math.h>
+
 #include "compositor/clutter-utils.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
+#include "core/window-private.h"
 #include "meta/meta-window-actor.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
@@ -102,6 +105,12 @@ surface_container_cullable_iface_init (MetaCullableInterface *iface)
   iface->cull_redraw_clip = surface_container_cull_redraw_clip;
 }
 
+static gboolean
+is_monitor_constrained (MetaEdgeConstraint edge_constraint)
+{
+  return edge_constraint == META_EDGE_CONSTRAINT_MONITOR;
+}
+
 static void
 surface_container_apply_transform (ClutterActor      *actor,
                                    graphene_matrix_t *matrix)
@@ -117,6 +126,8 @@ surface_container_apply_transform (ClutterActor      *actor,
   float abs_x, abs_y;
   float adj_rel_x, adj_rel_y;
   float x_off, y_off;
+  gboolean snap_left;
+  gboolean snap_top;
 
   parent_class->apply_transform (actor, matrix);
 
@@ -133,6 +144,8 @@ surface_container_apply_transform (ClutterActor      *actor,
 
   scale = meta_logical_monitor_get_scale (logical_monitor);
   monitor_rect = meta_logical_monitor_get_layout (logical_monitor);
+  snap_left = is_monitor_constrained (window->edge_constraints.left);
+  snap_top = is_monitor_constrained (window->edge_constraints.top);
 
   abs_x = clutter_actor_get_x (parent) + clutter_actor_get_x (actor);
   abs_y = clutter_actor_get_y (parent) + clutter_actor_get_y (actor);
@@ -140,8 +153,15 @@ surface_container_apply_transform (ClutterActor      *actor,
   rel_x = abs_x - monitor_rect.x;
   rel_y = abs_y - monitor_rect.y;
 
-  adj_rel_x = roundf (rel_x * scale) / scale;
-  adj_rel_y = roundf (rel_y * scale) / scale;
+  if (snap_left)
+    adj_rel_x = floorf (rel_x * scale) / scale;
+  else
+    adj_rel_x = roundf (rel_x * scale) / scale;
+
+  if (snap_top)
+    adj_rel_y = floorf (rel_y * scale) / scale;
+  else
+    adj_rel_y = roundf (rel_y * scale) / scale;
 
   x_off = adj_rel_x - rel_x;
   y_off = adj_rel_y - rel_y;

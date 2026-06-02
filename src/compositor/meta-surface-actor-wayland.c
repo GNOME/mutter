@@ -32,6 +32,7 @@
 #include "compositor/compositor-private.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-window-actor-private.h"
+#include "core/window-private.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-subsurface.h"
@@ -152,6 +153,34 @@ meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
   return current_primary_view == stage_view;
 }
 
+static gboolean
+is_monitor_constrained (MetaEdgeConstraint edge_constraint)
+{
+  return edge_constraint == META_EDGE_CONSTRAINT_MONITOR;
+}
+
+static float
+snap_start (float    value,
+            float    scale,
+            gboolean grow)
+{
+  if (grow)
+    return floorf (value * scale) / scale;
+  else
+    return roundf (value * scale) / scale;
+}
+
+static float
+snap_end (float    value,
+          float    scale,
+          gboolean grow)
+{
+  if (grow)
+    return ceilf (value * scale) / scale;
+  else
+    return roundf (value * scale) / scale;
+}
+
 static void
 meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
                                             graphene_matrix_t *matrix)
@@ -163,6 +192,7 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
   MetaWaylandSurface *root_surface;
   MetaWindow *window;
   MetaLogicalMonitor *logical_monitor;
+  MtkRectangle monitor_rect;
   g_autoptr (ClutterActorBox) allocation = NULL;
   float scale;
   float actor_width, actor_height;
@@ -170,6 +200,10 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
   float adj_actor_x, adj_actor_y;
   float width_scale, height_scale;
   float x_off, y_off;
+  gboolean snap_left;
+  gboolean snap_right;
+  gboolean snap_top;
+  gboolean snap_bottom;
 
   if (!surface)
     goto out;
@@ -190,6 +224,11 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
     goto out;
 
   scale = meta_logical_monitor_get_scale (logical_monitor);
+  monitor_rect = meta_logical_monitor_get_layout (logical_monitor);
+  snap_left = is_monitor_constrained (window->edge_constraints.left);
+  snap_right = is_monitor_constrained (window->edge_constraints.right);
+  snap_top = is_monitor_constrained (window->edge_constraints.top);
+  snap_bottom = is_monitor_constrained (window->edge_constraints.bottom);
 
   g_object_get (actor, "allocation", &allocation, NULL);
 
@@ -224,8 +263,62 @@ meta_surface_actor_wayland_apply_transform (ClutterActor      *actor,
     }
   else
     {
-      adj_actor_width = roundf (actor_width * scale) / scale;
-      adj_actor_height = roundf (actor_height * scale) / scale;
+      ClutterActor *surface_container = clutter_actor_get_parent (actor);
+      ClutterActor *window_actor = NULL;
+
+      if (surface_container)
+        window_actor = clutter_actor_get_parent (surface_container);
+
+      if ((snap_left || snap_right) && window_actor)
+        {
+          float abs_actor_x;
+          float rel_actor_x1;
+          float rel_actor_x2;
+          float adj_rel_actor_x1;
+          float adj_rel_actor_x2;
+
+          abs_actor_x = (clutter_actor_get_x (window_actor) +
+                         clutter_actor_get_x (surface_container) +
+                         allocation->x1);
+          rel_actor_x1 = abs_actor_x - monitor_rect.x;
+          rel_actor_x2 = rel_actor_x1 + actor_width;
+
+          adj_rel_actor_x1 = snap_start (rel_actor_x1, scale, snap_left);
+          adj_rel_actor_x2 = snap_end (rel_actor_x2, scale, snap_right);
+          adj_actor_width = adj_rel_actor_x2 - adj_rel_actor_x1;
+        }
+      else if (snap_left || snap_right)
+        {
+          adj_actor_width = ceilf (actor_width * scale) / scale;
+        }
+      else
+        adj_actor_width = roundf (actor_width * scale) / scale;
+
+      if ((snap_top || snap_bottom) && window_actor)
+        {
+          float abs_actor_y;
+          float rel_actor_y1;
+          float rel_actor_y2;
+          float adj_rel_actor_y1;
+          float adj_rel_actor_y2;
+
+          abs_actor_y = (clutter_actor_get_y (window_actor) +
+                         clutter_actor_get_y (surface_container) +
+                         allocation->y1);
+          rel_actor_y1 = abs_actor_y - monitor_rect.y;
+          rel_actor_y2 = rel_actor_y1 + actor_height;
+
+          adj_rel_actor_y1 = snap_start (rel_actor_y1, scale, snap_top);
+          adj_rel_actor_y2 = snap_end (rel_actor_y2, scale, snap_bottom);
+          adj_actor_height = adj_rel_actor_y2 - adj_rel_actor_y1;
+        }
+      else if (snap_top || snap_bottom)
+        {
+          adj_actor_height = ceilf (actor_height * scale) / scale;
+        }
+      else
+        adj_actor_height = roundf (actor_height * scale) / scale;
+
       adj_actor_x = allocation->x1;
       adj_actor_y = allocation->y1;
     }
