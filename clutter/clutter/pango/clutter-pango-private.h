@@ -79,7 +79,9 @@ void clutter_show_layout (ClutterContext    *context,
                           ClutterColorState *color_state,
                           ClutterColorState *target_color_state);
 
+#if !PANGO_VERSION_CHECK(1, 57, 2)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoRenderer, g_object_unref)
+#endif
 
 static inline PangoDirection
 clutter_text_direction_to_pango_direction (ClutterTextDirection dir)
