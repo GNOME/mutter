@@ -39,12 +39,6 @@ if have_gnome_desktop
   ]
 endif
 
-if have_sound_player
-  mutter_pkg_private_deps += [
-    libcanberra_dep,
-  ]
-endif
-
 if have_gl
   mutter_pkg_deps += [
     gl_dep,
@@ -358,7 +352,6 @@ mutter_sources = [
   'core/meta-selection-source-memory.c',
   'core/meta-session-manager.c',
   'core/meta-session-state.c',
-  'core/meta-sound-player.c',
   'core/meta-tablet-action-mapper.c',
   'core/meta-tool-action-mapper.c',
   'core/meta-window-config.c',

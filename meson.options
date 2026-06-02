@@ -88,12 +88,6 @@ option('libwacom',
   description: 'Enable libwacom support'
 )
 
-option('sound_player',
-  type: 'boolean',
-  value: true,
-  description: 'Enable sound player support using libcanberra',
-)
-
 option('startup_notification',
   type: 'boolean',
   value: true,

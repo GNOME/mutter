@@ -147,8 +147,6 @@ struct _MetaDisplay
   int64_t last_visual_bell_time_us;
   MetaWorkspaceManager *workspace_manager;
 
-  MetaSoundPlayer *sound_player;
-
   MetaSelectionSource *selection_source;
   GBytes *saved_clipboard;
   gchar *saved_clipboard_mimetype;

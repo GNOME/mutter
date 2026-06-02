@@ -34,7 +34,6 @@ xfixes_req = '>= 6'
 xi_req = '>= 1.7.4'
 xrandr_req = '>= 1.5.0'
 libstartup_notification_req = '>= 0.7'
-libcanberra_req = '>= 0.26'
 libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
 harfbuzz_req = '>= 2.6'
@@ -179,11 +178,6 @@ endif
 have_gnome_desktop = get_option('libgnome_desktop')
 if have_gnome_desktop
   gnome_desktop_dep = dependency('gnome-desktop-4')
-endif
-
-have_sound_player = get_option('sound_player')
-if have_sound_player
-  libcanberra_dep = dependency('libcanberra', version: libcanberra_req)
 endif
 
 have_gl = get_option('opengl')
@@ -563,7 +557,6 @@ cdata.set('HAVE_NATIVE_BACKEND', have_native_backend)
 cdata.set('HAVE_REMOTE_DESKTOP', have_remote_desktop)
 cdata.set('HAVE_DEVKIT', have_devkit)
 cdata.set('HAVE_GNOME_DESKTOP', have_gnome_desktop)
-cdata.set('HAVE_SOUND_PLAYER', have_sound_player)
 cdata.set('HAVE_EGL_DEVICE', have_egl_device)
 cdata.set('HAVE_WAYLAND_EGLSTREAM', have_wayland_eglstream)
 cdata.set('HAVE_LIBGUDEV', have_libgudev)
@@ -753,7 +746,6 @@ summary('EGL Device', have_egl_device, section: 'Options')
 summary('Remote desktop', have_remote_desktop, section: 'Options')
 summary('Development Kit', have_devkit, section: 'Options')
 summary('libgnome-desktop', have_gnome_desktop, section: 'Options')
-summary('Sound player', have_sound_player, section: 'Options')
 summary('gudev', have_libgudev, section: 'Options')
 summary('Wacom', have_libwacom, section: 'Options')
 summary('Fonts', have_fonts, section: 'Options')

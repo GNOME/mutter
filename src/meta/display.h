@@ -25,7 +25,6 @@
 #include "meta/prefs.h"
 #include "meta/common.h"
 #include "meta/workspace.h"
-#include "meta/meta-sound-player.h"
 #include "meta/meta-startup-notification.h"
 
 /**
@@ -265,9 +264,6 @@ MetaWorkspaceManager *meta_display_get_workspace_manager (MetaDisplay *display);
  */
 META_EXPORT
 MetaStartupNotification * meta_display_get_startup_notification (MetaDisplay *display);
-
-META_EXPORT
-MetaSoundPlayer * meta_display_get_sound_player (MetaDisplay *display);
 
 META_EXPORT
 MetaSelection * meta_display_get_selection (MetaDisplay *display);

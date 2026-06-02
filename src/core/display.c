@@ -58,7 +58,6 @@
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-enum-types.h"
-#include "meta/meta-sound-player.h"
 #include "meta/prefs.h"
 
 #include "wayland/meta-wayland.h"
@@ -911,8 +910,6 @@ meta_display_new (MetaContext  *context,
   g_signal_connect (stage, "notify::is-grabbed",
                     G_CALLBACK (on_is_grabbed_changed), display);
 
-  display->sound_player = g_object_new (META_TYPE_SOUND_PLAYER, NULL);
-
   /* Done opening new display */
   display->display_opening = FALSE;
 
@@ -1085,7 +1082,6 @@ meta_display_close (MetaDisplay *display,
 
   g_clear_object (&display->startup_notification);
   g_clear_object (&display->workspace_manager);
-  g_clear_object (&display->sound_player);
 
   meta_clipboard_manager_shutdown (display);
   g_clear_object (&display->selection);
@@ -3215,18 +3211,6 @@ meta_display_generate_window_id (MetaDisplay *display)
 
   /* We can overflow here, that's fine */
   return (base_window_id + last_window_id++);
-}
-
-/**
- * meta_display_get_sound_player:
- * @display: a #MetaDisplay
- *
- * Returns: (transfer none): The sound player of the display
- */
-MetaSoundPlayer *
-meta_display_get_sound_player (MetaDisplay *display)
-{
-  return display->sound_player;
 }
 
 /**

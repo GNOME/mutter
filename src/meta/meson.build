@@ -40,7 +40,6 @@ mutter_public_headers = [
   'meta-selection-source-memory.h',
   'meta-settings.h',
   'meta-shaped-texture.h',
-  'meta-sound-player.h',
   'meta-stage.h',
   'meta-startup-notification.h',
   'meta-wayland-client.h',

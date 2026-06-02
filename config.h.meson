@@ -64,9 +64,6 @@
 /* Defined if gnome-desktop is enabled */
 #mesondefine HAVE_GNOME_DESKTOP
 
-/* Defined if sound player is enabled */
-#mesondefine HAVE_SOUND_PLAYER
-
 /* Building with startup notification support */
 #mesondefine HAVE_STARTUP_NOTIFICATION
 
