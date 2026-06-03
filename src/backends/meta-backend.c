@@ -1381,16 +1381,16 @@ meta_backend_initable_init (GInitable     *initable,
 
   meta_monitor_manager_post_init (priv->monitor_manager);
 
-  g_signal_connect (priv->context, "prepare-shutdown",
-                    G_CALLBACK (on_prepare_shutdown), backend);
-  g_signal_connect (priv->context, "started",
-                    G_CALLBACK (on_started), backend);
-
   meta_settings_post_init (priv->settings);
 
   if (META_BACKEND_GET_CLASS (backend)->init_post &&
       !META_BACKEND_GET_CLASS (backend)->init_post (backend, error))
     return FALSE;
+
+  g_signal_connect (priv->context, "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown), backend);
+  g_signal_connect (priv->context, "started",
+                    G_CALLBACK (on_started), backend);
 
   while (TRUE)
     {
