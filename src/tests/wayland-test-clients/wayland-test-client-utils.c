@@ -1162,6 +1162,8 @@ wayland_display_dispose (GObject *object)
       g_clear_pointer (&display->buffers, g_hash_table_unref);
     }
 
+  g_clear_pointer (&display->gbm_device, gbm_device_destroy);
+
   G_OBJECT_CLASS (wayland_display_parent_class)->dispose (object);
 }
 
