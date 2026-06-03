@@ -510,6 +510,7 @@ meta_kms_finalize (GObject *object)
   MetaBackend *backend = meta_thread_get_backend (META_THREAD (kms));
   MetaUdev *udev = meta_backend_get_udev (backend);
 
+  g_clear_object (&kms->cursor_manager);
   g_list_free_full (kms->devices, g_object_unref);
 
   g_clear_signal_handler (&kms->hotplug_handler_id, udev);
