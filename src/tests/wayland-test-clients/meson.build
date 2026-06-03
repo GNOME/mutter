@@ -69,6 +69,9 @@ wayland_test_clients = [
     ],
   },
   {
+    'name': 'repeated-preferred-scale',
+  },
+  {
     'name': 'service-client',
     'extra_sources': [
       built_dbus_sources['meta-dbus-service-channel'],
