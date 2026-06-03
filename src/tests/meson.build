@@ -69,6 +69,16 @@ if libevdev_dep.found()
   ]
 endif
 
+libasan_preloader = shared_library(
+  'asan-preloader',
+  ['asan-preloader.c'],
+  gnu_symbol_visibility: 'default',
+  override_options: {'b_sanitize': ''},
+  install_rpath: pkglibdir,
+  install_dir: pkglibdir,
+  install: true,
+)
+
 libmutter_test = shared_library(libmutter_test_name,
                                 mutter_test_sources,
                                 gnu_symbol_visibility: 'hidden',
