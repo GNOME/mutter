@@ -3667,7 +3667,7 @@ meta_test_monitor_remember_scale_hotplug (void)
   MetaMonitorConfigManager *config_manager =
     meta_monitor_manager_get_config_manager (monitor_manager);
   MetaMonitorTestSetup *test_setup;
-  MetaMonitorsConfig *new_config;
+  g_autoptr (MetaMonitorsConfig) new_config = NULL;
   gboolean ret;
   GError *error = NULL;
 
