@@ -793,6 +793,8 @@ meta_wayland_color_management_surface_free (MetaWaylandColorManagementSurface *c
   g_hash_table_remove (cm_surface->color_manager->surfaces,
                        cm_surface->surface);
 
+  g_clear_object (&cm_surface->preferred_color_state);
+
   free (cm_surface);
 }
 
