@@ -111,7 +111,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 44
-    BASE_TAG: '2026-06-02.0'
+    BASE_TAG: '2026-06-07.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
@@ -151,6 +151,8 @@ variables:
       'pkgconfig(xrandr)'
       'pkgconfig(xrender)'
       'pkgconfig(xtst)'
+      libasan
+      libasan-static
 
 
     FDO_DISTRIBUTION_EXEC: |
@@ -188,16 +190,11 @@ variables:
                       $NULL
 
       ./.gitlab-ci/install-meson-project.sh \
-        --commit 8e69aef1e4bbb79b5806692ea9f0280aae0fda06 \
-        https://gitlab.gnome.org/jadahl/catch.git \
-        main
-
-      ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gi-docgen.git \
         main
 
       ./.gitlab-ci/install-meson-project.sh \
-        --commit=8723146fca06edd5584d0a9e16668356af6ce308 \
+        --commit=b6e270b1821d39d4631f28d0e7d3b029dbbee06a \
         https://gitlab.gnome.org/GNOME/gtk.git \
         gtk-3-24
 
@@ -397,7 +394,6 @@ check-python-code-style:
 .build-mutter-base:
   variables:
     BASE_MESON_OPTIONS:
-      -Dcatch=true
 
 .build-mutter:
   extends:
@@ -413,6 +409,7 @@ check-python-code-style:
         --wrap-mode nofallback
         -Dbuildtype=debugoptimized
         -Db_coverage=true
+        -Db_sanitize='["address"]'
         -Ddocs=true
         $BASE_MESON_OPTIONS
         $EXTRA_MESON_OPTIONS
@@ -667,7 +664,13 @@ can-run-gnome-shell@x86_64:
     - sudo meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
-    - meson setup gnome-shell gnome-shell/build --prefix /usr -Dbuildtype=debugoptimized -Dman=false --werror --fatal-meson-warnings
+    - meson setup gnome-shell gnome-shell/build
+        --prefix /usr
+        -Dbuildtype=debugoptimized
+        -Dman=false
+        -Db_sanitize='["address"]'
+        --werror
+        --fatal-meson-warnings
     - sudo meson install -C gnome-shell/build
     - mkdir -m 1777 /tmp/.X11-unix
     - dbus-run-session --
@@ -767,7 +770,7 @@ installed-tests-mutter@x86_64:
     - meson install -C build --no-rebuild
     - mkdir -m 1777 /tmp/.X11-unix
     - mkdir installed-tests-logs
-    - catch gnome-desktop-testing-runner -L installed-tests-logs mutter
+    - gnome-desktop-testing-runner -L installed-tests-logs mutter
   artifacts:
     expire_in: 7 day
     name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
