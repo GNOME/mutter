@@ -8,6 +8,7 @@ WRAPPER="$2"
 WRAPPER_ARGS="$3"
 TEST_BUILD_DIR="$4"
 VM_ENV="$5"
+TEST_ENV="$6"
 
 TEST_RESULT_FILE=$(mktemp -p "$TEST_BUILD_DIR" test-result-XXXXXX)
 echo 1 > "$TEST_RESULT_FILE"
@@ -43,9 +44,10 @@ fi
 
 cat >> "$SCRIPT_FILE" <<__EOF__
 $DIRNAME/run-kvm-test.sh \
+    "$TEST_ENV" \
     "$WRAPPER" "$WRAPPER_ARGS" \
     "$TEST_RESULT_FILE" \
-    $(printf "\"%s\" " "${@:6}")
+    $(printf "\"%s\" " "${@:7}")
 __EOF__
 
 chmod +x "$SCRIPT_FILE"

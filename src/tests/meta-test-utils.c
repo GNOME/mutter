@@ -680,6 +680,9 @@ meta_test_client_new (MetaContext           *context,
 #ifdef HAVE_XWAYLAND
   const char *x11_display_name;
 #endif
+#ifdef HAVE_ASAN_TESTS
+  g_autofree char *asan_options = NULL;
+#endif
 
   launcher =  g_subprocess_launcher_new ((G_SUBPROCESS_FLAGS_STDIN_PIPE |
                                           G_SUBPROCESS_FLAGS_STDOUT_PIPE));
@@ -703,6 +706,11 @@ meta_test_client_new (MetaContext           *context,
                                     "DISPLAY", x11_display_name,
                                     TRUE);
     }
+#endif
+
+#ifdef HAVE_ASAN_TESTS
+  asan_options = g_strdup_printf ("detect_leaks=0:%s", getenv ("ASAN_OPTIONS"));
+  g_subprocess_launcher_setenv (launcher, "ASAN_OPTIONS", asan_options, TRUE);
 #endif
 
   subprocess = g_subprocess_launcher_spawn (launcher,

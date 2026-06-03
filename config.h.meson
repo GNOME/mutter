@@ -115,3 +115,6 @@
 
 /* Whether libei has eis_event_ref() */
 #mesondefine HAVE_EIS_EVENT_REF
+
+/* Whether ASan testing is enabled */
+#mesondefine HAVE_ASAN_TESTS

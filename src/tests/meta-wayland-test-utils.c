@@ -76,6 +76,9 @@ meta_wayland_test_client_new_with_args (MetaContext *context,
   g_autoptr (GPtrArray) args = NULL;
   const gchar *arg;
   va_list ap;
+#ifdef HAVE_ASAN_TESTS
+  g_autofree char *asan_options = NULL;
+#endif
 
   compositor = meta_context_get_wayland_compositor (context);
   wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
@@ -88,6 +91,11 @@ meta_wayland_test_client_new_with_args (MetaContext *context,
   g_subprocess_launcher_setenv (launcher,
                                 "G_MESSAGES_DEBUG", "all",
                                 TRUE);
+
+#ifdef HAVE_ASAN_TESTS
+  asan_options = g_strdup_printf ("detect_leaks=0:%s", getenv ("ASAN_OPTIONS"));
+  g_subprocess_launcher_setenv (launcher, "ASAN_OPTIONS", asan_options, TRUE);
+#endif
 
   va_start (ap, test_client_name);
   args = g_ptr_array_new ();

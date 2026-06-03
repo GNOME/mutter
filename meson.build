@@ -368,16 +368,25 @@ if have_tests
   have_cogl_tests = get_option('cogl_tests')
   have_clutter_tests = get_option('clutter_tests')
   have_installed_tests = get_option('installed_tests')
+  have_asan_tests = get_option('b_sanitize') == 'address'
 
   meta_dbus_runner = find_program('src/tests/meta-dbus-runner.py')
+
+  if get_option('catch')
+    if have_asan_tests
+      error('Can\'t enable both catch and ASan')
+    endif
+
+    catch = find_program('catch')
+  endif
+
   default_test_wrappers = [
     meta_dbus_runner,
     '--',
   ]
 
   if get_option('catch')
-    catch = find_program('catch')
-    default_test_wrappers += [
+    default_test_wrappers = [
       catch,
     ]
   endif
@@ -392,6 +401,26 @@ if have_tests
   )
 
   add_test_setup('plain')
+
+  if have_asan_tests
+    asan_options = [
+      'verify_asan_link_order=0',
+      'halt_on_error=1',
+      'abort_on_error=1',
+      'print_summary=1',
+    ]
+    sanitizer_variables = {
+      'LSAN_OPTIONS': 'suppressions=@0@'.format(meson.current_source_dir() /
+                                                'src' / 'tests' / 'lsan.supp'),
+      'ASAN_OPTIONS': ':'.join(asan_options),
+    }
+  else
+    sanitizer_variables = {}
+  endif
+
+  test_ld_preload = []
+else
+  have_asan_tests = false
 endif
 
 have_profiler = get_option('profiler')
@@ -535,6 +564,7 @@ cdata.set('HAVE_XKBCOMMON_KANA_COMPOSE_LEDS',
   xkbcommon_dep.version().version_compare('>= 1.8.0'))
 cdata.set('HAVE_EIS_EVENT_REF',
   libeis_dep.version().version_compare('>= 1.5.0'))
+cdata.set('HAVE_ASAN_TESTS', have_asan_tests)
 
 if have_xwayland
   xkb_base = xkeyboard_config_dep.get_variable('xkb_base')
@@ -680,6 +710,9 @@ if have_documentation
   subdir('doc/reference')
 endif
 
+if have_tests
+endif
+
 gnome.post_install(
   glib_compile_schemas: true,
   gtk_update_icon_cache: have_devkit,
@@ -724,4 +757,5 @@ summary('Cogl tests', have_cogl_tests, section: 'Tests')
 summary('Clutter tests', have_clutter_tests, section: 'Tests')
 summary('KVM tests', have_kvm_tests, section: 'Tests')
 summary('Installed tests', have_installed_tests, section: 'Tests')
+summary('Testing with address sanitizer', have_asan_tests, section: 'Tests')
 summary('Coverage', get_option('b_coverage'), section: 'Tests')

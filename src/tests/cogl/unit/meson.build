@@ -15,6 +15,11 @@ test_env.set('G_TEST_SRCDIR', mutter_srcdir / 'src' / 'tests')
 test_env.set('G_TEST_BUILDDIR', mutter_builddir / 'src' / 'tests')
 test_env.set('G_ENABLE_DIAGNOSTIC', '0')
 test_env.set('GSETTINGS_SCHEMA_DIR', locally_compiled_schemas_dir)
+test_env.set('LD_PRELOAD', ':'.join(test_ld_preload))
+
+foreach name, value: sanitizer_variables
+  test_env.set(name, value)
+endforeach
 
 foreach unit_test: cogl_unit_tests
   test_name = 'cogl-' + unit_test[0]

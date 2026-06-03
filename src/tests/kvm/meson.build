@@ -41,6 +41,17 @@ foreach test_case: privileged_tests
   endforeach
   vm_env = ' '.join(vm_env_entries)
 
+  vm_test_env_entries = []
+  if have_asan_tests
+    foreach name, value: sanitizer_variables
+      vm_test_env_entries += ['@0@=@1@'.format(name, value)]
+    endforeach
+    if test_ld_preload != []
+      vm_test_env_entries += ['LD_PRELOAD=@0@'.format(libasan_preloader.full_path())]
+    endif
+  endif
+  vm_test_env = ' '.join(vm_test_env_entries)
+
   test('kvm-' + test_case['name'], virtme_run,
     suite: ['core', 'mutter/kvm', 'mutter/kvm/' + test_case['suite']],
     depends: [
@@ -54,6 +65,7 @@ foreach test_case: privileged_tests
       '--',
       meson.current_build_dir(),
       vm_env,
+      vm_test_env,
       kvm_wrapper,
       test_case['executable'].full_path(),
     ],

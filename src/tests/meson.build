@@ -154,6 +154,11 @@ gnome.compile_schemas(
   depend_files: 'org.gnome.mutter.test.gschema.xml',
 )
 
+if have_asan_tests
+  test_ld_preload = [libasan_preloader.full_path()]
+endif
+test_ld_preload += ['libumockdev-preload.so.0']
+
 if have_cogl_tests
   subdir('cogl')
 endif
@@ -178,9 +183,13 @@ test_env_variables = {
   'GSETTINGS_SCHEMA_DIR': ':'.join([mutter_builddir / 'src' / 'tests',
                                     locally_compiled_schemas_dir]),
   'MUTTER_DEBUG_A11Y_MANAGER_WITHOUT_ACCESS_CONTROL': '1',
+  'LD_PRELOAD': ':'.join(test_ld_preload),
 }
 
 foreach name, value: test_env_variables
+  test_env.set(name, value)
+endforeach
+foreach name, value: sanitizer_variables
   test_env.set(name, value)
 endforeach
 
@@ -1266,11 +1275,12 @@ foreach test_case: test_cases
   test_depends = [ default_plugin ] + test_case.get('depends', [])
 
   args = test_case.get('args', [])
+  test_case_env = test_case.get('env', test_env)
 
   test(test_case['name'], test_executable,
     suite: ['core', 'mutter/' + test_case['suite']],
     args: args,
-    env: test_env,
+    env: test_case_env,
     depends: test_depends,
     is_parallel: false,
     timeout: test_case.get('timeout', default_test_timeout),
@@ -1409,13 +1419,21 @@ if have_kvm_tests or have_tty_tests
     )
 
     foreach variant: variants
+      asan_ld_preload = []
+      if have_asan_tests
+        asan_ld_preload += [libasan_preloader.full_path()]
+      endif
+
       variables = variant[1] + {
-        'META_DBUS_RUNNER_DISABLE_UMOCKDEV': '1',
+        'LD_PRELOAD': ':'.join(asan_ld_preload),
         'META_DBUS_RUNNER_DISABLE_LOGIND_PASSTHROUGH': '1',
       }
 
       variant_env = environment()
       foreach name, value: variables
+        variant_env.set(name, value)
+      endforeach
+      foreach name, value: sanitizer_variables
         variant_env.set(name, value)
       endforeach
       privileged_tests += [
@@ -1456,7 +1474,6 @@ test('get-state-tool-gio', mutter,
     '--virtual-monitor', '800x600',
     '--wayland-display', 'get-state-gio',
     '--',
-    'env', 'LD_PRELOAD=',
     get_state_tool.full_path(),
   ],
   depends: [
@@ -1475,7 +1492,6 @@ test('get-state-tool-gdbus', mutter,
     '--virtual-monitor', '800x600',
     '--wayland-display', 'get-state-gdbus',
     '--',
-    'env', 'LD_PRELOAD=',
     get_state_tool.full_path(),
     '--gdbus',
   ],
@@ -1491,6 +1507,11 @@ test('get-state-tool-gdbus', mutter,
 # Installed tests
 
 if have_installed_tests
+  sanitizer_assignments = []
+  foreach name, value: sanitizer_variables
+    sanitizer_assignments += [f'@name@=@value@']
+  endforeach
+
   install_subdir('stacking', install_dir: tests_datadir)
 
   foreach stacking_test: stacking_tests
@@ -1500,6 +1521,8 @@ if have_installed_tests
     stacking_installed_tests_cdata.set('pkgdatadir', pkgdatadir)
     stacking_installed_tests_cdata.set('tests_datadir', tests_datadir)
     stacking_installed_tests_cdata.set('stacking_test', stacking_test)
+    stacking_installed_tests_cdata.set('ldpreload', ':'.join(test_ld_preload))
+    stacking_installed_tests_cdata.set('sanitizervariables', ' '.join(sanitizer_assignments))
 
     configure_file(
       input: 'stacking.test.in',
@@ -1547,6 +1570,8 @@ if have_installed_tests
     installed_tests_cdata.set('testexecutable', 'mutter-' + test_case['name'])
     installed_tests_cdata.set('testargs', ' '.join(args))
     installed_tests_cdata.set('runnerargs', ' '.join(runner_args))
+    installed_tests_cdata.set('ldpreload', ':'.join(test_ld_preload))
+    installed_tests_cdata.set('sanitizervariables', ' '.join(sanitizer_assignments))
 
     configure_file(
       input: 'generic.test.in',
