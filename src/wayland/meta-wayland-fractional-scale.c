@@ -98,6 +98,7 @@ wp_fractional_scale_manager_get_fractional_scale (struct wl_client   *client,
                                   wp_fractional_scale_destructor);
 
   surface->fractional_scale.resource = fractional_scale_resource;
+  surface->fractional_scale.scale = 0.0;
   surface->fractional_scale.destroy_handler_id =
     g_signal_connect (surface,
                       "destroy",
