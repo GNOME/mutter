@@ -3352,7 +3352,8 @@ test_case_do (TestCase    *test,
       if (!test->overlay)
         BAD_COMMAND ("Overlay not mapped");
 
-      g_clear_pointer (&test->grab, clutter_grab_dismiss);
+      clutter_grab_dismiss (test->grab);
+      g_clear_object (&test->grab);
       g_clear_pointer (&test->overlay, clutter_actor_destroy);
     }
   else if (strcmp (argv[0], "create_barrier") == 0)
