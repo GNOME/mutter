@@ -2175,6 +2175,7 @@ meta_kms_impl_device_set_updates_inhibited (MetaKmsImplDevice    *impl_device,
                                               inhibited_update->flags);
           priv->inhibited_updates =
             g_list_delete_link (priv->inhibited_updates, l);
+          inhibited_update_free (inhibited_update);
         }
 
       l = l_next;
