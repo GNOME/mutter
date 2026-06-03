@@ -1211,6 +1211,7 @@ pkg.generate(libmutter,
   version: meson.project_version(),
   variables: [
     'apiversion=' + libmutter_api_version,
+    'pkglibdir=' + pkglibdir,
     'girdir=${libdir}/mutter-' + libmutter_api_version,
     'typelibdir=${libdir}/mutter-' + libmutter_api_version,
     'have_xwayland=@0@'.format(have_xwayland),
