@@ -203,10 +203,6 @@ void meta_kms_update_add_page_flip_listener (MetaKmsUpdate                      
                                              gpointer                             user_data,
                                              GDestroyNotify                       destroy_notify);
 
-void meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
-                                           MetaKmsCustomPageFlipFunc  func,
-                                           gpointer                   user_data);
-
 META_EXPORT_TEST
 void meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assignment,
                                                    int                     x,

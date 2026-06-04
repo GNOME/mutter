@@ -45,8 +45,6 @@ struct _MetaKmsUpdate
   GList *crtc_updates;
   GList *crtc_color_updates;
 
-  MetaKmsCustomPageFlip *custom_page_flip;
-
   GList *page_flip_listeners;
   GList *result_listeners;
 
@@ -672,20 +670,6 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
 }
 
 void
-meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
-                                      MetaKmsCustomPageFlipFunc  func,
-                                      gpointer                   user_data)
-{
-  MetaKmsCustomPageFlip *custom_page_flip;
-
-  custom_page_flip = g_new0 (MetaKmsCustomPageFlip, 1);
-  custom_page_flip->func = func;
-  custom_page_flip->user_data = user_data;
-
-  update->custom_page_flip = custom_page_flip;
-}
-
-void
 meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignment,
                                          const MtkRegion        *region)
 {
@@ -888,18 +872,6 @@ MetaKmsDevice *
 meta_kms_update_get_device (MetaKmsUpdate *update)
 {
   return update->device;
-}
-
-MetaKmsCustomPageFlip *
-meta_kms_update_take_custom_page_flip_func (MetaKmsUpdate *update)
-{
-  return g_steal_pointer (&update->custom_page_flip);
-}
-
-void
-meta_kms_custom_page_flip_free (MetaKmsCustomPageFlip *custom_page_flip)
-{
-  g_free (custom_page_flip);
 }
 
 static GList *
@@ -1179,19 +1151,6 @@ merge_connector_updates_from (MetaKmsUpdate *update,
 }
 
 static void
-merge_custom_page_flip_from (MetaKmsUpdate *update,
-                             MetaKmsUpdate *other_update)
-{
-  g_warn_if_fail ((!update->custom_page_flip &&
-                   !other_update->custom_page_flip) ||
-                  ((!!update->custom_page_flip) ^
-                   (!!other_update->custom_page_flip)));
-
-  g_clear_pointer (&update->custom_page_flip, meta_kms_custom_page_flip_free);
-  update->custom_page_flip = g_steal_pointer (&other_update->custom_page_flip);
-}
-
-static void
 merge_page_flip_listeners_from (MetaKmsUpdate *update,
                                 MetaKmsUpdate *other_update)
 {
@@ -1220,7 +1179,6 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
   merge_crtc_updates_from (update, other_update);
   merge_crtc_color_updates_from (update, other_update);
   merge_connector_updates_from (update, other_update);
-  merge_custom_page_flip_from (update, other_update);
   merge_page_flip_listeners_from (update, other_update);
   merge_result_listeners_from (update, other_update);
 
@@ -1267,7 +1225,6 @@ meta_kms_update_free (MetaKmsUpdate *update)
   g_list_free_full (update->crtc_updates, g_free);
   g_list_free_full (update->crtc_color_updates,
                     (GDestroyNotify) meta_kms_crtc_color_updates_free);
-  g_clear_pointer (&update->custom_page_flip, meta_kms_custom_page_flip_free);
   g_clear_fd (&update->sync_fd, NULL);
 
   g_free (update);
@@ -1333,6 +1290,5 @@ meta_kms_update_is_empty (MetaKmsUpdate *update)
           !update->plane_assignments &&
           !update->connector_updates &&
           !update->crtc_updates &&
-          !update->crtc_color_updates &&
-          !update->custom_page_flip);
+          !update->crtc_color_updates);
 }

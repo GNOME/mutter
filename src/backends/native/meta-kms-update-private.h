@@ -169,12 +169,6 @@ struct _MetaKmsResultListener
   MetaKmsFeedback *feedback;
 };
 
-typedef struct _MetaKmsCustomPageFlip
-{
-  MetaKmsCustomPageFlipFunc func;
-  gpointer user_data;
-} MetaKmsCustomPageFlip;
-
 void meta_kms_plane_feedback_free (MetaKmsPlaneFeedback *plane_feedback);
 
 MetaKmsPlaneFeedback * meta_kms_plane_feedback_new_take_error (MetaKmsPlane *plane,
@@ -225,8 +219,6 @@ GList * meta_kms_update_get_crtc_updates (MetaKmsUpdate *update);
 META_EXPORT_TEST
 GList * meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update);
 
-MetaKmsCustomPageFlip * meta_kms_update_take_custom_page_flip_func (MetaKmsUpdate *update);
-
 META_EXPORT_TEST
 GList * meta_kms_update_take_result_listeners (MetaKmsUpdate *update);
 
@@ -238,8 +230,6 @@ void meta_kms_result_listener_set_feedback (MetaKmsResultListener *listener,
 void meta_kms_result_listener_notify (MetaKmsResultListener *listener);
 
 void meta_kms_result_listener_free (MetaKmsResultListener *listener);
-
-void meta_kms_custom_page_flip_free (MetaKmsCustomPageFlip *custom_page_flip);
 
 void meta_kms_update_realize (MetaKmsUpdate     *update,
                               MetaKmsImplDevice *impl_device);
@@ -254,6 +244,3 @@ gboolean meta_kms_update_is_empty (MetaKmsUpdate *update);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsPlaneFeedback,
                                meta_kms_plane_feedback_free)
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsCustomPageFlip,
-                               meta_kms_custom_page_flip_free)
