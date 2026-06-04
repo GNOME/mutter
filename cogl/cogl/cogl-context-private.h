@@ -58,7 +58,6 @@ void
 _cogl_context_set_current_modelview_entry (CoglContext *context,
                                            CoglMatrixEntry *entry);
 
-void cogl_context_clear_onscreen_dirty_queue (CoglContext *context);
 
 CoglPipeline *
 cogl_context_get_current_pipeline (CoglContext *context);
@@ -393,9 +392,6 @@ cogl_context_remove_atlas (CoglContext *context,
 
 GHookList *
 cogl_context_get_atlas_reorganize_callbacks (CoglContext *context);
-
-CoglList *
-cogl_context_get_onscreen_dirty_queue (CoglContext *context);
 
 CoglClosure *
 cogl_context_get_onscreen_dispatch_idle (CoglContext *context);

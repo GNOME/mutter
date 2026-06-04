@@ -47,14 +47,6 @@ typedef struct _CoglOnscreenEvent
   CoglFrameEvent type;
 } CoglOnscreenEvent;
 
-typedef struct _CoglOnscreenQueuedDirty
-{
-  CoglList link;
-
-  CoglOnscreen *onscreen;
-  MtkRectangle info;
-} CoglOnscreenQueuedDirty;
-
 COGL_EXPORT void
 _cogl_onscreen_notify_frame_sync (CoglOnscreen *onscreen, CoglFrameInfo *info);
 

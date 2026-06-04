@@ -128,7 +128,6 @@ struct _CoglContext
   gboolean have_last_offscreen_allocate_flags;
   CoglOffscreenAllocateFlags last_offscreen_allocate_flags;
 
-  CoglList onscreen_dirty_queue;
   CoglClosure *onscreen_dispatch_idle;
 
   /* This becomes TRUE the first time the context is bound to an
@@ -206,29 +205,10 @@ struct _CoglContext
 
 G_DEFINE_FINAL_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
 
-void
-cogl_context_clear_onscreen_dirty_queue (CoglContext *context)
-{
-  while (!_cogl_list_empty (&context->onscreen_dirty_queue))
-    {
-      CoglOnscreenQueuedDirty *qe =
-        _cogl_container_of (context->onscreen_dirty_queue.next,
-                            CoglOnscreenQueuedDirty,
-                            link);
-
-      _cogl_list_remove (&qe->link);
-      g_object_unref (qe->onscreen);
-
-      g_free (qe);
-    }
-}
-
 static void
 cogl_context_dispose (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
-
-  cogl_context_clear_onscreen_dirty_queue (context);
 
   g_clear_object (&context->default_gl_texture_2d_tex);
 
@@ -405,8 +385,6 @@ cogl_context_new (CoglDisplay *display,
   context->codegen_source_buffer = g_string_new ("");
 
   context->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
-
-  _cogl_list_init (&context->onscreen_dirty_queue);
 
   context->journal_flush_attributes_array =
     g_array_new (TRUE, FALSE, sizeof (CoglAttribute *));
@@ -1162,12 +1140,6 @@ GHookList *
 cogl_context_get_atlas_reorganize_callbacks (CoglContext *context)
 {
   return &context->atlas_reorganize_callbacks;
-}
-
-CoglList *
-cogl_context_get_onscreen_dirty_queue (CoglContext *context)
-{
-  return &context->onscreen_dirty_queue;
 }
 
 CoglClosure *

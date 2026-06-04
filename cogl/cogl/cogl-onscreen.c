@@ -51,9 +51,6 @@ typedef struct _CoglOnscreenPrivate
   GQueue pending_frame_infos;
 } CoglOnscreenPrivate;
 
-static void
-_cogl_onscreen_queue_full_dirty (CoglOnscreen *onscreen);
-
 G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
 
 static gpointer
@@ -78,14 +75,6 @@ static gboolean
 cogl_onscreen_allocate (CoglFramebuffer  *framebuffer,
                         GError          **error)
 {
-  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-
-  /* If the winsys doesn't support dirty events then we'll report
-   * one on allocation so that if the application only paints in
-   * response to dirty events then it will at least paint once to
-   * start */
-  _cogl_onscreen_queue_full_dirty (onscreen);
-
   return TRUE;
 }
 
@@ -141,66 +130,6 @@ notify_event (CoglOnscreen *onscreen,
   _cogl_closure_list_invoke (&priv->frame_closures,
                              CoglFrameCallback,
                              onscreen, event, info);
-}
-
-static void
-_cogl_dispatch_onscreen_cb (CoglContext *context)
-{
-  if (cogl_context_get_onscreen_dispatch_idle (context))
-    {
-      _cogl_closure_disconnect (cogl_context_get_onscreen_dispatch_idle (context));
-      cogl_context_set_onscreen_dispatch_idle (context, NULL);
-    }
-
-  cogl_context_clear_onscreen_dirty_queue (context);
-}
-
-static void
-_cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-
-  if (!cogl_context_get_onscreen_dispatch_idle (ctx))
-    {
-      CoglRenderer *renderer = cogl_context_get_renderer (ctx);
-      CoglClosure *onscreen_dispatch_idle =
-        cogl_renderer_add_idle_closure (renderer,
-                                         (void (*)(void *))_cogl_dispatch_onscreen_cb,
-                                        ctx);
-
-      cogl_context_set_onscreen_dispatch_idle (ctx, onscreen_dispatch_idle);
-    }
-}
-
-static void
-_cogl_onscreen_queue_dirty (CoglOnscreen       *onscreen,
-                            const MtkRectangle *info)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglOnscreenQueuedDirty *qe;
-
-  qe = g_new0 (CoglOnscreenQueuedDirty, 1);
-  qe->onscreen = g_object_ref (onscreen);
-  qe->info = *info;
-  _cogl_list_insert (cogl_context_get_onscreen_dirty_queue (ctx)->prev, &qe->link);
-
-  _cogl_onscreen_queue_dispatch_idle (onscreen);
-}
-
-void
-_cogl_onscreen_queue_full_dirty (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  MtkRectangle info;
-
-  info.x = 0;
-  info.y = 0;
-  info.width = cogl_framebuffer_get_width (framebuffer);
-  info.height = cogl_framebuffer_get_height (framebuffer);
-
-  _cogl_onscreen_queue_dirty (onscreen, &info);
 }
 
 void
