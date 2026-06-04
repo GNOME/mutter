@@ -887,33 +887,6 @@ meta_thread_class_register_impl_type (MetaThreadClass *thread_class,
   class_priv->impl_type = impl_type;
 }
 
-void
-meta_thread_reset_thread_type (MetaThread     *thread,
-                               MetaThreadType  thread_type)
-{
-  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
-
-  if (priv->thread_type == thread_type)
-    return;
-
-  tear_down_thread (thread);
-  g_assert (!priv->wrapper_source);
-
-  priv->thread_type = thread_type;
-
-  start_thread (thread);
-
-  switch (priv->thread_type)
-    {
-    case META_THREAD_TYPE_USER:
-      g_assert (priv->wrapper_source);
-      break;
-    case META_THREAD_TYPE_KERNEL:
-      g_assert (!priv->wrapper_source);
-      break;
-    }
-}
-
 static int
 dispatch_callbacks (MetaThread *thread,
                     GList      *pending_callbacks)

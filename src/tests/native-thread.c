@@ -1049,74 +1049,6 @@ meta_test_thread_kernel_run_task_off_thread (void)
   meta_test_thread_run_task_off_thread_common (META_THREAD_TYPE_KERNEL);
 }
 
-static gpointer
-assert_not_thread (MetaThreadImpl  *thread_impl,
-                   gpointer         user_data,
-                   GError         **error)
-{
-  GThread **thread_to_check = user_data;
-
-  g_assert_true (g_steal_pointer (thread_to_check) != g_thread_self ());
-
-  return NULL;
-}
-
-static gpointer
-assert_thread (MetaThreadImpl  *thread_impl,
-               gpointer         user_data,
-               GError         **error)
-{
-  GThread **thread_to_check = user_data;
-
-  g_assert_true (g_steal_pointer (thread_to_check) == g_thread_self ());
-
-  return NULL;
-}
-
-static void
-meta_test_thread_change_thread_type (void)
-{
-  MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaThread *thread;
-  g_autoptr (GError) error = NULL;
-  GThread *main_thread;
-  GThread *thread_test;
-
-  thread = g_initable_new (META_TYPE_THREAD_TEST,
-                           NULL, &error,
-                           "backend", backend,
-                           "name", "test late callback",
-                           "thread-type", META_THREAD_TYPE_KERNEL,
-                           NULL);
-  g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
-  g_assert_nonnull (thread);
-  g_assert_null (error);
-
-  main_thread = g_thread_self ();
-
-  thread_test = main_thread;
-  meta_thread_post_impl_task (thread, assert_not_thread, &thread_test, NULL,
-                              NULL, NULL);
-
-  meta_thread_reset_thread_type (thread, META_THREAD_TYPE_USER);
-  g_assert_null (thread_test);
-
-  thread_test = main_thread;
-  meta_thread_post_impl_task (thread, assert_thread, &thread_test, NULL,
-                              NULL, NULL);
-
-  meta_thread_reset_thread_type (thread, META_THREAD_TYPE_KERNEL);
-  g_assert_null (thread_test);
-
-  thread_test = main_thread;
-  meta_thread_post_impl_task (thread, assert_not_thread, &thread_test, NULL,
-                              NULL, NULL);
-
-  g_object_unref (thread);
-  g_assert_null (thread);
-  g_assert_null (thread_test);
-}
-
 static GVariant *
 call_rtkit_mock_method (const char *method,
                         GVariant   *argument)
@@ -1312,8 +1244,6 @@ init_tests (void)
                    meta_test_thread_user_run_task_off_thread);
   g_test_add_func ("/backends/native/thread/kernel/run-task-off-thread",
                    meta_test_thread_kernel_run_task_off_thread);
-  g_test_add_func ("/backends/native/thread/change-thread-type",
-                   meta_test_thread_change_thread_type);
   g_test_add_func ("/backends/native/thread/realtime",
                    meta_test_thread_realtime);
   g_test_add_func ("/backends/native/thread/high-priority",

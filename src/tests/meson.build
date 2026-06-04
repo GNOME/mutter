@@ -788,16 +788,6 @@ kms_test_cases = [
     'variants': [['', test_env_variables + kms_thread_user_variables]],
   },
   {
-    'name': 'kms',
-    'suite': 'backends/native/kms',
-    'sources': [
-      #'meta-kms-test-utils.c',
-      #'meta-kms-test-utils.h',
-      'native-kms.c',
-    ],
-    'variants': [['', test_env_variables ]],
-  },
-  {
     'name': 'kms-render',
     'suite': 'backends/native/kms',
     'sources': [

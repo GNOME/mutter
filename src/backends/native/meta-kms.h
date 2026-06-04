@@ -70,10 +70,4 @@ MetaKms * meta_kms_new (MetaBackend   *backend,
 void meta_kms_notify_probed (MetaKms *kms);
 
 META_EXPORT_TEST
-void meta_kms_inhibit_kernel_thread (MetaKms *kms);
-
-META_EXPORT_TEST
-void meta_kms_uninhibit_kernel_thread (MetaKms *kms);
-
-META_EXPORT_TEST
 MetaKmsCursorManager * meta_kms_get_cursor_manager (MetaKms *kms);
