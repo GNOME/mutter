@@ -192,57 +192,6 @@ gboolean meta_egl_get_output_layers (MetaEgl           *egl,
                                      EGLint            *num_layers,
                                      GError           **error);
 
-EGLStreamKHR meta_egl_create_stream (MetaEgl      *egl,
-                                     EGLDisplay    display,
-                                     const EGLint *attrib_list,
-                                     GError      **error);
-
-gboolean meta_egl_destroy_stream (MetaEgl     *egl,
-                                  EGLDisplay   display,
-                                  EGLStreamKHR stream,
-                                  GError      **error);
-
-gboolean meta_egl_query_stream (MetaEgl     *egl,
-                                EGLDisplay   display,
-                                EGLStreamKHR stream,
-                                EGLenum      attribute,
-                                EGLint      *value,
-                                GError     **error);
-
-EGLStreamKHR meta_egl_create_stream_attrib (MetaEgl         *egl,
-                                            EGLDisplay       display,
-                                            const EGLAttrib *attrib_list,
-                                            GError         **error);
-
-EGLSurface meta_egl_create_stream_producer_surface (MetaEgl     *egl,
-                                                    EGLDisplay   display,
-                                                    EGLConfig    config,
-                                                    EGLStreamKHR stream,
-                                                    const EGLint *attrib_list,
-                                                    GError      **error);
-
-gboolean meta_egl_stream_consumer_output (MetaEgl          *egl,
-                                          EGLDisplay        display,
-                                          EGLStreamKHR      stream,
-                                          EGLOutputLayerEXT layer,
-                                          GError          **error);
-
-gboolean meta_egl_stream_consumer_acquire_attrib (MetaEgl     *egl,
-                                                  EGLDisplay   display,
-                                                  EGLStreamKHR stream,
-                                                  EGLAttrib   *attrib_list,
-                                                  GError     **error);
-
-gboolean meta_egl_stream_consumer_acquire (MetaEgl     *egl,
-                                           EGLDisplay   display,
-                                           EGLStreamKHR stream,
-                                           GError     **error);
-
-gboolean meta_egl_stream_consumer_gl_texture_external (MetaEgl     *egl,
-                                                       EGLDisplay   display,
-                                                       EGLStreamKHR stream,
-                                                       GError     **error);
-
 gboolean meta_egl_query_dma_buf_formats (MetaEgl    *egl,
                                          EGLDisplay  display,
                                          EGLint      max_formats,
