@@ -1155,7 +1155,6 @@ cogl_context_set_onscreen_dispatch_idle (CoglContext *context,
   context->onscreen_dispatch_idle = closure;
 }
 
-
 CoglIndices *
 cogl_context_get_rectangle_byte_indices (CoglContext *context)
 {
