@@ -286,29 +286,6 @@ cogl_renderer_egl_get_edisplay (CoglRendererEGL *renderer_egl)
   return priv->edisplay;
 }
 
-void
-cogl_renderer_egl_set_needs_config (CoglRendererEGL *renderer_egl,
-                                    gboolean         needs_config)
-{
-  CoglRendererEGLPrivate *priv;
-
-  g_return_if_fail (COGL_IS_RENDERER_EGL (renderer_egl));
-
-  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
-  priv->needs_config = needs_config;
-}
-
-gboolean
-cogl_renderer_egl_get_needs_config (CoglRendererEGL *renderer_egl)
-{
-  CoglRendererEGLPrivate *priv;
-
-  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
-
-  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
-  return priv->needs_config;
-}
-
 EGLSyncKHR
 cogl_renderer_egl_get_sync (CoglRendererEGL *renderer_egl)
 {

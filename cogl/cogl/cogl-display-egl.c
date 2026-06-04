@@ -98,8 +98,7 @@ try_create_context (CoglDisplay  *display,
                                          cfg_attribs);
 
   if (!cogl_renderer_egl_has_feature (renderer_egl,
-                                      COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
-      cogl_renderer_egl_get_needs_config (renderer_egl))
+                                      COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT))
     {
       if (!display_egl_class->choose_config (egl_display,
                                              cfg_attribs,

@@ -84,13 +84,6 @@ void cogl_renderer_egl_set_edisplay (CoglRendererEGL *renderer_egl,
 COGL_EXPORT
 EGLDisplay cogl_renderer_egl_get_edisplay (CoglRendererEGL *renderer_egl);
 
-COGL_EXPORT
-void cogl_renderer_egl_set_needs_config (CoglRendererEGL *renderer_egl,
-                                         gboolean         needs_config);
-
-COGL_EXPORT
-gboolean cogl_renderer_egl_get_needs_config (CoglRendererEGL *renderer_egl);
-
 /**
  * cogl_renderer_egl_get_sync: (skip)
  */

@@ -75,8 +75,6 @@ typedef struct _CoglRendererEGLPrivate
   EGLint egl_version_major;
   EGLint egl_version_minor;
 
-  gboolean needs_config;
-
   /* Sync for latest submitted work */
   EGLSyncKHR sync;
 
