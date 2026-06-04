@@ -38,12 +38,6 @@
 
 CoglDriver * cogl_renderer_get_driver (CoglRenderer *renderer);
 
-CoglClosure * cogl_renderer_add_idle_closure (CoglRenderer  *renderer,
-                                              void (*closure)(void *),
-                                              gpointer       data);
-
-CoglList * cogl_renderer_get_idle_closures (CoglRenderer *renderer);
-
 void cogl_renderer_set_driver (CoglRenderer *renderer,
                                CoglDriver   *driver);
 

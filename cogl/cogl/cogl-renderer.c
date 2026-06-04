@@ -67,8 +67,6 @@ typedef struct _CoglRendererPrivate
   CoglDriver *driver;
   CoglWinsys *winsys;
 
-  CoglList idle_closures;
-
   CoglDriverId driver_id;
 
   void *winsys_user_data;
@@ -95,8 +93,6 @@ cogl_renderer_dispose (GObject *object)
 
   g_clear_pointer (&priv->winsys_user_data,
                    priv->winsys_user_data_destroy);
-
-  _cogl_closure_list_disconnect_all (&priv->idle_closures);
 
   g_clear_object (&priv->winsys);
 
@@ -152,8 +148,6 @@ cogl_renderer_init (CoglRenderer *renderer)
     cogl_renderer_get_instance_private (renderer);
 
   priv->connected = FALSE;
-
-  _cogl_list_init (&priv->idle_closures);
 }
 
 static void
@@ -569,29 +563,6 @@ cogl_renderer_set_winsys_data (CoglRenderer   *renderer,
 
   priv->winsys_user_data = winsys;
   priv->winsys_user_data_destroy = destroy;
-}
-
-CoglClosure *
-cogl_renderer_add_idle_closure (CoglRenderer  *renderer,
-                                void (*closure)(void *),
-                                gpointer       data)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  return _cogl_closure_list_add (&priv->idle_closures,
-                                 closure,
-                                 data,
-                                 NULL);
-}
-
-CoglList *
-cogl_renderer_get_idle_closures (CoglRenderer *renderer)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  return &priv->idle_closures;
 }
 
 void
