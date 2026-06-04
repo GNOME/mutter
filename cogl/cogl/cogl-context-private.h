@@ -393,13 +393,6 @@ cogl_context_remove_atlas (CoglContext *context,
 GHookList *
 cogl_context_get_atlas_reorganize_callbacks (CoglContext *context);
 
-CoglClosure *
-cogl_context_get_onscreen_dispatch_idle (CoglContext *context);
-
-void
-cogl_context_set_onscreen_dispatch_idle (CoglContext *context,
-                                         CoglClosure *closure);
-
 CoglIndices *
 cogl_context_get_rectangle_byte_indices (CoglContext *context);
 
