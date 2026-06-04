@@ -54,11 +54,6 @@ cogl_texture_driver_gl_texture_2d_free (CoglTextureDriver *driver,
     _cogl_delete_gl_texture (cogl_texture_get_context (COGL_TEXTURE (tex_2d)),
                              cogl_texture_driver_get_driver (driver),
                              tex_2d->gl_texture);
-
-#if defined (HAVE_EGL)
-  g_clear_pointer (&tex_2d->egl_image_external.user_data,
-                   tex_2d->egl_image_external.destroy);
-#endif
 }
 
 static gboolean
@@ -304,65 +299,6 @@ allocate_from_egl_image (CoglTexture2D     *tex_2d,
 }
 #endif
 
-#if defined (HAVE_EGL)
-static gboolean
-allocate_custom_egl_image_external (CoglTexture2D     *tex_2d,
-                                    CoglTextureLoader *loader,
-                                    GError           **error)
-{
-  CoglTexture *tex = COGL_TEXTURE (tex_2d);
-  CoglContext *ctx = cogl_texture_get_context (tex);
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglPixelFormat external_format;
-  CoglPixelFormat internal_format;
-
-  external_format = loader->src.egl_image_external.format;
-  internal_format = _cogl_texture_determine_internal_format (tex,
-                                                             external_format);
-
-  cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
-
-  GE (driver, glActiveTexture (GL_TEXTURE0));
-  GE (driver, glGenTextures (1, &tex_2d->gl_texture));
-
-  GE (driver, glBindTexture (GL_TEXTURE_EXTERNAL_OES,
-                             tex_2d->gl_texture));
-
-  if (cogl_driver_gl_get_gl_error (COGL_DRIVER_GL (driver)) != GL_NO_ERROR)
-    {
-      g_set_error_literal (error,
-                           COGL_TEXTURE_ERROR,
-                           COGL_TEXTURE_ERROR_BAD_PARAMETER,
-                           "Could not create a CoglTexture2D from a given "
-                           "EGLImage");
-      GE (driver, glDeleteTextures (1, &tex_2d->gl_texture));
-      return FALSE;
-    }
-
-  GE (driver, glTexParameteri (GL_TEXTURE_EXTERNAL_OES,
-                               GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GE (driver, glTexParameteri (GL_TEXTURE_EXTERNAL_OES,
-                               GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-
-  if (!loader->src.egl_image_external.alloc (tex_2d,
-                                             tex_2d->egl_image_external.user_data,
-                                             error))
-    {
-      GE (driver, glBindTexture (GL_TEXTURE_EXTERNAL_OES, 0));
-      GE (driver, glDeleteTextures (1, &tex_2d->gl_texture));
-      return FALSE;
-    }
-
-  GE (driver, glBindTexture (GL_TEXTURE_EXTERNAL_OES, 0));
-
-  tex_2d->internal_format = internal_format;
-  tex_2d->gl_target = GL_TEXTURE_EXTERNAL_OES;
-  tex_2d->is_get_data_supported = FALSE;
-
-  return TRUE;
-}
-#endif
-
 static gboolean
 cogl_texture_driver_gl_texture_2d_allocate (CoglTextureDriver *driver,
                                             CoglTexture       *tex,
@@ -382,12 +318,6 @@ cogl_texture_driver_gl_texture_2d_allocate (CoglTextureDriver *driver,
     case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE:
 #if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
       return allocate_from_egl_image (tex_2d, loader, error);
-#else
-      g_return_val_if_reached (FALSE);
-#endif
-    case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL:
-#if defined (HAVE_EGL)
-      return allocate_custom_egl_image_external (tex_2d, loader, error);
 #else
       g_return_val_if_reached (FALSE);
 #endif

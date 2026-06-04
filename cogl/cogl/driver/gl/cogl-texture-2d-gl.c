@@ -70,40 +70,6 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
 
   return TRUE;
 }
-
-CoglTexture *
-cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
-                                             int width,
-                                             int height,
-                                             CoglTexture2DEGLImageExternalAlloc alloc,
-                                             gpointer user_data,
-                                             GDestroyNotify destroy,
-                                             GError **error)
-{
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglTextureLoader *loader;
-  CoglTexture2D *tex_2d;
-  CoglPixelFormat internal_format = COGL_PIXEL_FORMAT_ANY;
-
-  g_return_val_if_fail (cogl_driver_has_feature (driver,
-                                                 COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
-                        NULL);
-
-  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL);
-  loader->src.egl_image_external.width = width;
-  loader->src.egl_image_external.height = height;
-  loader->src.egl_image_external.alloc = alloc;
-  loader->src.egl_image_external.format = internal_format;
-
-  tex_2d = COGL_TEXTURE_2D (_cogl_texture_2d_create_base (ctx, width, height,
-                                                          internal_format, loader));
-
-
-  tex_2d->egl_image_external.user_data = user_data;
-  tex_2d->egl_image_external.destroy = destroy;
-
-  return COGL_TEXTURE (tex_2d);
-}
 #endif /* defined (HAVE_EGL) */
 
 void

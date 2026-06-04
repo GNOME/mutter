@@ -214,19 +214,6 @@ cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
                                     EGLImageKHR image,
                                     CoglEglImageFlags flags,
                                     GError **error);
-
-/**
- * cogl_texture_2d_new_from_egl_image_external: (skip)
- */
-COGL_EXPORT CoglTexture *
-cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
-                                             int width,
-                                             int height,
-                                             CoglTexture2DEGLImageExternalAlloc alloc,
-                                             gpointer user_data,
-                                             GDestroyNotify destroy,
-                                             GError **error);
-
 #endif
 
 /**

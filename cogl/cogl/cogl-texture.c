@@ -104,7 +104,6 @@ cogl_texture_loader_free (CoglTextureLoader *loader)
     {
     case COGL_TEXTURE_SOURCE_TYPE_SIZE:
     case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE:
-    case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL:
       break;
     case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
       g_clear_object (&loader->src.bitmap.bitmap);

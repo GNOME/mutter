@@ -66,7 +66,6 @@ typedef enum _CoglTextureSourceType {
   COGL_TEXTURE_SOURCE_TYPE_SIZE = 1,
   COGL_TEXTURE_SOURCE_TYPE_BITMAP,
   COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE,
-  COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL
 } CoglTextureSourceType;
 
 typedef struct _CoglTextureLoader
@@ -92,14 +91,6 @@ typedef struct _CoglTextureLoader
       CoglPixelFormat format;
       CoglEglImageFlags flags;
     } egl_image;
-#endif
-#if defined (HAVE_EGL)
-    struct {
-      int width;
-      int height;
-      CoglTexture2DEGLImageExternalAlloc alloc;
-      CoglPixelFormat format;
-    } egl_image_external;
 #endif
     struct {
       int width;

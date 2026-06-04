@@ -355,9 +355,6 @@ cogl_texture_2d_init (CoglTexture2D *self)
   /* Wrap mode not yet set */
   self->gl_legacy_texobj_wrap_mode_s = GL_FALSE;
   self->gl_legacy_texobj_wrap_mode_t = GL_FALSE;
-
-  self->egl_image_external.user_data = NULL;
-  self->egl_image_external.destroy = NULL;
 }
 
 CoglTexture *
