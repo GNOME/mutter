@@ -184,14 +184,6 @@ gboolean meta_egl_egl_device_has_extensions (MetaEgl        *egl,
                                              const char     *first_extension,
                                              ...);
 
-gboolean meta_egl_get_output_layers (MetaEgl           *egl,
-                                     EGLDisplay         display,
-                                     const EGLAttrib   *attrib_list,
-                                     EGLOutputLayerEXT *layers,
-                                     EGLint             max_layers,
-                                     EGLint            *num_layers,
-                                     GError           **error);
-
 gboolean meta_egl_query_dma_buf_formats (MetaEgl    *egl,
                                          EGLDisplay  display,
                                          EGLint      max_formats,

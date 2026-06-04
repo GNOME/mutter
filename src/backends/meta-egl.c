@@ -56,8 +56,6 @@ struct _MetaEgl
   PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT;
   PFNEGLQUERYDEVICESTRINGEXTPROC eglQueryDeviceStringEXT;
 
-  PFNEGLGETOUTPUTLAYERSEXTPROC eglGetOutputLayersEXT;
-
   PFNEGLQUERYDMABUFFORMATSEXTPROC eglQueryDmaBufFormatsEXT;
   PFNEGLQUERYDMABUFMODIFIERSEXTPROC eglQueryDmaBufModifiersEXT;
 
@@ -848,31 +846,6 @@ meta_egl_egl_device_has_extensions (MetaEgl        *egl,
 }
 
 gboolean
-meta_egl_get_output_layers (MetaEgl           *egl,
-                            EGLDisplay         display,
-                            const EGLAttrib   *attrib_list,
-                            EGLOutputLayerEXT *layers,
-                            EGLint             max_layers,
-                            EGLint            *num_layers,
-                            GError           **error)
-{
-  if (!is_egl_proc_valid (egl->eglGetOutputLayersEXT, error))
-    return FALSE;
-
-  if (!egl->eglGetOutputLayersEXT (display,
-                                   attrib_list,
-                                   layers,
-                                   max_layers,
-                                   num_layers))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-gboolean
 meta_egl_query_dma_buf_formats (MetaEgl   *egl,
                                 EGLDisplay display,
                                 EGLint     max_formats,
@@ -1047,8 +1020,6 @@ meta_egl_constructed (GObject *object)
 
   GET_EGL_PROC_ADDR (eglQueryDevicesEXT);
   GET_EGL_PROC_ADDR (eglQueryDeviceStringEXT);
-
-  GET_EGL_PROC_ADDR (eglGetOutputLayersEXT);
 
   GET_EGL_PROC_ADDR (eglQueryDmaBufFormatsEXT);
   GET_EGL_PROC_ADDR (eglQueryDmaBufModifiersEXT);
