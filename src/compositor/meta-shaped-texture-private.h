@@ -38,8 +38,6 @@ void meta_shaped_texture_set_color_state (MetaShapedTexture *stex,
                                           ClutterColorState *color_state);
 void meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
                                             gboolean           is_y_inverted);
-void meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
-                                      CoglSnippet       *snippet);
 void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
                                             int                fallback_width,
                                             int                fallback_height);

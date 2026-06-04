@@ -95,7 +95,6 @@ struct _MetaShapedTexture
 
   MetaMultiTexture *texture;
   CoglTexture *mask_texture;
-  CoglSnippet *snippet;
   ClutterColorState *color_state;
 
   CoglPipeline *base_pipeline;
@@ -347,8 +346,6 @@ meta_shaped_texture_dispose (GObject *object)
   g_clear_pointer (&stex->opaque_region, mtk_region_unref);
   g_clear_pointer (&stex->clip_region, mtk_region_unref);
 
-  g_clear_pointer (&stex->snippet, g_object_unref);
-
   G_OBJECT_CLASS (meta_shaped_texture_parent_class)->dispose (object);
 }
 
@@ -515,9 +512,6 @@ get_unmasked_pipeline (MetaShapedTexture   *stex,
         return pipeline;
 
       pipeline = cogl_pipeline_copy (get_combined_pipeline (stex, paint_context));
-      if (stex->snippet)
-        cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
-
       attach_and_save_color_snippet (stex,
                                      color_state, target_color_state,
                                      pipeline, PIPELINE_CACHE_SLOT_UNMASKED);
@@ -578,9 +572,6 @@ get_masked_pipeline (MetaShapedTexture   *stex,
       cogl_pipeline_set_layer_combine (pipeline, 1,
                                        "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
                                        NULL);
-      if (stex->snippet)
-        cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
-
       attach_and_save_color_snippet (stex,
                                      color_state, target_color_state,
                                      pipeline, PIPELINE_CACHE_SLOT_MASKED);
@@ -642,9 +633,6 @@ get_unblended_pipeline (MetaShapedTexture   *stex,
       cogl_pipeline_set_layer_combine (pipeline, 0,
                                        "RGBA = REPLACE (TEXTURE)",
                                        NULL);
-      if (stex->snippet)
-        cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
-
       attach_and_save_color_snippet (stex,
                                      color_state, target_color_state,
                                      pipeline, PIPELINE_CACHE_SLOT_UNBLENDED);
@@ -1361,23 +1349,6 @@ meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
   meta_shaped_texture_reset_pipelines (stex);
 
   stex->is_y_inverted = is_y_inverted;
-}
-
-/**
- * meta_shaped_texture_set_snippet: (skip)
- */
-void
-meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
-                                 CoglSnippet       *snippet)
-{
-  if (stex->snippet == snippet)
-    return;
-
-  meta_shaped_texture_reset_pipelines (stex);
-
-  g_clear_pointer (&stex->snippet, g_object_unref);
-  if (snippet)
-    stex->snippet = g_object_ref (snippet);
 }
 
 /**
