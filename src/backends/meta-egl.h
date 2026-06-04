@@ -166,12 +166,6 @@ gboolean meta_egl_query_wayland_buffer (MetaEgl            *egl,
                                         EGLint             *value,
                                         GError            **error);
 
-gboolean meta_egl_query_devices (MetaEgl      *egl,
-                                 EGLint        max_devices,
-                                 EGLDeviceEXT *devices,
-                                 EGLint       *num_devices,
-                                 GError      **error);
-
 gboolean meta_egl_query_device_string (MetaEgl       *egl,
                                        EGLDeviceEXT   device,
                                        EGLint         name,

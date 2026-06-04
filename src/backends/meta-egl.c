@@ -53,7 +53,6 @@ struct _MetaEgl
   PFNEGLBINDWAYLANDDISPLAYWL eglBindWaylandDisplayWL;
   PFNEGLQUERYWAYLANDBUFFERWL eglQueryWaylandBufferWL;
 
-  PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT;
   PFNEGLQUERYDEVICESTRINGEXTPROC eglQueryDeviceStringEXT;
 
   PFNEGLQUERYDMABUFFORMATSEXTPROC eglQueryDmaBufFormatsEXT;
@@ -761,27 +760,6 @@ meta_egl_query_wayland_buffer (MetaEgl            *egl,
 }
 
 gboolean
-meta_egl_query_devices (MetaEgl      *egl,
-                        EGLint        max_devices,
-                        EGLDeviceEXT *devices,
-                        EGLint       *num_devices,
-                        GError      **error)
-{
-  if (!is_egl_proc_valid (egl->eglQueryDevicesEXT, error))
-    return FALSE;
-
-  if (!egl->eglQueryDevicesEXT (max_devices,
-                                devices,
-                                num_devices))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-gboolean
 meta_egl_query_device_string (MetaEgl       *egl,
                               EGLDeviceEXT   device,
                               EGLint         name,
@@ -1018,7 +996,6 @@ meta_egl_constructed (GObject *object)
   GET_EGL_PROC_ADDR (eglBindWaylandDisplayWL);
   GET_EGL_PROC_ADDR (eglQueryWaylandBufferWL);
 
-  GET_EGL_PROC_ADDR (eglQueryDevicesEXT);
   GET_EGL_PROC_ADDR (eglQueryDeviceStringEXT);
 
   GET_EGL_PROC_ADDR (eglQueryDmaBufFormatsEXT);
