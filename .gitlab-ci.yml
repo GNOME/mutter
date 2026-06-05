@@ -116,7 +116,6 @@ variables:
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
       clang
-      egl-wayland-devel
       gcovr
       gnome-kiosk
       gnome-shell
@@ -404,8 +403,6 @@ check-python-code-style:
     # This is temporary anyway as x11 should be going
     # to live in a farm soon anyway
     BASE_MESON_OPTIONS:
-      -Degl_device=true
-      -Dwayland_eglstream=true
       -Dcatch=true
 
 .build-mutter:
@@ -479,8 +476,6 @@ build-without-opengl@x86_64:
         --wrap-mode nofallback
         -Dbuildtype=debugoptimized
         -Dopengl=false
-        -Degl_device=true
-        -Dwayland_eglstream=true
         -Dintrospection=false
     - meson compile -C build
     - sudo meson install --no-rebuild -C build
