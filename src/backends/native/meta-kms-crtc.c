@@ -975,6 +975,23 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
           next_deadline_us = now_us;
         }
     }
+  else if (now_us > next_deadline_us &&
+           now_us - next_deadline_us <= DEADLINE_EVASION_CONSTANT_US &&
+           (!target_presentation_time_us ||
+            mtk_find_nearest_interval_boundary (next_presentation_us,
+                                                target_presentation_time_us,
+                                                refresh_interval_us) ==
+            next_presentation_us))
+    {
+      if (target_presentation_time_us)
+        {
+          meta_topic (META_DEBUG_KMS_DEADLINE,
+                      "CRTC %d missed deadline by %3"G_GINT64_FORMAT "µs, "
+                      "starting ASAP for FRR",
+                      meta_kms_crtc_get_id (crtc),
+                      now_us - next_deadline_us);
+        }
+    }
   else if (now_us > next_deadline_us)
     {
       int64_t skip_us;
