@@ -143,6 +143,15 @@ struct _ClutterFrameClock
   /* Maximum update duration estimate */
   int64_t max_update_duration_us;
 
+  struct {
+    /* Current margin for maximum update duration estimate */
+    int64_t current_us;
+    /* Target margin for maximum update duration estimate */
+    int64_t target_us;
+    /* Last time the current margin was updated */
+    int64_t set_time_us;
+  } max_update_margin;
+
   gboolean ever_got_measurements;
 
   gboolean pending_reschedule;
@@ -409,21 +418,37 @@ maybe_reschedule_update (ClutterFrameClock *frame_clock)
     }
 }
 
-static void
-adjust_max_update_duration_estimate (ClutterFrameClock *frame_clock,
-                                     int64_t            update_duration_us)
+static int64_t
+get_max_update_time_margin_us (ClutterFrameClock *frame_clock)
 {
+  return clutter_max_render_time_constant_us +
+         frame_clock->max_update_margin.current_us;
+}
+
+static void
+adjust_update_duration_estimates (ClutterFrameClock *frame_clock,
+                                  int64_t            update_duration_us)
+{
+  int64_t refresh_interval_us = frame_clock->refresh_interval_us;
   float refresh_rate = frame_clock->refresh_rate;
   int64_t delta_us, adjustment_us;
+  int64_t target_margin_us;
+  int64_t now_us;
 
   delta_us = update_duration_us - frame_clock->max_update_duration_us;
+
+  target_margin_us =
+    CLAMP (delta_us - clutter_max_render_time_constant_us,
+           frame_clock->max_update_margin.target_us,
+           refresh_interval_us / 4);
+  frame_clock->max_update_margin.target_us = target_margin_us;
 
   /* Adjust the estimate by a fraction of the delta such that it'll take at
    * least seconds for the estimate to catch up to the latest measurement
    */
   if (delta_us < 0)
     adjustment_us = (int64_t) roundf ((float) delta_us / (refresh_rate * 4));
-  else if (delta_us < clutter_max_render_time_constant_us)
+  else if (delta_us < get_max_update_time_margin_us (frame_clock))
     adjustment_us = (int64_t) roundf ((float) delta_us / refresh_rate);
   else
     adjustment_us = delta_us;
@@ -437,6 +462,42 @@ adjust_max_update_duration_estimate (ClutterFrameClock *frame_clock,
                     frame_clock->max_update_duration_us + adjustment_us);
       frame_clock->max_update_duration_us += adjustment_us;
     }
+
+  now_us = g_get_monotonic_time ();
+  delta_us = target_margin_us - frame_clock->max_update_margin.current_us;
+
+  if (delta_us <= 0)
+    {
+      if (now_us - frame_clock->max_update_margin.set_time_us < G_USEC_PER_SEC)
+        return;
+
+      /* Lower dynamic margin by a fraction of the delta such that it'll take
+       * at least a minute for the margin to drop to the latest measurement
+       */
+      adjustment_us = delta_us / 60;
+      frame_clock->max_update_margin.target_us = 0;
+    }
+  else if (delta_us < clutter_max_render_time_constant_us)
+    {
+      /* Raise dynamic margin half way toward the latest measurement */
+      adjustment_us = MAX (delta_us / 2, 1);
+    }
+  else
+    {
+      adjustment_us = delta_us;
+    }
+
+  if (adjustment_us == 0)
+    return;
+
+  CLUTTER_NOTE (FRAME_TIMINGS,
+                "%s update duration margin updated: %ld → %ld µs",
+                frame_clock->output_name,
+                frame_clock->max_update_margin.current_us,
+                frame_clock->max_update_margin.current_us + adjustment_us);
+
+  frame_clock->max_update_margin.current_us += adjustment_us;
+  frame_clock->max_update_margin.set_time_us = now_us;
 }
 
 void
@@ -585,7 +646,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
              frame_clock->deadline_evasion_us,
              3 * frame_clock->refresh_interval_us);
 
-      adjust_max_update_duration_estimate (frame_clock, update_duration_us);
+      adjust_update_duration_estimates (frame_clock, update_duration_us);
 
       presented_frame->got_measurements = TRUE;
       frame_clock->ever_got_measurements = TRUE;
@@ -851,12 +912,12 @@ clutter_frame_clock_estimate_max_update_time_us (ClutterFrameClock *frame_clock,
    *   both of these things need to happen before the vblank, and they are done
    *   in parallel.
    * - The duration of vertical blank.
-   * - A constant to account for variations in the above estimates.
+   * - A margin to account for variations in the above estimates.
    */
   *max_update_time_estimate_us =
     frame_clock->max_update_duration_us +
     frame_clock->vblank_duration_us +
-    clutter_max_render_time_constant_us;
+    get_max_update_time_margin_us (frame_clock);
 
   *max_update_time_estimate_us = CLAMP (*max_update_time_estimate_us, 0,
                                         maximum_us);
@@ -1804,8 +1865,8 @@ clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clo
                           frame_clock->vblank_duration_us);
   g_string_append_printf (string, "\nUpdate duration: %ld µs +",
                           frame_clock->max_update_duration_us);
-  g_string_append_printf (string, "\nConstant: %d µs",
-                          clutter_max_render_time_constant_us);
+  g_string_append_printf (string, "\nMargin: %ld µs",
+                          get_max_update_time_margin_us (frame_clock));
 
   return string;
 }
