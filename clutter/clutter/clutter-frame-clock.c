@@ -140,12 +140,8 @@ struct _ClutterFrameClock
    */
   int64_t vblank_duration_us;
 
-  /* Last time we promoted short-term maximum to long-term one */
-  int64_t longterm_promotion_us;
-  /* Long-term maximum update duration */
-  int64_t longterm_max_update_duration_us;
-  /* Short-term maximum update duration */
-  int64_t shortterm_max_update_duration_us;
+  /* Maximum update duration estimate */
+  int64_t max_update_duration_us;
 
   gboolean ever_got_measurements;
 
@@ -414,46 +410,33 @@ maybe_reschedule_update (ClutterFrameClock *frame_clock)
 }
 
 static void
-maybe_update_longterm_max_duration_us (ClutterFrameClock *frame_clock,
-                                       ClutterFrameInfo  *frame_info)
+adjust_max_update_duration_estimate (ClutterFrameClock *frame_clock,
+                                     int64_t            update_duration_us)
 {
-  if ((frame_info->presentation_time - frame_clock->longterm_promotion_us) <
-      G_USEC_PER_SEC)
-    return;
+  float refresh_rate = frame_clock->refresh_rate;
+  int64_t delta_us, adjustment_us;
 
-  if (frame_clock->longterm_max_update_duration_us >
-      frame_clock->shortterm_max_update_duration_us)
-    {
-      int64_t old_duration_us;
+  delta_us = update_duration_us - frame_clock->max_update_duration_us;
 
-      old_duration_us = frame_clock->longterm_max_update_duration_us;
-
-      /* Exponential drop-off toward the short-term max */
-      frame_clock->longterm_max_update_duration_us -=
-        (frame_clock->longterm_max_update_duration_us -
-         frame_clock->shortterm_max_update_duration_us) / 2;
-
-      CLUTTER_NOTE (FRAME_TIMINGS,
-                    "%s maximum update duration updated: %ldµs → %ldµs",
-                    frame_clock->output_name,
-                    old_duration_us,
-                    frame_clock->longterm_max_update_duration_us);
-    }
+  /* Adjust the estimate by a fraction of the delta such that it'll take at
+   * least seconds for the estimate to catch up to the latest measurement
+   */
+  if (delta_us < 0)
+    adjustment_us = (int64_t) roundf ((float) delta_us / (refresh_rate * 4));
+  else if (delta_us < clutter_max_render_time_constant_us)
+    adjustment_us = (int64_t) roundf ((float) delta_us / refresh_rate);
   else
+    adjustment_us = delta_us;
+
+  if (adjustment_us != 0)
     {
-      frame_clock->longterm_max_update_duration_us =
-        frame_clock->shortterm_max_update_duration_us;
+      CLUTTER_NOTE (FRAME_TIMINGS,
+                    "%s maximum update duration updated: %ld → %ld µs",
+                    frame_clock->output_name,
+                    frame_clock->max_update_duration_us,
+                    frame_clock->max_update_duration_us + adjustment_us);
+      frame_clock->max_update_duration_us += adjustment_us;
     }
-
-  frame_clock->shortterm_max_update_duration_us = 0;
-  frame_clock->longterm_promotion_us = frame_info->presentation_time;
-}
-
-static int64_t
-get_max_update_duration_us (ClutterFrameClock *frame_clock)
-{
-  return MAX (frame_clock->longterm_max_update_duration_us,
-              frame_clock->shortterm_max_update_duration_us);
 }
 
 void
@@ -574,9 +557,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   if (frame_info->kms_ready_time_us ||
       frame_clock->ever_got_measurements)
     {
-      int64_t to_flip_us, to_kms_ready_us = 0;
+      int64_t to_flip_us, to_kms_ready_us = 0, update_duration_us;
       int64_t kms_ready_time_us = frame_info->kms_ready_time_us;
-      int64_t max_duration_us;
       const char *ready_name = "(no ready time)";
 
       to_flip_us = presented_frame->flip_time_us - dispatch_time_us;
@@ -597,25 +579,13 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                     presented_frame->dispatch_lateness_us,
                     to_flip_us, to_kms_ready_us, ready_name);
 
-      max_duration_us = get_max_update_duration_us (frame_clock);
+      update_duration_us =
+        MIN (presented_frame->dispatch_lateness_us +
+             MAX (to_kms_ready_us, to_flip_us) +
+             frame_clock->deadline_evasion_us,
+             3 * frame_clock->refresh_interval_us);
 
-      frame_clock->shortterm_max_update_duration_us =
-        CLAMP (presented_frame->dispatch_lateness_us +
-               MAX (to_kms_ready_us, to_flip_us) +
-               frame_clock->deadline_evasion_us,
-               frame_clock->shortterm_max_update_duration_us,
-               3 * frame_clock->refresh_interval_us);
-
-      if (frame_clock->shortterm_max_update_duration_us > max_duration_us)
-        {
-          CLUTTER_NOTE (FRAME_TIMINGS,
-                        "%s maximum update duration updated: %ldµs → %ldµs",
-                        frame_clock->output_name,
-                        max_duration_us,
-                        frame_clock->shortterm_max_update_duration_us);
-        }
-
-      maybe_update_longterm_max_duration_us (frame_clock, frame_info);
+      adjust_max_update_duration_estimate (frame_clock, update_duration_us);
 
       presented_frame->got_measurements = TRUE;
       frame_clock->ever_got_measurements = TRUE;
@@ -884,7 +854,7 @@ clutter_frame_clock_estimate_max_update_time_us (ClutterFrameClock *frame_clock,
    * - A constant to account for variations in the above estimates.
    */
   *max_update_time_estimate_us =
-    get_max_update_duration_us (frame_clock) +
+    frame_clock->max_update_duration_us +
     frame_clock->vblank_duration_us +
     clutter_max_render_time_constant_us;
 
@@ -1833,7 +1803,7 @@ clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clo
   g_string_append_printf (string, "\nVblank duration: %ld µs +",
                           frame_clock->vblank_duration_us);
   g_string_append_printf (string, "\nUpdate duration: %ld µs +",
-                          get_max_update_duration_us (frame_clock));
+                          frame_clock->max_update_duration_us);
   g_string_append_printf (string, "\nConstant: %d µs",
                           clutter_max_render_time_constant_us);
 
