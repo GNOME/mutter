@@ -466,6 +466,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   const char *double_or_triple =
     frame_clock->state == CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO ?
     "triple" : "double";
+  int64_t last_presentation_time_us = 0;
   int64_t dispatch_time_us;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyPresented,
@@ -478,6 +479,13 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                 frame_clock->output_name);
 
   g_return_if_fail (frame_clock->next_presentation);
+
+  if (frame_clock->prev_presentation)
+    {
+      last_presentation_time_us =
+        frame_clock->prev_presentation->presentation_time_us;
+    }
+
   clear_frame (&frame_clock->prev_presentation);
   presented_frame = frame_clock->prev_presentation =
     g_steal_pointer (&frame_clock->next_presentation);
@@ -639,13 +647,30 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 
           if (frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_VARIABLE)
             {
-              CLUTTER_NOTE (FRAME_TIMINGS,
-                            "%s frame %ld presented at %ld, %4" G_GINT64_FORMAT "µs %s",
-                            frame_clock->output_name,
-                            frame_info->view_frame_counter,
-                            frame_info->presentation_time,
-                            (int64_t)llabs (diff_us),
-                            diff_us > 0 ? "late" : "early");
+              if (last_presentation_time_us > 0)
+                {
+                  CLUTTER_NOTE (FRAME_TIMINGS,
+                                "%s frame %ld presented after %ld µs at %ld"
+                                ", %4ld µs %s",
+                                frame_clock->output_name,
+                                frame_info->view_frame_counter,
+                                frame_info->presentation_time -
+                                last_presentation_time_us,
+                                frame_info->presentation_time,
+                                (int64_t)llabs (diff_us),
+                                diff_us > 0 ? "late" : "early");
+                }
+              else
+                {
+                  CLUTTER_NOTE (FRAME_TIMINGS,
+                                "%s frame %ld presented at %ld, %4ld µs %s",
+                                frame_clock->output_name,
+                                frame_info->view_frame_counter,
+                                frame_info->presentation_time,
+                                (int64_t)llabs (diff_us),
+                                diff_us > 0 ? "late" : "early");
+                }
+
               logged = TRUE;
             }
           else
@@ -657,15 +682,33 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 
               if (n_missed_cycles)
                 {
-                  CLUTTER_NOTE (FRAME_TIMINGS,
-                                "%s frame %ld presented at %ld, %5" G_GINT64_FORMAT "µs "
-                                "(%d refresh cycle%s) %s",
-                                frame_clock->output_name,
-                                frame_info->view_frame_counter,
-                                frame_info->presentation_time,
-                                (int64_t)llabs (diff_us), n_missed_cycles,
-                                n_missed_cycles > 1 ? "s" : "",
-                                diff_us > 0 ? "late" : "early");
+                  if (last_presentation_time_us > 0)
+                    {
+                      CLUTTER_NOTE (FRAME_TIMINGS,
+                                    "%s frame %ld presented after %ld µs at %ld"
+                                    ", %4ld µs (%d refresh cycle%s) %s",
+                                    frame_clock->output_name,
+                                    frame_info->view_frame_counter,
+                                    frame_info->presentation_time -
+                                    last_presentation_time_us,
+                                    frame_info->presentation_time,
+                                    (int64_t)llabs (diff_us), n_missed_cycles,
+                                    n_missed_cycles > 1 ? "s" : "",
+                                    diff_us > 0 ? "late" : "early");
+                    }
+                  else
+                    {
+                      CLUTTER_NOTE (FRAME_TIMINGS,
+                                    "%s frame %ld presented at %ld"
+                                    ", %4ld µs (%d refresh cycle%s) %s",
+                                    frame_clock->output_name,
+                                    frame_info->view_frame_counter,
+                                    frame_info->presentation_time,
+                                    (int64_t)llabs (diff_us), n_missed_cycles,
+                                    n_missed_cycles > 1 ? "s" : "",
+                                    diff_us > 0 ? "late" : "early");
+                    }
+
                   logged = TRUE;
                 }
             }
@@ -673,11 +716,24 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 
       if (!logged)
         {
-          CLUTTER_NOTE (FRAME_TIMINGS,
-                        "%s frame %ld presented at %ld",
-                        frame_clock->output_name,
-                        frame_info->view_frame_counter,
-                        frame_info->presentation_time);
+          if (last_presentation_time_us > 0)
+            {
+              CLUTTER_NOTE (FRAME_TIMINGS,
+                            "%s frame %ld presented after %ld µs at %ld",
+                            frame_clock->output_name,
+                            frame_info->view_frame_counter,
+                            frame_info->presentation_time -
+                            last_presentation_time_us,
+                            frame_info->presentation_time);
+            }
+          else
+            {
+              CLUTTER_NOTE (FRAME_TIMINGS,
+                            "%s frame %ld presented at %ld",
+                            frame_clock->output_name,
+                            frame_info->view_frame_counter,
+                            frame_info->presentation_time);
+            }
         }
     }
 
