@@ -624,54 +624,61 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     }
 
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_TIMINGS)) &&
-      presented_frame->target_presentation_time_us > 0 &&
-      frame_info->presentation_time > 0 &&
-      presented_frame->target_presentation_time_us !=
-      frame_info->presentation_time)
+      frame_info->presentation_time > 0)
     {
-      int64_t diff_us;
+      gboolean logged = FALSE;
 
-      diff_us = frame_info->presentation_time -
-                presented_frame->target_presentation_time_us;
-
-      if (frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_VARIABLE)
+      if (presented_frame->target_presentation_time_us > 0 &&
+          presented_frame->target_presentation_time_us !=
+          frame_info->presentation_time)
         {
-          CLUTTER_NOTE (FRAME_TIMINGS,
-                        "%s frame %ld presented at %ld, %4" G_GINT64_FORMAT "µs %s",
-                        frame_clock->output_name,
-                        frame_info->view_frame_counter,
-                        frame_info->presentation_time,
-                        (int64_t)llabs (diff_us),
-                        diff_us > 0 ? "late" : "early");
-        }
-      else
-        {
-          int n_missed_cycles;
+          int64_t diff_us;
 
-          n_missed_cycles = (int) roundf ((float) llabs (diff_us) /
-                                          (float) frame_clock->refresh_interval_us);
+          diff_us = frame_info->presentation_time -
+                    presented_frame->target_presentation_time_us;
 
-          if (n_missed_cycles)
+          if (frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_VARIABLE)
             {
               CLUTTER_NOTE (FRAME_TIMINGS,
-                            "%s frame %ld presented at %ld, %5" G_GINT64_FORMAT "µs "
-                            "(%d refresh cycle%s) %s",
+                            "%s frame %ld presented at %ld, %4" G_GINT64_FORMAT "µs %s",
                             frame_clock->output_name,
                             frame_info->view_frame_counter,
                             frame_info->presentation_time,
-                            (int64_t)llabs (diff_us), n_missed_cycles,
-                            n_missed_cycles > 1 ? "s" : "",
+                            (int64_t)llabs (diff_us),
                             diff_us > 0 ? "late" : "early");
+              logged = TRUE;
+            }
+          else
+            {
+              int n_missed_cycles;
+
+              n_missed_cycles = (int) roundf ((float) llabs (diff_us) /
+                                              (float) frame_clock->refresh_interval_us);
+
+              if (n_missed_cycles)
+                {
+                  CLUTTER_NOTE (FRAME_TIMINGS,
+                                "%s frame %ld presented at %ld, %5" G_GINT64_FORMAT "µs "
+                                "(%d refresh cycle%s) %s",
+                                frame_clock->output_name,
+                                frame_info->view_frame_counter,
+                                frame_info->presentation_time,
+                                (int64_t)llabs (diff_us), n_missed_cycles,
+                                n_missed_cycles > 1 ? "s" : "",
+                                diff_us > 0 ? "late" : "early");
+                  logged = TRUE;
+                }
             }
         }
-    }
-  else if (frame_info->presentation_time > 0)
-    {
-      CLUTTER_NOTE (FRAME_TIMINGS,
-                    "%s frame %ld presented at %ld",
-                    frame_clock->output_name,
-                    frame_info->view_frame_counter,
-                    frame_info->presentation_time);
+
+      if (!logged)
+        {
+          CLUTTER_NOTE (FRAME_TIMINGS,
+                        "%s frame %ld presented at %ld",
+                        frame_clock->output_name,
+                        frame_info->view_frame_counter,
+                        frame_info->presentation_time);
+        }
     }
 
   if (frame_info->refresh_rate > 1.0)
