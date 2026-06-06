@@ -350,6 +350,17 @@ typedef struct
   MetaBarrierState state;
 } MetaBarrierIdleData;
 
+static void
+barrier_idle_data_free (gpointer data)
+{
+  MetaBarrierIdleData *idle_data = data;
+
+  g_clear_pointer (&idle_data->event, meta_barrier_event_unref);
+  g_clear_object (&idle_data->barrier);
+
+  g_free (idle_data);
+}
+
 static gboolean
 emit_event_idle (MetaBarrierIdleData *idle_data)
 {
@@ -357,8 +368,6 @@ emit_event_idle (MetaBarrierIdleData *idle_data)
     meta_barrier_emit_hit_signal (idle_data->barrier, idle_data->event);
   else
     meta_barrier_emit_left_signal (idle_data->barrier, idle_data->event);
-
-  meta_barrier_event_unref (idle_data->event);
 
   return G_SOURCE_REMOVE;
 }
@@ -372,7 +381,7 @@ queue_event (MetaBarrierImplNative *self,
 
   idle_data = g_new0 (MetaBarrierIdleData, 1);
   idle_data->state = self->state;
-  idle_data->barrier = self->barrier;
+  g_set_object (&idle_data->barrier, self->barrier);
   idle_data->event = event;
 
   source = g_idle_source_new ();
@@ -380,7 +389,7 @@ queue_event (MetaBarrierImplNative *self,
   g_source_set_callback (source,
                          (GSourceFunc) emit_event_idle,
                          idle_data,
-                         g_free);
+                         barrier_idle_data_free);
 
   g_source_attach (source, self->main_context);
   g_source_unref (source);
