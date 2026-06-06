@@ -1073,7 +1073,8 @@ meta_kms_crtc_update_shortterm_max_dispatch_duration (MetaKmsCrtc *crtc,
     (int64_t) (0.5 + G_USEC_PER_SEC /
                meta_calculate_drm_mode_refresh_rate (&crtc->current_state.drm_mode));
 
-  crtc->shortterm_max_dispatch_duration_us = MIN (duration_us, refresh_interval_us);
+  crtc->shortterm_max_dispatch_duration_us =
+    MIN (duration_us, refresh_interval_us - DEADLINE_EVASION_CONSTANT_US);
 }
 
 int64_t
