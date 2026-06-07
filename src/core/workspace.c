@@ -1442,6 +1442,15 @@ is_focusable (MetaWindow    *window,
 }
 
 static gboolean
+is_valid_focus_candidate (MetaWindow    *window,
+                          MetaWorkspace *workspace,
+                          MetaWindow    *not_this_one)
+{
+  return window != not_this_one &&
+         is_focusable (window, workspace);
+}
+
+static gboolean
 find_focusable_ancestor (MetaWindow *window,
                          gpointer    user_data)
 {
@@ -1468,7 +1477,7 @@ meta_workspace_get_default_focus_candidates (MetaWorkspace *workspace)
 
       g_assert (window);
 
-      if (!is_focusable (window, workspace))
+      if (!is_valid_focus_candidate (window, workspace, NULL))
         continue;
 
       candidates = g_list_prepend (candidates, window);
@@ -1518,10 +1527,7 @@ meta_workspace_get_default_focus_window_at_point (MetaWorkspace *workspace,
 
       g_assert (window);
 
-      if (window == not_this_one)
-        continue;
-
-      if (!is_focusable (window, workspace))
+      if (!is_valid_focus_candidate (window, workspace, not_this_one))
         continue;
 
       if (!window_contains_point (window, root_x, root_y))
@@ -1548,10 +1554,7 @@ meta_workspace_get_default_focus_window (MetaWorkspace *workspace,
 
       g_assert (window);
 
-      if (window == not_this_one)
-        continue;
-
-      if (!is_focusable (window, workspace))
+      if (!is_valid_focus_candidate (window, workspace, not_this_one))
         continue;
 
       return window;
