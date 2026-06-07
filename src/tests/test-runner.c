@@ -35,6 +35,7 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"
+#include "meta/meta-enum-types.h"
 #include "meta-test/meta-context-test.h"
 #include "meta/util.h"
 #include "meta/window.h"
@@ -1677,6 +1678,32 @@ test_case_do (TestCase    *test,
         }
 
       meta_window_set_maximize_flags (window, flags);
+    }
+  else if (strcmp (argv[0], "set_window_type") == 0)
+    {
+      g_autoptr (GTypeClass) window_type_class = NULL;
+      MetaWindow *window;
+      MetaTestClient *client;
+      const char *window_id;
+      GEnumValue *window_type_value;
+
+      if (argc != 3)
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> <window-type-nick>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      window_type_class = g_type_class_ref (META_TYPE_WINDOW_TYPE);
+      window_type_value = g_enum_get_value_by_nick (G_ENUM_CLASS (window_type_class),
+                                                    argv[2]);
+      if (!window_type_value)
+        BAD_COMMAND ("Invalid window type nick '%s'", argv[2]);
+
+      meta_window_set_type (window, window_type_value->value);
     }
   else if (strcmp (argv[0], "hide") == 0 ||
            strcmp (argv[0], "activate") == 0 ||
