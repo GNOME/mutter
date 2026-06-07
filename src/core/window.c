@@ -5788,6 +5788,7 @@ static void
 meta_window_type_changed (MetaWindow *window)
 {
   gboolean old_decorated = window->decorated;
+  gboolean had_focus = meta_window_has_focus (window);
   GObject  *object = G_OBJECT (window);
 
   window->attached = meta_window_should_attach_to_parent (window);
@@ -5809,6 +5810,15 @@ meta_window_type_changed (MetaWindow *window)
 
   /* update stacking constraints */
   meta_window_update_layer (window);
+
+  if (had_focus)
+    {
+      MetaWorkspace *workspace = meta_window_get_workspace (window);
+      guint32 timestamp = meta_display_get_current_time_roundtrip (window->display);
+
+      window->restore_focus_on_map = FALSE;
+      meta_workspace_focus_default_window (workspace, window, timestamp);
+    }
 
   g_object_freeze_notify (object);
 

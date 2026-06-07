@@ -11,8 +11,6 @@ show 1/desktop
 set_window_type 1/desktop desktop
 wait
 
-focus_default_window
-wait
 assert_focused 1/normal
 
 # Adding a dock window to ensure it does not take focus
@@ -21,8 +19,6 @@ show 1/dock
 set_window_type 1/dock dock
 wait
 
-focus_default_window
-wait
 assert_focused 1/normal
 
 # Explicitly focus the desktop window first, then ensure default focus
