@@ -1304,6 +1304,8 @@ stacking_tests = [
   'always-on-top-map-new-maximized',
   'always-on-top-map-new-partial',
   'focus-default-window-globally-active-input',
+  'focus-default-window-desktop-last-wayland',
+  'focus-default-window-desktop-last-x11',
   'workspace-unmanaging-window',
   'click-to-focus-and-raise',
   'workspace-only-on-primary-focus',
