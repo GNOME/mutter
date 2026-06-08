@@ -113,6 +113,23 @@ update_is_obscured (MetaSurfaceActor *surface_actor)
                             obj_props[PROP_IS_OBSCURED]);
 }
 
+static MtkRectangle
+get_preferred_size_bounds (MetaSurfaceActor *surface_actor)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+  float width, height;
+
+  clutter_content_get_preferred_size (CLUTTER_CONTENT (priv->texture),
+                                      &width,
+                                      &height);
+
+  return (MtkRectangle) {
+    .width = (int) width,
+    .height = (int) height,
+  };
+}
+
 static void
 set_unobscured_region (MetaSurfaceActor *surface_actor,
                        MtkRegion        *unobscured_region)
@@ -129,16 +146,7 @@ set_unobscured_region (MetaSurfaceActor *surface_actor,
         }
       else
         {
-          MtkRectangle bounds = { 0, };
-          float width, height;
-
-          clutter_content_get_preferred_size (CLUTTER_CONTENT (priv->texture),
-                                              &width,
-                                              &height);
-          bounds = (MtkRectangle) {
-            .width = (int) width,
-            .height = (int) height,
-          };
+          MtkRectangle bounds = get_preferred_size_bounds (surface_actor);
 
           priv->unobscured_region = mtk_region_copy (unobscured_region);
 
@@ -160,8 +168,10 @@ set_clip_region (MetaSurfaceActor *surface_actor,
   if (clip_region && !mtk_region_is_empty (clip_region))
     {
       g_autoptr (MtkRegion) clip_region_copy = NULL;
+      MtkRectangle bounds = get_preferred_size_bounds (surface_actor);
 
       clip_region_copy = mtk_region_copy (clip_region);
+      mtk_region_intersect_rectangle (clip_region_copy, &bounds);
       meta_shaped_texture_set_clip_region (stex, clip_region_copy);
     }
   else
