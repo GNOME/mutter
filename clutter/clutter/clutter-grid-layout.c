@@ -948,7 +948,7 @@ distribute_natural_allocation (gint           extra_space,
 
   g_return_val_if_fail (extra_space >= 0, 0);
 
-  spreading = g_newa (guint, n_requested_sizes);
+  spreading = g_newa0 (guint, n_requested_sizes);
 
   for (i = 0; i < n_requested_sizes; i++)
     spreading[i] = i;
