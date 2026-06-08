@@ -441,6 +441,7 @@ meta_selection_transfer_async (MetaSelection        *selection,
     {
       g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
                                "Tried to transfer from NULL selection source");
+      g_object_unref (task);
       return;
     }
 
