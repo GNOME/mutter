@@ -64,7 +64,7 @@ draw (WaylandDisplay *display,
       ShaderFunc      shader)
 {
   WaylandBuffer *buffer;
-  uint8_t *planes[4];
+  uint8_t *planes[4] = {};
   size_t strides[4];
   int x, y;
 
