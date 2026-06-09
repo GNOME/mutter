@@ -1043,12 +1043,6 @@ cogl_context_get_sampler_cache (CoglContext *context)
   return context->sampler_cache;
 }
 
-GList *
-cogl_context_get_framebuffers (CoglContext *context)
-{
-  return context->framebuffers;
-}
-
 void
 cogl_context_prepend_framebuffer (CoglContext     *context,
                                   CoglFramebuffer *framebuffer)

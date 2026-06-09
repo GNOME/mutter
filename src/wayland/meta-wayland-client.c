@@ -292,23 +292,11 @@ meta_wayland_client_matches (MetaWaylandClient      *client,
   return meta_wayland_client_get_wl_client (client) == wl_client;
 }
 
-MetaWaylandClientKind
-meta_wayland_client_get_kind (MetaWaylandClient *client)
-{
-  return client->kind;
-}
-
 void
 meta_wayland_client_set_caps (MetaWaylandClient     *client,
                               MetaWaylandClientCaps  caps)
 {
   client->caps = caps;
-}
-
-MetaWaylandClientCaps
-meta_wayland_client_get_caps (MetaWaylandClient *client)
-{
-  return client->caps;
 }
 
 gboolean

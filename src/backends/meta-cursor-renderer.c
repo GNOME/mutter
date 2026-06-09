@@ -591,15 +591,6 @@ meta_cursor_renderer_set_sprite (MetaCursorRenderer *renderer,
     }
 }
 
-MetaBackend *
-meta_cursor_renderer_get_backend (MetaCursorRenderer *renderer)
-{
-  MetaCursorRendererPrivate *priv =
-    meta_cursor_renderer_get_instance_private (renderer);
-
-  return priv->backend;
-}
-
 gboolean
 meta_cursor_renderer_needs_overlay (MetaCursorRenderer *renderer)
 {

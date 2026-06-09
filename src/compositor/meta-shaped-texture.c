@@ -1674,17 +1674,6 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
   return surface;
 }
 
-void
-meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
-                                       int                fallback_width,
-                                       int                fallback_height)
-{
-  stex->fallback_width = fallback_width;
-  stex->fallback_height = fallback_height;
-
-  invalidate_size (stex);
-}
-
 MetaShapedTexture *
 meta_shaped_texture_new (ClutterContext    *clutter_context,
                          ClutterColorState *color_state)

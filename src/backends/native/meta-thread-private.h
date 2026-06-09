@@ -29,6 +29,3 @@ META_EXPORT_TEST
 MetaThreadType meta_thread_get_thread_type (MetaThread *thread);
 
 GThread * meta_thread_get_thread (MetaThread *thread);
-
-void meta_thread_dispatch_callbacks (MetaThread   *thread,
-                                     GMainContext *main_context);

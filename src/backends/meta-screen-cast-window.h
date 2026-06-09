@@ -86,8 +86,6 @@ gboolean meta_screen_cast_window_blit_to_framebuffer (MetaScreenCastWindow *scre
                                                       MtkRectangle         *bounds,
                                                       CoglFramebuffer      *framebuffer);
 
-gboolean meta_screen_cast_window_has_damage (MetaScreenCastWindow *screen_cast_window);
-
 void meta_screen_cast_window_inc_usage (MetaScreenCastWindow *screen_cast_window);
 void meta_screen_cast_window_dec_usage (MetaScreenCastWindow *screen_cast_window);
 

@@ -39,8 +39,6 @@ MetaSessionManager * meta_session_manager_new_for_fd (const gchar  *name,
                                                       int           fd,
                                                       GError      **error);
 
-int meta_session_manager_get_fd (MetaSessionManager *manager);
-
 gboolean meta_session_manager_get_session_exists (MetaSessionManager *manager,
                                                   const char         *name);
 

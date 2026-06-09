@@ -52,9 +52,6 @@ struct wl_resource    *meta_wayland_tablet_seat_lookup_resource     (MetaWayland
 MetaWaylandTablet     *meta_wayland_tablet_seat_lookup_tablet       (MetaWaylandTabletSeat *tablet_seat,
                                                                      ClutterInputDevice    *device);
 
-MetaWaylandTabletTool *meta_wayland_tablet_seat_lookup_tool         (MetaWaylandTabletSeat  *tablet_seat,
-                                                                     ClutterInputDeviceTool *tool);
-
 MetaWaylandTabletPad  *meta_wayland_tablet_seat_lookup_pad          (MetaWaylandTabletSeat *tablet_seat,
                                                                      ClutterInputDevice    *device);
 

@@ -133,10 +133,6 @@ unsigned long
 cogl_context_get_current_draw_buffer_changes (CoglContext *context);
 
 void
-cogl_context_set_current_draw_buffer_changes (CoglContext   *context,
-                                              unsigned long  changes);
-
-void
 cogl_context_add_current_draw_buffer_changes (CoglContext   *context,
                                               unsigned long  changes);
 
@@ -319,9 +315,6 @@ void
 cogl_context_set_default_layer_n (CoglContext       *context,
                                   CoglPipelineLayer *layer);
 
-CoglPipelineLayer *
-cogl_context_get_dummy_layer_dependant (CoglContext *context);
-
 void
 cogl_context_set_dummy_layer_dependant (CoglContext       *context,
                                         CoglPipelineLayer *layer);
@@ -333,16 +326,10 @@ GHashTable *
 cogl_context_get_uniform_name_hash (CoglContext *context);
 
 int
-cogl_context_get_n_attribute_names (CoglContext *context);
-
-int
 cogl_context_increment_n_attribute_names (CoglContext *context);
 
 CoglSamplerCache *
 cogl_context_get_sampler_cache (CoglContext *context);
-
-GList *
-cogl_context_get_framebuffers (CoglContext *context);
 
 void
 cogl_context_prepend_framebuffer (CoglContext     *context,

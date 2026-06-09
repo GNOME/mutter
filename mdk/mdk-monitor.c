@@ -908,9 +908,3 @@ mdk_monitor_new (MdkContext *context)
 
   return monitor;
 }
-
-MdkStream *
-mdk_monitor_get_stream (MdkMonitor *monitor)
-{
-  return monitor->stream;
-}

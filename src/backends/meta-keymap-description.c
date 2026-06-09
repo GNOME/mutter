@@ -171,12 +171,6 @@ meta_keymap_description_unref (MetaKeymapDescription *keymap_description)
     }
 }
 
-MetaKeymapDescriptionSource
-meta_keymap_description_get_source (MetaKeymapDescription *keymap_description)
-{
-  return keymap_description->source;
-}
-
 gboolean
 meta_keymap_description_direct_equal (MetaKeymapDescription *keymap_description,
                                       MetaKeymapDescription *other)

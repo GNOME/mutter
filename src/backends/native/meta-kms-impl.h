@@ -51,8 +51,6 @@ void meta_kms_impl_prepare_shutdown (MetaKmsImpl *impl);
 
 void meta_kms_impl_notify_modes_set (MetaKmsImpl *impl);
 
-MetaKmsImpl * meta_kms_impl_new (MetaKms *kms);
-
 void meta_kms_impl_notify_probed (MetaKmsImpl *impl);
 
 MetaKmsUpdateFilter * meta_kms_impl_add_update_filter (MetaKmsImpl             *impl,

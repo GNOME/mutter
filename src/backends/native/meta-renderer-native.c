@@ -283,17 +283,6 @@ meta_renderer_native_has_pending_mode_set (MetaRendererNative *renderer_native)
   return renderer_native->pending_mode_set;
 }
 
-MetaRendererNativeMode
-meta_renderer_native_get_mode (MetaRendererNative *renderer_native)
-{
-  MetaGpuKms *primary_gpu = renderer_native->primary_gpu_kms;
-  MetaRendererNativeGpuData *primary_gpu_data;
-
-  primary_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                        primary_gpu);
-  return primary_gpu_data->mode;
-}
-
 static MetaKmsUpdate *
 ensure_mode_set_update (MetaRendererNative *renderer_native,
                         MetaKmsDevice      *kms_device)
@@ -992,12 +981,6 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
   meta_kms_cursor_manager_update_crtc_layout (kms_cursor_manager, crtc_layouts);
 
   meta_topic (META_DEBUG_KMS, "Queue mode set");
-}
-
-void
-meta_renderer_native_notify_mode_sets_reset (MetaRendererNative *renderer_native)
-{
-  renderer_native->pending_mode_set = FALSE;
 }
 
 gboolean
