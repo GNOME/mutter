@@ -330,7 +330,7 @@ int main (int argc, char ** argv) {
 ''', name : 'timerfd_create(2) system call')
 
 have_documentation = get_option('docs')
-have_tests = get_option('tests').auto()
+have_tests = get_option('tests').allowed()
 have_mutter_tests = false
 have_cogl_tests = false
 have_clutter_tests = false
