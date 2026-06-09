@@ -37,8 +37,6 @@ const char * meta_kms_device_get_path (MetaKmsDevice *device);
 META_EXPORT_TEST
 const char * meta_kms_device_get_driver_name (MetaKmsDevice *device);
 
-const char * meta_kms_device_get_driver_description (MetaKmsDevice *device);
-
 MetaKmsDeviceFlag meta_kms_device_get_flags (MetaKmsDevice *device);
 
 META_EXPORT_TEST
