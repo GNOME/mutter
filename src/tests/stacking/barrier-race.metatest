@@ -1,0 +1,8 @@
+resize_monitor default 800 600
+create_barrier 1 800 0 800 600 -x
+
+move_cursor_to 799 300
+move_cursor 10 0
+
+destroy_barrier 1
+dispatch
