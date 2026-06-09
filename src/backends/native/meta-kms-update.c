@@ -153,12 +153,6 @@ meta_kms_feedback_did_pass (const MetaKmsFeedback *feedback)
   return feedback->result == META_KMS_FEEDBACK_PASSED;
 }
 
-GList *
-meta_kms_feedback_get_failed_planes (const MetaKmsFeedback *feedback)
-{
-  return feedback->failed_planes;
-}
-
 const GError *
 meta_kms_feedback_get_error (const MetaKmsFeedback *feedback)
 {
@@ -176,23 +170,6 @@ meta_kms_feedback_set_ready_time_us (MetaKmsFeedback *feedback,
                                      int64_t          ready_time_us)
 {
   feedback->ready_time_us = ready_time_us;
-}
-
-void
-meta_kms_feedback_dispatch_result (MetaKmsFeedback *feedback,
-                                   MetaKms         *kms,
-                                   GList           *result_listeners)
-{
-  GList *l;
-
-  for (l = result_listeners; l; l = l->next)
-    {
-      MetaKmsResultListener *listener = l->data;
-
-      meta_kms_result_listener_set_feedback (listener, feedback);
-      meta_kms_queue_result_callback (kms, listener);
-    }
-  g_list_free (result_listeners);
 }
 
 static void

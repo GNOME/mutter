@@ -35,9 +35,5 @@ MetaSealedFd * meta_sealed_fd_new_from_handle (GVariant     *handle,
                                                GUnixFDList  *fd_list,
                                                GError      **error);
 
-int meta_sealed_fd_get_fd (MetaSealedFd *sealed_fd);
-
-int meta_sealed_fd_dup_fd (MetaSealedFd *sealed_fd);
-
 GBytes *meta_sealed_fd_get_bytes (MetaSealedFd  *sealed_fd,
                                   GError       **error);
