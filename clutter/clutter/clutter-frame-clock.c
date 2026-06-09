@@ -142,6 +142,8 @@ struct _ClutterFrameClock
 
   /* Maximum update duration estimate */
   int64_t max_update_duration_us;
+  /* Minimum update duration estimate */
+  int64_t min_update_duration_us;
 
   struct {
     /* Current margin for maximum update duration estimate */
@@ -436,6 +438,13 @@ adjust_update_duration_estimates (ClutterFrameClock *frame_clock,
   int64_t target_margin_us;
   int64_t now_us;
 
+  if (frame_clock->max_update_duration_us == 0)
+    {
+      frame_clock->max_update_duration_us = update_duration_us;
+      frame_clock->min_update_duration_us = update_duration_us;
+      return;
+    }
+
   delta_us = update_duration_us - frame_clock->max_update_duration_us;
 
   target_margin_us =
@@ -445,7 +454,7 @@ adjust_update_duration_estimates (ClutterFrameClock *frame_clock,
            refresh_interval_us / 4);
   frame_clock->max_update_margin.target_us = target_margin_us;
 
-  /* Adjust the estimate by a fraction of the delta such that it'll take at
+  /* Adjust the estimates by a fraction of the delta such that it'll take at
    * least seconds for the estimate to catch up to the latest measurement
    */
   if (delta_us < 0)
@@ -463,6 +472,24 @@ adjust_update_duration_estimates (ClutterFrameClock *frame_clock,
                     frame_clock->max_update_duration_us,
                     frame_clock->max_update_duration_us + adjustment_us);
       frame_clock->max_update_duration_us += adjustment_us;
+    }
+
+  delta_us = update_duration_us - frame_clock->min_update_duration_us;
+  if (delta_us > 0)
+    adjustment_us = (int64_t) roundf ((float) delta_us / (refresh_rate * 2));
+  else if (delta_us < 0)
+    adjustment_us = (int64_t) roundf ((float) delta_us / refresh_rate);
+  else
+    adjustment_us = delta_us;
+
+  if (adjustment_us != 0)
+    {
+      CLUTTER_NOTE (FRAME_TIMINGS,
+                    "%s minimum update duration updated: %ld → %ld µs",
+                    frame_clock->output_name,
+                    frame_clock->min_update_duration_us,
+                    frame_clock->min_update_duration_us + adjustment_us);
+      frame_clock->min_update_duration_us += adjustment_us;
     }
 
   now_us = g_get_monotonic_time ();
@@ -1865,8 +1892,10 @@ clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clo
 
   g_string_append_printf (string, "\nVblank duration: %ld µs +",
                           frame_clock->vblank_duration_us);
-  g_string_append_printf (string, "\nUpdate duration: %ld µs +",
+  g_string_append_printf (string, "\nMaximum update duration: %ld µs +",
                           frame_clock->max_update_duration_us);
+  g_string_append_printf (string, "\nMinimum update duration: %ld µs +",
+                          frame_clock->min_update_duration_us);
   g_string_append_printf (string, "\nMargin: %ld µs",
                           get_max_update_time_margin_us (frame_clock));
 
