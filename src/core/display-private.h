@@ -232,7 +232,6 @@ MetaGravity meta_resize_gravity_from_grab_op (MetaGrabOp op);
 gboolean meta_grab_op_is_moving   (MetaGrabOp op);
 gboolean meta_grab_op_is_resizing (MetaGrabOp op);
 gboolean meta_grab_op_is_mouse    (MetaGrabOp op);
-gboolean meta_grab_op_is_keyboard (MetaGrabOp op);
 
 void meta_display_queue_autoraise_callback  (MetaDisplay *display,
                                              MetaWindow  *window);
@@ -261,8 +260,6 @@ gboolean meta_display_show_resize_popup (MetaDisplay  *display,
                                          MtkRectangle *rect,
                                          int           display_w,
                                          int           display_h);
-
-void meta_display_cancel_touch (MetaDisplay *display);
 
 gboolean meta_display_windows_are_interactable (MetaDisplay *display);
 

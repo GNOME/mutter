@@ -37,14 +37,10 @@ gboolean meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
                                                        ClutterStageView *stage_view,
                                                        float            *unobscurred_fraction);
 
-gboolean meta_surface_actor_contains_rect (MetaSurfaceActor *surface_actor,
-                                           MtkRectangle     *rect);
-
 void meta_surface_actor_set_input_region (MetaSurfaceActor *self,
                                           MtkRegion        *region);
 void meta_surface_actor_set_opaque_region (MetaSurfaceActor *self,
                                            MtkRegion        *region);
-MtkRegion * meta_surface_actor_get_opaque_region (MetaSurfaceActor *self);
 
 void meta_surface_actor_schedule_update (MetaSurfaceActor *self);
 

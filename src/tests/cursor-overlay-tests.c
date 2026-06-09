@@ -21,7 +21,6 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
 #include "tests/meta-test/meta-context-test.h"
-#include "tests/meta-test/meta-test-monitor.h"
 #include "tests/meta-ref-test.h"
 #include "tests/meta-test-utils.h"
 

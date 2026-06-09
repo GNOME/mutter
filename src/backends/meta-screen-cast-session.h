@@ -47,8 +47,6 @@ char * meta_screen_cast_session_get_object_path (MetaScreenCastSession *session)
 
 char * meta_screen_cast_session_get_peer_name (MetaScreenCastSession *session);
 
-MetaScreenCastSessionType meta_screen_cast_session_get_session_type (MetaScreenCastSession *session);
-
 MetaRemoteDesktopSession * meta_screen_cast_session_get_remote_desktop_session (MetaScreenCastSession *session);
 
 gboolean meta_screen_cast_session_start (MetaScreenCastSession  *session,

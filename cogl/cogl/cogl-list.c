@@ -60,16 +60,3 @@ _cogl_list_empty (CoglList *list)
 {
   return list->next == list;
 }
-
-void
-_cogl_list_insert_list (CoglList *list,
-                        CoglList *other)
-{
-  if (_cogl_list_empty (other))
-    return;
-
-  other->next->prev = list;
-  other->prev->next = list->next;
-  list->next->prev = other->prev;
-  list->next = other->next;
-}

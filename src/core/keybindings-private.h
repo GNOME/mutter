@@ -131,11 +131,6 @@ typedef struct
   ClutterModifierType window_grab_modifiers;
 } MetaKeyBindingManager;
 
-typedef void (* MetaKeyBindingForeach) (MetaDisplay          *display,
-                                        MetaKeyBindingFlags   flags,
-                                        MetaResolvedKeyCombo *resolved_key_binding,
-                                        gpointer              user_data);
-
 void     meta_display_init_keys             (MetaDisplay *display);
 void     meta_display_shutdown_keys         (MetaDisplay *display);
 gboolean meta_keybindings_process_event     (MetaDisplay        *display,
@@ -153,12 +148,7 @@ GList * meta_prefs_get_keybindings (void);
 void meta_prefs_get_overlay_bindings (MetaKeyCombo combos[2]);
 void meta_prefs_get_locate_pointer_bindings (MetaKeyCombo combos[2]);
 const char * meta_prefs_get_iso_next_group_option (void);
-gboolean meta_prefs_is_locate_pointer_enabled (void);
 
 gboolean meta_display_process_keybinding_event (MetaDisplay        *display,
                                                 const char         *name,
                                                 const ClutterEvent *event);
-
-void meta_display_keybinding_foreach (MetaDisplay           *display,
-                                      MetaKeyBindingForeach  func,
-                                      gpointer               user_data);

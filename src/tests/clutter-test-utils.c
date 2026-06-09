@@ -199,24 +199,6 @@ clutter_test_add (const char *test_path,
 }
 
 /**
- * clutter_test_add_data: (skip)
- * @test_path: unique path for identifying the test
- * @test_func: function containing the test
- * @test_data: data to pass to the test function
- *
- * Adds a test unit to the Clutter test environment.
- *
- * See also: g_test_add_data_func()
- */
-void
-clutter_test_add_data (const char    *test_path,
-                       GTestDataFunc  test_func,
-                       gpointer       test_data)
-{
-  clutter_test_add_data_full (test_path, test_func, test_data, NULL);
-}
-
-/**
  * clutter_test_add_data_full:
  * @test_path: unique path for identifying the test
  * @test_func: (scope notified) (closure test_data): function

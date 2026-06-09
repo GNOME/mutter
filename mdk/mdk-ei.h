@@ -28,6 +28,4 @@ MdkEi * mdk_ei_new (MdkSession  *session,
                     int          fd,
                     GError     **error);
 
-void mdk_ei_dispatch (MdkEi *ei);
-
 MdkSeat * mdk_ei_get_default_seat (MdkEi *ei);

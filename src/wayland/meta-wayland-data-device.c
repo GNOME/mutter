@@ -1369,12 +1369,6 @@ meta_wayland_data_device_get_current_grab (MetaWaylandDataDevice *data_device)
   return data_device->current_grab;
 }
 
-void
-meta_wayland_data_device_unset_dnd_selection (MetaWaylandDataDevice *data_device)
-{
-  unset_selection_source (data_device, META_SELECTION_DND);
-}
-
 MetaWaylandToplevelDrag *
 meta_wayland_data_device_get_toplevel_drag (MetaWaylandDataDevice *data_device)
 {

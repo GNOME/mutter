@@ -78,10 +78,6 @@ _cogl_list_remove (CoglList *elm);
 int
 _cogl_list_empty (CoglList *list);
 
-void
-_cogl_list_insert_list (CoglList *list,
-                        CoglList *other);
-
 /* This assigns to iterator first so that taking a reference to it
  * later in the second step won't be an undefined operation. It
  * assigns the value of list_node rather than 0 so that it is possible
