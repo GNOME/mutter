@@ -69,6 +69,8 @@ typedef struct {
 
   ClutterGrab *grab;
   ClutterActor *overlay;
+
+  GHashTable *barriers;
 } TestCase;
 
 #define META_SIDE_TEST_CASE_NONE G_MAXINT32
@@ -144,6 +146,11 @@ test_case_new (MetaContext *context)
                                                   g_object_unref);
   monitor = meta_create_test_monitor (context, 800, 600, 60.0);
   g_hash_table_insert (test->virtual_monitors, g_strdup ("default"), monitor);
+
+  test->barriers = g_hash_table_new_full (g_str_hash,
+                                          g_str_equal,
+                                          g_free,
+                                          (GDestroyNotify) meta_barrier_destroy);
 
   return test;
 }
@@ -1164,6 +1171,122 @@ static graphene_point_t *
 point_copy (const graphene_point_t *point)
 {
   return graphene_point_init_from_point (graphene_point_alloc (), point);
+}
+
+static gboolean
+parse_box (const char  *x1_str,
+           const char  *y1_str,
+           const char  *x2_str,
+           const char  *y2_str,
+           int         *x1,
+           int         *y1,
+           int         *x2,
+           int         *y2,
+           GError     **error)
+{
+  struct {
+    const char *string;
+    int *number_ptr;
+  } conversions[] = {
+    { x1_str, x1, },
+    { y1_str, y1, },
+    { x2_str, x2, },
+    { y2_str, y2, },
+  };
+  int i;
+
+  for (i = 0; i < G_N_ELEMENTS (conversions); i++)
+    {
+      int64_t number;
+
+      if (!g_ascii_string_to_signed (conversions[i].string,
+                                     10, 0, INT_MAX,
+                                     &number,
+                                     error))
+        return FALSE;
+
+      *conversions[i].number_ptr = number;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+parse_barrier_directions (const char            *directions_string,
+                          MetaBarrierDirection  *out_directions,
+                          GError               **error)
+{
+  MetaBarrierDirection directions = 0;
+  g_auto (GStrv) direction_strings = NULL;
+  int i;
+
+  direction_strings = g_strsplit (directions_string, ",", -1);
+
+  for (i = 0; direction_strings[i]; i++)
+    {
+      const char *direction_string = direction_strings[i];
+
+      if (g_strcmp0 (direction_string, "+x") == 0)
+        {
+          directions |= META_BARRIER_DIRECTION_POSITIVE_X;
+        }
+      else if (g_strcmp0 (direction_string, "+y") == 0)
+        {
+          directions |= META_BARRIER_DIRECTION_POSITIVE_Y;
+        }
+      else if (g_strcmp0 (direction_string, "-x") == 0)
+        {
+          directions |= META_BARRIER_DIRECTION_NEGATIVE_X;
+        }
+      else if (g_strcmp0 (direction_string, "-y") == 0)
+        {
+          directions |= META_BARRIER_DIRECTION_NEGATIVE_Y;
+        }
+      else
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                       "Invalid barrier direction '%s'", direction_string);
+          return FALSE;
+        }
+    }
+
+  *out_directions = directions;
+  return TRUE;
+}
+
+static gboolean
+parse_barrier_flags (const char        *flags_string,
+                     MetaBarrierFlags  *out_flags,
+                     GError           **error)
+{
+  MetaBarrierFlags flags = META_BARRIER_FLAG_NONE;
+  g_auto (GStrv) flag_strings = NULL;
+  int i;
+
+  flag_strings = g_strsplit (flags_string, ",", -1);
+
+  for (i = 0; flag_strings[i]; i++)
+    {
+      const char *flag_string = flag_strings[i];
+
+      if (g_strcmp0 (flag_string, "none") == 0)
+        {
+          flags |= META_BARRIER_FLAG_NONE;
+        }
+      else if (g_strcmp0 (flag_string, "sticky") == 0)
+        {
+          flags |= META_BARRIER_FLAG_STICKY;
+        }
+      else
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                       "Invalid barrier flag '%s'", flag_string);
+          return FALSE;
+        }
+    }
+
+  *out_flags = flags;
+  return TRUE;
 }
 
 static gboolean
@@ -2809,6 +2932,19 @@ test_case_do (TestCase    *test,
             return FALSE;
         }
     }
+  else if (strcmp (argv[0], "move_cursor") == 0)
+    {
+      float dx = (float) atof (argv[1]);
+      float dy = (float) atof (argv[2]);
+
+      if (argc != 3)
+        BAD_COMMAND ("usage: %s <dx> <dy>", argv[0]);
+
+      clutter_virtual_input_device_notify_relative_motion (test->pointer,
+                                                           g_get_monotonic_time (),
+                                                           dx, dy);
+      meta_flush_input (test->context);
+    }
   else if (strcmp (argv[0], "click") == 0)
     {
       if (argc != 1)
@@ -3220,6 +3356,56 @@ test_case_do (TestCase    *test,
       g_clear_pointer (&test->grab, clutter_grab_dismiss);
       g_clear_pointer (&test->overlay, clutter_actor_destroy);
     }
+  else if (strcmp (argv[0], "create_barrier") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      char *name;
+      int x1, y1, x2, y2;
+      MetaBarrierDirection directions;
+      MetaBarrierFlags flags = META_BARRIER_FLAG_NONE;
+      g_autoptr (MetaBarrier) barrier = NULL;
+
+      if (argc != 7 && argc != 8)
+        BAD_COMMAND ("usage: %s name x1 y1 x2 y2 directions [flags]", argv[0]);
+
+      name = argv[1];
+      if (g_hash_table_lookup (test->barriers, name))
+        BAD_COMMAND ("Barrier %s already created", name);
+
+      if (!parse_box (argv[2], argv[3], argv[4], argv[5],
+                     &x1, &y1, &x2, &y2,
+                     error))
+        return FALSE;
+
+      if (!parse_barrier_directions (argv[6], &directions, error))
+        return FALSE;
+
+      if (argc == 8)
+        {
+          if (parse_barrier_flags (argv[6], &flags, error))
+            return FALSE;
+        }
+
+      barrier = meta_barrier_new (backend, x1, y1, x2, y2,
+                                  directions, flags,
+                                  error);
+      if (!barrier)
+        return FALSE;
+
+      g_hash_table_insert (test->barriers, g_strdup (name), barrier);
+    }
+  else if (strcmp (argv[0], "destroy_barrier") == 0)
+    {
+      char *name;
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s name", argv[0]);
+
+      name = argv[1];
+
+      if (!g_hash_table_remove (test->barriers, name))
+        BAD_COMMAND ("Barrier %s not found", name);
+    }
   else
     {
       BAD_COMMAND ("Unknown command %s", argv[0]);
@@ -3281,6 +3467,7 @@ test_case_destroy (TestCase *test,
   g_object_unref (test->pointer);
   g_object_unref (test->keyboard);
   g_clear_pointer (&test->popups, g_hash_table_unref);
+  g_hash_table_unref (test->barriers);
   g_main_loop_unref (test->loop);
   g_free (test);
 
