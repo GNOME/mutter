@@ -44,6 +44,7 @@
 #include "backends/native/meta-kms-utils.h"
 
 #define SYNC_TOLERANCE_HZ 0.001f
+#define REFRESH_MATCH_TOLERANCE_HZ 0.1f
 
 struct _MetaOutputKms
 {
@@ -181,6 +182,7 @@ add_common_modes (MetaOutputInfo *output_info,
       const drmModeModeInfo *drm_mode;
       float refresh_rate;
       gboolean is_duplicate = FALSE;
+      gboolean has_matching_refresh_rate = FALSE;
 
       if (!(meta_kms_mode_get_flags (fallback_mode) & flag_filter))
         continue;
@@ -206,8 +208,14 @@ add_common_modes (MetaOutputInfo *output_info,
               is_duplicate = TRUE;
               break;
             }
+
+          if (!has_matching_refresh_rate &&
+              fabs (refresh_rate - crtc_mode_info->refresh_rate) <
+              REFRESH_MATCH_TOLERANCE_HZ)
+            has_matching_refresh_rate = TRUE;
         }
-      if (is_duplicate)
+
+      if (is_duplicate || !has_matching_refresh_rate)
         continue;
 
       crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
