@@ -23,13 +23,9 @@
 #include <atk/atk.h>
 
 #include "clutter/clutter-macros.h"
-#include "clutter/clutter-stage.h"
 
 G_BEGIN_DECLS
 
 void _clutter_accessibility_override_atk_util (void);
-
-gboolean clutter_accessibility_snoop_key_event (ClutterStage    *stage,
-                                                ClutterKeyEvent *key);
 
 G_END_DECLS
