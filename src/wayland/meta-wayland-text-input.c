@@ -836,6 +836,7 @@ text_input_commit_state (struct wl_client   *client,
 {
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
+  gboolean enable_panel_v1 = FALSE;
   MetaBackend *backend = backend_from_text_input (text_input);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
@@ -857,6 +858,9 @@ text_input_commit_state (struct wl_client   *client,
 
           if (!clutter_input_focus_is_focused (focus))
             clutter_input_method_focus_in (input_method, focus);
+          else if (wl_resource_get_version (resource) <
+                   ZWP_TEXT_INPUT_V3_SHOW_INPUT_PANEL_SINCE_VERSION)
+            enable_panel_v1 = TRUE;
 
           can_show_preedit =
             wl_resource_get_version (resource) <
@@ -951,6 +955,11 @@ text_input_commit_state (struct wl_client   *client,
         panel_state = CLUTTER_INPUT_PANEL_STATE_OFF;
 
       clutter_input_focus_set_input_panel_state (focus, panel_state);
+    }
+  else if (enable_panel_v1)
+    {
+      clutter_input_focus_set_input_panel_state (focus,
+                                                 CLUTTER_INPUT_PANEL_STATE_ON);
     }
 
   meta_wayland_text_input_focus_defer_done (focus);
