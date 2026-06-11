@@ -474,15 +474,41 @@ on_a11y_timeout_started (ClutterSeat                   *seat,
   (*a11y_started_counter)++;
 }
 
-static gboolean
-atk_key_listener (AtkKeyEventStruct *event,
-                  gpointer           user_data)
+static void
+on_a11y_key_event (GDBusProxy  *proxy,
+                   const char  *sender_name,
+                   const char  *signal_name,
+                   GVariant    *parameters,
+                   int         *a11y_key_counter)
 {
-  int *a11y_key_counter = user_data;
+  if (g_strcmp0 (signal_name, "KeyEvent") == 0)
+    (*a11y_key_counter)++;
+}
 
-  (*a11y_key_counter)++;
+static void
+on_dbus_call_done (GObject      *source,
+                   GAsyncResult *result,
+                   gpointer      user_data)
+{
+  g_autoptr (GVariant) ret = NULL;
+  g_autoptr (GError) error = NULL;
+  gboolean *done = user_data;
 
-  return TRUE;
+  ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (source), result, &error);
+  g_assert_no_error (error);
+  *done = TRUE;
+}
+
+static void
+flush_dbus_signals (GDBusProxy *proxy)
+{
+  gboolean done = FALSE;
+
+  g_dbus_proxy_call (proxy, "WatchKeyboard",
+                     NULL, G_DBUS_CALL_FLAGS_NONE, -1, NULL,
+                     on_dbus_call_done, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
 }
 
 static void
@@ -498,10 +524,28 @@ meta_test_input_capture_a11y (void)
   int a11y_started_counter = 0;
   int a11y_key_counter = 0;
   g_autoptr (GSettings) a11y_mouse_settings = NULL;
-  guint atk_key_listener_id;
+  g_autoptr (GDBusProxy) kbd_monitor_proxy = NULL;
+  g_autoptr (GError) error = NULL;
+  gulong signal_id;
 
-  atk_key_listener_id = atk_add_key_event_listener (atk_key_listener,
-                                                    &a11y_key_counter);
+  kbd_monitor_proxy =
+    g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START |
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES,
+                                   NULL,
+                                   "org.freedesktop.a11y.Manager",
+                                   "/org/freedesktop/a11y/Manager",
+                                   "org.freedesktop.a11y.KeyboardMonitor",
+                                   NULL,
+                                   &error);
+  g_assert_nonnull (kbd_monitor_proxy);
+  g_assert_no_error (error);
+
+  flush_dbus_signals (kbd_monitor_proxy);
+
+  signal_id = g_signal_connect (kbd_monitor_proxy, "g-signal",
+                                G_CALLBACK (on_a11y_key_event),
+                                &a11y_key_counter);
 
   a11y_mouse_settings = g_settings_new ("org.gnome.desktop.a11y.mouse");
 
@@ -528,6 +572,7 @@ meta_test_input_capture_a11y (void)
   press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
   meta_wait_for_presented (test_context);
+  flush_dbus_signals (kbd_monitor_proxy);
   g_assert_cmpint (a11y_started_counter, ==, 1);
   g_assert_cmpint (a11y_key_counter, ==, 2);
 
@@ -538,6 +583,7 @@ meta_test_input_capture_a11y (void)
   press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
   meta_wait_for_presented (test_context);
+  flush_dbus_signals (kbd_monitor_proxy);
   g_assert_cmpint (a11y_started_counter, ==, 2);
   g_assert_cmpint (a11y_key_counter, ==, 4);
 
@@ -549,6 +595,7 @@ meta_test_input_capture_a11y (void)
   press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
   meta_wait_for_presented (test_context);
+  flush_dbus_signals (kbd_monitor_proxy);
   g_assert_cmpint (a11y_started_counter, ==, 2);
   g_assert_cmpint (a11y_key_counter, ==, 4);
 
@@ -559,6 +606,7 @@ meta_test_input_capture_a11y (void)
   press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
   meta_wait_for_presented (test_context);
+  flush_dbus_signals (kbd_monitor_proxy);
   g_assert_cmpint (a11y_started_counter, ==, 3);
   g_assert_cmpint (a11y_key_counter, ==, 6);
 
@@ -566,7 +614,8 @@ meta_test_input_capture_a11y (void)
   clutter_seat_set_pointer_a11y_dwell_click_type (seat, dwell_click_type);
   g_settings_set_boolean (a11y_mouse_settings, "dwell-click-enabled", FALSE);
   g_settings_set_boolean (a11y_mouse_settings, "secondary-click-enabled", FALSE);
-  atk_remove_key_event_listener (atk_key_listener_id);
+
+  g_signal_handler_disconnect (kbd_monitor_proxy, signal_id);
 }
 
 static void

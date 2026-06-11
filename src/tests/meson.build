@@ -165,6 +165,7 @@ test_env_variables = {
   'MUTTER_GDCTL_TEST_RESULT_DIR': mutter_builddir / 'meson-logs' / 'tests' / 'gdctl',
   'GSETTINGS_SCHEMA_DIR': ':'.join([mutter_builddir / 'src' / 'tests',
                                     locally_compiled_schemas_dir]),
+  'MUTTER_DEBUG_A11Y_MANAGER_WITHOUT_ACCESS_CONTROL': '1',
 }
 
 foreach name, value: test_env_variables
