@@ -452,6 +452,9 @@ maybe_emit_barrier_event (gpointer key, gpointer value, gpointer user_data)
   MetaBarrierImplNative *self = key;
   MetaBarrierEventData *data = user_data;
 
+  if (G_UNLIKELY (!self->is_active))
+    return;
+
   switch (self->state)
     {
     case META_BARRIER_STATE_ACTIVE:
