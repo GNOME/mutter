@@ -1366,7 +1366,7 @@ meta_screen_cast_stream_src_accumulate_damage (MetaScreenCastStreamSrc  *src,
       src_rect.origin.x = roundf ((float) -layout->x *
                                   priv->video_format.size.width / layout->width);
       src_rect.origin.y = roundf ((float) -layout->y *
-                                  priv->video_format.size.height / layout->width);
+                                  priv->video_format.size.height / layout->height);
       src_rect.size.width = priv->video_format.size.width;
       src_rect.size.height = priv->video_format.size.height;
       damage = mtk_region_crop_and_scale ((MtkRegion *) redraw_clip, &src_rect,
