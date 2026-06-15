@@ -472,6 +472,35 @@ ensure_framebuffer (MetaScreenCastStreamSrc *src,
   return priv->framebuffer;
 }
 
+static MtkRegion *
+damage_to_redraw_clip (MetaScreenCastStreamSrc *src,
+                       const MtkRegion         *damage)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  const MtkRectangle *layout = &priv->layout;
+  graphene_rect_t src_rect;
+
+  if (mtk_region_is_empty (damage))
+    return mtk_region_create ();
+
+  if (mtk_rectangle_is_empty (layout) ||
+      (layout->x == 0 && layout->y == 0 &&
+       layout->width == priv->video_format.size.width &&
+       layout->height == priv->video_format.size.height))
+    return mtk_region_copy (damage);
+
+  src_rect.origin.x = roundf ((float) layout->x *
+                              layout->width / priv->video_format.size.width);
+  src_rect.origin.y = roundf ((float) layout->y *
+                              layout->height / priv->video_format.size.height);
+  src_rect.size.width = layout->width;
+  src_rect.size.height = layout->height;
+  return mtk_region_crop_and_scale ((MtkRegion *) damage, &src_rect,
+                                    priv->video_format.size.width,
+                                    priv->video_format.size.height);
+}
+
 gboolean
 meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
                                              ClutterColorState         *color_state,
@@ -516,16 +545,19 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
 
   if (!framebuffer)
     {
+      g_autoptr (MtkRegion) redraw_clip = NULL;
+
       framebuffer = ensure_framebuffer (src, cogl_context, width, height, error);
       if (!framebuffer)
         return FALSE;
 
+      redraw_clip = damage_to_redraw_clip (src, damage);
       clutter_stage_paint_to_framebuffer_clipped (stage,
                                                   framebuffer,
                                                   area,
                                                   scale,
                                                   color_state,
-                                                  damage,
+                                                  redraw_clip,
                                                   paint_flags);
     }
 
