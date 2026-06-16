@@ -1,0 +1,41 @@
+<monitors version="2">
+  <configuration>
+    <layoutmode>logical</layoutmode>
+    <logicalmonitor>
+      <x>0</x>
+      <y>0</y>
+      <primary>yes</primary>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-1</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x123456a</serial>
+	</monitorspec>
+	<mode>
+	  <width>1024</width>
+	  <height>767</height>
+	  <rate>60.000495910644531</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+    <logicalmonitor>
+      <x>0</x>
+      <y>767</y>
+      <scale>1.5</scale>
+      <monitor>
+	<monitorspec>
+	  <connector>DP-2</connector>
+	  <vendor>MetaProduct&apos;s Inc.</vendor>
+	  <product>MetaMonitor</product>
+	  <serial>0x123456b</serial>
+	</monitorspec>
+	<mode>
+	  <width>1200</width>
+	  <height>900</height>
+	  <rate>60.000495910644531</rate>
+	</mode>
+      </monitor>
+    </logicalmonitor>
+  </configuration>
+</monitors>
