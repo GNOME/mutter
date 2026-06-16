@@ -1875,7 +1875,8 @@ clutter_event_key_new (ClutterEventType     type,
   g_return_val_if_fail (type == CLUTTER_KEY_PRESS ||
                         type == CLUTTER_KEY_RELEASE ||
                         type == CLUTTER_KEY_STATE, NULL);
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+  g_return_val_if_fail ((flags & CLUTTER_EVENT_FLAG_INPUT_METHOD) != 0 ||
+                        CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
 
   event = clutter_event_new (type);
 
