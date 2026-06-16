@@ -2350,45 +2350,99 @@ clutter_stage_update_view_perspective (ClutterStage *stage)
   clutter_actor_invalidate_transform (CLUTTER_ACTOR (stage));
 }
 
+/* Round the exact (possibly fractional) viewport to integers for GL, folding
+ * the rounding remainder into the returned projection so the combined transform
+ * stays pixel-exact. */
+static void
+clutter_stage_calculate_viewport_and_projection (const graphene_matrix_t *projection,
+                                                 const float              exact_viewport[4],
+                                                 float                    viewport[4],
+                                                 graphene_matrix_t       *out_projection)
+{
+  float phase_x, phase_y;
+  float scale_x, scale_y;
+  graphene_matrix_t scale;
+  graphene_matrix_t translate;
+  graphene_matrix_t correction;
+
+  viewport[0] = roundf (exact_viewport[0]);
+  viewport[1] = roundf (exact_viewport[1]);
+  viewport[2] = roundf (exact_viewport[2]);
+  viewport[3] = roundf (exact_viewport[3]);
+
+  if (viewport[2] <= 0.f || viewport[3] <= 0.f)
+    {
+      *out_projection = *projection;
+      return;
+    }
+
+  phase_x = exact_viewport[0] - viewport[0];
+  phase_y = exact_viewport[1] - viewport[1];
+  scale_x = exact_viewport[2] / viewport[2];
+  scale_y = exact_viewport[3] / viewport[3];
+
+  if (phase_x == 0.f && phase_y == 0.f &&
+      scale_x == 1.f && scale_y == 1.f)
+    {
+      *out_projection = *projection;
+      return;
+    }
+
+  graphene_matrix_init_scale (&scale, scale_x, scale_y, 1.f);
+  graphene_matrix_init_translate (
+    &translate,
+    &GRAPHENE_POINT3D_INIT (scale_x - 1.f + 2.f * phase_x / viewport[2],
+                            1.f - scale_y - 2.f * phase_y / viewport[3],
+                            0.f));
+  graphene_matrix_multiply (&scale, &translate, &correction);
+  graphene_matrix_multiply (projection, &correction, out_projection);
+}
+
 void
 _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
                                      ClutterStageView *view)
 {
   ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
+  MtkRectangle view_layout;
+  float fb_scale;
+  float exact_viewport[4];
+  float viewport[4];
+  graphene_matrix_t projection;
+
+  if (!clutter_stage_view_is_dirty_viewport (view) &&
+      !clutter_stage_view_is_dirty_projection (view))
+    return;
+
+  fb_scale = clutter_stage_view_get_scale (view);
+  clutter_stage_view_get_layout (view, &view_layout);
+
+  exact_viewport[0] = priv->viewport[0] * fb_scale - view_layout.x * fb_scale;
+  exact_viewport[1] = priv->viewport[1] * fb_scale - view_layout.y * fb_scale;
+  exact_viewport[2] = priv->viewport[2] * fb_scale;
+  exact_viewport[3] = priv->viewport[3] * fb_scale;
+
+  clutter_stage_calculate_viewport_and_projection (&priv->projection,
+                                                   exact_viewport,
+                                                   viewport,
+                                                   &projection);
 
   if (clutter_stage_view_is_dirty_viewport (view))
     {
-      MtkRectangle view_layout;
-      float fb_scale;
-      float viewport_offset_x;
-      float viewport_offset_y;
-      float viewport_x;
-      float viewport_y;
-      float viewport_width;
-      float viewport_height;
-
       CLUTTER_NOTE (PAINT,
                     "Setting up the viewport { w:%f, h:%f }",
                     priv->viewport[2],
                     priv->viewport[3]);
 
-      fb_scale = clutter_stage_view_get_scale (view);
-      clutter_stage_view_get_layout (view, &view_layout);
-
-      viewport_offset_x = view_layout.x * fb_scale;
-      viewport_offset_y = view_layout.y * fb_scale;
-      viewport_x = roundf (priv->viewport[0] * fb_scale - viewport_offset_x);
-      viewport_y = roundf (priv->viewport[1] * fb_scale - viewport_offset_y);
-      viewport_width = roundf (priv->viewport[2] * fb_scale);
-      viewport_height = roundf (priv->viewport[3] * fb_scale);
-
       clutter_stage_view_set_viewport (view,
-                                       viewport_x, viewport_y,
-                                       viewport_width, viewport_height);
+                                       viewport[0], viewport[1],
+                                       viewport[2], viewport[3]);
+
+      /* The projection embeds the viewport phase; keep them in sync */
+      clutter_stage_view_invalidate_projection (view);
     }
 
   if (clutter_stage_view_is_dirty_projection (view))
-    clutter_stage_view_set_projection (view, &priv->projection);
+    clutter_stage_view_set_projection (view, &projection);
 }
 
 #undef _DEG_TO_RAD
