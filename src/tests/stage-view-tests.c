@@ -1294,6 +1294,213 @@ meta_test_timeline_actor_tree_clear (void)
 }
 
 static void
+assert_view_pixel (CoglFramebuffer *framebuffer,
+                   int              x,
+                   int              y,
+                   uint32_t         expected_rgba)
+{
+  uint8_t pixel[4];
+  uint32_t rgba;
+
+  cogl_framebuffer_read_pixels (framebuffer, x, y, 1, 1,
+                                COGL_PIXEL_FORMAT_RGBA_8888, pixel);
+  rgba = (pixel[0] << 24) | (pixel[1] << 16) | (pixel[2] << 8) | pixel[3];
+  g_assert_cmphex (rgba, ==, expected_rgba);
+}
+
+static void
+meta_test_stage_views_fractional_position (void)
+{
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (test_backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  ClutterActor *stage = meta_backend_get_stage (test_backend);
+  MonitorTestCaseSetup frac_test_case_setup = {
+    .modes = {
+      {
+        .width = 1024,
+        .height = 767,
+        .refresh_rate = 60.000495910644531
+      },
+      {
+        .width = 1200,
+        .height = 900,
+        .refresh_rate = 60.000495910644531
+      }
+    },
+    .n_modes = 2,
+    .outputs = {
+       {
+        .crtc = 0,
+        .modes = { 0 },
+        .n_modes = 1,
+        .preferred_mode = 0,
+        .possible_crtcs = { 0 },
+        .n_possible_crtcs = 1,
+        .width_mm = 222,
+        .height_mm = 125,
+        .serial = "0x123456a",
+      },
+      {
+        .crtc = 1,
+        .modes = { 1 },
+        .n_modes = 1,
+        .preferred_mode = 1,
+        .possible_crtcs = { 1 },
+        .n_possible_crtcs = 1,
+        .width_mm = 220,
+        .height_mm = 124,
+        .serial = "0x123456b",
+      }
+    },
+    .n_outputs = 2,
+    .crtcs = {
+      {
+        .current_mode = 0
+      },
+      {
+        .current_mode = 1
+      }
+    },
+    .n_crtcs = 2
+  };
+  MetaMonitorTestSetup *test_setup;
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  GList *stage_views;
+  ClutterStageView *view;
+  CoglFramebuffer *framebuffer;
+  ClutterActor *base_actor;
+  ClutterActor *top_actor;
+  ClutterActor *pattern_actor;
+  ClutterContent *pattern_content;
+  CoglTexture *pattern_texture;
+  g_autofree uint8_t *pattern_data = NULL;
+  g_autoptr (GError) error = NULL;
+  int i;
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &frac_test_case_setup,
+                                               MONITOR_TEST_FLAG_NONE);
+  meta_set_custom_monitor_config (test_context,
+                                  "stage-views-fractional-position.xml");
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  /* The scaled view's device pixel offset is fractional: 767 * 1.5 = 1150.5 */
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 2);
+  view = stage_views->next->data;
+  assert_is_stage_view (view, 0, 767, 800, 600);
+  g_assert_cmpfloat (clutter_stage_view_get_scale (view), ==, 1.5f);
+
+  base_actor = clutter_actor_new ();
+  clutter_actor_set_background_color (base_actor,
+                                      &COGL_COLOR_INIT (0, 255, 0, 255));
+  clutter_actor_set_position (base_actor, 0, 767);
+  clutter_actor_set_size (base_actor, 800, 600);
+  clutter_actor_add_child (stage, base_actor);
+
+  top_actor = clutter_actor_new ();
+  clutter_actor_set_background_color (top_actor,
+                                      &COGL_COLOR_INIT (255, 255, 255, 255));
+  clutter_actor_set_position (top_actor, 0, 767);
+  clutter_actor_set_size (top_actor, 800, 300);
+  clutter_actor_add_child (stage, top_actor);
+
+  /* 6x300 texture of alternating black/white rows, shown 1:1; under linear
+   * sampling the rows stay pure only if the transform is pixel-exact. */
+  pattern_data = g_malloc (6 * 300 * 4);
+  for (i = 0; i < 6 * 300; i++)
+    {
+      uint8_t value = (i / 6) % 2 == 0 ? 0xff : 0x00;
+
+      pattern_data[i * 4 + 0] = value;
+      pattern_data[i * 4 + 1] = value;
+      pattern_data[i * 4 + 2] = value;
+      pattern_data[i * 4 + 3] = 0xff;
+    }
+  pattern_texture =
+    COGL_TEXTURE (cogl_texture_2d_new_from_data (cogl_context, 6, 300,
+                                                 COGL_PIXEL_FORMAT_RGBA_8888,
+                                                 6 * 4, pattern_data,
+                                                 &error));
+  g_assert_no_error (error);
+  pattern_content =
+    clutter_texture_content_new_from_texture (pattern_texture, NULL);
+  g_object_unref (pattern_texture);
+
+  pattern_actor = clutter_actor_new ();
+  clutter_actor_set_content (pattern_actor, pattern_content);
+  clutter_actor_set_content_scaling_filters (pattern_actor,
+                                             CLUTTER_SCALING_FILTER_LINEAR,
+                                             CLUTTER_SCALING_FILTER_LINEAR);
+  g_object_unref (pattern_content);
+  clutter_actor_set_position (pattern_actor, 0, 767);
+  clutter_actor_set_size (pattern_actor, 4, 200);
+  clutter_actor_add_child (stage, pattern_actor);
+
+  clutter_actor_queue_redraw (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
+
+  framebuffer = clutter_stage_view_get_framebuffer (view);
+
+  /* Solid actors must land on exact device rows: white/green boundary at
+   * row 450, green covering the view's first and last rows. */
+  assert_view_pixel (framebuffer, 600, 0, 0xffffffff);
+  assert_view_pixel (framebuffer, 600, 449, 0xffffffff);
+  assert_view_pixel (framebuffer, 600, 450, 0x00ff00ff);
+  assert_view_pixel (framebuffer, 600, 899, 0x00ff00ff);
+
+  /* Pattern samples 1:1: alternating rows stay pure black and white. */
+  assert_view_pixel (framebuffer, 3, 100, 0xffffffff);
+  assert_view_pixel (framebuffer, 3, 101, 0x000000ff);
+  assert_view_pixel (framebuffer, 3, 102, 0xffffffff);
+  assert_view_pixel (framebuffer, 3, 103, 0x000000ff);
+
+  /* Same content via paint_to_framebuffer_clipped into a y-flipped offscreen
+   * must land on the same device rows. */
+  {
+    g_autoptr (CoglTexture) capture_texture = NULL;
+    g_autoptr (CoglOffscreen) capture = NULL;
+    CoglFramebuffer *capture_fb;
+
+    capture_texture = cogl_texture_2d_new_with_size (cogl_context, 1200, 900);
+    g_assert_nonnull (capture_texture);
+    capture = cogl_offscreen_new_with_texture (capture_texture);
+    capture_fb = COGL_FRAMEBUFFER (capture);
+    g_assert_true (cogl_framebuffer_allocate (capture_fb, &error));
+    g_assert_no_error (error);
+
+    clutter_stage_paint_to_framebuffer (CLUTTER_STAGE (stage),
+                                        capture_fb,
+                                        &(MtkRectangle) { 0, 767, 800, 600 },
+                                        1.5,
+                                        NULL,
+                                        CLUTTER_PAINT_FLAG_CLEAR);
+
+    assert_view_pixel (capture_fb, 600, 0, 0xffffffff);
+    assert_view_pixel (capture_fb, 600, 449, 0xffffffff);
+    assert_view_pixel (capture_fb, 600, 450, 0x00ff00ff);
+    assert_view_pixel (capture_fb, 600, 899, 0x00ff00ff);
+    assert_view_pixel (capture_fb, 3, 100, 0xffffffff);
+    assert_view_pixel (capture_fb, 3, 101, 0x000000ff);
+    assert_view_pixel (capture_fb, 3, 102, 0xffffffff);
+    assert_view_pixel (capture_fb, 3, 103, 0x000000ff);
+  }
+
+  clutter_actor_destroy (pattern_actor);
+  clutter_actor_destroy (top_actor);
+  clutter_actor_destroy (base_actor);
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &initial_test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+}
+
+static void
 on_before_tests (MetaContext *context)
 {
   test_backend = meta_context_get_backend (context);
@@ -1332,6 +1539,8 @@ init_tests (void)
                    meta_test_timeline_actor_destroyed);
   g_test_add_func ("/stage-views/timeline/tree-clear",
                    meta_test_timeline_actor_tree_clear);
+  g_test_add_func ("/stage-views/fractional-position",
+                   meta_test_stage_views_fractional_position);
 }
 
 int
