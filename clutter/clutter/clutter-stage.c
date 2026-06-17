@@ -3528,6 +3528,9 @@ update_devices_in_view_foreach_cb (ClutterStage  *stage,
   if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
     return TRUE;
 
+  if (!clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite)))
+    return TRUE;
+
   clutter_sprite_get_coords (sprite, &coords);
   pointer_view = clutter_stage_get_view_at (stage,
                                             coords.x,
