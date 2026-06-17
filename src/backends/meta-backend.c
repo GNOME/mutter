@@ -335,6 +335,8 @@ update_cursor_foreach_cb (ClutterStage  *stage,
   MetaBackend *backend = user_data;
   MetaCursorRenderer *cursor_renderer;
 
+  clutter_sprite_invalidate_cursor (sprite);
+
   cursor_renderer = meta_backend_get_cursor_renderer_for_sprite (backend,
                                                                  sprite);
   if (cursor_renderer)
@@ -1238,6 +1240,13 @@ on_debug_control_inhibit_hw_cursor_changed (MetaDebugControl *debug_control,
     meta_backend_uninhibit_hw_cursor (backend);
 }
 
+static void
+on_cursor_prefs_changed (MetaCursorTracker *cursor_tracker,
+                         MetaBackend       *backend)
+{
+  update_cursors (backend);
+}
+
 static gboolean
 meta_backend_initable_init (GInitable     *initable,
                             GCancellable  *cancellable,
@@ -1320,6 +1329,9 @@ meta_backend_initable_init (GInitable     *initable,
     return FALSE;
 
   priv->cursor_tracker = meta_backend_create_cursor_tracker (backend);
+  g_signal_connect_object (priv->cursor_tracker, "cursor-prefs-changed",
+                           G_CALLBACK (on_cursor_prefs_changed), backend,
+                           G_CONNECT_AFTER);
 
   g_signal_connect_object (priv->default_seat, "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
