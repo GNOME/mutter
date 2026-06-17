@@ -38,6 +38,14 @@
 static void update_fullscreen_actor (MetaCompositorViewNative *view_native,
                                      MetaSurfaceActor         *fullscreen_actor);
 
+typedef struct _MetaCursorOverlapData MetaCursorOverlapData;
+struct _MetaCursorOverlapData
+{
+  MetaCompositor *compositor;
+  ClutterStageView *stage_view;
+  gboolean has_overlap;
+};
+
 struct _MetaCompositorViewNative
 {
   MetaCompositorView parent;
@@ -202,6 +210,57 @@ find_candidate (MetaCompositorView *compositor_view,
 }
 
 static gboolean
+has_overlapping_cursor_overlay_foreach (ClutterStage  *stage,
+                                        ClutterSprite *sprite,
+                                        gpointer       user_data)
+{
+  MetaCursorOverlapData *data = user_data;
+  MetaBackend *backend = meta_compositor_get_backend (data->compositor);
+  MetaCursorRenderer *cursor_renderer;
+  ClutterCursor *cursor;
+  MtkRectangle view_rect;
+  graphene_rect_t graphene_view_rect;
+  graphene_rect_t cursor_rect;
+
+  cursor_renderer = meta_backend_get_cursor_renderer_for_sprite (backend,
+                                                                 sprite);
+  if (!cursor_renderer)
+    return TRUE;
+  if (!meta_cursor_renderer_needs_overlay (cursor_renderer))
+    return TRUE;
+
+  cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+  cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
+                                                     cursor);
+
+  clutter_stage_view_get_layout (data->stage_view, &view_rect);
+  graphene_view_rect = mtk_rectangle_to_graphene_rect (&view_rect);
+
+  data->has_overlap |= graphene_rect_intersection (&graphene_view_rect,
+                                                   &cursor_rect,
+                                                   NULL);
+  return !data->has_overlap;
+}
+
+static gboolean
+surface_actor_has_overlapping_cursor_overlays (MetaCompositor     *compositor,
+                                               MetaCompositorView *compositor_view,
+                                               MetaSurfaceActor   *surface_actor)
+{
+  MetaBackend *backend = meta_compositor_get_backend (compositor);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterStageView *stage_view =
+    meta_compositor_view_get_stage_view (compositor_view);
+  MetaCursorOverlapData data = { compositor, stage_view, FALSE };
+
+  clutter_stage_foreach_sprite (stage,
+                                has_overlapping_cursor_overlay_foreach,
+                                &data);
+
+  return data.has_overlap;
+}
+
+static gboolean
 find_scanout_candidate (MetaCompositorView  *compositor_view,
                         MetaCompositor      *compositor,
                         MetaCrtc           **crtc_out,
@@ -212,11 +271,6 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
     meta_compositor_view_get_stage_view (compositor_view);
   MetaStageView *view = META_STAGE_VIEW (stage_view);
   MetaRendererView *renderer_view = META_RENDERER_VIEW (stage_view);
-  MetaBackend *backend = meta_compositor_get_backend (compositor);
-  MetaCursorTracker *cursor_tracker =
-    meta_backend_get_cursor_tracker (backend);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
   MetaCrtc *crtc;
   CoglFramebuffer *framebuffer;
   MetaSurfaceActor *surface_actor;
@@ -233,44 +287,14 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   if (!surface_actor)
     return FALSE;
 
-  if (meta_cursor_renderer_needs_overlay (cursor_renderer) &&
-      !meta_stage_view_is_cursor_overlay_inhibited (view) &&
-      meta_cursor_tracker_get_pointer_visible (cursor_tracker))
+  if (!meta_stage_view_is_cursor_overlay_inhibited (view) &&
+      surface_actor_has_overlapping_cursor_overlays (compositor,
+                                                     compositor_view,
+                                                     surface_actor))
     {
-      CoglTexture *cursor_sprite;
-      MtkRectangle view_rect;
-      graphene_rect_t graphene_view_rect;
-      graphene_rect_t cursor_rect;
-      graphene_point_t position;
-      float scale;
-      int hotspot_x;
-      int hotspot_y;
-
-      meta_cursor_tracker_get_pointer (cursor_tracker, &position, NULL);
-      meta_cursor_tracker_get_hot (cursor_tracker, &hotspot_x, &hotspot_y);
-
-      scale = (clutter_stage_view_get_scale (stage_view) *
-               meta_cursor_tracker_get_scale (cursor_tracker));
-
-      cursor_sprite = meta_cursor_tracker_get_sprite (cursor_tracker);
-      g_return_val_if_fail (cursor_sprite != NULL, FALSE);
-
-      graphene_rect_init (&cursor_rect,
-                          position.x - (hotspot_x * scale),
-                          position.y - (hotspot_y * scale),
-                          cogl_texture_get_width (cursor_sprite) * scale,
-                          cogl_texture_get_height (cursor_sprite) * scale);
-
-      clutter_stage_view_get_layout (stage_view, &view_rect);
-      graphene_view_rect = mtk_rectangle_to_graphene_rect (&view_rect);
-      if (graphene_rect_intersection (&graphene_view_rect,
-                                      &cursor_rect,
-                                      NULL))
-        {
-          meta_topic (META_DEBUG_RENDER,
-                      "No direct scanout candidate: using software cursor");
-          return FALSE;
-        }
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: overlapping software cursors");
+      return FALSE;
     }
 
   crtc = meta_renderer_view_get_crtc (renderer_view);
