@@ -334,11 +334,8 @@ test_client_cursor (ClutterStageView    *view,
   MetaWaylandTestClient *test_client;
   MetaWindow *window;
   MetaWindowActor *window_actor;
-  ClutterCursor *current_cursor;
 
   g_debug ("Testing cursor with client using %s", scale_method);
-
-  current_cursor = meta_get_current_cursor (test_context);
 
   cursor_name = meta_cursor_get_name (cursor);
   transform_name = mtk_monitor_transform_to_string (transform);
@@ -357,7 +354,7 @@ test_client_cursor (ClutterStageView    *view,
   meta_wait_for_window_shown (window);
   window_actor = meta_window_actor_from_window (window);
   g_assert_nonnull (window_actor);
-  meta_wait_for_cursor_change (test_context, current_cursor);
+  meta_wait_for_window_cursor (test_context);
 
   meta_ref_test_verify_view (view,
                              ref_test_name,
