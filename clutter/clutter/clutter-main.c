@@ -209,6 +209,7 @@ clutter_stage_handle_event (ClutterStage *stage,
 
   if (event_type == CLUTTER_TOUCH_END ||
       event_type == CLUTTER_TOUCH_CANCEL ||
+      event_type == CLUTTER_PROXIMITY_OUT ||
       event_type == CLUTTER_DEVICE_REMOVED)
     {
       _clutter_stage_process_queued_events (stage);

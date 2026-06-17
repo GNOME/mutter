@@ -3495,6 +3495,12 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
                                        source_device, time_ms);
       clutter_backend_destroy_sprite (clutter_backend, sprite);
     }
+  else if (event_type == CLUTTER_PROXIMITY_OUT)
+    {
+      sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+      clutter_sprite_get_coords (sprite, &point);
+      clutter_sprite_update (sprite, point, NULL);
+    }
   else
     {
       g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
