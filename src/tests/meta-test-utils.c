@@ -1204,16 +1204,24 @@ meta_wait_for_cursor_change (MetaContext   *context,
     g_main_context_iteration (NULL, FALSE);
 }
 
-void
-meta_wait_for_window_cursor (MetaContext *context)
+static gboolean
+check_current_window_cursor (MetaContext *context)
 {
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
   MetaWaylandSeat *wayland_seat = wayland_compositor->seat;
   MetaWaylandPointer *wayland_pointer = wayland_seat->pointer;
+  g_autoptr (ClutterCursor) pointer_cursor = NULL;
 
-  while (meta_wayland_pointer_get_cursor (wayland_pointer) !=
-         meta_get_current_cursor (context))
+  pointer_cursor = meta_wayland_pointer_get_cursor (wayland_pointer);
+
+  return pointer_cursor == meta_get_current_cursor (context);
+}
+
+void
+meta_wait_for_window_cursor (MetaContext *context)
+{
+  while (!check_current_window_cursor (context))
     g_main_context_iteration (NULL, FALSE);
 }
 
