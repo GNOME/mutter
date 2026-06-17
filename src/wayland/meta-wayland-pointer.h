@@ -113,4 +113,5 @@ gboolean meta_wayland_pointer_check_focus_serial (MetaWaylandPointer *pointer,
                                                   struct wl_client   *client,
                                                   uint32_t            serial);
 
+META_EXPORT_TEST
 ClutterCursor * meta_wayland_pointer_get_cursor (MetaWaylandPointer *pointer);

@@ -166,6 +166,9 @@ void meta_wait_for_cursor_change (MetaContext   *context,
                                   ClutterCursor *initial_cursor);
 
 META_EXPORT
+void meta_wait_for_window_cursor (MetaContext *context);
+
+META_EXPORT
 void meta_wait_for_effects (MetaWindow *window);
 
 META_EXPORT

@@ -35,7 +35,8 @@
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
-#include "wayland/meta-wayland.h"
+#include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-private.h"
 #include "wayland/meta-window-wayland.h"
 #include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
@@ -1200,6 +1201,19 @@ meta_wait_for_cursor_change (MetaContext   *context,
                              ClutterCursor *current_cursor)
 {
   while (current_cursor == meta_get_current_cursor (context))
+    g_main_context_iteration (NULL, FALSE);
+}
+
+void
+meta_wait_for_window_cursor (MetaContext *context)
+{
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (context);
+  MetaWaylandSeat *wayland_seat = wayland_compositor->seat;
+  MetaWaylandPointer *wayland_pointer = wayland_seat->pointer;
+
+  while (meta_wayland_pointer_get_cursor (wayland_pointer) !=
+         meta_get_current_cursor (context))
     g_main_context_iteration (NULL, FALSE);
 }
 
