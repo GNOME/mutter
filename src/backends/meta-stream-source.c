@@ -442,7 +442,7 @@ ensure_framebuffer (MetaStreamSource *source,
 
   if (!priv->framebuffer)
     {
-      CoglTexture *texture;
+      g_autoptr (CoglTexture) texture = NULL;
       CoglOffscreen *offscreen;
 
       texture = cogl_texture_2d_new_with_size (cogl_context,
