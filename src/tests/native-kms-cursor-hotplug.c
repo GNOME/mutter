@@ -149,7 +149,7 @@ meta_test_hotplug_multi_view_invalidation (void)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaCursorRenderer *cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  MetaCursorRenderer *cursor_renderer;
   ClutterSeat *seat;
   g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
   MetaVirtualMonitor *virtual_monitor;
@@ -180,6 +180,8 @@ meta_test_hotplug_multi_view_invalidation (void)
 
   meta_wait_for_presented (test_context);
 
+  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  g_assert_nonnull (cursor_renderer);
   cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
   g_assert_nonnull (cursor);
   texture_changed_handler_id =

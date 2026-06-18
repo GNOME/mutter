@@ -43,7 +43,7 @@ meta_test_cursor_force_disable (void)
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaCursorRenderer *cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  MetaCursorRenderer *cursor_renderer;
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (test_context);
   g_autoptr (MetaWaylandTestDriver) test_driver = NULL;
@@ -75,13 +75,15 @@ meta_test_cursor_force_disable (void)
                                                        g_get_monotonic_time (),
                                                        50, 50);
 
-  cursor_renderer = meta_backend_get_cursor_renderer (backend);
-
   while (TRUE)
     {
-      cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
-      if (cursor)
-        break;
+      cursor_renderer = meta_backend_get_cursor_renderer (backend);
+      if (cursor_renderer)
+        {
+          cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+          if (cursor)
+            break;
+        }
       g_main_context_iteration (NULL, TRUE);
     }
   g_assert_nonnull (cursor);
