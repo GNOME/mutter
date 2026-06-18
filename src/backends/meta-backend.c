@@ -323,7 +323,8 @@ init_pointer_position (MetaBackend *backend)
                                       primary->rect.y + primary->rect.height * 0.9f);
 
   cursor_renderer = meta_backend_get_cursor_renderer (backend);
-  meta_cursor_renderer_update_position (cursor_renderer);
+  if (cursor_renderer)
+    meta_cursor_renderer_update_position (cursor_renderer);
 }
 
 static gboolean
