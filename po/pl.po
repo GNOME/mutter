@@ -9,22 +9,23 @@
 # Piotr Drąg <piotrdrag@gmail.com>, 2010-2025.
 # Aviary.pl <community-poland@mozilla.org>, 2007-2025.
 # Victoria <royal.victoria@proton.me>, 2026.
+# Victoria Niedzielska <victorian@gnome.org>, 2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-28 15:06+0000\n"
-"PO-Revision-Date: 2026-03-03 10:23+0100\n"
-"Last-Translator: Victoria <royal.victoria@proton.me>\n"
-"Language-Team: Polish\n"
+"POT-Creation-Date: 2026-06-18 10:04+0000\n"
+"PO-Revision-Date: 2026-06-18 20:24+0200\n"
+"Last-Translator: Victoria Niedzielska <victorian@gnome.org>\n"
+"Language-Team: Polish <https://l10n.gnome.org/teams/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Gtranslator 49.0\n"
+"X-Generator: Gtranslator 50.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -84,11 +85,11 @@ msgstr "Przeniesienie okna na monitor na dole"
 
 #: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
-msgstr "Przełączenie programów"
+msgstr "Przełączenie aplikacji"
 
 #: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
-msgstr "Przełączenie na poprzedni program"
+msgstr "Przełączenie na poprzednią aplikację"
 
 #: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
@@ -100,11 +101,11 @@ msgstr "Przełączenie na poprzednie okno"
 
 #: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
-msgstr "Przełączenie między oknami programu"
+msgstr "Przełączenie między oknami aplikacji"
 
 #: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
-msgstr "Przełączenie na poprzednie okno programu"
+msgstr "Przełączenie na poprzednie okno aplikacji"
 
 #: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
@@ -124,11 +125,11 @@ msgstr "Bezpośrednie przełączenie na poprzednie okno"
 
 #: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
-msgstr "Bezpośrednie przełączenie między oknami programu"
+msgstr "Bezpośrednie przełączenie między oknami aplikacji"
 
 #: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
-msgstr "Bezpośrednie przełączenie na poprzednie okno programu"
+msgstr "Bezpośrednie przełączenie na poprzednie okno aplikacji"
 
 #: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
@@ -276,7 +277,7 @@ msgid ""
 "set to the empty string."
 msgstr ""
 "Ten klawisz inicjuje tryb „overlay” (nakładki), który jest połączeniem "
-"podglądu okien i systemu uruchamiania programów. Domyślnie jest przeznaczony "
+"podglądu okien i systemu uruchamiania aplikacji. Domyślnie jest przeznaczony "
 "do powiązania z klawiszem „Windows” na komputerach typu PC. Ustawienie tego "
 "powiązania powinno być domyślne lub puste."
 
@@ -547,12 +548,12 @@ msgstr ""
 "zwykłe okna X11, które mogą otrzymywać aktywność klawiatury w zwykłych "
 "okolicznościach. Aby przechwycenie X11 zostało uwzględnione w systemie "
 "Wayland, klient musi także wysłać konkretny komunikat ClientMessage systemu "
-"X11 do głównego okna lub być na liście dozwolonych programów w kluczu "
+"X11 do głównego okna lub być na liście dozwolonych aplikacji w kluczu "
 "„xwayland-grab-access-rules”."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
-msgstr "Programy Xwayland, które mogą wywoływać przechwycenia klawiatury"
+msgstr "Aplikacje Xwayland, które mogą wywoływać przechwycenia klawiatury"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
@@ -573,7 +574,7 @@ msgstr ""
 "WM_CLASS”. W wartościach obsługiwane są wieloznaczniki „*” i „?”. Wartości "
 "zaczynające się od znaku „!” nie mają zezwolenia, co ma pierwszeństwo przed "
 "listą dozwolonych wartości, aby usunąć je z domyślnej listy systemu. "
-"Domyślna lista systemu zawiera te programy: "
+"Domyślna lista systemu zawiera te aplikacje: "
 "„@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@”. Użytkownicy mogą przerwać istniejące "
 "przechwycenie za pomocą skrótu klawiszowego określonego w kluczu „restore-"
 "shortcuts”."
@@ -643,7 +644,7 @@ msgstr ""
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
-msgstr "Program"
+msgstr "Aplikacja"
 
 #: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
 msgid "Executable"
@@ -749,26 +750,26 @@ msgstr "O zestawie programistycznym Mutter"
 msgid "Failed to create monitor"
 msgstr "Utworzenie monitora się nie powiodło"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "Wbudowany ekran"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "Nieznany"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "Nieznany ekran"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -780,47 +781,47 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Zdarzenie sygnału dźwiękowego"
 
-#: src/core/display.c:608
+#: src/core/display.c:611
 msgid "Privacy Screen Enabled"
 msgstr "Włączono prywatny ekran"
 
-#: src/core/display.c:609
+#: src/core/display.c:612
 msgid "Privacy Screen Disabled"
 msgstr "Wyłączono prywatny ekran"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:334
 msgid "Run as a wayland compositor"
 msgstr "Uruchamia jako menedżer składania Wayland"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:341
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Uruchamia menedżer składania Wayland bez uruchamiania serwera Xwayland"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:348
 msgid "Specify Wayland display name to use"
 msgstr "Podaje używaną nazwę ekranu Wayland"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:354
 msgid "Run as a full display server, rather than nested"
 msgstr "Uruchamia jako pełny serwer wyświetlania zamiast osadzonego"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:359
 msgid "Run as a headless display server"
 msgstr "Uruchamia jako serwer wyświetlania bez monitora"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:364
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Dodaje trwały wirtualny monitor (SzxW lub SzxW@O)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:370
 msgid "Run development kit"
 msgstr "Uruchamia zestaw programistyczny"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:381
 msgid "Profile performance using trace instrumentation"
 msgstr "Profiluje wydajność za pomocą instrumentacji śledzenia"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:387
 msgid "Enable debug control D-Bus interface"
 msgstr "Włącza interfejs D-Bus do sterowania debugowaniem"
 
@@ -864,12 +865,12 @@ msgstr "Wyświetla wersję"
 msgid "Mutter plugin to use"
 msgstr "Używana wtyczka menedżera Mutter"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. obszar roboczy"
 
-#: src/core/util.c:149
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr ""
 "Menedżer Mutter został skompilowany bez obsługi trybu z obszerną informacją"
@@ -883,24 +884,24 @@ msgstr "Przełączono obszar roboczy"
 msgid "Mode Switch: Mode %d"
 msgstr "Przełącznik trybu: %d. tryb"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "Monitor „%s” już posiada menedżer okien"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Otwarcie ekranu „%s” systemu X Window się nie powiodło"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Podekran %d ekranu „%s” jest nieprawidłowy"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
