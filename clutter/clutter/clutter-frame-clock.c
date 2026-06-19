@@ -669,8 +669,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                     presented_frame->dispatch_lateness_us,
                     to_flip_us, to_kms_ready_us, ready_name);
 
-      update_duration_us = MIN (MAX (to_kms_ready_us, to_flip_us) +
-                                frame_clock->deadline_evasion_us,
+      update_duration_us = MIN (MAX (to_kms_ready_us, to_flip_us),
                                 3 * frame_clock->refresh_interval_us);
 
       adjust_update_duration_estimates (frame_clock,
@@ -927,6 +926,7 @@ clutter_frame_clock_estimate_min_update_time_us (ClutterFrameClock *frame_clock,
   /* Estimate the minimum total update duration */
   *min_update_time_estimate_us =
     frame_clock->min_update_duration_us +
+    frame_clock->deadline_evasion_us +
     frame_clock->vblank_duration_us;
 
   return TRUE;
@@ -962,6 +962,7 @@ clutter_frame_clock_estimate_max_update_time_us (ClutterFrameClock *frame_clock,
    */
   *max_update_time_estimate_us =
     frame_clock->max_update_duration_us +
+    frame_clock->deadline_evasion_us +
     frame_clock->vblank_duration_us +
     get_max_update_time_margin_us (frame_clock);
 
@@ -1926,6 +1927,8 @@ clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clo
 
   g_string_append_printf (string, "\nVblank duration: %ld µs +",
                           frame_clock->vblank_duration_us);
+  g_string_append_printf (string, "\nDeadline evasion: %ld µs +",
+                          frame_clock->deadline_evasion_us);
   g_string_append_printf (string, "\nMaximum update duration: %ld µs +",
                           frame_clock->max_update_duration_us);
   g_string_append_printf (string, "\nMinimum update duration: %ld µs +",
