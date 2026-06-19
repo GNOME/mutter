@@ -3501,7 +3501,7 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
       clutter_sprite_get_coords (sprite, &point);
       clutter_sprite_update (sprite, point, NULL);
     }
-  else
+  else if (event_type != CLUTTER_PROXIMITY_IN)
     {
       g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
                 device_type != CLUTTER_PAD_DEVICE);
@@ -3511,14 +3511,14 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
 
       sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
 
+      clutter_focus_update_from_event (CLUTTER_FOCUS (sprite), event);
+
       clutter_stage_pick_and_update_sprite (stage,
                                             sprite,
                                             source_device,
                                             CLUTTER_DEVICE_UPDATE_NONE,
                                             point,
                                             time_ms);
-
-      clutter_focus_update_from_event (CLUTTER_FOCUS (sprite), event);
     }
 }
 
