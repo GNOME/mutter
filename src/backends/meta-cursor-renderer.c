@@ -581,11 +581,12 @@ meta_cursor_renderer_set_sprite (MetaCursorRenderer *renderer,
   if (priv->sprite)
     {
       cursor = clutter_sprite_get_cursor (sprite);
-      meta_cursor_renderer_update_cursor (renderer, cursor);
+      meta_cursor_renderer_update_position (renderer);
+      meta_cursor_renderer_set_cursor (renderer, cursor);
     }
   else
     {
-      meta_cursor_renderer_update_cursor (renderer, NULL);
+      meta_cursor_renderer_set_cursor (renderer, NULL);
     }
 }
 
