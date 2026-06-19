@@ -812,6 +812,9 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative *seat_native,
   if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
     return NULL;
 
+  if (!clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite)))
+    return NULL;
+
   if (!seat_native->cursor_renderer)
     {
       MetaCursorRendererNative *cursor_renderer_native;
