@@ -1820,7 +1820,7 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
         }
     }
 
-  meta_kms_crtc_update_shortterm_max_dispatch_duration (crtc, interval_us);
+  meta_kms_crtc_adjust_deadline_evasion (crtc, interval_us);
 
   if (meta_kms_feedback_did_pass (feedback))
     crtc_frame->deadline.is_deadline_page_flip = TRUE;

@@ -52,9 +52,7 @@ struct _MetaKmsCrtc
 
   gboolean is_leased;
 
-  int64_t shortterm_max_dispatch_duration_us;
   int64_t deadline_evasion_us;
-  int64_t deadline_evasion_update_time_us;
 
   int64_t last_vblank_time_us;
 
@@ -735,33 +733,6 @@ get_crtc_type_bitmask (MetaKmsCrtc *crtc)
     }
 }
 
-static void
-maybe_update_deadline_evasion (MetaKmsCrtc *crtc,
-                               int64_t      next_presentation_time_us)
-{
-  /* Do not update long-term max if there has been no measurement */
-  if (!crtc->shortterm_max_dispatch_duration_us)
-    return;
-
-  if (next_presentation_time_us - crtc->deadline_evasion_update_time_us <
-      G_USEC_PER_SEC)
-    return;
-
-  if (crtc->deadline_evasion_us > crtc->shortterm_max_dispatch_duration_us)
-    {
-      /* Exponential drop-off toward the clamped short-term max */
-      crtc->deadline_evasion_us -=
-        (crtc->deadline_evasion_us - crtc->shortterm_max_dispatch_duration_us) / 2;
-    }
-  else
-    {
-      crtc->deadline_evasion_us = crtc->shortterm_max_dispatch_duration_us;
-    }
-
-  crtc->shortterm_max_dispatch_duration_us = 0;
-  crtc->deadline_evasion_update_time_us = next_presentation_time_us;
-}
-
 typedef struct
 {
   MetaKmsCrtc *crtc;
@@ -1021,8 +992,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
       next_deadline_us += skip_us;
     }
 
-  maybe_update_deadline_evasion (crtc, next_presentation_us);
-
   *out_next_presentation_us = next_presentation_us;
   *out_next_deadline_us = next_deadline_us;
 
@@ -1076,34 +1045,56 @@ meta_kms_crtc_set_vrr_presentation_time (MetaKmsCrtc *crtc,
 }
 
 void
-meta_kms_crtc_update_shortterm_max_dispatch_duration (MetaKmsCrtc *crtc,
-                                                      int64_t      duration_us)
+meta_kms_crtc_adjust_deadline_evasion (MetaKmsCrtc *crtc,
+                                       int64_t      duration_us)
 {
   int64_t refresh_interval_us;
+  float refresh_rate;
+  int64_t delta_us, adjustment_us;
 
   g_return_if_fail (crtc->current_state.is_drm_mode_valid);
 
-  if (duration_us <= crtc->shortterm_max_dispatch_duration_us)
-    return;
+  refresh_rate =
+    meta_calculate_drm_mode_refresh_rate (&crtc->current_state.drm_mode);
+  refresh_interval_us = (int64_t) (0.5 + G_USEC_PER_SEC / refresh_rate);
 
-  refresh_interval_us =
-    (int64_t) (0.5 + G_USEC_PER_SEC /
-               meta_calculate_drm_mode_refresh_rate (&crtc->current_state.drm_mode));
-
-  crtc->shortterm_max_dispatch_duration_us =
+  duration_us =
     MIN (duration_us, refresh_interval_us - DEADLINE_EVASION_CONSTANT_US);
+
+  if (crtc->deadline_evasion_us == 0)
+    {
+      crtc->deadline_evasion_us = duration_us;
+      return;
+    }
+
+  delta_us = duration_us - crtc->deadline_evasion_us;
+
+  /* Adjust the estimates by a fraction of the delta such that it'll take at
+   * least seconds for the estimate to catch up to the latest measurement
+   */
+  if (delta_us < 0)
+    adjustment_us = (int64_t) roundf ((float) delta_us / (refresh_rate * 8));
+  else if (delta_us < DEADLINE_EVASION_CONSTANT_US)
+    adjustment_us = (int64_t) roundf ((float) delta_us / refresh_rate);
+  else
+    adjustment_us = delta_us;
+
+  if (adjustment_us != 0)
+    {
+      meta_topic (META_DEBUG_KMS_DEADLINE,
+                  "CRTC %d deadline evasion updated: %ld → %ld µs",
+                  meta_kms_crtc_get_id (crtc),
+                  crtc->deadline_evasion_us,
+                  crtc->deadline_evasion_us + adjustment_us);
+      crtc->deadline_evasion_us += adjustment_us;
+    }
 }
 
 int64_t
 meta_kms_crtc_get_deadline_evasion (MetaKmsCrtc *crtc)
 {
-  int64_t deadline_evasion_us;
-
-  deadline_evasion_us =
-    MAX (crtc->shortterm_max_dispatch_duration_us, crtc->deadline_evasion_us);
-
-  if (!deadline_evasion_us)
+  if (crtc->deadline_evasion_us == 0)
     return 0;
 
-  return deadline_evasion_us + DEADLINE_EVASION_CONSTANT_US;
+  return crtc->deadline_evasion_us + DEADLINE_EVASION_CONSTANT_US;
 }
