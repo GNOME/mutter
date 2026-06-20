@@ -427,7 +427,8 @@ get_max_update_time_margin_us (ClutterFrameClock *frame_clock)
 
 static void
 adjust_update_duration_estimates (ClutterFrameClock *frame_clock,
-                                  int64_t            update_duration_us)
+                                  int64_t            update_duration_us,
+                                  int64_t            dispatch_lateness_us)
 {
   int64_t refresh_interval_us = frame_clock->refresh_interval_us;
   float refresh_rate = frame_clock->refresh_rate;
@@ -438,7 +439,8 @@ adjust_update_duration_estimates (ClutterFrameClock *frame_clock,
   delta_us = update_duration_us - frame_clock->max_update_duration_us;
 
   target_margin_us =
-    CLAMP (delta_us - clutter_max_render_time_constant_us,
+    CLAMP (delta_us + dispatch_lateness_us -
+           clutter_max_render_time_constant_us,
            frame_clock->max_update_margin.target_us,
            refresh_interval_us / 4);
   frame_clock->max_update_margin.target_us = target_margin_us;
@@ -640,13 +642,13 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                     presented_frame->dispatch_lateness_us,
                     to_flip_us, to_kms_ready_us, ready_name);
 
-      update_duration_us =
-        MIN (presented_frame->dispatch_lateness_us +
-             MAX (to_kms_ready_us, to_flip_us) +
-             frame_clock->deadline_evasion_us,
-             3 * frame_clock->refresh_interval_us);
+      update_duration_us = MIN (MAX (to_kms_ready_us, to_flip_us) +
+                                frame_clock->deadline_evasion_us,
+                                3 * frame_clock->refresh_interval_us);
 
-      adjust_update_duration_estimates (frame_clock, update_duration_us);
+      adjust_update_duration_estimates (frame_clock,
+                                        update_duration_us,
+                                        presented_frame->dispatch_lateness_us);
 
       presented_frame->got_measurements = TRUE;
       frame_clock->ever_got_measurements = TRUE;
