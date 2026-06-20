@@ -87,6 +87,7 @@ void meta_kms_crtc_set_vrr_presentation_time (MetaKmsCrtc *crtc,
                                               int64_t      presentation_us);
 
 void meta_kms_crtc_adjust_deadline_evasion (MetaKmsCrtc *crtc,
-                                            int64_t      duration_us);
+                                            int64_t      duration_us,
+                                            int64_t      lateness_us);
 
 int64_t meta_kms_crtc_get_deadline_evasion (MetaKmsCrtc *crtc);

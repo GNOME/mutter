@@ -1053,7 +1053,8 @@ meta_kms_crtc_set_vrr_presentation_time (MetaKmsCrtc *crtc,
 
 void
 meta_kms_crtc_adjust_deadline_evasion (MetaKmsCrtc *crtc,
-                                       int64_t      duration_us)
+                                       int64_t      duration_us,
+                                       int64_t      lateness_us)
 {
   int64_t refresh_interval_us;
   float refresh_rate;
@@ -1078,7 +1079,7 @@ meta_kms_crtc_adjust_deadline_evasion (MetaKmsCrtc *crtc,
 
   delta_us = duration_us - crtc->deadline_evasion_us;
   target_margin_us =
-    CLAMP (delta_us - DEADLINE_EVASION_CONSTANT_US,
+    CLAMP (delta_us + lateness_us - DEADLINE_EVASION_CONSTANT_US,
            crtc->deadline_evasion_margin.target_us,
            refresh_interval_us / 4);
   crtc->deadline_evasion_margin.target_us = target_margin_us;

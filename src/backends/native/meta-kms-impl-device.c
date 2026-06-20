@@ -1707,10 +1707,10 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
   MetaKmsUpdate *update = NULL;
   uint64_t timer_value;
   ssize_t ret;
-  int64_t dispatch_time_us = 0, update_done_time_us, interval_us;
+  int64_t dispatch_time_us, update_done_time_us;
+  int64_t lateness_us, duration_us;
 
-  if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
-    dispatch_time_us = g_get_monotonic_time ();
+  dispatch_time_us = g_get_monotonic_time ();
 
   ret = read (crtc_frame->deadline.timer_fd,
               &timer_value,
@@ -1780,15 +1780,11 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
 
   update_done_time_us = g_get_monotonic_time ();
   /* Calculate how long after the planned start of deadline dispatch it finished */
-  interval_us = update_done_time_us - crtc_frame->deadline.expected_deadline_time_us;
+  lateness_us = dispatch_time_us - crtc_frame->deadline.expected_deadline_time_us;
+  duration_us = update_done_time_us - dispatch_time_us;
 
   if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
     {
-      int64_t lateness_us, duration_us;
-
-      lateness_us = dispatch_time_us - crtc_frame->deadline.expected_deadline_time_us;
-      duration_us = update_done_time_us - dispatch_time_us;
-
       if (meta_kms_crtc_get_current_state (crtc)->vrr.enabled)
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
@@ -1820,7 +1816,7 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
         }
     }
 
-  meta_kms_crtc_adjust_deadline_evasion (crtc, interval_us);
+  meta_kms_crtc_adjust_deadline_evasion (crtc, duration_us, lateness_us);
 
   if (meta_kms_feedback_did_pass (feedback))
     crtc_frame->deadline.is_deadline_page_flip = TRUE;
