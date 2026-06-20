@@ -53,6 +53,11 @@ struct _MetaKmsCrtc
   gboolean is_leased;
 
   int64_t deadline_evasion_us;
+  struct {
+    int64_t current_us;
+    int64_t target_us;
+    int64_t set_time_us;
+  } deadline_evasion_margin;
 
   int64_t last_vblank_time_us;
 
@@ -947,7 +952,9 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
         }
     }
   else if (now_us > next_deadline_us &&
-           now_us - next_deadline_us <= DEADLINE_EVASION_CONSTANT_US &&
+           now_us - next_deadline_us <=
+           crtc->deadline_evasion_margin.current_us +
+           DEADLINE_EVASION_CONSTANT_US &&
            (!target_presentation_time_us ||
             mtk_find_nearest_interval_boundary (next_presentation_us,
                                                 target_presentation_time_us,
@@ -1051,6 +1058,8 @@ meta_kms_crtc_adjust_deadline_evasion (MetaKmsCrtc *crtc,
   int64_t refresh_interval_us;
   float refresh_rate;
   int64_t delta_us, adjustment_us;
+  int64_t target_margin_us;
+  int64_t now_us;
 
   g_return_if_fail (crtc->current_state.is_drm_mode_valid);
 
@@ -1058,8 +1067,8 @@ meta_kms_crtc_adjust_deadline_evasion (MetaKmsCrtc *crtc,
     meta_calculate_drm_mode_refresh_rate (&crtc->current_state.drm_mode);
   refresh_interval_us = (int64_t) (0.5 + G_USEC_PER_SEC / refresh_rate);
 
-  duration_us =
-    MIN (duration_us, refresh_interval_us - DEADLINE_EVASION_CONSTANT_US);
+  duration_us = MIN (duration_us, refresh_interval_us -
+                     refresh_interval_us / 4 - DEADLINE_EVASION_CONSTANT_US);
 
   if (crtc->deadline_evasion_us == 0)
     {
@@ -1068,13 +1077,19 @@ meta_kms_crtc_adjust_deadline_evasion (MetaKmsCrtc *crtc,
     }
 
   delta_us = duration_us - crtc->deadline_evasion_us;
+  target_margin_us =
+    CLAMP (delta_us - DEADLINE_EVASION_CONSTANT_US,
+           crtc->deadline_evasion_margin.target_us,
+           refresh_interval_us / 4);
+  crtc->deadline_evasion_margin.target_us = target_margin_us;
 
   /* Adjust the estimates by a fraction of the delta such that it'll take at
    * least seconds for the estimate to catch up to the latest measurement
    */
   if (delta_us < 0)
     adjustment_us = (int64_t) roundf ((float) delta_us / (refresh_rate * 8));
-  else if (delta_us < DEADLINE_EVASION_CONSTANT_US)
+  else if (delta_us < crtc->deadline_evasion_margin.current_us +
+           DEADLINE_EVASION_CONSTANT_US)
     adjustment_us = (int64_t) roundf ((float) delta_us / refresh_rate);
   else
     adjustment_us = delta_us;
@@ -1088,6 +1103,42 @@ meta_kms_crtc_adjust_deadline_evasion (MetaKmsCrtc *crtc,
                   crtc->deadline_evasion_us + adjustment_us);
       crtc->deadline_evasion_us += adjustment_us;
     }
+
+  now_us = g_get_monotonic_time ();
+  delta_us = target_margin_us - crtc->deadline_evasion_margin.current_us;
+
+  if (delta_us <= 0)
+    {
+      if (now_us - crtc->deadline_evasion_margin.set_time_us < G_USEC_PER_SEC)
+        return;
+
+      /* Lower dynamic margin by a fraction of the delta such that it'll take
+       * at least a minute for the margin to drop to the latest measurement
+       */
+      adjustment_us = delta_us / 60;
+      crtc->deadline_evasion_margin.target_us = 0;
+    }
+  else if (delta_us < DEADLINE_EVASION_CONSTANT_US)
+    {
+      /* Raise dynamic margin half way toward the latest measurement */
+      adjustment_us = MAX (delta_us / 2, 1);
+    }
+  else
+    {
+      adjustment_us = delta_us;
+    }
+
+  if (adjustment_us == 0)
+    return;
+
+  meta_topic (META_DEBUG_KMS_DEADLINE,
+              "CRTC %d deadline evasion margin updated: %ld → %ld µs",
+              meta_kms_crtc_get_id (crtc),
+              crtc->deadline_evasion_margin.current_us,
+              crtc->deadline_evasion_margin.current_us + adjustment_us);
+
+  crtc->deadline_evasion_margin.current_us += adjustment_us;
+  crtc->deadline_evasion_margin.set_time_us = now_us;
 }
 
 int64_t
@@ -1096,5 +1147,7 @@ meta_kms_crtc_get_deadline_evasion (MetaKmsCrtc *crtc)
   if (crtc->deadline_evasion_us == 0)
     return 0;
 
-  return crtc->deadline_evasion_us + DEADLINE_EVASION_CONSTANT_US;
+  return crtc->deadline_evasion_us +
+         crtc->deadline_evasion_margin.current_us +
+         DEADLINE_EVASION_CONSTANT_US;
 }
