@@ -292,6 +292,11 @@ maybe_add_fallback_modes (const MetaKmsConnectorState *connector_state,
   if (!connector_state->has_scaling)
     return;
 
+  /* Do not add fallback modes to connectors in tile groups, as tiles require
+   * native timings and synthetic modes can skew representative output selection. */
+  if (connector_state->tile_info.group_id)
+    return;
+
   if (output_info->connector_type == DRM_MODE_CONNECTOR_eDP &&
       !are_all_modes_equally_sized (output_info))
     return;
