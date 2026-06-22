@@ -954,6 +954,7 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
     META_INPUT_DEVICE_NATIVE (input_device);
   ClutterModifierType modifiers;
   ClutterEvent *event;
+  ClutterEventFlags event_flags;
   graphene_point_t coords, new_coords;
 
   meta_seat_impl_get_onscreen_coords_for_source_device (seat_impl,
@@ -974,8 +975,12 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
   g_signal_emit (seat_impl, signals[POINTER_POSITION_CHANGED_IN_IMPL], 0,
                  &priv->pointer_state);
 
+  event_flags =
+    input_device == seat_impl->virtual_source_pointer ?
+    CLUTTER_EVENT_FLAG_SYNTHETIC : CLUTTER_EVENT_NONE;
+
   event =
-    clutter_event_motion_new (CLUTTER_EVENT_NONE,
+    clutter_event_motion_new (event_flags,
                               time_us,
                               input_device,
                               device_native->last_tool,
