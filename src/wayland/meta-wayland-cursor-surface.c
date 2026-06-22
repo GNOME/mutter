@@ -270,7 +270,7 @@ meta_wayland_cursor_surface_dispose (GObject *object)
   wl_list_for_each_safe (cb, next, &priv->frame_callbacks, link)
     wl_resource_destroy (cb->resource);
 
-  g_clear_object (&priv->cursor_renderer);
+  meta_wayland_cursor_surface_set_renderer (cursor_surface, NULL);
   g_clear_object (&priv->cursor_sprite);
 
   if (priv->buffer)
@@ -407,6 +407,15 @@ on_cursor_painted (MetaCursorRenderer       *renderer,
                                                  cursor_surface);
 }
 
+static void
+cursor_renderer_weak_notify (gpointer  user_data,
+                             GObject  *object_location)
+{
+  MetaWaylandCursorSurface *cursor_surface = user_data;
+
+  meta_wayland_cursor_surface_set_renderer (cursor_surface, NULL);
+}
+
 void
 meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surface,
                                           MetaCursorRenderer       *renderer)
@@ -425,14 +434,16 @@ meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surfa
     {
       g_clear_signal_handler (&priv->cursor_painted_handler_id,
                               priv->cursor_renderer);
-      g_object_unref (priv->cursor_renderer);
+      g_object_weak_unref (G_OBJECT (priv->cursor_renderer),
+                           cursor_renderer_weak_notify, cursor_surface);
     }
   if (renderer)
     {
       priv->cursor_painted_handler_id =
         g_signal_connect_object (renderer, "cursor-painted",
                                  G_CALLBACK (on_cursor_painted), cursor_surface, 0);
-      g_object_ref (renderer);
+      g_object_weak_ref (G_OBJECT (renderer),
+                         cursor_renderer_weak_notify, cursor_surface);
     }
 
   priv->cursor_renderer = renderer;
