@@ -48,6 +48,10 @@ COGL_EXPORT void
 cogl_onscreen_bind (CoglOnscreen *onscreen);
 
 COGL_EXPORT CoglFrameInfo *
+cogl_onscreen_peek_frame_info (CoglOnscreen *onscreen,
+                               int64_t       frame_counter);
+
+COGL_EXPORT CoglFrameInfo *
 cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen);
 
 COGL_EXPORT CoglFrameInfo *

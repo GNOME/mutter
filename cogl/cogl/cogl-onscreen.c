@@ -273,6 +273,24 @@ cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,
 }
 
 CoglFrameInfo *
+cogl_onscreen_peek_frame_info (CoglOnscreen *onscreen,
+                               int64_t       frame_counter)
+{
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+  GList *l;
+
+  for (l = priv->pending_frame_infos.head; l; l = l->next)
+    {
+      CoglFrameInfo *frame_info = l->data;
+
+      if (frame_info->view_frame_counter == frame_counter)
+        return frame_info;
+    }
+
+  return NULL;
+}
+
+CoglFrameInfo *
 cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
