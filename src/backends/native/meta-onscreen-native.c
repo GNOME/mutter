@@ -135,6 +135,7 @@ struct _MetaOnscreenNative
   ClutterFrame *posted_frame;
   ClutterFrame *superseded_frame;
   ClutterFrame *next_frame;
+  GSource *next_frame_ready_source;
 
   struct {
     struct gbm_surface *surface;
@@ -1596,7 +1597,7 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
     {
-      if (frame_info)
+      if (frame_info && frame_info->kms_ready_time_us == 0)
         {
           frame_info->kms_ready_time_us =
             meta_kms_feedback_get_ready_time_us (kms_feedback);
@@ -1732,6 +1733,76 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   return TRUE;
 }
 
+typedef struct _NextFrameReadySource {
+  GSource parent;
+  CoglOnscreen *onscreen;
+} NextFrameReadySource;
+
+static void
+mark_next_frame_kms_ready (CoglOnscreen *onscreen)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  CoglFrameInfo *frame_info;
+
+  frame_info =
+    cogl_onscreen_peek_frame_info (onscreen,
+                                   onscreen_native->next_frame->frame_count);
+
+  if (frame_info->kms_ready_time_us == 0)
+    frame_info->kms_ready_time_us = g_get_monotonic_time ();
+}
+
+static gboolean
+next_frame_source_dispatch (GSource     *source,
+                            GSourceFunc  callback,
+                            gpointer     user_data)
+{
+  NextFrameReadySource *next_frame_ready_source;
+  MetaOnscreenNative *onscreen_native;
+
+  next_frame_ready_source = (NextFrameReadySource *) source;
+  mark_next_frame_kms_ready (next_frame_ready_source->onscreen);
+  onscreen_native = META_ONSCREEN_NATIVE (next_frame_ready_source->onscreen);
+  g_clear_pointer (&onscreen_native->next_frame_ready_source, g_source_destroy);
+  return G_SOURCE_REMOVE;
+}
+
+static GSourceFuncs next_frame_source_funcs = {
+  .dispatch = next_frame_source_dispatch,
+};
+
+static void
+maybe_mark_next_frame_kms_ready (CoglOnscreen *onscreen)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaFrameNative *frame_native;
+  GSource *source;
+  NextFrameReadySource *next_frame_ready_source;
+  int sync_fd;
+
+  frame_native = meta_frame_native_from_frame (onscreen_native->next_frame);
+  sync_fd = meta_frame_native_peek_sync_fd (frame_native);
+  if (sync_fd < 0 ||
+      mtk_is_fd_readable (sync_fd))
+    {
+      mark_next_frame_kms_ready (onscreen);
+      return;
+    }
+
+  source = g_source_new (&next_frame_source_funcs,
+                         sizeof (NextFrameReadySource));
+  g_source_add_unix_fd (source, sync_fd, G_IO_IN);
+
+  g_source_set_static_name (source,
+                            "[mutter] Clutter onscreen native next frame");
+  g_source_attach (source, NULL);
+  g_source_unref (source);
+  onscreen_native->next_frame_ready_source = source;
+
+  next_frame_ready_source = (NextFrameReadySource *) source;
+  next_frame_ready_source->onscreen = onscreen;
+}
+
 static void
 maybe_post_next_frame (CoglOnscreen *onscreen)
 {
@@ -1780,9 +1851,16 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   render_source_remove_frame (onscreen_native->render_source,
                               onscreen_native->next_frame);
 
-  if (onscreen_native->posted_frame != NULL ||
-      onscreen_native->view == NULL)
+  if (onscreen_native->view == NULL)
     return;
+
+  if (onscreen_native->posted_frame)
+    {
+      maybe_mark_next_frame_kms_ready (onscreen);
+      return;
+    }
+
+  g_clear_pointer (&onscreen_native->next_frame_ready_source, g_source_destroy);
 
   frame = g_steal_pointer (&onscreen_native->next_frame);
   frame_native = meta_frame_native_from_frame (frame);
@@ -2051,8 +2129,12 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
     {
-      frame_info->kms_ready_time_us =
-        meta_kms_feedback_get_ready_time_us (kms_feedback);
+      if (frame_info->kms_ready_time_us == 0)
+        {
+          frame_info->kms_ready_time_us =
+            meta_kms_feedback_get_ready_time_us (kms_feedback);
+        }
+
       return;
     }
 
@@ -2278,7 +2360,7 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
     {
-      if (frame_info)
+      if (frame_info && frame_info->kms_ready_time_us == 0)
         {
           frame_info->kms_ready_time_us =
             meta_kms_feedback_get_ready_time_us (kms_feedback);
@@ -3289,6 +3371,7 @@ meta_onscreen_native_dispose (GObject *object)
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
+  g_clear_pointer (&onscreen_native->next_frame_ready_source, g_source_destroy);
   g_clear_pointer (&onscreen_native->render_source, g_source_destroy);
   meta_onscreen_native_detach (onscreen_native);
 
