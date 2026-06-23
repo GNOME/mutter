@@ -1511,6 +1511,12 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
   GList *gpus;
   GList *l;
 
+  if (g_strcmp0 (getenv ("MUTTER_DEBUG_DISABLE_HW_CURSORS"), "1") == 0)
+    {
+      g_message ("Disabling hardware cursors because MUTTER_DEBUG_DISABLE_HW_CURSORS is set");
+      return;
+    }
+
   gpus = meta_backend_get_gpus (priv->backend);
   for (l = gpus; l; l = l->next)
     {
@@ -1530,16 +1536,6 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
 
   meta_cursor_renderer_native_update_sprite (META_CURSOR_RENDERER (cursor_renderer_native),
                                              NULL);
-}
-
-static void
-on_started (MetaContext              *context,
-            MetaCursorRendererNative *cursor_renderer_native)
-{
-  if (g_strcmp0 (getenv ("MUTTER_DEBUG_DISABLE_HW_CURSORS"), "1"))
-    init_hw_cursor_support (cursor_renderer_native);
-  else
-    g_message ("Disabling hardware cursors because MUTTER_DEBUG_DISABLE_HW_CURSORS is set");
 }
 
 static void
@@ -1595,16 +1591,14 @@ meta_cursor_renderer_native_new (MetaBackend *backend)
                            cursor_renderer_native, 0);
   g_signal_connect (backend, "gpu-added",
                     G_CALLBACK (on_gpu_added_for_cursor), NULL);
-  g_signal_connect (meta_backend_get_context (backend),
-                    "started",
-                    G_CALLBACK (on_started),
-                    cursor_renderer_native);
   g_signal_connect (backend,
                     "prepare-shutdown",
                     G_CALLBACK (on_prepare_shutdown),
                     cursor_renderer_native);
 
   priv->backend = backend;
+
+  init_hw_cursor_support (cursor_renderer_native);
 
   return cursor_renderer_native;
 }
