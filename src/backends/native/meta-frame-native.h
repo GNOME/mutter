@@ -60,6 +60,9 @@ meta_frame_native_set_sync_fd (MetaFrameNative *frame_native,
                                int              sync_fd);
 
 int
+meta_frame_native_peek_sync_fd (MetaFrameNative *frame_native);
+
+int
 meta_frame_native_steal_sync_fd (MetaFrameNative *frame_native);
 
 void

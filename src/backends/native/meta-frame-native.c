@@ -146,6 +146,14 @@ meta_frame_native_set_sync_fd (MetaFrameNative *frame_native,
 }
 
 int
+meta_frame_native_peek_sync_fd (MetaFrameNative *frame_native)
+{
+  g_warn_if_fail (frame_native->sync.events == 0);
+
+  return frame_native->sync.fd;
+}
+
+int
 meta_frame_native_steal_sync_fd (MetaFrameNative *frame_native)
 {
   g_warn_if_fail (frame_native->sync.events == 0);
