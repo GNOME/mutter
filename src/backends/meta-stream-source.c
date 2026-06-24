@@ -496,6 +496,30 @@ damage_to_redraw_clip (MetaStreamSource *source,
   return redraw_clip;
 }
 
+void
+meta_stream_source_paint_to_framebuffer_clipped (MetaStreamSource  *source,
+                                                 CoglFramebuffer   *framebuffer,
+                                                 MtkRectangle      *area,
+                                                 float              scale,
+                                                 ClutterColorState *color_state,
+                                                 MtkRegion         *damage,
+                                                 ClutterPaintFlag   paint_flags)
+{
+  MetaStream *stream = meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  g_autoptr (MtkRegion) redraw_clip = NULL;
+
+  redraw_clip = damage_to_redraw_clip (source, damage);
+  clutter_stage_paint_to_framebuffer_clipped (stage,
+                                              framebuffer,
+                                              area,
+                                              scale,
+                                              color_state,
+                                              redraw_clip,
+                                              paint_flags);
+}
+
 gboolean
 meta_stream_source_paint_to_buffer (MetaStreamSource   *source,
                                     ClutterColorState  *color_state,
@@ -537,20 +561,17 @@ meta_stream_source_paint_to_buffer (MetaStreamSource   *source,
 
   if (!framebuffer)
     {
-      g_autoptr (MtkRegion) redraw_clip = NULL;
-
       framebuffer = ensure_framebuffer (source, cogl_context, width, height, error);
       if (!framebuffer)
         return FALSE;
 
-      redraw_clip = damage_to_redraw_clip (source, damage);
-      clutter_stage_paint_to_framebuffer_clipped (stage,
-                                                  framebuffer,
-                                                  area,
-                                                  scale,
-                                                  color_state,
-                                                  redraw_clip,
-                                                  paint_flags);
+      meta_stream_source_paint_to_framebuffer_clipped (source,
+                                                       framebuffer,
+                                                       area,
+                                                       scale,
+                                                       color_state,
+                                                       damage,
+                                                       paint_flags);
     }
 
   if (damage)

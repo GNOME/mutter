@@ -152,6 +152,14 @@ void meta_stream_source_request_process (MetaStreamSource *source);
 
 MetaStream * meta_stream_source_get_stream (MetaStreamSource *source);
 
+void meta_stream_source_paint_to_framebuffer_clipped (MetaStreamSource  *source,
+                                                      CoglFramebuffer   *framebuffer,
+                                                      MtkRectangle      *area,
+                                                      float              scale,
+                                                      ClutterColorState *color_state,
+                                                      MtkRegion         *damage,
+                                                      ClutterPaintFlag   paint_flags);
+
 gboolean meta_stream_source_paint_to_buffer (MetaStreamSource   *source,
                                              ClutterColorState  *color_state,
                                              CoglFramebuffer    *framebuffer,

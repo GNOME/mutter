@@ -483,17 +483,12 @@ meta_stream_source_area_record_to_framebuffer (MetaStreamSource      *source,
                                                MtkRegion             *damage,
                                                GError               **error)
 {
-  MetaStreamSourceArea *source_area =
-    META_STREAM_SOURCE_AREA (source);
   MetaStream *stream = meta_stream_source_get_stream (source);
   MetaStreamArea *area_stream = META_STREAM_AREA (stream);
-  MetaBackend *backend = get_backend (source_area);
-  ClutterStage *stage;
   MtkRectangle area;
   float scale;
   ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
-  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   meta_stream_area_get_area (area_stream, &area);
   scale = meta_stream_area_get_scale (area_stream);
 
@@ -507,11 +502,13 @@ meta_stream_source_area_record_to_framebuffer (MetaStreamSource      *source,
       paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
       break;
     }
-  clutter_stage_paint_to_framebuffer_clipped (stage, framebuffer,
-                                              &area, scale,
-                                              NULL,
-                                              damage,
-                                              paint_flags);
+  meta_stream_source_paint_to_framebuffer_clipped (source,
+                                                   framebuffer,
+                                                   &area,
+                                                   scale,
+                                                   NULL,
+                                                   damage,
+                                                   paint_flags);
 
   return TRUE;
 }

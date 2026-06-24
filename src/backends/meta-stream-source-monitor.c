@@ -679,7 +679,6 @@ meta_stream_source_monitor_record_to_framebuffer (MetaStreamSource      *source,
   MetaStream *stream = meta_stream_source_get_stream (source);
   MetaBackend *backend = get_backend (source_monitor);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  ClutterStage *stage = get_stage (source_monitor);
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   MetaRendererView *renderer_view;
@@ -834,13 +833,13 @@ stage_paint:
                                          error))
             return FALSE;
 
-          clutter_stage_paint_to_framebuffer_clipped (stage,
-                                                      blending_framebuffer,
-                                                      &logical_monitor_layout,
-                                                      view_scale,
-                                                      blending_color_state,
-                                                      damage,
-                                                      paint_flags);
+          meta_stream_source_paint_to_framebuffer_clipped (source,
+                                                           blending_framebuffer,
+                                                           &logical_monitor_layout,
+                                                           view_scale,
+                                                           blending_color_state,
+                                                           damage,
+                                                           paint_flags);
           cogl_framebuffer_draw_textured_rectangle (framebuffer,
                                                     blending_pipeline,
                                                     -1, 1, 1, -1,
@@ -849,13 +848,13 @@ stage_paint:
         }
       else
         {
-          clutter_stage_paint_to_framebuffer_clipped (stage,
-                                                      framebuffer,
-                                                      &logical_monitor_layout,
-                                                      view_scale,
-                                                      target_color_state,
-                                                      damage,
-                                                      paint_flags);
+          meta_stream_source_paint_to_framebuffer_clipped (source,
+                                                           framebuffer,
+                                                           &logical_monitor_layout,
+                                                           view_scale,
+                                                           target_color_state,
+                                                           damage,
+                                                           paint_flags);
         }
     }
 
