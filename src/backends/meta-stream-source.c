@@ -474,6 +474,7 @@ damage_to_redraw_clip (MetaStreamSource *source,
     meta_stream_source_get_instance_private (source);
   const MtkRectangle *layout = &priv->layout;
   graphene_rect_t src_rect;
+  MtkRegion *redraw_clip;
 
   if (mtk_region_is_empty (damage))
     return mtk_region_create ();
@@ -484,15 +485,15 @@ damage_to_redraw_clip (MetaStreamSource *source,
        layout->height == priv->video_format.size.height))
     return mtk_region_copy (damage);
 
-  src_rect.origin.x = roundf ((float) layout->x *
-                              layout->width / priv->video_format.size.width);
-  src_rect.origin.y = roundf ((float) layout->y *
-                              layout->height / priv->video_format.size.height);
+  src_rect.origin.x = 0;
+  src_rect.origin.y = 0;
   src_rect.size.width = layout->width;
   src_rect.size.height = layout->height;
-  return mtk_region_crop_and_scale ((MtkRegion *) damage, &src_rect,
-                                    priv->video_format.size.width,
-                                    priv->video_format.size.height);
+  redraw_clip = mtk_region_crop_and_scale ((MtkRegion *) damage, &src_rect,
+                                           priv->video_format.size.width,
+                                           priv->video_format.size.height);
+  mtk_region_translate (redraw_clip, layout->x, layout->y);
+  return redraw_clip;
 }
 
 gboolean
@@ -1344,23 +1345,25 @@ redraw_clip_to_damage (MetaStreamSource *source,
     meta_stream_source_get_instance_private (source);
   const MtkRectangle *layout = &priv->layout;
   graphene_rect_t src_rect;
+  g_autoptr (MtkRegion) damage = NULL;
 
   if (mtk_region_is_empty (redraw_clip))
     return mtk_region_create ();
+
+  damage = mtk_region_copy (redraw_clip);
 
   if (mtk_rectangle_is_empty (layout) ||
       (layout->x == 0 && layout->y == 0 &&
        layout->width == priv->video_format.size.width &&
        layout->height == priv->video_format.size.height))
-    return mtk_region_copy (redraw_clip);
+    return g_steal_pointer (&damage);
 
-  src_rect.origin.x = roundf ((float) -layout->x *
-                              priv->video_format.size.width / layout->width);
-  src_rect.origin.y = roundf ((float) -layout->y *
-                              priv->video_format.size.height / layout->height);
+  mtk_region_translate (damage, -layout->x, -layout->y);
+  src_rect.origin.x = 0;
+  src_rect.origin.y = 0;
   src_rect.size.width = priv->video_format.size.width;
   src_rect.size.height = priv->video_format.size.height;
-  return mtk_region_crop_and_scale ((MtkRegion *) redraw_clip, &src_rect,
+  return mtk_region_crop_and_scale (damage, &src_rect,
                                     layout->width, layout->height);
 }
 
