@@ -112,6 +112,7 @@ typedef struct _MetaCompositorPrivate
 
   ClutterActor *window_group;
   ClutterActor *top_window_group;
+  ClutterActor *input_panel_group;
   ClutterActor *feedback_group;
 
   GList *windows;
@@ -229,6 +230,23 @@ meta_compositor_get_top_window_group (MetaCompositor *compositor)
 }
 
 /**
+ * meta_compositor_get_input_panel_group:
+ * @compositor: a #MetaCompositor
+ *
+ * Returns: (transfer none): The input panel group corresponding to @display
+ */
+ClutterActor *
+meta_compositor_get_input_panel_group (MetaCompositor *compositor)
+{
+  MetaCompositorPrivate *priv;
+
+  g_return_val_if_fail (compositor, NULL);
+  priv = meta_compositor_get_instance_private (compositor);
+
+  return priv->input_panel_group;
+}
+
+/**
  * meta_compositor_get_feedback_group:
  * @compositor: a #MetaCompositor
  *
@@ -290,12 +308,18 @@ meta_compositor_manage (MetaCompositor  *compositor,
   clutter_actor_set_accessible_name (priv->window_group, "Window group");
   priv->top_window_group = meta_window_group_new (display);
   clutter_actor_set_accessible_name (priv->top_window_group, "Top window group");
+  priv->input_panel_group = clutter_actor_new ();
+  clutter_actor_set_accessible_name (priv->input_panel_group, "Input panel group");
   priv->feedback_group = meta_window_group_new (display);
   clutter_actor_set_accessible_name (priv->feedback_group, "Feedback group");
 
   clutter_actor_add_child (stage, priv->window_group);
   clutter_actor_add_child (stage, priv->top_window_group);
+  clutter_actor_add_child (stage, priv->input_panel_group);
   clutter_actor_add_child (stage, priv->feedback_group);
+
+  clutter_stage_set_grab_chrome (CLUTTER_STAGE (stage),
+                                 priv->input_panel_group);
 
   if (!META_COMPOSITOR_GET_CLASS (compositor)->manage (compositor, error))
     return FALSE;
@@ -317,6 +341,7 @@ meta_compositor_real_unmanage (MetaCompositor *compositor)
 
   g_clear_pointer (&priv->window_group, clutter_actor_destroy);
   g_clear_pointer (&priv->top_window_group, clutter_actor_destroy);
+  g_clear_pointer (&priv->input_panel_group, clutter_actor_destroy);
   g_clear_pointer (&priv->feedback_group, clutter_actor_destroy);
 }
 
