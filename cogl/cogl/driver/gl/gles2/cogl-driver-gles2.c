@@ -862,17 +862,6 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
     cogl_driver_set_feature (driver,
                              COGL_FEATURE_ID_UNPACK_SUBIMAGE, TRUE);
 
-  /* A nameless vendor implemented the extension, but got the case wrong
-   * per the spec. */
-  if (_cogl_check_extension ("GL_OES_EGL_sync", gl_extensions) ||
-      _cogl_check_extension ("GL_OES_egl_sync", gl_extensions))
-    cogl_driver_set_feature (driver, COGL_FEATURE_ID_OES_EGL_SYNC, TRUE);
-
-#ifdef GL_ARB_sync
-  if (GE_HAS (driver, glFenceSync))
-    cogl_driver_set_feature (driver, COGL_FEATURE_ID_FENCE, TRUE);
-#endif
-
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) ||
       _cogl_check_extension ("GL_EXT_texture_rg", gl_extensions))
     cogl_driver_set_feature (driver,

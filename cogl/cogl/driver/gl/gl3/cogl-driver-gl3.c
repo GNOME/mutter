@@ -649,9 +649,6 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
   cogl_driver_set_feature (driver,
                            COGL_FEATURE_ID_TEXTURE_LOD_BIAS, TRUE);
 
-  if (GE_HAS (driver, glFenceSync))
-    cogl_driver_set_feature (driver, COGL_FEATURE_ID_FENCE, TRUE);
-
   cogl_driver_set_feature (driver, COGL_FEATURE_ID_TEXTURE_RG, TRUE);
 
   cogl_driver_set_feature (driver, COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);

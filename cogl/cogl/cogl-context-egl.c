@@ -182,11 +182,6 @@ cogl_context_egl_initable_init (GInitable     *initable,
                                        TRUE);
     }
 
-  if ((cogl_renderer_egl_has_feature (renderer_egl,
-                                      COGL_EGL_WINSYS_FEATURE_FENCE_SYNC)) &&
-      cogl_driver_has_feature (driver, COGL_FEATURE_ID_OES_EGL_SYNC))
-    cogl_driver_set_feature (driver, COGL_FEATURE_ID_FENCE, TRUE);
-
   if (cogl_renderer_egl_has_feature (renderer_egl,
                                      COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC))
     {
