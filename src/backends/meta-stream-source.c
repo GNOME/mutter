@@ -1544,6 +1544,7 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
             }
 
           record_result |= META_STREAM_RECORD_RESULT_RECORDED_FRAME;
+          g_clear_pointer (&priv->damage, mtk_region_unref);
         }
       else
         {
