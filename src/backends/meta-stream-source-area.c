@@ -255,6 +255,10 @@ before_stage_painted (MetaStage        *stage,
     META_STREAM_SOURCE_AREA (user_data);
   MetaStreamSource *source = META_STREAM_SOURCE (source_area);
 
+  meta_stream_source_accumulate_damage (source,
+                                        META_STREAM_RECORD_FLAG_NONE,
+                                        redraw_clip);
+
   if (source_area->maybe_record_idle_id)
     return;
 

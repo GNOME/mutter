@@ -181,6 +181,8 @@ on_after_paint (MetaStage        *stage,
   flags = META_STREAM_RECORD_FLAG_NONE;
   paint_phase = META_STREAM_PAINT_PHASE_PRE_SWAP_BUFFER;
 
+  meta_stream_source_accumulate_damage (source, flags, redraw_clip);
+
   meta_stream_source_record_frame (source,
                                    flags,
                                    paint_phase,
@@ -200,6 +202,8 @@ on_skipped_paint (MetaStage        *stage,
 
   flags = META_STREAM_RECORD_FLAG_CURSOR_ONLY;
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
+
+  meta_stream_source_accumulate_damage (source, flags, redraw_clip);
 
   meta_stream_source_record_frame (source,
                                    flags,

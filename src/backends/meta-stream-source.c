@@ -1462,8 +1462,6 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
                         PW_STREAM_STATE_STREAMING,
                         META_STREAM_RECORD_RESULT_RECORDED_NOTHING);
 
-  meta_stream_source_accumulate_damage (source, flags, redraw_clip);
-
   meta_topic (META_DEBUG_SCREEN_CAST, "Recording %s frame on stream %u",
               flags & META_STREAM_RECORD_FLAG_CURSOR_ONLY ?
               "cursor" : "full",
@@ -1639,7 +1637,6 @@ meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *sour
                       "Skipped recording frame on stream %u, too early",
                       priv->node_id);
           meta_stream_source_queue_follow_up (source, flags);
-          meta_stream_source_accumulate_damage (source, flags, redraw_clip);
           return record_result;
         }
     }

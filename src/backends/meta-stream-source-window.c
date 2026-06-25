@@ -428,6 +428,7 @@ record_frame (MetaStreamSourceWindow *source_window,
   MetaStreamSource *source = META_STREAM_SOURCE (source_window);
   MetaStreamPaintPhase paint_phase;
 
+  meta_stream_source_accumulate_damage (source, flags, NULL);
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
   meta_stream_source_maybe_record_frame (source, flags, paint_phase, NULL);
 }
