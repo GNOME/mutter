@@ -1057,6 +1057,7 @@ do_record_frame (MetaStreamSource      *source,
   struct spa_data *spa_data = &spa_buffer->datas[0];
   MetaStreamBuffer *stream_buffer;
   g_autoptr (MtkRegion) damage = NULL;
+  gboolean result;
   int buffer_age;
 
   stream_buffer = ensure_stream_buffer (buffer);
@@ -1093,8 +1094,6 @@ do_record_frame (MetaStreamSource      *source,
       damage = mtk_region_create_rectangle (&full_rect);
     }
 
-  clutter_damage_history_step (priv->damage_history);
-
   if (spa_data->data || spa_data->type == SPA_DATA_MemFd)
     {
       int width = priv->video_format.size.width;
@@ -1104,15 +1103,15 @@ do_record_frame (MetaStreamSource      *source,
       COGL_TRACE_BEGIN_SCOPED (RecordToBuffer,
                                "Meta::StreamSource::record_to_buffer()");
 
-      return meta_stream_source_record_to_buffer (source,
-                                                  flags,
-                                                  paint_phase,
-                                                  width,
-                                                  height,
-                                                  stride,
-                                                  spa_data->data,
-                                                  damage,
-                                                  error);
+      result = meta_stream_source_record_to_buffer (source,
+                                                    flags,
+                                                    paint_phase,
+                                                    width,
+                                                    height,
+                                                    stride,
+                                                    spa_data->data,
+                                                    damage,
+                                                    error);
     }
   else if (spa_data->type == SPA_DATA_DmaBuf)
     {
@@ -1121,7 +1120,6 @@ do_record_frame (MetaStreamSource      *source,
                              GINT_TO_POINTER (spa_data->fd));
       CoglFramebuffer *dmabuf_fbo =
         cogl_dma_buf_handle_get_framebuffer (dmabuf_handle);
-      gboolean result;
 
       COGL_TRACE_BEGIN_SCOPED (RecordToFramebuffer,
                                "Meta::StreamSource::record_to_framebuffer()");
@@ -1134,13 +1132,18 @@ do_record_frame (MetaStreamSource      *source,
 
       if (result)
         maybe_set_sync_points (source, spa_buffer);
-
-      return result;
+    }
+  else
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Unknown SPA buffer type %u", spa_data->type);
+      return FALSE;
     }
 
-  g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-               "Unknown SPA buffer type %u", spa_data->type);
-  return FALSE;
+  if (result)
+    clutter_damage_history_step (priv->damage_history);
+
+  return result;
 }
 
 gboolean
