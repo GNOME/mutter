@@ -169,9 +169,7 @@ sync_cursor_state (MetaStreamSourceArea *source_area)
     flags = META_STREAM_RECORD_FLAG_CURSOR_ONLY;
 
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
-  meta_stream_source_maybe_record_frame (source, flags,
-                                         paint_phase,
-                                         NULL);
+  meta_stream_source_maybe_record_frame (source, flags, paint_phase);
 }
 
 static void
@@ -243,9 +241,7 @@ maybe_record_frame_on_idle (gpointer user_data)
 
   flags = META_STREAM_RECORD_FLAG_NONE;
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
-  meta_stream_source_maybe_record_frame (source, flags,
-                                         paint_phase,
-                                         NULL);
+  meta_stream_source_maybe_record_frame (source, flags, paint_phase);
 }
 
 static void

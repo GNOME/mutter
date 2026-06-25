@@ -430,7 +430,7 @@ record_frame (MetaStreamSourceWindow *source_window,
 
   meta_stream_source_accumulate_damage (source, flags, NULL);
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
-  meta_stream_source_maybe_record_frame (source, flags, paint_phase, NULL);
+  meta_stream_source_maybe_record_frame (source, flags, paint_phase);
 }
 
 static gboolean

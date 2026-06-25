@@ -134,18 +134,12 @@ maybe_record_frame_on_idle (gpointer user_data)
   MetaStreamSource *source = META_STREAM_SOURCE (source_monitor);
   MetaStreamPaintPhase paint_phase;
   MetaStreamRecordFlag flags;
-  MtkRectangle empty_rect;
-  g_autoptr (MtkRegion) empty_region = NULL;
 
   source_monitor->maybe_record_idle_id = 0;
 
   flags = META_STREAM_RECORD_FLAG_NONE;
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
-  empty_rect.x = empty_rect.y = 0;
-  empty_rect.width = empty_rect.height = 0;
-  empty_region = mtk_region_create_rectangle (&empty_rect);
-  meta_stream_source_maybe_record_frame (source, flags, paint_phase,
-                                                  empty_region);
+  meta_stream_source_maybe_record_frame (source, flags, paint_phase);
 }
 
 static void
@@ -179,7 +173,6 @@ stage_painted (MetaStage        *stage,
         meta_stream_source_maybe_record_frame_with_timestamp (source,
                                                               flags,
                                                               paint_phase,
-                                                              redraw_clip,
                                                               presentation_time_us);
     }
 
@@ -225,7 +218,6 @@ before_stage_painted (MetaStage        *stage,
   meta_stream_source_maybe_record_frame_with_timestamp (source,
                                                         flags,
                                                         paint_phase,
-                                                        redraw_clip,
                                                         presentation_time_us);
 }
 
@@ -310,9 +302,7 @@ sync_cursor_state (MetaStreamSourceMonitor *source_monitor)
     flags = META_STREAM_RECORD_FLAG_CURSOR_ONLY;
 
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
-  meta_stream_source_maybe_record_frame (source, flags,
-                                         paint_phase,
-                                         NULL);
+  meta_stream_source_maybe_record_frame (source, flags, paint_phase);
 }
 
 static void

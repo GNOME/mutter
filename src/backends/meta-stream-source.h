@@ -128,24 +128,20 @@ gboolean meta_stream_source_has_damage (MetaStreamSource *source);
 
 MetaStreamRecordResult meta_stream_source_maybe_record_frame (MetaStreamSource     *source,
                                                               MetaStreamRecordFlag  flags,
-                                                              MetaStreamPaintPhase  paint_phase,
-                                                              const MtkRegion      *redraw_clip);
+                                                              MetaStreamPaintPhase  paint_phase);
 
 MetaStreamRecordResult meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *source,
                                                                              MetaStreamRecordFlag  flags,
                                                                              MetaStreamPaintPhase  paint_phase,
-                                                                             const MtkRegion      *redraw_clip,
                                                                              int64_t               frame_timestamp_us);
 
 MetaStreamRecordResult meta_stream_source_record_frame (MetaStreamSource     *source,
                                                         MetaStreamRecordFlag  flags,
-                                                        MetaStreamPaintPhase  paint_phase,
-                                                        const MtkRegion      *redraw_clip);
+                                                        MetaStreamPaintPhase  paint_phase);
 
 MetaStreamRecordResult meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
                                                                        MetaStreamRecordFlag  flags,
                                                                        MetaStreamPaintPhase  paint_phase,
-                                                                       const MtkRegion      *redraw_clip,
                                                                        int64_t               frame_timestamp_us);
 
 gboolean meta_stream_source_is_driving (MetaStreamSource *source);

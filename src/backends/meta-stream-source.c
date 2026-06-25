@@ -1216,30 +1216,26 @@ maybe_add_damaged_regions_metadata (MetaStreamSource  *source,
 MetaStreamRecordResult
 meta_stream_source_record_frame (MetaStreamSource     *source,
                                  MetaStreamRecordFlag  flags,
-                                 MetaStreamPaintPhase  paint_phase,
-                                 const MtkRegion      *redraw_clip)
+                                 MetaStreamPaintPhase  paint_phase)
 {
   int64_t now_us = g_get_monotonic_time ();
 
   return meta_stream_source_record_frame_with_timestamp (source,
                                                          flags,
                                                          paint_phase,
-                                                         redraw_clip,
                                                          now_us);
 }
 
 MetaStreamRecordResult
 meta_stream_source_maybe_record_frame (MetaStreamSource     *source,
                                        MetaStreamRecordFlag  flags,
-                                       MetaStreamPaintPhase  paint_phase,
-                                       const MtkRegion      *redraw_clip)
+                                       MetaStreamPaintPhase  paint_phase)
 {
   int64_t now_us = g_get_monotonic_time ();
 
   return meta_stream_source_maybe_record_frame_with_timestamp (source,
                                                                flags,
                                                                paint_phase,
-                                                               redraw_clip,
                                                                now_us);
 }
 
@@ -1453,7 +1449,6 @@ MetaStreamRecordResult
 meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
                                                 MetaStreamRecordFlag  flags,
                                                 MetaStreamPaintPhase  paint_phase,
-                                                const MtkRegion      *redraw_clip,
                                                 int64_t               frame_timestamp_us)
 {
   MetaStreamSourcePrivate *priv =
@@ -1597,7 +1592,6 @@ MetaStreamRecordResult
 meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *source,
                                                       MetaStreamRecordFlag  flags,
                                                       MetaStreamPaintPhase  paint_phase,
-                                                      const MtkRegion      *redraw_clip,
                                                       int64_t               frame_timestamp_us)
 {
   MetaStreamSourcePrivate *priv =
@@ -1643,7 +1637,6 @@ meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *sour
   return meta_stream_source_record_frame_with_timestamp (source,
                                                          flags,
                                                          paint_phase,
-                                                         redraw_clip,
                                                          frame_timestamp_us);
 }
 
