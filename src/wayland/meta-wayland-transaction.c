@@ -501,7 +501,7 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
   /* If we have a time constraint, we always defer application until just before the
    * appropriate frame clock tick.
    */
-  if (max_time_us)
+  if (max_time_us > g_get_monotonic_time ())
     {
       MetaSurfaceActor *actor;
       ClutterFrameClock *frame_clock = NULL;
