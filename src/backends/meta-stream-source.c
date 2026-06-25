@@ -509,6 +509,14 @@ meta_stream_source_paint_to_framebuffer_clipped (MetaStreamSource  *source,
   MetaBackend *backend = meta_stream_get_backend (stream);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   g_autoptr (MtkRegion) redraw_clip = NULL;
+  MtkRectangle extents;
+
+  extents = mtk_region_get_extents (damage);
+  if (extents.x == 0 &&
+      extents.y == 0 &&
+      extents.width >= cogl_framebuffer_get_width (framebuffer) &&
+      extents.height >= cogl_framebuffer_get_height (framebuffer))
+    paint_flags |= CLUTTER_PAINT_FLAG_CLEAR;
 
   redraw_clip = damage_to_redraw_clip (source, damage);
   clutter_stage_paint_to_framebuffer_clipped (stage,
