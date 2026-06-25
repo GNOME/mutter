@@ -1191,6 +1191,7 @@ maybe_add_damaged_regions_metadata (MetaStreamSource  *source,
       meta_region = spa_meta_first (spa_meta_video_damage);
       meta_region->region = SPA_REGION (extents.x, extents.y,
                                         extents.width, extents.height);
+      meta_region++;
     }
   else
     {
@@ -1198,17 +1199,16 @@ maybe_add_damaged_regions_metadata (MetaStreamSource  *source,
         {
           MtkRectangle rect;
 
-          rect = mtk_region_get_rectangle (damage, i);
+          if (i == n_rectangles)
+            break;
+
+          rect = mtk_region_get_rectangle (damage, i++);
           meta_region->region = SPA_REGION (rect.x, rect.y,
                                             rect.width, rect.height);
-
-          if (++i == n_rectangles)
-            break;
         }
     }
 
   /* Set invalid region to mark end of array */
-  meta_region++;
   if (spa_meta_check (meta_region, spa_meta_video_damage))
     meta_region->region = SPA_REGION (0, 0, 0, 0);
 }
