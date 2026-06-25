@@ -189,7 +189,11 @@ cogl_context_egl_initable_init (GInitable     *initable,
 
   if (cogl_renderer_egl_has_feature (renderer_egl,
                                      COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC))
-    cogl_driver_set_feature (driver, COGL_FEATURE_ID_FENCE, TRUE);
+    {
+      cogl_context_set_winsys_feature (context,
+                                       COGL_WINSYS_FEATURE_SYNC_FD,
+                                       TRUE);
+    }
 
   if (cogl_renderer_egl_has_feature (renderer_egl,
                                      COGL_EGL_WINSYS_FEATURE_BUFFER_AGE))
