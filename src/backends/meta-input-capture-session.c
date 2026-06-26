@@ -1247,6 +1247,7 @@ meta_input_capture_session_finalize (GObject *object)
   g_clear_pointer (&session->keymap_file, mtk_anonymous_file_free);
   g_clear_pointer (&session->eis_seat, eis_seat_unref);
   g_clear_pointer (&session->eis_source, g_source_destroy);
+  g_clear_pointer (&session->eis_client, eis_client_unref);
   g_clear_pointer (&session->eis, eis_unref);
 
   G_OBJECT_CLASS (meta_input_capture_session_parent_class)->finalize (object);
