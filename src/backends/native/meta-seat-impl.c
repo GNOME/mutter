@@ -3282,7 +3282,6 @@ meta_seat_impl_initable_init (GInitable     *initable,
 
   seat_impl->input_context = g_main_context_new ();
   seat_impl->main_context = g_main_context_ref_thread_default ();
-  g_assert (seat_impl->main_context == g_main_context_default ());
 
   seat_impl->input_thread =
     g_thread_try_new ("Mutter Input Thread",
