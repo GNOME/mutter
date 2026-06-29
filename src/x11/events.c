@@ -1919,11 +1919,15 @@ xevent_func (XEvent   *xevent,
 void
 meta_x11_display_init_events (MetaX11Display *x11_display)
 {
+  g_autoptr (GMainContext) main_context = NULL;
+
+  main_context = g_main_context_ref_thread_default ();
+
   x11_display->event_source = meta_x11_event_source_new (x11_display->xdisplay);
   g_source_set_callback (x11_display->event_source,
                          (GSourceFunc) xevent_func,
                          x11_display, NULL);
-  g_source_attach (x11_display->event_source, NULL);
+  g_source_attach (x11_display->event_source, main_context);
 }
 
 void
