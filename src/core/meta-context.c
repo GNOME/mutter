@@ -455,6 +455,7 @@ meta_context_start (MetaContext  *context,
                     GError      **error)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  g_autoptr (GMainContext) main_context = NULL;
   g_autoptr (GVariant) plugin_options = NULL;
 
   g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
@@ -475,7 +476,9 @@ meta_context_start (MetaContext  *context,
 
   priv->service_channel = meta_service_channel_new (context);
 
-  priv->main_loop = g_main_loop_new (NULL, FALSE);
+  main_context = g_main_context_ref_thread_default ();
+
+  priv->main_loop = g_main_loop_new (main_context, FALSE);
 
   priv->state = META_CONTEXT_STATE_STARTED;
 
