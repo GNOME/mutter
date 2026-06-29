@@ -917,6 +917,10 @@ static GSourceFuncs source_funcs =
 static void
 meta_stream_source_window_init (MetaStreamSourceWindow *source_window)
 {
+  g_autoptr (GMainContext) main_context = NULL;
+
+  main_context = g_main_context_ref_thread_default ();
+
   source_window->cursor_bitmap_invalid = TRUE;
 
   source_window->queue_record_flags = -1;
@@ -925,7 +929,7 @@ meta_stream_source_window_init (MetaStreamSourceWindow *source_window)
   g_source_set_callback (source_window->queue_record_source,
                          record_frame_cb, source_window, NULL);
   g_source_set_ready_time (source_window->queue_record_source, -1);
-  g_source_attach (source_window->queue_record_source, NULL);
+  g_source_attach (source_window->queue_record_source, main_context);
   g_source_unref (source_window->queue_record_source);
 }
 

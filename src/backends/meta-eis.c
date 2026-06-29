@@ -203,6 +203,7 @@ meta_event_source_new (MetaEis      *eis,
                        int           fd,
                        GSourceFuncs *event_funcs)
 {
+  g_autoptr (GMainContext) main_context = NULL;
   GSource *source;
   MetaEventSource *event_source;
 
@@ -216,11 +217,13 @@ meta_event_source_new (MetaEis      *eis,
   event_source->event_poll_fd.fd = fd;
   event_source->event_poll_fd.events = G_IO_IN;
 
+  main_context = g_main_context_ref_thread_default ();
+
   /* and finally configure and attach the GSource */
   g_source_set_priority (source, CLUTTER_PRIORITY_EVENTS);
   g_source_add_poll (source, &event_source->event_poll_fd);
   g_source_set_can_recurse (source, TRUE);
-  g_source_attach (source, NULL);
+  g_source_attach (source, main_context);
 
   return event_source;
 }

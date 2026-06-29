@@ -1198,6 +1198,7 @@ init_clutter (MetaBackend  *backend,
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaBackendSource *backend_source;
+  g_autoptr (GMainContext) main_context = NULL;
   GSource *source;
 
   priv->clutter_context = clutter_create_context (meta_clutter_backend_constructor,
@@ -1210,11 +1211,13 @@ init_clutter (MetaBackend  *backend,
   if (!priv->default_seat)
     return FALSE;
 
+  main_context = g_main_context_ref_thread_default ();
+
   source = g_source_new (&clutter_source_funcs, sizeof (MetaBackendSource));
   g_source_set_name (source, "[mutter] Backend");
   backend_source = (MetaBackendSource *) source;
   backend_source->backend = backend;
-  g_source_attach (source, NULL);
+  g_source_attach (source, main_context);
   g_source_unref (source);
 
   return TRUE;

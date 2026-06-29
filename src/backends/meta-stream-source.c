@@ -2963,8 +2963,11 @@ static GSource *
 create_pipewire_source (MetaStreamSource *source,
                         struct pw_loop   *pipewire_loop)
 {
+  g_autoptr (GMainContext) main_context = NULL;
   GSource *base_source;
   MetaPipeWireSource *pipewire_source;
+
+  main_context = g_main_context_ref_thread_default ();
 
   base_source = g_source_new (&pipewire_source_funcs,
                               sizeof (MetaPipeWireSource));
@@ -2979,7 +2982,7 @@ create_pipewire_source (MetaStreamSource *source,
                         G_IO_IN | G_IO_ERR);
 
   pw_loop_enter (pipewire_source->pipewire_loop);
-  g_source_attach (base_source, NULL);
+  g_source_attach (base_source, main_context);
   g_source_unref (base_source);
 
   return base_source;

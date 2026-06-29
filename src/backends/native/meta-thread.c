@@ -672,12 +672,15 @@ wrap_main_context (MetaThread   *thread,
                    GMainContext *thread_main_context)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  g_autoptr (GMainContext) main_context = NULL;
   g_autoptr (GSource) source = NULL;
   WrapperSource *wrapper_source;
   g_autofree char *name = NULL;
 
   if (!g_main_context_acquire (thread_main_context))
     g_return_if_reached ();
+
+  main_context = g_main_context_ref_thread_default ();
 
   source = g_source_new (&wrapper_source_funcs,
                          sizeof (WrapperSource));
@@ -687,7 +690,7 @@ wrap_main_context (MetaThread   *thread,
   wrapper_source = (WrapperSource *) source;
   wrapper_source->thread_main_context = thread_main_context;
   g_source_set_ready_time (source, -1);
-  g_source_attach (source, NULL);
+  g_source_attach (source, main_context);
 
   priv->wrapper_source = source;
 }
@@ -914,7 +917,7 @@ meta_thread_flush_callbacks (MetaThread *thread)
   g_autoptr (GPtrArray) main_thread_sources = NULL;
   GList *l;
 
-  g_assert (!g_main_context_get_thread_default ());
+  g_assert (g_main_context_get_thread_default () != priv->main_context);
   main_thread_sources = g_ptr_array_new ();
   source = g_hash_table_lookup (priv->callback_sources,
                                 priv->main_context);

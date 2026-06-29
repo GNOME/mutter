@@ -333,6 +333,7 @@ maybe_init_render_source (MetaOnscreenNative *onscreen_native)
         .dispatch = render_source_dispatch,
         .finalize = render_source_finalize,
       };
+      g_autoptr (GMainContext) main_context = NULL;
       GSource *source;
       RenderSource *render_source;
 
@@ -343,6 +344,8 @@ maybe_init_render_source (MetaOnscreenNative *onscreen_native)
                      "due to lack of driver support.");
           return;
         }
+
+      main_context = g_main_context_ref_thread_default ();
 
       source = g_source_new (&render_source_funcs, sizeof (RenderSource));
       onscreen_native->render_source = source;
@@ -358,7 +361,7 @@ maybe_init_render_source (MetaOnscreenNative *onscreen_native)
                              (GSourceFunc) maybe_post_next_frame_if_renderer_finished,
                              onscreen_native,
                              NULL);
-      g_source_attach (source, NULL);
+      g_source_attach (source, main_context);
     }
 }
 

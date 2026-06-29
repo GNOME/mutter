@@ -1327,6 +1327,7 @@ meta_input_capture_session_constructed (GObject *object)
   MetaBackend *backend =
     meta_dbus_session_manager_get_backend (session->session_manager);
   static unsigned int global_session_number = 0;
+  g_autoptr (GMainContext) main_context = NULL;
   int fd;
   GSource *source;
 
@@ -1342,6 +1343,8 @@ meta_input_capture_session_constructed (GObject *object)
   eis_log_set_priority (session->eis, EIS_LOG_PRIORITY_DEBUG);
   eis_setup_backend_fd (session->eis);
 
+  main_context = g_main_context_ref_thread_default ();
+
   fd = eis_get_fd (session->eis);
   source = meta_create_fd_source (fd,
                                   "[mutter] eis",
@@ -1350,7 +1353,7 @@ meta_input_capture_session_constructed (GObject *object)
                                   session,
                                   NULL);
   session->eis_source = source;
-  g_source_attach (source, NULL);
+  g_source_attach (source, main_context);
   g_source_unref (source);
 
   g_signal_connect (backend, "keymap-changed",

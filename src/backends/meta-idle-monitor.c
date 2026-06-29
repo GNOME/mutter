@@ -277,8 +277,12 @@ make_watch (MetaIdleMonitor           *monitor,
 
   if (timeout_msec != 0)
     {
-      GSource *source = g_source_new (&idle_monitor_source_funcs,
-                                      sizeof (GSource));
+      g_autoptr (GMainContext) main_context = NULL;
+      GSource *source;
+
+      main_context = g_main_context_ref_thread_default ();
+      source = g_source_new (&idle_monitor_source_funcs,
+                             sizeof (GSource));
       g_source_set_name (source, "[mutter] Idle monitor");
 
       g_source_set_callback (source, NULL, watch, NULL);
@@ -289,7 +293,7 @@ make_watch (MetaIdleMonitor           *monitor,
 
           g_source_set_ready_time (source, start_time + timeout_msec * 1000);
         }
-      g_source_attach (source, NULL);
+      g_source_attach (source, main_context);
       g_source_unref (source);
 
       watch->timeout_source = source;
