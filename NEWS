@@ -1,3 +1,53 @@
+51.alpha
+========
+* Fix size increases when quickly unmaximizing window by drag [Jonas; !4856]
+* Fix cursor position hint for Xwayland if scaling is used [Olivier; !4989]
+* Fix fullscreening of edge tiled windows [Jonas; !4960]
+* Scale the hotspot location for tablet tool cursors [Olivier; !5026]
+* Fix moving maximized windows to another monitor via keyboard [Jonas; !4852]
+* Fix alt-tab with sloppy/mouse focus [Jonas; !5036]
+* Allow input capture portal to integrate with clipboard [Jonas; !4767]
+* Implement support for version 2 of text_input_v3 protocol [Carlos; !3600]
+* Fix DND data offers on touch [Alessandro; !5057]
+* Ignore repeated events for double click counting [Lukáš; !4883]
+* Fix broken switch-monitor mapping on stylus buttons [Peter; !5073]
+* Do not unfullscreen fullscreened window on unmaximize [Zhiyi; !5069]
+* Add format-aware window_actor_paint_to_content() variant [Christopher; !5077]
+* Make DND with tablets work across surfaces [Carlos; !5043]
+* Ensure preferred_scale event is sent to clients [Michel; !5103]
+* Remove support for legacy NVIDIA drivers [Jonas; !5079]
+* De-prioritize focusing desktop windows [Marco; !5016]
+* Minimize stage paints and buffer copies in screencasts [Michel; !5046, !5119]
+* Remove CoglProgram/Shader API [Bilal; !5094]
+* Fix erroneous stack order changes on workspace switches [AnonymouX47; !4992]
+* Allow creating Devkit monitors from the command line [Jonas; !4975]
+* Fix triggering OSK for text_input_v3 version 1 clients [Sebastian K.; !5117]
+* Fixed crashes [Marco, Carlos, Jonas, Michel, Zander; !5038, !5064, !5063,
+  !5074, !5072, !5061, !5076, !5097, !5107]
+* Misc. bug fixes and cleanups [Jonas, Marco, Gert-dev, Denis, Sebastian K.,
+  AnonymouX47, Bilal, Zhiyi, Christian, Michel, Florian, Vasiliy, Sebastian W.,
+  Michael, Daniel, Alessandro, Carlos, Andre, Abderrahim, Marius; !5027, !4984,
+  !5037, !5025, !5034, !4998, !5015, !5035, !5011, !5054, !5052, !5053, !4963,
+  !5060, !5062, !4853, !4866, !5040, !4751, !4814, !5070, !5012, !4875, !4949,
+  !5101, !5102, !5080, !5075, !4977, !5096, !4995, !5082, !5108, !5081, !5105,
+  !5013, !5112, !5116, !5114, !5058, !5124, !5128, !5127, !5118, !5048, !5085,
+  !5139, !5107, !5140, !5126, !5134]
+
+Contributors:
+  AnonymouX47, Alessandro Astone, Zander Brown, Michael Catanzaro,
+  Marius Cirsta, Michel Dänzer, Bilal Elmoussaoui, Olivier Fourdan,
+  Denis Garaev, Carlos Garnacho, Gert-dev, Christian Glombek, Peter Hutterer,
+  Saikeo Kavhanxay, Sebastian Keller, Abderrahim Kitouni, Florian Müllner,
+  Andre Nijman, Christopher Snowhill, Vasiliy Stelmachenok,
+  Marco Trevisan (Treviño), Lukáš Tyrychtr, Daniel van Vugt, Sebastian Wick,
+  Zhiyi Zhang, Jonas Ådahl
+
+Translators:
+  Nathan Follens [nl], Jose Riha [sk], Danial Behzadi [fa],
+  Saikeo Kavhanxay [lo], Christian Kirbach [de], Aefgh Threenine [th],
+  Kjartan Maraas [nb], Davide Ferracin [it], Cas Pascal [vi],
+  Victoria Niedzielska [pl], Martin [sl], Antonio Marin [ro]
+
 50.1
 ====
 * Allow setting paint debug flags from environment [Jonas; !4973]
