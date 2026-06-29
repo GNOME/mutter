@@ -26,6 +26,7 @@
 #include "core/meta-window-config-private.h"
 #include "core/window-private.h"
 #include "meta/meta-enum-types.h"
+#include "mtk/mtk.h"
 
 #ifdef HAVE_XWAYLAND
 #include "x11/meta-x11-frame.h"
@@ -148,15 +149,15 @@ update_tile_preview (MetaWindowDrag *window_drag,
         return;
 
       window_drag->tile_preview_timeout_id =
-        g_timeout_add (TILE_PREVIEW_TIMEOUT_MS,
-                       (GSourceFunc) update_tile_preview_timeout,
-                       window_drag);
-      g_source_set_name_by_id (window_drag->tile_preview_timeout_id,
-                               "[mutter] meta_display_update_tile_preview_timeout");
+        mtk_timeout_add (TILE_PREVIEW_TIMEOUT_MS,
+                         (GSourceFunc) update_tile_preview_timeout,
+                         window_drag);
+      mtk_source_set_name_by_id (window_drag->tile_preview_timeout_id,
+                                 "[mutter] meta_display_update_tile_preview_timeout");
     }
   else
     {
-      g_clear_handle_id (&window_drag->tile_preview_timeout_id, g_source_remove);
+      g_clear_handle_id (&window_drag->tile_preview_timeout_id, mtk_source_remove);
 
       update_tile_preview_timeout ((gpointer) window_drag);
     }
@@ -167,7 +168,7 @@ hide_tile_preview (MetaWindowDrag *window_drag)
 {
   MetaWindow *window;
 
-  g_clear_handle_id (&window_drag->tile_preview_timeout_id, g_source_remove);
+  g_clear_handle_id (&window_drag->tile_preview_timeout_id, mtk_source_remove);
 
   window_drag->preview_tile_mode = META_TILE_NONE;
   window = meta_window_drag_get_window (window_drag);

@@ -33,6 +33,7 @@
 #include "meta/meta-enum-types.h"
 #include "meta/meta-window-actor.h"
 #include "meta/window.h"
+#include "mtk/mtk.h"
 #include "x11/meta-shadow-factory.h"
 #include "x11/window-x11.h"
 #include "x11/meta-sync-counter.h"
@@ -104,7 +105,7 @@ remove_frame_messages_timer (MetaWindowActorX11 *actor_x11)
 {
   g_assert (actor_x11->send_frame_messages_timer != 0);
 
-  g_clear_handle_id (&actor_x11->send_frame_messages_timer, g_source_remove);
+  g_clear_handle_id (&actor_x11->send_frame_messages_timer, mtk_source_remove);
 }
 
 static gboolean
@@ -176,11 +177,11 @@ queue_send_frame_messages_timeout (MetaWindowActorX11 *actor_x11)
   * to be drawn when the timer expires.
   */
   actor_x11->send_frame_messages_timer =
-    g_timeout_add_full (META_PRIORITY_REDRAW, offset,
-                        send_frame_messages_timeout,
-                        actor_x11, NULL);
-  g_source_set_name_by_id (actor_x11->send_frame_messages_timer,
-                           "[mutter] send_frame_messages_timeout");
+    mtk_timeout_add_full (META_PRIORITY_REDRAW, offset,
+                          send_frame_messages_timeout,
+                          actor_x11, NULL);
+  mtk_source_set_name_by_id (actor_x11->send_frame_messages_timer,
+                             "[mutter] send_frame_messages_timeout");
 }
 
 static void

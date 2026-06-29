@@ -25,6 +25,7 @@
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "meta/meta-later.h"
+#include "mtk/mtk.h"
 
 typedef struct _MetaLater
 {
@@ -84,7 +85,7 @@ meta_later_unref (MetaLater *later)
 static void
 meta_later_destroy (MetaLater *later)
 {
-  g_clear_handle_id (&later->source_id, g_source_remove);
+  g_clear_handle_id (&later->source_id, mtk_source_remove);
   later->func = NULL;
   meta_later_unref (later);
 }
@@ -287,10 +288,10 @@ meta_laters_add (MetaLaters     *laters,
   switch (when)
     {
     case META_LATER_RESIZE:
-      later->source_id = g_idle_add_full (META_PRIORITY_RESIZE,
-                                          invoke_later_idle,
-                                          later, NULL);
-      g_source_set_name_by_id (later->source_id, "[mutter] invoke_later_idle");
+      later->source_id = mtk_idle_add_full (META_PRIORITY_RESIZE,
+                                            invoke_later_idle,
+                                            later, NULL);
+      mtk_source_set_name_by_id (later->source_id, "[mutter] invoke_later_idle");
       clutter_stage_schedule_update (stage);
       break;
     case META_LATER_CALC_SHOWING:
@@ -300,10 +301,10 @@ meta_laters_add (MetaLaters     *laters,
       clutter_stage_schedule_update (stage);
       break;
     case META_LATER_IDLE:
-      later->source_id = g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
-                                          invoke_later_idle,
-                                          later, NULL);
-      g_source_set_name_by_id (later->source_id, "[mutter] invoke_later_idle");
+      later->source_id = mtk_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
+                                            invoke_later_idle,
+                                            later, NULL);
+      mtk_source_set_name_by_id (later->source_id, "[mutter] invoke_later_idle");
       break;
     }
 
