@@ -577,10 +577,17 @@ meta_stream_source_virtual_set_cursor_metadata (MetaStreamSource       *source,
   MetaStreamSourceVirtual *source_virtual =
     META_STREAM_SOURCE_VIRTUAL (source);
   MetaBackend *backend = backend_from_source (source);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
+  MetaCursorRenderer *cursor_renderer;
   ClutterCursor *cursor;
   int x, y;
+
+  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  if (!cursor_renderer)
+    {
+      source_virtual->last_cursor_matadata.set = FALSE;
+      meta_stream_source_unset_cursor_metadata (source, spa_meta_cursor);
+      return;
+    }
 
   cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
 
