@@ -124,6 +124,8 @@ void meta_stream_source_accumulate_damage (MetaStreamSource     *source,
                                            MetaStreamRecordFlag  flags,
                                            const MtkRegion      *redraw_clip);
 
+gboolean meta_stream_source_has_damage (MetaStreamSource *source);
+
 MetaStreamRecordResult meta_stream_source_maybe_record_frame (MetaStreamSource     *source,
                                                               MetaStreamRecordFlag  flags,
                                                               MetaStreamPaintPhase  paint_phase,

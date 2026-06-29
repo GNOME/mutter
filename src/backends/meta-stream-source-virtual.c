@@ -200,7 +200,11 @@ on_skipped_paint (MetaStage        *stage,
   MetaStreamRecordFlag flags;
   MetaStreamPaintPhase paint_phase;
 
-  flags = META_STREAM_RECORD_FLAG_CURSOR_ONLY;
+  if (meta_stream_source_has_damage (source))
+    flags = META_STREAM_RECORD_FLAG_NONE;
+  else
+    flags = META_STREAM_RECORD_FLAG_CURSOR_ONLY;
+
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
 
   meta_stream_source_accumulate_damage (source, flags, redraw_clip);

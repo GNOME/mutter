@@ -304,7 +304,11 @@ sync_cursor_state (MetaStreamSourceMonitor *source_monitor)
   if (is_redraw_queued (source_monitor))
     return;
 
-  flags = META_STREAM_RECORD_FLAG_CURSOR_ONLY;
+  if (meta_stream_source_has_damage (source))
+    flags = META_STREAM_RECORD_FLAG_NONE;
+  else
+    flags = META_STREAM_RECORD_FLAG_CURSOR_ONLY;
+
   paint_phase = META_STREAM_PAINT_PHASE_DETACHED;
   meta_stream_source_maybe_record_frame (source, flags,
                                          paint_phase,

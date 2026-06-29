@@ -1437,6 +1437,15 @@ meta_stream_source_accumulate_damage (MetaStreamSource     *source,
     priv->damage = g_steal_pointer (&damage);
 }
 
+gboolean
+meta_stream_source_has_damage (MetaStreamSource *source)
+{
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+
+  return priv->damage && !mtk_region_is_empty (priv->damage);
+}
+
 MetaStreamRecordResult
 meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
                                                 MetaStreamRecordFlag  flags,
