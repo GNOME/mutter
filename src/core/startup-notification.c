@@ -29,6 +29,7 @@
 #include "core/display-private.h"
 #include "core/startup-notification-private.h"
 #include "core/util-private.h"
+#include "mtk/mtk.h"
 
 /* This should be fairly long, as it should never be required unless
  * apps or .desktop files are buggy, and it's confusing if
@@ -533,9 +534,9 @@ meta_startup_notification_ensure_timeout (MetaStartupNotification *sn)
    * to compute exactly when we may next time out
    */
   sn->startup_sequence_timeout_id =
-    g_timeout_add_seconds (1, startup_sequence_timeout, sn);
-  g_source_set_name_by_id (sn->startup_sequence_timeout_id,
-                           "[mutter] startup_sequence_timeout");
+    mtk_timeout_add_seconds (1, startup_sequence_timeout, sn);
+  mtk_source_set_name_by_id (sn->startup_sequence_timeout_id,
+                             "[mutter] startup_sequence_timeout");
 }
 
 void
@@ -547,7 +548,7 @@ meta_startup_notification_remove_sequence (MetaStartupNotification *sn,
   g_signal_handlers_disconnect_by_func (seq, on_sequence_completed, sn);
 
   if (sn->startup_sequences == NULL)
-    g_clear_handle_id (&sn->startup_sequence_timeout_id, g_source_remove);
+    g_clear_handle_id (&sn->startup_sequence_timeout_id, mtk_source_remove);
 
   g_signal_emit (sn, sn_signals[CHANGED], 0, seq);
   g_object_unref (seq);
@@ -585,7 +586,7 @@ meta_startup_notification_finalize (GObject *object)
 {
   MetaStartupNotification *sn = META_STARTUP_NOTIFICATION (object);
 
-  g_clear_handle_id (&sn->startup_sequence_timeout_id, g_source_remove);
+  g_clear_handle_id (&sn->startup_sequence_timeout_id, mtk_source_remove);
 
   g_slist_free_full (sn->startup_sequences, g_object_unref);
   sn->startup_sequences = NULL;

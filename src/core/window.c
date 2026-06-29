@@ -83,6 +83,7 @@
 #include "meta/meta-external-constraint.h"
 #include "meta/prefs.h"
 #include "meta/meta-window-config.h"
+#include "mtk/mtk.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-window-wayland.h"
@@ -1542,8 +1543,8 @@ meta_window_unmanage (MetaWindow  *window,
   window->unmanaging = TRUE;
 
   reset_pending_auto_maximize (window);
-  g_clear_handle_id (&priv->suspend_timoeut_id, g_source_remove);
-  g_clear_handle_id (&window->close_dialog_timeout_id, g_source_remove);
+  g_clear_handle_id (&priv->suspend_timoeut_id, mtk_source_remove);
+  g_clear_handle_id (&window->close_dialog_timeout_id, mtk_source_remove);
 
   g_signal_emit (window, window_signals[UNMANAGING], 0);
 
@@ -2304,9 +2305,11 @@ set_hidden_suspended_state (MetaWindow *window)
   priv->suspend_state = META_WINDOW_SUSPEND_STATE_HIDDEN;
   g_return_if_fail (!priv->suspend_timoeut_id);
   priv->suspend_timoeut_id =
-    g_timeout_add_seconds_once (SUSPEND_HIDDEN_TIMEOUT_S,
-                                enter_suspend_state_cb,
-                                window);
+    mtk_timeout_add_seconds_once (SUSPEND_HIDDEN_TIMEOUT_S,
+                                  enter_suspend_state_cb,
+                                  window);
+  mtk_source_set_name_by_id (priv->suspend_timoeut_id,
+                             "[mutter] enter_suspend_state_cb");
 }
 
 static void
@@ -2321,7 +2324,7 @@ update_suspend_state (MetaWindow *window)
     {
       priv->suspend_state = META_WINDOW_SUSPEND_STATE_ACTIVE;
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);
-      g_clear_handle_id (&priv->suspend_timoeut_id, g_source_remove);
+      g_clear_handle_id (&priv->suspend_timoeut_id, mtk_source_remove);
     }
   else if (priv->suspend_state == META_WINDOW_SUSPEND_STATE_ACTIVE &&
            meta_window_is_showable (window))
@@ -2980,7 +2983,7 @@ reset_pending_auto_maximize (MetaWindow *window)
   MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
   priv->auto_maximize.is_queued = FALSE;
-  g_clear_handle_id (&priv->auto_maximize.idle_handle_id, g_source_remove);
+  g_clear_handle_id (&priv->auto_maximize.idle_handle_id, mtk_source_remove);
 }
 
 static void
@@ -3012,7 +3015,9 @@ meta_window_queue_auto_maximize (MetaWindow *window)
     }
 
   priv->auto_maximize.idle_handle_id =
-    g_idle_add_once ((GSourceOnceFunc) idle_auto_maximize_cb, window);
+    mtk_idle_add_once ((GSourceOnceFunc) idle_auto_maximize_cb, window);
+  mtk_source_set_name_by_id (priv->auto_maximize.idle_handle_id,
+                             "[mutter] idle_auto_maximize_cb");
 }
 
 /**
@@ -8125,11 +8130,11 @@ meta_window_ensure_close_dialog_timeout (MetaWindow *window)
     return;
 
   window->close_dialog_timeout_id =
-    g_timeout_add_once (check_alive_timeout,
-                        (GSourceOnceFunc) meta_window_close_dialog_timeout,
-                        window);
-  g_source_set_name_by_id (window->close_dialog_timeout_id,
-                           "[mutter] meta_window_close_dialog_timeout");
+    mtk_timeout_add_once (check_alive_timeout,
+                          (GSourceOnceFunc) meta_window_close_dialog_timeout,
+                          window);
+  mtk_source_set_name_by_id (window->close_dialog_timeout_id,
+                             "[mutter] meta_window_close_dialog_timeout");
 }
 
 void
@@ -8144,7 +8149,7 @@ meta_window_set_alive (MetaWindow *window,
 
   if (is_alive)
     {
-      g_clear_handle_id (&window->close_dialog_timeout_id, g_source_remove);
+      g_clear_handle_id (&window->close_dialog_timeout_id, mtk_source_remove);
       meta_window_hide_close_dialog (window);
     }
 }

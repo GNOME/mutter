@@ -537,7 +537,7 @@ static void
 ping_data_free (MetaPingData *ping_data)
 {
   /* Remove the timeout */
-  g_clear_handle_id (&ping_data->ping_timeout_id, g_source_remove);
+  g_clear_handle_id (&ping_data->ping_timeout_id, mtk_source_remove);
 
   g_free (ping_data);
 }
@@ -1035,7 +1035,7 @@ meta_display_close (MetaDisplay *display,
 
   meta_display_remove_autoraise_callback (display);
 
-  g_clear_handle_id (&display->focus_timeout_id, g_source_remove);
+  g_clear_handle_id (&display->focus_timeout_id, mtk_source_remove);
 
   compositor = meta_display_get_compositor (display);
   laters = meta_compositor_get_laters (compositor);
@@ -1251,14 +1251,15 @@ meta_display_queue_autoraise_callback (MetaDisplay *display,
               window->desc,
               meta_prefs_get_auto_raise_delay ());
 
-  g_clear_handle_id (&display->autoraise_timeout_id, g_source_remove);
+  g_clear_handle_id (&display->autoraise_timeout_id, mtk_source_remove);
 
   display->autoraise_timeout_id =
-    g_timeout_add_full (G_PRIORITY_DEFAULT,
-                        meta_prefs_get_auto_raise_delay (),
-                        window_raise_with_delay_callback,
-                        window, NULL);
-  g_source_set_name_by_id (display->autoraise_timeout_id, "[mutter] window_raise_with_delay_callback");
+    mtk_timeout_add_full (G_PRIORITY_DEFAULT,
+                          meta_prefs_get_auto_raise_delay (),
+                          window_raise_with_delay_callback,
+                          window, NULL);
+  mtk_source_set_name_by_id (display->autoraise_timeout_id,
+                             "[mutter] window_raise_with_delay_callback");
   display->autoraise_window = window;
 }
 
@@ -1372,7 +1373,7 @@ meta_display_set_input_focus (MetaDisplay *display,
   if (meta_display_timestamp_too_old (display, &timestamp))
     return;
 
-  g_clear_handle_id (&priv->mouse_focus.idle_handle_id, g_source_remove);
+  g_clear_handle_id (&priv->mouse_focus.idle_handle_id, mtk_source_remove);
 
   g_signal_emit (display, display_signals[FOCUS_WINDOW], 0, window, ms2us (timestamp));
 
@@ -1621,10 +1622,11 @@ meta_display_ping_window (MetaWindow *window,
   ping_data->window = window;
   ping_data->serial = serial;
   ping_data->ping_timeout_id =
-    g_timeout_add (check_alive_timeout,
-                   meta_display_ping_timeout,
-                   ping_data);
-  g_source_set_name_by_id (ping_data->ping_timeout_id, "[mutter] meta_display_ping_timeout");
+    mtk_timeout_add (check_alive_timeout,
+                     meta_display_ping_timeout,
+                     ping_data);
+  mtk_source_set_name_by_id (ping_data->ping_timeout_id,
+                             "[mutter] meta_display_ping_timeout");
 
   display->pending_pings = g_slist_prepend (display->pending_pings, ping_data);
 
@@ -1669,7 +1671,7 @@ meta_display_pong_for_serial (MetaDisplay    *display,
                                                    ping_data);
 
           /* Remove the timeout */
-          g_clear_handle_id (&ping_data->ping_timeout_id, g_source_remove);
+          g_clear_handle_id (&ping_data->ping_timeout_id, mtk_source_remove);
 
           meta_window_set_alive (ping_data->window, TRUE);
           ping_data_free (ping_data);
@@ -2212,7 +2214,7 @@ meta_display_sanity_check_timestamps (MetaDisplay *display,
 void
 meta_display_remove_autoraise_callback (MetaDisplay *display)
 {
-  g_clear_handle_id (&display->autoraise_timeout_id, g_source_remove);
+  g_clear_handle_id (&display->autoraise_timeout_id, mtk_source_remove);
   display->autoraise_window = NULL;
 }
 
@@ -3548,16 +3550,16 @@ queue_pointer_rest_callback (MetaDisplay *display,
   if (window)
     focus_data->window = g_object_ref (window);
 
-  g_clear_handle_id (&display->focus_timeout_id, g_source_remove);
+  g_clear_handle_id (&display->focus_timeout_id, mtk_source_remove);
 
   display->focus_timeout_id =
-    g_timeout_add_full (G_PRIORITY_DEFAULT,
-                        FOCUS_TIMEOUT_DELAY,
-                        focus_on_pointer_rest_callback,
-                        focus_data,
-                        (GDestroyNotify) meta_focus_data_free);
-  g_source_set_name_by_id (display->focus_timeout_id,
-                           "[mutter] focus_on_pointer_rest_callback");
+    mtk_timeout_add_full (G_PRIORITY_DEFAULT,
+                          FOCUS_TIMEOUT_DELAY,
+                          focus_on_pointer_rest_callback,
+                          focus_data,
+                          (GDestroyNotify) meta_focus_data_free);
+  mtk_source_set_name_by_id (display->focus_timeout_id,
+                             "[mutter] focus_on_pointer_rest_callback");
 }
 
 static void
@@ -3647,7 +3649,9 @@ invalidate_sticky_mouse_focus (MetaDisplay *display)
       !priv->mouse_focus.idle_handle_id)
     {
       priv->mouse_focus.idle_handle_id =
-        g_idle_add_once (invalidate_mouse_focus_cb, display);
+        mtk_idle_add_once (invalidate_mouse_focus_cb, display);
+      mtk_source_set_name_by_id (priv->mouse_focus.idle_handle_id,
+                                 "[mutter] invalidate_mouse_focus_cb");
     }
 
   clear_sticky_mouse_focus (display);

@@ -39,6 +39,7 @@
 #include "core/prefs-private.h"
 #include "core/util-private.h"
 #include "meta/prefs.h"
+#include "mtk/mtk.h"
 
 /* If you add a key, it needs updating in init() and in the gsettings
  * notify listener and of course in the .schemas file.
@@ -964,9 +965,9 @@ queue_changed (MetaPreference pref)
 
   if (changed_idle == 0)
     {
-      changed_idle = g_idle_add_full (META_PRIORITY_PREFS_NOTIFY,
-                                      changed_idle_handler, NULL, NULL);
-      g_source_set_name_by_id (changed_idle, "[mutter] changed_idle_handler");
+      changed_idle = mtk_idle_add_full (META_PRIORITY_PREFS_NOTIFY,
+                                        changed_idle_handler, NULL, NULL);
+      mtk_source_set_name_by_id (changed_idle, "[mutter] changed_idle_handler");
     }
 }
 
