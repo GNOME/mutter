@@ -355,9 +355,13 @@ ensure_source_for_stage_view (MetaWaylandCompositor *compositor,
   source = g_hash_table_lookup (priv->frame_callback_sources, stage_view);
   if (!source)
     {
+      g_autoptr (GMainContext) main_context = NULL;
+
+      main_context = g_main_context_ref_thread_default ();
+
       source = frame_callback_source_new (compositor, stage_view);
       g_hash_table_insert (priv->frame_callback_sources, stage_view, source);
-      g_source_attach (source, NULL);
+      g_source_attach (source, main_context);
       g_source_unref (source);
     }
 
@@ -932,11 +936,14 @@ meta_wayland_compositor_new (MetaContext *context)
 {
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterActor *stage = meta_backend_get_stage (backend);
+  g_autoptr (GMainContext) main_context = NULL;
   MetaWaylandCompositor *compositor;
   GSource *wayland_event_source;
 #ifdef HAVE_XWAYLAND
   MetaX11DisplayPolicy x11_display_policy;
 #endif
+
+  main_context = g_main_context_ref_thread_default ();
 
   compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
   compositor->context = context;
@@ -953,7 +960,7 @@ meta_wayland_compositor_new (MetaContext *context)
    * according to the X protocol.
    */
   g_source_set_priority (wayland_event_source, META_PRIORITY_EVENTS + 1);
-  g_source_attach (wayland_event_source, NULL);
+  g_source_attach (wayland_event_source, main_context);
   compositor->source = wayland_event_source;
   g_source_unref (wayland_event_source);
 

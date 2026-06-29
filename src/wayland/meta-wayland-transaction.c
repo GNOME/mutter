@@ -374,6 +374,7 @@ static gboolean
 meta_wayland_transaction_add_dma_buf_source (MetaWaylandTransaction *transaction,
                                              MetaWaylandBuffer      *buffer)
 {
+  g_autoptr (GMainContext) main_context = NULL;
   GSource *source;
 
   if (transaction->buf_sources &&
@@ -386,10 +387,11 @@ meta_wayland_transaction_add_dma_buf_source (MetaWaylandTransaction *transaction
   if (!source)
     return FALSE;
 
+  main_context = g_main_context_ref_thread_default ();
   ensure_buf_sources (transaction);
 
   g_hash_table_insert (transaction->buf_sources, buffer, source);
-  g_source_attach (source, NULL);
+  g_source_attach (source, main_context);
   g_source_unref (source);
 
   return TRUE;
@@ -400,6 +402,7 @@ meta_wayland_transaction_add_drm_syncobj_source (MetaWaylandTransaction *transac
                                                  MetaWaylandBuffer      *buffer,
                                                  MetaWaylandSyncPoint   *acquire)
 {
+  g_autoptr (GMainContext) main_context = NULL;
   GSource *source;
 
   if (transaction->buf_sources &&
@@ -414,10 +417,11 @@ meta_wayland_transaction_add_drm_syncobj_source (MetaWaylandTransaction *transac
   if (!source)
     return FALSE;
 
+  main_context = g_main_context_ref_thread_default ();
   ensure_buf_sources (transaction);
 
   g_hash_table_insert (transaction->buf_sources, buffer, source);
-  g_source_attach (source, NULL);
+  g_source_attach (source, main_context);
   g_source_unref (source);
 
   return TRUE;
