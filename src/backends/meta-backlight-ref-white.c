@@ -25,6 +25,7 @@
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-manager.h"
 #include "backends/meta-monitor-private.h"
+#include "mtk/mtk.h"
 
 struct _MetaBacklightRefWhite
 {
@@ -102,10 +103,12 @@ meta_backlight_ref_white_set_brightness (MetaBacklight       *backlight,
    * the shell in a frame clock dispatch, and changing the ColorDevice
    * reference white invalidates the onscreen. */
   backlight_ref_white->change_ref_white_handle_id =
-    g_idle_add_full (CLUTTER_PRIORITY_REDRAW - 1,
-                     on_change_ref_white,
-                     g_steal_pointer (&task),
-                     g_object_unref);
+    mtk_idle_add_full (CLUTTER_PRIORITY_REDRAW - 1,
+                       on_change_ref_white,
+                       g_steal_pointer (&task),
+                       g_object_unref);
+  mtk_source_set_name_by_id (backlight_ref_white->change_ref_white_handle_id,
+                             "[mutter] on_change_ref_white");
 }
 
 static void
@@ -115,7 +118,7 @@ meta_backlight_ref_white_dispose (GObject *object)
     META_BACKLIGHT_REF_WHITE (object);
 
   g_clear_handle_id (&backlight_ref_white->change_ref_white_handle_id,
-                     g_source_remove);
+                     mtk_source_remove);
 
   G_OBJECT_CLASS (meta_backlight_ref_white_parent_class)->dispose (object);
 }

@@ -30,6 +30,7 @@
 #include "core/util-private.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
+#include "mtk/mtk.h"
 
 #define TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS (s2ms (15))
 
@@ -400,7 +401,7 @@ reset_current_selection_source (MetaClipboardSession *session)
                               META_SELECTION_CLIPBOARD,
                               META_SELECTION_SOURCE (session->current_source));
   meta_clipboard_session_cancel_transfer_requests (session);
-  g_clear_handle_id (&session->transfer_request_timeout_id, g_source_remove);
+  g_clear_handle_id (&session->transfer_request_timeout_id, mtk_source_remove);
   g_clear_object (&session->current_source);
 }
 
@@ -485,7 +486,7 @@ meta_clipboard_session_set_selection (MetaClipboardSession  *session,
     {
       meta_clipboard_session_cancel_transfer_requests (session);
       g_clear_handle_id (&session->transfer_request_timeout_id,
-                         g_source_remove);
+                         mtk_source_remove);
     }
 
   mime_types_variant = g_variant_lookup_value (options,
@@ -554,11 +555,13 @@ handle_set_selection (MetaDBusClipboard     *skeleton,
 static void
 reset_transfer_cleanup_timeout (MetaClipboardSession *session)
 {
-  g_clear_handle_id (&session->transfer_request_timeout_id, g_source_remove);
+  g_clear_handle_id (&session->transfer_request_timeout_id, mtk_source_remove);
   session->transfer_request_timeout_id =
-    g_timeout_add_once (TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS,
-                        transfer_request_cleanup_timeout,
-                        session);
+    mtk_timeout_add_once (TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS,
+                          transfer_request_cleanup_timeout,
+                          session);
+  mtk_source_set_name_by_id (session->transfer_request_timeout_id,
+                             "[mutter] transfer_request_cleanup_timeout");
 }
 
 void

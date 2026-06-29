@@ -25,6 +25,7 @@
 #include <gio/gio.h>
 
 #include "backends/meta-dbus-session-manager.h"
+#include "mtk/mtk.h"
 
 enum
 {
@@ -293,7 +294,7 @@ static void
 on_session_stopped (MetaDbusSession *session,
                     CloseClosure    *closure)
 {
-  g_source_remove (closure->callback_id);
+  mtk_source_remove (closure->callback_id);
   g_free (closure);
 }
 
@@ -308,7 +309,9 @@ meta_dbus_session_queue_close (MetaDbusSession *session)
                                                   "session-closed",
                                                   G_CALLBACK (on_session_stopped),
                                                   closure);
-  closure->callback_id = g_idle_add_once (close_cb, closure);
+  closure->callback_id = mtk_idle_add_once (close_cb, closure);
+  mtk_source_set_name_by_id (closure->callback_id,
+                             "[mutter] close_cb [dbus session watcher]");
 }
 
 char *

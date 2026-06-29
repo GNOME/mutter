@@ -29,6 +29,7 @@
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
 #include "core/boxes-private.h"
+#include "mtk/mtk.h"
 
 struct _MetaStreamSourceArea
 {
@@ -266,7 +267,9 @@ before_stage_painted (MetaStage        *stage,
     return;
 
   source_area->maybe_record_idle_id =
-    g_idle_add_once (maybe_record_frame_on_idle, source);
+    mtk_idle_add_once (maybe_record_frame_on_idle, source);
+  mtk_source_set_name_by_id (source_area->maybe_record_idle_id,
+                             "[mutter] maybe_record_frame_on_idle [before paint]");
 }
 
 static void
@@ -301,7 +304,9 @@ stage_painted (MetaStage        *stage,
     }
 
   source_area->maybe_record_idle_id =
-    g_idle_add_once (maybe_record_frame_on_idle, source);
+    mtk_idle_add_once (maybe_record_frame_on_idle, source);
+  mtk_source_set_name_by_id (source_area->maybe_record_idle_id,
+                             "[mutter] maybe_record_frame_on_idle [stage painted]");
 }
 
 static void
@@ -447,7 +452,7 @@ meta_stream_source_area_disable (MetaStreamSource *source)
   g_clear_signal_handler (&source_area->prepare_frame_handler_id,
                           stage);
 
-  g_clear_handle_id (&source_area->maybe_record_idle_id, g_source_remove);
+  g_clear_handle_id (&source_area->maybe_record_idle_id, mtk_source_remove);
 }
 
 static gboolean

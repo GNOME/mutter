@@ -33,6 +33,8 @@
 
 #include <gio/gio.h>
 
+#include "mtk/mtk.h"
+
 enum
 {
   ORIENTATION_CHANGED,
@@ -184,7 +186,9 @@ iio_properties_changed (GDBusProxy *proxy,
   if (self->properties_changed_idle_id)
     return;
 
-  self->properties_changed_idle_id = g_idle_add_once (iio_properties_changed_idle, self);
+  self->properties_changed_idle_id = mtk_idle_add_once (iio_properties_changed_idle, self);
+  mtk_source_set_name_by_id (self->properties_changed_idle_id,
+                             "[mutter] iio_properties_changed_idle");
 }
 
 static void
@@ -461,7 +465,7 @@ meta_orientation_manager_finalize (GObject *object)
   g_clear_object (&self->cancellable);
 
   g_bus_unwatch_name (self->iio_watch_id);
-  g_clear_handle_id (&self->properties_changed_idle_id, g_source_remove);
+  g_clear_handle_id (&self->properties_changed_idle_id, mtk_source_remove);
   g_clear_object (&self->iio_proxy);
 
   g_clear_object (&self->settings);

@@ -74,6 +74,7 @@
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
 #include "core/boxes-private.h"
+#include "mtk/mtk.h"
 
 #ifndef EGL_DRM_MASTER_FD_EXT
 #define EGL_DRM_MASTER_FD_EXT 0x333C
@@ -534,9 +535,9 @@ meta_renderer_native_queue_power_save_page_flip (MetaRendererNative *renderer_na
   if (!renderer_native->power_save_page_flip_source_id)
     {
       renderer_native->power_save_page_flip_source_id =
-        g_timeout_add (timeout_ms,
-                       dummy_power_save_page_flip_cb,
-                       renderer_native);
+        mtk_timeout_add (timeout_ms,
+                         dummy_power_save_page_flip_cb,
+                         renderer_native);
     }
 
   renderer_native->power_save_page_flip_onscreens =
@@ -611,7 +612,7 @@ old_onscreen_freed (gpointer  user_data,
   if (!renderer_native->release_unused_gpus_idle_id)
     {
       renderer_native->release_unused_gpus_idle_id =
-        g_idle_add_once (release_unused_gpus_idle, renderer_native);
+        mtk_idle_add_once (release_unused_gpus_idle, renderer_native);
     }
 }
 
@@ -1928,13 +1929,13 @@ meta_renderer_native_finalize (GObject *object)
   g_clear_list (&renderer_native->power_save_page_flip_onscreens,
                 g_object_unref);
   g_clear_handle_id (&renderer_native->power_save_page_flip_source_id,
-                     g_source_remove);
+                     mtk_source_remove);
 
   g_list_free (renderer_native->pending_mode_set_views);
   g_hash_table_unref (renderer_native->mode_set_updates);
 
   g_clear_handle_id (&renderer_native->release_unused_gpus_idle_id,
-                     g_source_remove);
+                     mtk_source_remove);
 
   g_hash_table_destroy (renderer_native->gpu_datas);
   g_clear_object (&renderer_native->gles3);

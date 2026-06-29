@@ -61,6 +61,7 @@
 #include "meta/main.h"
 #include "meta/meta-enum-types.h"
 #include "meta/meta-orientation-manager.h"
+#include "mtk/mtk.h"
 
 #include "meta-dbus-display-config.h"
 
@@ -364,7 +365,7 @@ prepare_shutdown (MetaBackend        *backend,
 
   priv->shutting_down = TRUE;
 
-  g_clear_handle_id (&priv->reload_monitor_manager_id, g_source_remove);
+  g_clear_handle_id (&priv->reload_monitor_manager_id, mtk_source_remove);
 }
 
 /**
@@ -480,8 +481,10 @@ on_virtual_monitor_destroyed (MetaVirtualMonitor *virtual_monitor,
   if (!priv->shutting_down && !priv->reload_monitor_manager_id)
     {
       priv->reload_monitor_manager_id =
-        g_idle_add_once ((GSourceOnceFunc) meta_monitor_manager_reload,
-                         manager);
+        mtk_idle_add_once ((GSourceOnceFunc) meta_monitor_manager_reload,
+                           manager);
+      mtk_source_set_name_by_id (priv->reload_monitor_manager_id,
+                                 "[mutter] meta_monitor_manager_reload");
     }
 }
 
@@ -1451,10 +1454,10 @@ meta_monitor_manager_dispose (GObject *object)
   g_clear_object (&manager->display_config);
   g_clear_object (&manager->config_manager);
 
-  g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
-  g_clear_handle_id (&manager->restore_config_id, g_source_remove);
-  g_clear_handle_id (&priv->switch_config_handle_id, g_source_remove);
-  g_clear_handle_id (&priv->reload_monitor_manager_id, g_source_remove);
+  g_clear_handle_id (&manager->persistent_timeout_id, mtk_source_remove);
+  g_clear_handle_id (&manager->restore_config_id, mtk_source_remove);
+  g_clear_handle_id (&priv->switch_config_handle_id, mtk_source_remove);
+  g_clear_handle_id (&priv->reload_monitor_manager_id, mtk_source_remove);
 
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->dispose (object);
 }
@@ -2072,11 +2075,11 @@ request_persistent_confirmation (MetaMonitorManager *manager)
   int timeout_s;
 
   timeout_s = meta_monitor_manager_get_display_configuration_timeout (manager);
-  manager->persistent_timeout_id = g_timeout_add_seconds_once (timeout_s,
-                                                               save_config_timeout,
-                                                               manager);
-  g_source_set_name_by_id (manager->persistent_timeout_id,
-                           "[mutter] save_config_timeout");
+  manager->persistent_timeout_id = mtk_timeout_add_seconds_once (timeout_s,
+                                                                 save_config_timeout,
+                                                                 manager);
+  mtk_source_set_name_by_id (manager->persistent_timeout_id,
+                             "[mutter] save_config_timeout");
 
   g_signal_emit (manager, signals[CONFIRM_DISPLAY_CHANGE], 0);
 }
@@ -3057,8 +3060,8 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
 
   if (method != META_MONITORS_CONFIG_METHOD_VERIFY)
     {
-      g_clear_handle_id (&manager->restore_config_id, g_source_remove);
-      g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
+      g_clear_handle_id (&manager->restore_config_id, mtk_source_remove);
+      g_clear_handle_id (&manager->persistent_timeout_id, mtk_source_remove);
     }
 
   if (!meta_monitor_manager_apply_monitors_config (manager,
@@ -3092,8 +3095,8 @@ meta_monitor_manager_confirm_configuration (MetaMonitorManager *manager,
   if (!manager->persistent_timeout_id)
     return;
 
-  g_clear_handle_id (&manager->restore_config_id, g_source_remove);
-  g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
+  g_clear_handle_id (&manager->restore_config_id, mtk_source_remove);
+  g_clear_handle_id (&manager->persistent_timeout_id, mtk_source_remove);
 
   if (ok)
     {
@@ -3102,7 +3105,9 @@ meta_monitor_manager_confirm_configuration (MetaMonitorManager *manager,
   else
     {
       manager->restore_config_id =
-        g_idle_add_once ((GSourceOnceFunc) restore_previous_config, manager);
+        mtk_idle_add_once ((GSourceOnceFunc) restore_previous_config, manager);
+      mtk_source_set_name_by_id (manager->restore_config_id,
+                                 "[mutter] restore_previous_config");
     }
 }
 
@@ -4146,7 +4151,7 @@ meta_monitor_manager_reload (MetaMonitorManager *manager)
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
 
-  g_clear_handle_id (&priv->reload_monitor_manager_id, g_source_remove);
+  g_clear_handle_id (&priv->reload_monitor_manager_id, mtk_source_remove);
 
   meta_monitor_manager_read_current_state (manager);
   meta_monitor_manager_reconfigure (manager);
@@ -4333,11 +4338,13 @@ meta_monitor_manager_switch_config (MetaMonitorManager          *manager,
   data->monitor_manager = manager;
   data->config_type = config_type;
 
-  g_clear_handle_id (&priv->switch_config_handle_id, g_source_remove);
-  priv->switch_config_handle_id = g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
-                                                   switch_config_idle_cb,
-                                                   data,
-                                                   g_free);
+  g_clear_handle_id (&priv->switch_config_handle_id, mtk_source_remove);
+  priv->switch_config_handle_id = mtk_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
+                                                     switch_config_idle_cb,
+                                                     data,
+                                                     g_free);
+  mtk_source_set_name_by_id (priv->switch_config_handle_id,
+                             "[mutter] switch_config_idle_cb");
 }
 
 gboolean

@@ -56,6 +56,7 @@
 #include "backends/native/meta-virtual-monitor-native.h"
 #include "clutter/clutter.h"
 #include "meta/main.h"
+#include "mtk/mtk.h"
 
 #include "meta-dbus-display-config.h"
 
@@ -546,7 +547,9 @@ on_virtual_monitor_mode_changed (MetaVirtualMonitor *virtual_monitor,
   if (priv->rebuild_virtual_idle_id)
     return;
 
-  priv->rebuild_virtual_idle_id = g_idle_add_once (rebuild_virtual_idle_cb, manager);
+  priv->rebuild_virtual_idle_id = mtk_idle_add_once (rebuild_virtual_idle_cb, manager);
+  mtk_source_set_name_by_id (priv->rebuild_virtual_idle_id,
+                             "[mutter] rebuild_virtual_idle_cb");
 }
 
 static MetaVirtualMonitor *
@@ -599,7 +602,7 @@ meta_monitor_manager_native_dispose (GObject *object)
   MetaMonitorManagerNativePrivate *priv =
     meta_monitor_manager_native_get_instance_private (manager_native);
 
-  g_clear_handle_id (&priv->rebuild_virtual_idle_id, g_source_remove);
+  g_clear_handle_id (&priv->rebuild_virtual_idle_id, mtk_source_remove);
   g_clear_pointer (&priv->crtc_gamma_cache, g_hash_table_unref);
 
   G_OBJECT_CLASS (meta_monitor_manager_native_parent_class)->dispose (object);
@@ -611,7 +614,7 @@ on_monitors_changed (MetaMonitorManagerNative *manager_native)
   MetaMonitorManagerNativePrivate *priv =
     meta_monitor_manager_native_get_instance_private (manager_native);
 
-  g_clear_handle_id (&priv->rebuild_virtual_idle_id, g_source_remove);
+  g_clear_handle_id (&priv->rebuild_virtual_idle_id, mtk_source_remove);
 }
 
 static gboolean

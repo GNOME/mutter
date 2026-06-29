@@ -26,6 +26,7 @@
 #include <gio/gio.h>
 
 #include "backends/meta-color-manager-private.h"
+#include "mtk/mtk.h"
 
 enum
 {
@@ -115,7 +116,7 @@ meta_color_profile_finalize (GObject *object)
 
   g_cancellable_cancel (color_profile->cancellable);
   g_clear_object (&color_profile->cancellable);
-  g_clear_handle_id (&color_profile->notify_ready_id, g_source_remove);
+  g_clear_handle_id (&color_profile->notify_ready_id, mtk_source_remove);
 
   if (color_profile->is_owner)
     {
@@ -339,8 +340,10 @@ meta_color_profile_new_from_cd_profile (MetaColorManager     *color_manager,
   color_profile->cd_profile_id = g_strdup_printf ("icc-%s", checksum);
   color_profile->cd_profile = g_object_ref (cd_profile);
 
-  color_profile->notify_ready_id = g_idle_add_once (notify_ready_idle,
-                                                    color_profile);
+  color_profile->notify_ready_id = mtk_idle_add_once (notify_ready_idle,
+                                                      color_profile);
+  mtk_source_set_name_by_id (color_profile->notify_ready_id,
+                             "[mutter] notify_ready_idle [color profile]");
 
   return color_profile;
 }

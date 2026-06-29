@@ -25,6 +25,8 @@
 
 #include "backends/meta-stage-view-private.h"
 
+#include "mtk/mtk.h"
+
 typedef struct _MetaStageViewPrivate
 {
   /* Damage history, in stage view render target framebuffer coordinate space.
@@ -93,7 +95,7 @@ meta_stage_view_dispose (GObject *object)
     meta_stage_view_get_instance_private (view);
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
 
-  g_clear_handle_id (&priv->notify_presented_handle_id, g_source_remove);
+  g_clear_handle_id (&priv->notify_presented_handle_id, mtk_source_remove);
   g_clear_pointer (&priv->damage_history, clutter_damage_history_free);
 
   if (priv->frame_cb_closure)
@@ -222,9 +224,11 @@ meta_stage_view_perform_fake_swap (MetaStageView *view,
    * clock, to avoid racing with it.
    */
   priv->notify_presented_handle_id =
-    g_idle_add_full (G_PRIORITY_HIGH,
-                     notify_presented_idle,
-                     closure, g_free);
+    mtk_idle_add_full (G_PRIORITY_HIGH,
+                       notify_presented_idle,
+                       closure, g_free);
+  mtk_source_set_name_by_id (priv->notify_presented_handle_id,
+                             "[mutter] notify_presented_idle");
 }
 
 void

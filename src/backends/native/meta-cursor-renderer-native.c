@@ -59,6 +59,7 @@
 #include "meta/boxes.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
+#include "mtk/mtk.h"
 #include "wayland/meta-cursor-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
 
@@ -200,7 +201,7 @@ meta_cursor_renderer_native_finalize (GObject *object)
   g_clear_signal_handler (&priv->texture_changed_handler_id,
                           priv->current_cursor);
   g_clear_object (&priv->current_cursor);
-  g_clear_handle_id (&priv->animation_timeout_id, g_source_remove);
+  g_clear_handle_id (&priv->animation_timeout_id, mtk_source_remove);
 
   G_OBJECT_CLASS (meta_cursor_renderer_native_parent_class)->finalize (object);
 }
@@ -269,7 +270,7 @@ maybe_schedule_cursor_sprite_animation_frame (MetaCursorRendererNative *native,
   if (!cursor_changed && priv->animation_timeout_id)
     return;
 
-  g_clear_handle_id (&priv->animation_timeout_id, g_source_remove);
+  g_clear_handle_id (&priv->animation_timeout_id, mtk_source_remove);
 
   if (cursor && clutter_cursor_is_animated (cursor))
     {
@@ -279,11 +280,11 @@ maybe_schedule_cursor_sprite_animation_frame (MetaCursorRendererNative *native,
         return;
 
       priv->animation_timeout_id =
-        g_timeout_add_once (delay,
-                            (GSourceOnceFunc) meta_cursor_renderer_native_update_animation,
-                            native);
-      g_source_set_name_by_id (priv->animation_timeout_id,
-                               "[mutter] meta_cursor_renderer_native_update_animation");
+        mtk_timeout_add_once (delay,
+                              (GSourceOnceFunc) meta_cursor_renderer_native_update_animation,
+                              native);
+      mtk_source_set_name_by_id (priv->animation_timeout_id,
+                                 "[mutter] meta_cursor_renderer_native_update_animation");
     }
 }
 

@@ -78,6 +78,7 @@
 #include "meta/meta-context.h"
 #include "meta/meta-enum-types.h"
 #include "meta/util.h"
+#include "mtk/mtk.h"
 #include "wayland/meta-wayland.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
@@ -242,7 +243,7 @@ meta_backend_dispose (GObject *object)
   g_clear_object (&priv->renderdoc);
   g_clear_object (&priv->cursor_theme);
 
-  g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
+  g_clear_handle_id (&priv->device_update_idle_id, mtk_source_remove);
 
   g_clear_pointer (&priv->default_seat, clutter_seat_destroy);
   g_clear_pointer (&priv->stage, clutter_actor_destroy);
@@ -392,9 +393,9 @@ meta_backend_update_last_device (MetaBackend        *backend,
   if (priv->device_update_idle_id == 0)
     {
       priv->device_update_idle_id =
-        g_idle_add_once ((GSourceOnceFunc) update_last_device, backend);
-      g_source_set_name_by_id (priv->device_update_idle_id,
-                               "[mutter] update_last_device");
+        mtk_idle_add_once ((GSourceOnceFunc) update_last_device, backend);
+      mtk_source_set_name_by_id (priv->device_update_idle_id,
+                                 "[mutter] update_last_device");
     }
 }
 
@@ -492,7 +493,7 @@ on_device_removed (ClutterSeat        *seat,
   if (priv->current_device == device)
     {
       g_clear_object (&priv->current_device);
-      g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
+      g_clear_handle_id (&priv->device_update_idle_id, mtk_source_remove);
 
       set_cursor_visible (backend,
                           determine_hotplug_pointer_visibility (seat));

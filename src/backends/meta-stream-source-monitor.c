@@ -35,6 +35,7 @@
 #include "clutter/clutter-mutter.h"
 #include "core/boxes-private.h"
 #include "core/meta-debug-control-private.h"
+#include "mtk/mtk.h"
 
 struct _MetaStreamSourceMonitor
 {
@@ -179,10 +180,10 @@ stage_painted (MetaStage        *stage,
 
   if (!(record_result & META_STREAM_RECORD_RESULT_RECORDED_FRAME))
     {
-      source_monitor->maybe_record_idle_id = g_idle_add_once (maybe_record_frame_on_idle,
-                                                           source);
-      g_source_set_name_by_id (source_monitor->maybe_record_idle_id,
-                               "[mutter] maybe_record_frame_on_idle [monitor-source]");
+      source_monitor->maybe_record_idle_id = mtk_idle_add_once (maybe_record_frame_on_idle,
+                                                                source);
+      mtk_source_set_name_by_id (source_monitor->maybe_record_idle_id,
+                                 "[mutter] maybe_record_frame_on_idle [monitor-source]");
     }
 }
 
@@ -532,7 +533,7 @@ meta_stream_source_monitor_disable (MetaStreamSource *source)
   g_clear_signal_handler (&source_monitor->stage_prepare_frame_handler_id,
                           stage);
 
-  g_clear_handle_id (&source_monitor->maybe_record_idle_id, g_source_remove);
+  g_clear_handle_id (&source_monitor->maybe_record_idle_id, mtk_source_remove);
 }
 
 static gboolean
@@ -875,7 +876,7 @@ meta_stream_source_monitor_queue_follow_up (MetaStreamSource  *source,
       return;
     }
 
-  g_clear_handle_id (&source_monitor->maybe_record_idle_id, g_source_remove);
+  g_clear_handle_id (&source_monitor->maybe_record_idle_id, mtk_source_remove);
 
   monitor = get_monitor (source_monitor);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);

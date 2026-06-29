@@ -50,6 +50,7 @@
 #include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-drm-timeline.h"
+#include "mtk/mtk.h"
 
 #define CURSOR_META_SIZE(width, height) \
   (sizeof (struct spa_meta_cursor) + \
@@ -2551,7 +2552,9 @@ on_peer_capability_param_changed (MetaStreamSource     *source,
       !priv->negotiate_with_device_handle_id)
     {
       priv->negotiate_with_device_handle_id =
-        g_idle_add_once (negotiate_with_device_cb, source);
+        mtk_idle_add_once (negotiate_with_device_cb, source);
+      mtk_source_set_name_by_id (priv->negotiate_with_device_handle_id,
+                                 "[mutter] negotiate_with_device_cb");
     }
 }
 
@@ -3143,7 +3146,7 @@ meta_stream_source_dispose (GObject *object)
   g_clear_object (&priv->color_state);
   g_clear_object (&priv->framebuffer);
 
-  g_clear_handle_id (&priv->negotiate_with_device_handle_id, g_source_remove);
+  g_clear_handle_id (&priv->negotiate_with_device_handle_id, mtk_source_remove);
 
   g_warn_if_fail (!priv->dequeued_buffers);
 
