@@ -21,6 +21,7 @@
 
 #include "core/meta-selection-private.h"
 #include "meta/meta-selection-source-memory.h"
+#include "mtk/mtk.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-selection-source-x11-private.h"
 #include "x11/meta-x11-selection-output-stream-private.h"
@@ -373,7 +374,7 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
   selection = meta_display_get_selection (display);
 
   if (selection_type == META_SELECTION_CLIPBOARD)
-    g_clear_handle_id (&x11_display->selection.timeout_id, g_source_remove);
+    g_clear_handle_id (&x11_display->selection.timeout_id, mtk_source_remove);
 
   if (x11_display->selection.cancellables[selection_type])
     {
@@ -404,9 +405,11 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
            * selection. Restoring the clipboard in this case would overwrite the
            * new selection, so this will be cancelled when a new selection
            * arrives. */
-          x11_display->selection.timeout_id = g_timeout_add_once (10,
-                                                                  unset_clipboard_owner,
-                                                                  x11_display);
+          x11_display->selection.timeout_id = mtk_timeout_add_once (10,
+                                                                    unset_clipboard_owner,
+                                                                    x11_display);
+          mtk_source_set_name_by_id (x11_display->selection.timeout_id,
+                                     "[mutter] unset_clipboard_owner [x11]");
         }
       else
         {
@@ -555,5 +558,5 @@ meta_x11_selection_shutdown (MetaX11Display *x11_display)
       x11_display->selection.xwindow = None;
     }
 
-  g_clear_handle_id (&x11_display->selection.timeout_id, g_source_remove);
+  g_clear_handle_id (&x11_display->selection.timeout_id, mtk_source_remove);
 }

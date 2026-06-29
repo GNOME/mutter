@@ -46,6 +46,7 @@
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-later.h"
 #include "meta/prefs.h"
+#include "mtk/mtk.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-sync-counter.h"
 #include "x11/meta-x11-display-private.h"
@@ -818,7 +819,7 @@ meta_window_x11_delayed_focus_data_free (MetaWindowX11DelayedFocusData *data)
       g_queue_free (data->pending_focus_candidates);
     }
 
-  g_clear_handle_id (&data->timeout_id, g_source_remove);
+  g_clear_handle_id (&data->timeout_id, mtk_source_remove);
   g_free (data);
 }
 
@@ -894,8 +895,10 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
                               G_CALLBACK (meta_window_x11_delayed_focus_data_free),
                               data);
 
-  data->timeout_id = g_timeout_add_once (TAKE_FOCUS_FALLBACK_DELAY_MS,
-                                         focus_window_delayed_timeout, data);
+  data->timeout_id = mtk_timeout_add_once (TAKE_FOCUS_FALLBACK_DELAY_MS,
+                                           focus_window_delayed_timeout, data);
+  mtk_source_set_name_by_id (data->timeout_id,
+                             "[mutter] focus_window_delayed_timeout");
 }
 
 static void

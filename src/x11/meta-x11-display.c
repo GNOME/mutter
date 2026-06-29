@@ -345,7 +345,7 @@ meta_x11_display_dispose (GObject *object)
       x11_display->xdisplay = NULL;
     }
 
-  g_clear_handle_id (&x11_display->display_close_idle, g_source_remove);
+  g_clear_handle_id (&x11_display->display_close_idle, mtk_source_remove);
 
   meta_x11_display_remove_cursor_later (x11_display);
 

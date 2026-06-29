@@ -21,6 +21,7 @@
 
 #include "compositor/compositor-private.h"
 #include "core/window-private.h"
+#include "mtk/mtk.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-sync-counter.h"
 #include "x11/meta-x11-display-private.h"
@@ -56,7 +57,7 @@ meta_sync_counter_init (MetaSyncCounter *sync_counter,
 void
 meta_sync_counter_clear (MetaSyncCounter *sync_counter)
 {
-  g_clear_handle_id (&sync_counter->sync_request_timeout_id, g_source_remove);
+  g_clear_handle_id (&sync_counter->sync_request_timeout_id, mtk_source_remove);
   meta_sync_counter_destroy_sync_alarm (sync_counter);
   g_clear_list (&sync_counter->frames, g_free);
   sync_counter->window = NULL;
@@ -258,11 +259,11 @@ meta_sync_counter_send_request (MetaSyncCounter *sync_counter)
    * if this time expires, we consider the window unresponsive
    * and resize it unsynchonized.
    */
-  sync_counter->sync_request_timeout_id = g_timeout_add_once (1000,
-                                                              sync_request_timeout,
-                                                              sync_counter);
-  g_source_set_name_by_id (sync_counter->sync_request_timeout_id,
-                           "[mutter] sync_request_timeout");
+  sync_counter->sync_request_timeout_id = mtk_timeout_add_once (1000,
+                                                                sync_request_timeout,
+                                                                sync_counter);
+  mtk_source_set_name_by_id (sync_counter->sync_request_timeout_id,
+                             "[mutter] sync_request_timeout");
 
   meta_compositor_sync_updates_frozen (window->display->compositor, window);
 }
@@ -292,7 +293,7 @@ meta_sync_counter_update (MetaSyncCounter *sync_counter,
        new_counter_value % 2 == 0))
     {
       g_clear_handle_id (&sync_counter->sync_request_timeout_id,
-                         g_source_remove);
+                         mtk_source_remove);
     }
 
   /* If sync was previously disabled, turn it back on and hope

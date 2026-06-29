@@ -39,6 +39,7 @@
 #include "core/workspace-private.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
+#include "mtk/mtk.h"
 #include "mtk/mtk-x11.h"
 #include "x11/meta-startup-notification-x11.h"
 #include "x11/meta-x11-display-private.h"
@@ -1203,7 +1204,9 @@ process_selection_clear (MetaX11Display *x11_display,
   if (!x11_display->display_close_idle)
     {
       x11_display->xselectionclear_timestamp = event->xselectionclear.time;
-      x11_display->display_close_idle = g_idle_add_once (close_display_idle_cb, x11_display);
+      x11_display->display_close_idle = mtk_idle_add_once (close_display_idle_cb, x11_display);
+      mtk_source_set_name_by_id (x11_display->display_close_idle,
+                                 "[mutter] close_display_idle_cb [x11]");
     }
 
   return TRUE;
