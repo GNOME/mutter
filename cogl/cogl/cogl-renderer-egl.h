@@ -114,19 +114,21 @@ gboolean cogl_renderer_egl_has_swap_buffers_with_damage (CoglRendererEGL *render
  * cogl_renderer_egl_swap_buffers_with_damage: (skip)
  */
 COGL_EXPORT
-gboolean cogl_renderer_egl_swap_buffers_with_damage (CoglRendererEGL *renderer_egl,
-                                                     EGLSurface       surface,
-                                                     const EGLint    *rects,
-                                                     EGLint           n_rects);
+gboolean cogl_renderer_egl_swap_buffers_with_damage (CoglRendererEGL  *renderer_egl,
+                                                     EGLSurface        surface,
+                                                     const EGLint     *rects,
+                                                     EGLint            n_rects,
+                                                     GError          **error);
 
 /**
  * cogl_renderer_egl_swap_buffers_region: (skip)
  */
 COGL_EXPORT
-gboolean cogl_renderer_egl_swap_buffers_region (CoglRendererEGL *renderer_egl,
-                                                EGLSurface       surface,
-                                                EGLint           n_rects,
-                                                const EGLint    *rects);
+gboolean cogl_renderer_egl_swap_buffers_region (CoglRendererEGL  *renderer_egl,
+                                                EGLSurface        surface,
+                                                EGLint            n_rects,
+                                                const EGLint     *rects,
+                                                GError          **error);
 
 COGL_EXPORT
 gboolean cogl_renderer_egl_has_set_damage_region (CoglRendererEGL *renderer_egl);

@@ -523,10 +523,11 @@ cogl_renderer_egl_has_swap_buffers_with_damage (CoglRendererEGL *renderer_egl)
 }
 
 gboolean
-cogl_renderer_egl_swap_buffers_with_damage (CoglRendererEGL *renderer_egl,
-                                            EGLSurface       surface,
-                                            const EGLint    *rects,
-                                            EGLint           n_rects)
+cogl_renderer_egl_swap_buffers_with_damage (CoglRendererEGL  *renderer_egl,
+                                            EGLSurface        surface,
+                                            const EGLint     *rects,
+                                            EGLint            n_rects,
+                                            GError          **error)
 {
   CoglRendererEGLPrivate *priv;
 
@@ -535,21 +536,36 @@ cogl_renderer_egl_swap_buffers_with_damage (CoglRendererEGL *renderer_egl,
   priv = cogl_renderer_egl_get_instance_private (renderer_egl);
 
   if (priv->eglSwapBuffersWithDamageKHR)
-    return priv->eglSwapBuffersWithDamageKHR (priv->edisplay, surface,
-                                              rects, n_rects) != EGL_FALSE;
+    {
+      if (priv->eglSwapBuffersWithDamageKHR (priv->edisplay, surface,
+                                             rects, n_rects) == EGL_FALSE)
+        {
+          set_egl_error (error);
+          return FALSE;
+        }
+      return TRUE;
+    }
 
   if (priv->eglSwapBuffersWithDamageEXT)
-    return priv->eglSwapBuffersWithDamageEXT (priv->edisplay, surface,
-                                              rects, n_rects) != EGL_FALSE;
+    {
+      if (priv->eglSwapBuffersWithDamageEXT (priv->edisplay, surface,
+                                             rects, n_rects) == EGL_FALSE)
+        {
+          set_egl_error (error);
+          return FALSE;
+        }
+      return TRUE;
+    }
 
   return FALSE;
 }
 
 gboolean
-cogl_renderer_egl_swap_buffers_region (CoglRendererEGL *renderer_egl,
-                                       EGLSurface       surface,
-                                       EGLint           n_rects,
-                                       const EGLint    *rects)
+cogl_renderer_egl_swap_buffers_region (CoglRendererEGL  *renderer_egl,
+                                       EGLSurface        surface,
+                                       EGLint            n_rects,
+                                       const EGLint     *rects,
+                                       GError          **error)
 {
   CoglRendererEGLPrivate *priv;
 
@@ -560,8 +576,14 @@ cogl_renderer_egl_swap_buffers_region (CoglRendererEGL *renderer_egl,
   if (!priv->eglSwapBuffersRegionNOK)
     return FALSE;
 
-  return priv->eglSwapBuffersRegionNOK (priv->edisplay, surface,
-                                        n_rects, rects) != EGL_FALSE;
+  if (priv->eglSwapBuffersRegionNOK (priv->edisplay, surface,
+                                     n_rects, rects) == EGL_FALSE)
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
 }
 
 gboolean
