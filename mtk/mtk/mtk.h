@@ -27,6 +27,7 @@
 #include "mtk/mtk-dbus.h"
 #include "mtk/mtk-dispose-bin.h"
 #include "mtk/mtk-file-utils.h"
+#include "mtk/mtk-idle.h"
 #include "mtk/mtk-rectangle.h"
 #include "mtk/mtk-region.h"
 #include "mtk/mtk-macros.h"
