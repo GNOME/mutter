@@ -2099,6 +2099,7 @@ static GSourceFuncs frame_clock_source_funcs = {
 static void
 init_frame_clock_source (ClutterFrameClock *frame_clock)
 {
+  g_autoptr (GMainContext) main_context = NULL;
   GSource *source;
   ClutterClockSource *clock_source;
   g_autofree char *name = NULL;
@@ -2120,7 +2121,8 @@ init_frame_clock_source (ClutterFrameClock *frame_clock)
   clock_source->frame_clock = frame_clock;
 
   frame_clock->source = source;
-  g_source_attach (source, NULL);
+  main_context = g_main_context_ref_thread_default ();
+  g_source_attach (source, main_context);
 }
 
 ClutterFrameClock *
