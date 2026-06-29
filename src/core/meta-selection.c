@@ -213,7 +213,10 @@ transfer_request_new (GOutputStream *ostream,
                       ssize_t        len,
                       GCancellable  *external_cancellable)
 {
+  g_autoptr (GMainContext) main_context = NULL;
   TransferRequest *request;
+
+  main_context = g_main_context_ref_thread_default ();
 
   request = g_new0 (TransferRequest, 1);
   request->ostream = g_object_ref (ostream);
@@ -223,7 +226,7 @@ transfer_request_new (GOutputStream *ostream,
 
   g_source_set_callback (request->timeout_source, cancel_transfer_request,
                          request, NULL);
-  g_source_attach (request->timeout_source, NULL);
+  g_source_attach (request->timeout_source, main_context);
 
   if (external_cancellable)
     {
