@@ -26,6 +26,7 @@
 
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-private.h"
+#include "mtk/mtk.h"
 
 #define DEFAULT_CANCEL_THRESHOLD 36
 
@@ -228,7 +229,7 @@ clutter_press_gesture_point_began (ClutterGesture *gesture,
         graphene_point_distance (&priv->press_coords, &coords, NULL, NULL);
 
       g_assert (priv->next_press_timeout_id > 0);
-      g_clear_handle_id (&priv->next_press_timeout_id, g_source_remove);
+      g_clear_handle_id (&priv->next_press_timeout_id, mtk_source_remove);
 
       if (priv->is_touch != is_touch ||
           priv->press_button != press_button ||
@@ -251,7 +252,9 @@ clutter_press_gesture_point_began (ClutterGesture *gesture,
     }
 
   priv->next_press_timeout_id =
-    g_timeout_add_once (get_next_press_timeout_ms (), next_press_timed_out, self);
+    mtk_timeout_add_once (get_next_press_timeout_ms (), next_press_timed_out, self);
+  mtk_source_set_name_by_id (priv->next_press_timeout_id,
+                             "[clutter] next_press_timed_out");
 
   long_press_duration_ms = priv->long_press_duration_ms == -1
     ? get_default_long_press_duration ()
@@ -259,7 +262,9 @@ clutter_press_gesture_point_began (ClutterGesture *gesture,
 
   g_assert (priv->long_press_timeout_id == 0);
   priv->long_press_timeout_id =
-    g_timeout_add_once (long_press_duration_ms, long_press_cb, self);
+    mtk_timeout_add_once (long_press_duration_ms, long_press_cb, self);
+  mtk_source_set_name_by_id (priv->long_press_timeout_id,
+                             "[clutter] long_press_cb");
 
   set_pressed (self, TRUE);
 
@@ -295,7 +300,7 @@ clutter_press_gesture_point_ended (ClutterGesture *gesture,
   const ClutterEvent *event;
   ClutterModifierType modifier_state;
 
-  g_clear_handle_id (&priv->long_press_timeout_id, g_source_remove);
+  g_clear_handle_id (&priv->long_press_timeout_id, mtk_source_remove);
 
   /* Exclude any button-mask so that we can compare
    * the press and release states properly
@@ -358,12 +363,12 @@ clutter_press_gesture_state_changed (ClutterGesture      *gesture,
       new_state == CLUTTER_GESTURE_STATE_CANCELLED)
     {
       set_pressed (self, FALSE);
-      g_clear_handle_id (&priv->long_press_timeout_id, g_source_remove);
+      g_clear_handle_id (&priv->long_press_timeout_id, mtk_source_remove);
     }
 
   if (new_state == CLUTTER_GESTURE_STATE_CANCELLED)
     {
-      g_clear_handle_id (&priv->next_press_timeout_id, g_source_remove);
+      g_clear_handle_id (&priv->next_press_timeout_id, mtk_source_remove);
       reset_n_presses (self);
       reset_button_state (self);
     }
@@ -441,7 +446,7 @@ clutter_press_gesture_finalize (GObject *object)
   ClutterPressGesturePrivate *priv =
     clutter_press_gesture_get_instance_private (self);
 
-  g_clear_handle_id (&priv->next_press_timeout_id, g_source_remove);
+  g_clear_handle_id (&priv->next_press_timeout_id, mtk_source_remove);
 
   G_OBJECT_CLASS (clutter_press_gesture_parent_class)->finalize (object);
 }

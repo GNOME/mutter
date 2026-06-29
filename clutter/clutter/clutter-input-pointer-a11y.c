@@ -33,6 +33,7 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-seat-private.h"
 #include "clutter/clutter-virtual-input-device.h"
+#include "mtk/mtk.h"
 
 typedef struct _ClutterPtrA11yData
 {
@@ -225,7 +226,9 @@ start_secondary_click_timeout (ClutterSeat *seat)
   unsigned int delay = get_secondary_click_delay (seat);
 
   ptr_a11y_data->secondary_click_timer =
-    g_timeout_add_once (delay, trigger_secondary_click, seat);
+    mtk_timeout_add_once (delay, trigger_secondary_click, seat);
+  mtk_source_set_name_by_id (ptr_a11y_data->secondary_click_timer,
+                             "[clutter] trigger_secondary_click");
 
   g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-started",
@@ -241,7 +244,7 @@ stop_secondary_click_timeout (ClutterSeat *seat)
   if (ptr_a11y_data->secondary_click_timer)
     {
       g_clear_handle_id (&ptr_a11y_data->secondary_click_timer,
-                         g_source_remove);
+                         mtk_source_remove);
 
       g_signal_emit_by_name (seat,
                              "ptr-a11y-timeout-stopped",
@@ -492,7 +495,9 @@ trigger_dwell_gesture (gpointer data)
 
   /* Do not clear the gesture right away, otherwise we'll start another one */
   ptr_a11y_data->dwell_timer =
-    g_timeout_add_once (delay, trigger_clear_dwell_gesture, seat);
+    mtk_timeout_add_once (delay, trigger_clear_dwell_gesture, seat);
+  mtk_source_set_name_by_id (ptr_a11y_data->dwell_timer,
+                             "[clutter] trigger_clear_dwell_gesture");
 
   g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-stopped",
@@ -507,7 +512,9 @@ start_dwell_gesture_timeout (ClutterSeat *seat)
   unsigned int delay = get_dwell_delay (seat);
 
   ptr_a11y_data->dwell_timer =
-    g_timeout_add_once (delay, trigger_dwell_gesture, seat);
+    mtk_timeout_add_once (delay, trigger_dwell_gesture, seat);
+  mtk_source_set_name_by_id (ptr_a11y_data->dwell_timer,
+                             "[clutter] trigger_dwell_gesture [start]");
   ptr_a11y_data->dwell_gesture_started = TRUE;
 
   g_signal_emit_by_name (seat,
@@ -550,7 +557,9 @@ start_dwell_timeout (ClutterSeat *seat)
   unsigned int delay = get_dwell_delay (seat);
 
   ptr_a11y_data->dwell_timer =
-    g_timeout_add_once (delay, trigger_dwell_click, seat);
+    mtk_timeout_add_once (delay, trigger_dwell_click, seat);
+  mtk_source_set_name_by_id (ptr_a11y_data->dwell_timer,
+                             "[clutter] trigger_dwell_click [timeout]");
 
   g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-started",
@@ -565,7 +574,7 @@ stop_dwell_timeout (ClutterSeat *seat)
 
   if (ptr_a11y_data->dwell_timer)
     {
-      g_clear_handle_id (&ptr_a11y_data->dwell_timer, g_source_remove);
+      g_clear_handle_id (&ptr_a11y_data->dwell_timer, mtk_source_remove);
       ptr_a11y_data->dwell_gesture_started = FALSE;
 
       g_signal_emit_by_name (seat,
@@ -596,7 +605,9 @@ start_dwell_position_timeout (ClutterSeat *seat)
   ClutterPtrA11yData *ptr_a11y_data = ptr_a11y_data_from_seat (seat);
 
   ptr_a11y_data->dwell_position_timer =
-    g_timeout_add_once (100, trigger_dwell_position_timeout, seat);
+    mtk_timeout_add_once (100, trigger_dwell_position_timeout, seat);
+  mtk_source_set_name_by_id (ptr_a11y_data->dwell_position_timer,
+                             "[clutter] trigger_dwell_position_timeout");
 }
 
 static void
@@ -605,7 +616,7 @@ stop_dwell_position_timeout (ClutterSeat *seat)
   ClutterPtrA11yData *ptr_a11y_data = ptr_a11y_data_from_seat (seat);
 
   g_clear_handle_id (&ptr_a11y_data->dwell_position_timer,
-                     g_source_remove);
+                     mtk_source_remove);
 }
 
 static void

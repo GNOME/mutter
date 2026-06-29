@@ -67,6 +67,7 @@
 #include "clutter/clutter-property-transition.h"
 #include "clutter/clutter-paint-volume-private.h"
 #include "clutter/clutter-input-focus.h"
+#include "mtk/mtk.h"
 
 /* cursor width in pixels */
 #define DEFAULT_CURSOR_SIZE     2
@@ -1949,7 +1950,7 @@ clutter_text_dispose (GObject *gobject)
   g_clear_signal_handler (&priv->settings_changed_id,
                           backend);
 
-  g_clear_handle_id (&priv->password_hint_id, g_source_remove);
+  g_clear_handle_id (&priv->password_hint_id, mtk_source_remove);
 
   clutter_text_set_buffer (self, NULL);
   clutter_text_set_input_interceptor (self, NULL);
@@ -4452,13 +4453,13 @@ on_key_controller_key_pressed (ClutterKeyController *key_controller,
 
   if (priv->show_password_hint)
     {
-      g_clear_handle_id (&priv->password_hint_id, g_source_remove);
+      g_clear_handle_id (&priv->password_hint_id, mtk_source_remove);
 
       priv->password_hint_visible = TRUE;
       priv->password_hint_id =
-        g_timeout_add_once (priv->password_hint_timeout,
-                            clutter_text_remove_password_hint,
-                            self);
+        mtk_timeout_add_once (priv->password_hint_timeout,
+                              clutter_text_remove_password_hint,
+                              self);
     }
 
   return CLUTTER_EVENT_STOP;

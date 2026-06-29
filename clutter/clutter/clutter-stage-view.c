@@ -33,6 +33,7 @@
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-stage-private.h"
 #include "cogl/cogl.h"
+#include "mtk/mtk.h"
 
 enum
 {
@@ -307,7 +308,7 @@ clutter_stage_view_invalidate_offscreen (ClutterStageView *view)
       clutter_stage_view_invalidate_projection (view);
       g_clear_object (&priv->offscreen_pipeline);
       g_clear_object (&priv->offscreen);
-      g_clear_handle_id (&priv->ensure_offscreen_idle_id, g_source_remove);
+      g_clear_handle_id (&priv->ensure_offscreen_idle_id, mtk_source_remove);
       return;
     }
 
@@ -317,9 +318,11 @@ clutter_stage_view_invalidate_offscreen (ClutterStageView *view)
   if (priv->ensure_offscreen_idle_id != 0)
     return;
 
-  priv->ensure_offscreen_idle_id = g_idle_add_full (CLUTTER_PRIORITY_REDRAW - 1,
-                                                    on_ensure_offscreen_idle,
-                                                    view, NULL);
+  priv->ensure_offscreen_idle_id = mtk_idle_add_full (CLUTTER_PRIORITY_REDRAW - 1,
+                                                      on_ensure_offscreen_idle,
+                                                      view, NULL);
+  mtk_source_set_name_by_id (priv->ensure_offscreen_idle_id,
+                             "[clutter] on_ensure_offscreen_idle");
 }
 
 static void
@@ -1318,7 +1321,7 @@ clutter_stage_view_dispose (GObject *object)
   g_clear_pointer (&priv->redraw_clip, mtk_region_unref);
   g_clear_pointer (&priv->accumulated_redraw_clip, mtk_region_unref);
   g_clear_pointer (&priv->frame_clock, clutter_frame_clock_destroy);
-  g_clear_handle_id (&priv->ensure_offscreen_idle_id, g_source_remove);
+  g_clear_handle_id (&priv->ensure_offscreen_idle_id, mtk_source_remove);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
 }

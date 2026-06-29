@@ -42,6 +42,7 @@
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-main.h"
 #include "clutter/pango/clutter-text.h"
+#include "mtk/mtk.h"
 
 static void cally_text_finalize   (GObject *obj);
 
@@ -275,8 +276,8 @@ cally_text_finalize   (GObject *obj)
 {
   ClutterTextAccessible *self = CLUTTER_TEXT_ACCESSIBLE (obj);
 
-  g_clear_handle_id (&self->insert_idle_handler, g_source_remove);
-  g_clear_handle_id (&self->action_idle_handler, g_source_remove);
+  g_clear_handle_id (&self->insert_idle_handler, mtk_source_remove);
+  g_clear_handle_id (&self->action_idle_handler, mtk_source_remove);
   g_clear_pointer (&self->action_queue, g_queue_free);
   g_clear_pointer (&self->activate_action,
                    clutter_text_accessible_action_info_free);
@@ -1582,7 +1583,11 @@ _cally_text_insert_text_cb (ClutterText *clutter_text,
    * or in an idle handler if it not updated.
    */
   if (self->insert_idle_handler == 0)
-    self->insert_idle_handler = g_idle_add (_idle_notify_insert, self);
+    {
+      self->insert_idle_handler = mtk_idle_add (_idle_notify_insert, self);
+      mtk_source_set_name_by_id (self->insert_idle_handler,
+                                 "[text-a11y] _idle_notify_insert");
+    }
 }
 
 /***** atkeditabletext.h ******/
@@ -1866,7 +1871,11 @@ cally_text_action_do_action (AtkAction *action,
   g_queue_push_head (self->action_queue, self->activate_action);
 
   if (!self->action_idle_handler)
-    self->action_idle_handler = g_idle_add (idle_do_action, self);
+    {
+      self->action_idle_handler = mtk_idle_add (idle_do_action, self);
+      mtk_source_set_name_by_id (self->action_idle_handler,
+                                 "[text-a11y] idle_do_action");
+    }
 
   return TRUE;
 }

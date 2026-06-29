@@ -87,6 +87,7 @@
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-timeline-private.h"
+#include "mtk/mtk.h"
 
 typedef struct _ClutterTimelinePrivate
 {
@@ -488,7 +489,7 @@ clutter_timeline_cancel_delay (ClutterTimeline *timeline)
   ClutterTimelinePrivate *priv =
     clutter_timeline_get_instance_private (timeline);
 
-  g_clear_handle_id (&priv->delay_id, g_source_remove);
+  g_clear_handle_id (&priv->delay_id, mtk_source_remove);
 }
 
 /* Object */
@@ -1259,9 +1260,11 @@ clutter_timeline_start (ClutterTimeline *timeline)
 
   if (priv->delay)
     {
-      priv->delay_id = g_timeout_add (priv->delay,
-                                      delay_timeout_func,
-                                      timeline);
+      priv->delay_id = mtk_timeout_add (priv->delay,
+                                        delay_timeout_func,
+                                        timeline);
+      mtk_source_set_name_by_id (priv->delay_id,
+                                 "[clutter] delay_timeout_func [timeline]");
     }
   else
     {
