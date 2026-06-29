@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
+#include "mtk/mtk.h"
 #include "wayland/meta-wayland-private.h"
 
 G_DEFINE_TYPE (MetaWaylandTouch, meta_wayland_touch,
@@ -492,15 +493,17 @@ send_or_queue_frame_event (MetaWaylandTouch *touch)
       if (touch->queued_frame_id == 0)
         {
           touch->queued_frame_id =
-            g_idle_add_full (CLUTTER_PRIORITY_EVENTS + 1,
-                             (GSourceFunc) queue_frame_event_cb,
-                             touch, NULL);
+            mtk_idle_add_full (CLUTTER_PRIORITY_EVENTS + 1,
+                               (GSourceFunc) queue_frame_event_cb,
+                               touch, NULL);
+          mtk_source_set_name_by_id (touch->queued_frame_id,
+                                     "[mutter] queue_frame_event_cb [touch]");
         }
     }
   else
     {
       /* There's no more events */
-      g_clear_handle_id (&touch->queued_frame_id, g_source_remove);
+      g_clear_handle_id (&touch->queued_frame_id, mtk_source_remove);
       touch_send_frame_event (touch);
     }
 }

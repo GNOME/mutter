@@ -27,6 +27,7 @@
 #include "wayland/meta-wayland-private.h"
 #include "core/meta-debug-control-private.h"
 #include "core/meta-session-manager.h"
+#include "mtk/mtk.h"
 
 #include "xdg-session-management-v1-server-protocol.h"
 
@@ -136,8 +137,10 @@ on_save_toplevel (MetaWaylandXdgSession        *session,
   if (xdg_session_manager->save_timeout_id == 0)
     {
       xdg_session_manager->save_timeout_id =
-        g_timeout_add_seconds_once (TIMEOUT_DELAY_SECONDS, on_save_idle_cb,
-                                    xdg_session_manager);
+        mtk_timeout_add_seconds_once (TIMEOUT_DELAY_SECONDS, on_save_idle_cb,
+                                      xdg_session_manager);
+      mtk_source_set_name_by_id (xdg_session_manager->save_timeout_id,
+                                 "[mutter] on_save_idle_cb [session-manager]");
     }
 }
 
@@ -357,7 +360,7 @@ meta_wayland_session_manager_free (MetaWaylandXdgSessionManager *session_manager
 {
   g_clear_pointer (&session_manager->sessions, g_hash_table_unref);
   g_clear_pointer (&session_manager->session_states, g_hash_table_unref);
-  g_clear_handle_id (&session_manager->save_timeout_id, g_source_remove);
+  g_clear_handle_id (&session_manager->save_timeout_id, mtk_source_remove);
   g_free (session_manager);
 }
 

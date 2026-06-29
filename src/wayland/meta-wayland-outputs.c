@@ -29,6 +29,7 @@
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
+#include "mtk/mtk.h"
 #include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_XWAYLAND
@@ -607,8 +608,8 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
   if (old_table)
     {
       g_hash_table_foreach (old_table, make_output_inert, NULL);
-      g_timeout_add_seconds_once (10, delayed_destroy_outputs,
-                                  g_steal_pointer (&old_table));
+      mtk_timeout_add_seconds_once (10, delayed_destroy_outputs,
+                                    g_steal_pointer (&old_table));
     }
 }
 

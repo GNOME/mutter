@@ -24,6 +24,7 @@
 #include <wayland-server.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
+#include "mtk/mtk.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-versions.h"
@@ -260,8 +261,10 @@ meta_wayland_text_input_focus_defer_done (ClutterInputFocus *focus)
    *        priority idle source in the main loop. It's unlikely that
    *        recurring idles run at this high priority though.
    */
-  text_input->done_idle_id = g_idle_add_full (CLUTTER_PRIORITY_EVENTS + 1,
-                                              done_idle_cb, focus, NULL);
+  text_input->done_idle_id = mtk_idle_add_full (CLUTTER_PRIORITY_EVENTS + 1,
+                                                done_idle_cb, focus, NULL);
+  mtk_source_set_name_by_id (text_input->done_idle_id,
+                             "[mutter] done_idle_cb [text-input]");
 }
 
 static void
@@ -274,7 +277,7 @@ meta_wayland_text_input_focus_flush_done (ClutterInputFocus *focus)
   if (text_input->done_idle_id == 0)
     return;
 
-  g_clear_handle_id (&text_input->done_idle_id, g_source_remove);
+  g_clear_handle_id (&text_input->done_idle_id, mtk_source_remove);
   clutter_input_focus_send_done (focus);
 }
 
