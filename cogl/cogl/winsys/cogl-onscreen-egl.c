@@ -179,6 +179,7 @@ cogl_onscreen_egl_swap_region (CoglOnscreen    *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  g_autoptr (GError) error = NULL;
   int n_rectangles;
   int *egl_rectangles;
 
@@ -200,10 +201,11 @@ cogl_onscreen_egl_swap_region (CoglOnscreen    *onscreen,
   if (!cogl_renderer_egl_swap_buffers_region (renderer_egl,
                                               priv->egl_surface,
                                               n_rectangles,
-                                              egl_rectangles))
+                                              egl_rectangles,
+                                              &error))
     {
-      g_warning ("Error 0x%x reported by eglSwapBuffersRegion",
-                 (unsigned int) eglGetError ());
+      g_warning ("Error reported by eglSwapBuffersRegion: %s",
+                  error ? error->message : "unknown");
       return FALSE;
     }
 
@@ -277,6 +279,7 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen    *onscreen,
 
   if (region && cogl_renderer_egl_has_swap_buffers_with_damage (renderer_egl))
     {
+      g_autoptr (GError) error = NULL;
       int n_rectangles;
       int *egl_rectangles;
 
@@ -289,10 +292,11 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen    *onscreen,
       if (!cogl_renderer_egl_swap_buffers_with_damage (renderer_egl,
                                                        priv->egl_surface,
                                                        egl_rectangles,
-                                                       n_rectangles))
+                                                       n_rectangles,
+                                                       &error))
         {
-          g_warning ("Error 0x%x reported by eglSwapBuffersWithDamage",
-                     (unsigned int) eglGetError ());
+          g_warning ("Error reported by eglSwapBuffersWithDamage: %s",
+                     error ? error->message : "unknown");
           return FALSE;
         }
     }
