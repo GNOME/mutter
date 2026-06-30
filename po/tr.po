@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-03-10 22:23+0000\n"
-"PO-Revision-Date: 2026-03-13 08:00+0300\n"
+"POT-Creation-Date: 2026-06-22 20:50+0000\n"
+"PO-Revision-Date: 2026-06-30 08:00+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -627,10 +627,10 @@ msgid ""
 "rounded to the closest integer."
 msgstr ""
 "Xwayland koordinat uzayını bu çarpana göre ölçeklendir. Bu, HiDPI özellikli "
-"X11 istemcilerinin kendilerini hangi ölçekte sunacaklarını ve dizgicinin "
-"X11 istemci pencerelerini nasıl ölçekleyeceğini etkileyecektir. Ölçeği 0 "
-"olarak ayarlamak, ölçeğin kendiliğinden hesaplanması anlamına gelir. Ölçek "
-"şu andan sonra en yakın tam sayıya yuvarlanacaktır."
+"X11 istemcilerinin kendilerini hangi ölçekte sunacaklarını ve dizgicinin X11 "
+"istemci pencerelerini nasıl ölçekleyeceğini etkileyecektir. Ölçeği 0 olarak "
+"ayarlamak, ölçeğin kendiliğinden hesaplanması anlamına gelir. Ölçek şu andan "
+"sonra en yakın tam sayıya yuvarlanacaktır."
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
@@ -716,7 +716,7 @@ msgstr "Başlatıcıları _düzenle"
 msgid "_About Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı _Hakkında"
 
-#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı"
 
@@ -724,42 +724,46 @@ msgstr "Mutter Geliştirme Takımı"
 msgid "Main Menu"
 msgstr "Ana Menü"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "Mutter Takımı"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "Mutter yazılım geliştirme takımı"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı Hakkında"
 
-#: mdk/mdk-monitor.c:557
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "Geliştirme takımı seçenekleri"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "Monitör oluşturulamadı"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "Yerleşik monitör"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "Bilinmeyen"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "Bilinmeyen Monitör"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -771,47 +775,51 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Etkinlik zili"
 
-#: src/core/display.c:608
+#: src/core/display.c:611
 msgid "Privacy Screen Enabled"
 msgstr "Gizlilik Ekranı Etkin"
 
-#: src/core/display.c:609
+#: src/core/display.c:612
 msgid "Privacy Screen Disabled"
 msgstr "Gizlilik Ekranı Devre Dışı"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "Wayland dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "Kullanılacak Wayland monitör adını belirt"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "İç içe değil, tam monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "Başsız monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Kalıcı sanal monitör ekle (GxY veya GxY@O)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "Geliştirme takımını çalıştır"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "Geliştirme takımı argümanları"
+
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "İzleme araçları kullanarak başarımı profille"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "D-Bus arayüzü için hata ayıklama denetimini etkinleştir"
 
@@ -855,12 +863,12 @@ msgstr "Sürümü yazdır"
 msgid "Mutter plugin to use"
 msgstr "Kullanılacak Mutter eklentisi"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "Çalışma Alanı %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş"
 
@@ -873,24 +881,24 @@ msgstr "Çalışma alanı değiştirildi"
 msgid "Mode Switch: Mode %d"
 msgstr "Kip Anahtarı: Kip %d"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "“%s” ekranının zaten pencere yöneticisi var"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X Pencere Sistemi monitörü “%s” açılamadı"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
