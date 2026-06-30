@@ -218,39 +218,6 @@ meta_screen_cast_query_modifiers (MetaScreenCast  *screen_cast,
   return modifiers;
 }
 
-CoglDmaBufHandle *
-meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
-                                        CoglPixelFormat  format,
-                                        uint64_t         modifier,
-                                        int              width,
-                                        int              height)
-{
-  MetaBackend *backend =
-    meta_screen_cast_get_backend (screen_cast);
-  ClutterBackend *clutter_backend =
-    meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  g_autoptr (GError) error = NULL;
-  CoglDmaBufHandle *dmabuf_handle;
-  int n_modifiers;
-
-  g_return_val_if_fail (cogl_renderer_is_dma_buf_supported (cogl_renderer), NULL);
-
-  if (cogl_renderer_is_implicit_drm_modifier (cogl_renderer, modifier))
-    n_modifiers = 0;
-  else
-    n_modifiers = 1;
-
-  dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
-                                                format,
-                                                &modifier, n_modifiers,
-                                                width, height,
-                                                &error);
-  return dmabuf_handle;
-}
-
 static MetaRemoteDesktopSession *
 find_remote_desktop_session (MetaDbusSessionManager  *session_manager,
                              const char              *remote_desktop_session_id,

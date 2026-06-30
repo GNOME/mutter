@@ -59,12 +59,6 @@ gboolean meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
                                                   int              height,
                                                   uint64_t        *preferred_modifier);
 
-CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
-                                                           CoglPixelFormat  format,
-                                                           uint64_t         modifier,
-                                                           int              width,
-                                                           int              height);
-
 MetaScreenCast * meta_screen_cast_new (MetaBackend *backend);
 
 gboolean meta_screen_cast_is_enabled (MetaScreenCast *screen_cast);
