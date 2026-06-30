@@ -243,6 +243,7 @@ main (int    argc,
 
   g_debug ("Starting remote desktop session");
   session_start (session);
+  stream_wait_for_connected (stream);
 
   run_test (argc, argv);
 
