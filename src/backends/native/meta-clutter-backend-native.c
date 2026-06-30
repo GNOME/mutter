@@ -44,12 +44,12 @@
 #include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-renderer.h"
 #include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-renderer-context-egl-private.h"
 #include "backends/native/meta-renderer-display-egl-private.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-sprite-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
+#include "cogl/cogl.h"
 #include "core/bell.h"
 #include "meta/meta-backend.h"
 
@@ -95,7 +95,7 @@ meta_clutter_backend_native_get_context (ClutterBackend  *clutter_backend,
                                          CoglDisplay     *display,
                                          GError         **error)
 {
-  return meta_renderer_context_egl_new (display, error);
+  return cogl_context_egl_new (display, error);
 }
 
 static ClutterStageWindow *
