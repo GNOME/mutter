@@ -433,6 +433,15 @@ stream_resize (Stream *stream,
 }
 
 void
+stream_wait_for_connected (Stream *stream)
+{
+  while (!stream->pipewire_stream ||
+         pw_stream_get_state (stream->pipewire_stream, NULL) !=
+         PW_STREAM_STATE_PAUSED)
+    g_main_context_iteration (NULL, TRUE);
+}
+
+void
 stream_wait_for_render (Stream *stream)
 {
   int initial_buffer_count = stream->buffer_count;

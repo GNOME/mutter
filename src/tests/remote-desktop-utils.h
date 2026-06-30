@@ -114,6 +114,8 @@ void stream_resize (Stream *stream,
                     int     width,
                     int     height);
 
+void stream_wait_for_connected (Stream *stream);
+
 void stream_wait_for_render (Stream *stream);
 
 void stream_free (Stream *stream);
