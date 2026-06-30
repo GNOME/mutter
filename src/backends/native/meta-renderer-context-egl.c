@@ -56,19 +56,6 @@ meta_renderer_context_egl_initable_init (GInitable     *initable,
   if (!parent_iface->init (initable, cancellable, error))
     return FALSE;
 
-#ifdef HAVE_EGL_DEVICE
-  {
-    CoglContext *context = COGL_CONTEXT (initable);
-    CoglRenderer *cogl_renderer = cogl_context_get_renderer (context);
-    MetaRendererNativeGpuData *renderer_gpu_data =
-      meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-
-    if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
-      cogl_driver_set_feature (cogl_context_get_driver (context),
-                               COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL, TRUE);
-  }
-#endif
-
   return TRUE;
 }
 
