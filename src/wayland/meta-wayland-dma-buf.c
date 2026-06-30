@@ -46,7 +46,6 @@
 #include <unistd.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-egl-ext.h"
 #include "cogl/cogl.h"
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"

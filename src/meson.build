@@ -430,13 +430,6 @@ if have_xwayland
   ]
 endif
 
-
-if have_egl
-  mutter_sources += [
-    'backends/meta-egl-ext.h',
-  ]
-endif
-
 if have_remote_desktop
   mutter_sources += [
     'backends/meta-eis.c',

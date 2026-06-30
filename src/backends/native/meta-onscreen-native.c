@@ -32,7 +32,6 @@
 #include <glib/gstdio.h>
 #include <drm_fourcc.h>
 
-#include "backends/meta-egl-ext.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
