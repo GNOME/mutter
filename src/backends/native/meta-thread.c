@@ -740,7 +740,7 @@ meta_thread_initable_init (GInitable     *initable,
                               MetaThreadClassPrivate);
   g_autoptr (GMainContext) thread_context = NULL;
 
-  priv->main_context = g_main_context_default ();
+  priv->main_context = g_main_context_ref_thread_default ();
 
   priv->callback_sources =
     g_hash_table_new_full (NULL, NULL,
@@ -823,6 +823,7 @@ meta_thread_finalize (GObject *object)
   g_warn_if_fail (g_hash_table_size (priv->callback_sources) == 0);
   g_clear_pointer (&priv->callback_sources, g_hash_table_unref);
   g_mutex_clear (&priv->callbacks_mutex);
+  g_clear_pointer (&priv->main_context, g_main_context_unref);
 
   G_OBJECT_CLASS (meta_thread_parent_class)->finalize (object);
 }
@@ -1114,7 +1115,7 @@ meta_thread_queue_callback (MetaThread         *thread,
   MetaThreadCallbackData *callback_data;
 
   if (!main_context)
-    main_context = g_main_context_default ();
+    main_context = priv->main_context;
 
   locker = g_mutex_locker_new (&priv->callbacks_mutex);
 
