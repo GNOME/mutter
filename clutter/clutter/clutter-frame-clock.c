@@ -30,6 +30,7 @@
 #include "clutter/clutter-frame-private.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-private.h"
+#include "clutter/clutter-timeline.h"
 #include "clutter/clutter-timeline-private.h"
 #include "cogl/cogl-trace.h"
 
@@ -162,6 +163,9 @@ struct _ClutterFrameClock
   int inhibit_count;
 
   GList *timelines;
+  int64_t timeline_target_us;
+  int64_t timeline_time_us;
+  gboolean timelines_playing;
 
   int n_missed_frames;
   int64_t missed_frame_report_time_us;
@@ -323,7 +327,8 @@ static void
 advance_timelines (ClutterFrameClock *frame_clock,
                    int64_t            time_us)
 {
-  GList *timelines;
+  gboolean any_playing = FALSE;
+  GList *timelines = NULL;
   GList *l;
 
   /* we protect ourselves from timelines being removed during
@@ -347,11 +352,65 @@ advance_timelines (ClutterFrameClock *frame_clock,
    * and leaving a dangling pointer behind.
    */
 
-  timelines = g_list_copy (frame_clock->timelines);
-  g_list_foreach (timelines, (GFunc) g_object_ref, NULL);
+  for (l = frame_clock->timelines; l; l = l->next)
+    {
+      ClutterTimeline *timeline = l->data;
+
+      timelines = g_list_prepend (timelines, g_object_ref (timeline));
+
+      if (clutter_timeline_is_playing (timeline))
+        any_playing = TRUE;
+    }
 
   if (frame_clock->is_next_presentation_time_valid)
-    time_us = frame_clock->next_presentation_time_us;
+    {
+      if (any_playing &&
+          frame_clock->timelines_playing &&
+          frame_clock->timeline_time_us > 0)
+        {
+          if (frame_clock->timeline_target_us <
+              frame_clock->next_presentation_time_us)
+            {
+              int64_t refresh_interval_us = frame_clock->refresh_interval_us;
+              int64_t delta_us;
+
+              frame_clock->timeline_time_us += refresh_interval_us;
+              delta_us = frame_clock->next_presentation_time_us -
+                         frame_clock->timeline_time_us;
+
+              if (delta_us > ms2us (100))
+                {
+                  CLUTTER_NOTE (FRAME_TIMINGS,
+                                "%s timelines lagging by %ld µs, resetting",
+                                frame_clock->output_name,
+                                delta_us);
+
+                  frame_clock->timeline_time_us =
+                    frame_clock->next_presentation_time_us;
+                }
+              else if (delta_us > 0)
+                {
+                  CLUTTER_NOTE (FRAME_TIMINGS,
+                                "%s timelines lagging by %ld µs, catching up",
+                                frame_clock->output_name,
+                                delta_us);
+
+                  frame_clock->timeline_time_us +=
+                    MIN (delta_us, refresh_interval_us / 32);
+                }
+
+              frame_clock->timeline_target_us =
+                frame_clock->next_presentation_time_us;
+            }
+        }
+      else
+        {
+          frame_clock->timeline_time_us =
+            frame_clock->next_presentation_time_us;
+        }
+
+      time_us = frame_clock->timeline_time_us;
+    }
 
   for (l = timelines; l; l = l->next)
     {
@@ -361,6 +420,25 @@ advance_timelines (ClutterFrameClock *frame_clock,
     }
 
   g_list_free_full (timelines, g_object_unref);
+}
+
+static void
+update_timelines_playing (ClutterFrameClock *frame_clock)
+{
+  GList *l;
+
+  frame_clock->timelines_playing = FALSE;
+
+  for (l = frame_clock->timelines; l; l = l->next)
+    {
+      ClutterTimeline *timeline = l->data;
+
+      if (!clutter_timeline_is_playing (timeline))
+        continue;
+
+      frame_clock->timelines_playing = TRUE;
+      return;
+    }
 }
 
 static gboolean
@@ -1854,6 +1932,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   switch (result)
     {
     case CLUTTER_FRAME_RESULT_PENDING_PRESENTED:
+      update_timelines_playing (frame_clock);
       break;
     case CLUTTER_FRAME_RESULT_IDLE:
       /* The frame was aborted; nothing to paint/present */
