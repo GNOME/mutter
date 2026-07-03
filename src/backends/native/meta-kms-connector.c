@@ -1169,6 +1169,8 @@ connection_change_timeout (gpointer user_data)
 static void
 ensure_connection_change_timeout (MetaKmsConnector *connector)
 {
+  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (connector->impl_device);
+  MetaKms *kms = meta_kms_impl_get_kms (impl);
   g_autoptr (GSource) timeout = NULL;
 
   if (connector->connection_change_timeout)
@@ -1196,7 +1198,8 @@ ensure_connection_change_timeout (MetaKmsConnector *connector)
                          connector, NULL);
   g_source_set_name (timeout,
                      "[mutter] MetaKmsConnector connection change timeout");
-  g_source_attach (timeout, NULL);
+
+  meta_thread_attach_source (META_THREAD (kms), NULL, timeout);
 
   connector->connection_change_timeout = g_steal_pointer (&timeout);
 }
