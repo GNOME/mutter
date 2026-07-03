@@ -1498,16 +1498,8 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
     {
       if (priv->damage)
         damage = mtk_region_ref (priv->damage);
-
-      if (!damage)
-        {
-          MtkRectangle full_rect;
-
-          full_rect.x = full_rect.y = 0;
-          full_rect.width = priv->video_format.size.width;
-          full_rect.height = priv->video_format.size.height;
-          damage = mtk_region_create_rectangle (&full_rect);
-        }
+      else
+        damage = mtk_region_create ();
 
       if (do_record_frame (source, flags, paint_phase, buffer, damage, &error))
         {
