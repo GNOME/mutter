@@ -37,6 +37,7 @@ struct _MetaProfiler
 {
   MetaDBusSysprof3ProfilerSkeleton parent_instance;
 
+  GMainContext *main_thread_context;
   GDBusConnection *connection;
   GCancellable *cancellable;
 
@@ -84,7 +85,6 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
               GVariant                 *fd_variant)
 {
   MetaProfiler *profiler = META_PROFILER (dbus_profiler);
-  GMainContext *main_context = g_main_context_default ();
   g_autoptr (GError) error = NULL;
   const char *group_name;
   int position;
@@ -133,7 +133,8 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
         }
     }
 
-  cogl_set_tracing_enabled_on_thread (main_context, group_name);
+  cogl_set_tracing_enabled_on_thread (profiler->main_thread_context,
+                                      group_name);
 
   g_mutex_lock (&profiler->mutex);
   for (l = profiler->threads; l; l = l->next)
@@ -182,7 +183,7 @@ handle_stop (MetaDBusSysprof3Profiler *dbus_profiler,
       return TRUE;
     }
 
-  cogl_set_tracing_disabled_on_thread (g_main_context_default ());
+  cogl_set_tracing_disabled_on_thread (profiler->main_thread_context);
 
   g_mutex_lock (&profiler->mutex);
   for (l = profiler->threads; l; l = l->next)
@@ -258,6 +259,7 @@ meta_profiler_finalize (GObject *object)
   g_clear_object (&self->connection);
   g_mutex_clear (&self->mutex);
   g_list_free_full (self->threads, (GDestroyNotify) thread_info_free);
+  g_clear_pointer (&self->main_thread_context, g_main_context_unref);
 
   G_OBJECT_CLASS (meta_profiler_parent_class)->finalize (object);
 }
@@ -289,9 +291,11 @@ meta_profiler_new (const char *trace_file)
 
   profiler = g_object_new (META_TYPE_PROFILER, NULL);
 
+  profiler->main_thread_context =
+    g_main_context_ref_thread_default ();
+
   if (trace_file)
     {
-      GMainContext *main_context = g_main_context_default ();
       const char *group_name;
       g_autoptr (GError) error = NULL;
 
@@ -305,7 +309,8 @@ meta_profiler_new (const char *trace_file)
         }
       else
         {
-          cogl_set_tracing_enabled_on_thread (main_context, group_name);
+          cogl_set_tracing_enabled_on_thread (profiler->main_thread_context,
+                                              group_name);
           profiler->persistent = TRUE;
           profiler->running = TRUE;
         }
