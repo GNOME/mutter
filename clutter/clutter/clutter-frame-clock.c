@@ -350,6 +350,9 @@ advance_timelines (ClutterFrameClock *frame_clock,
   timelines = g_list_copy (frame_clock->timelines);
   g_list_foreach (timelines, (GFunc) g_object_ref, NULL);
 
+  if (frame_clock->is_next_presentation_time_valid)
+    time_us = frame_clock->next_presentation_time_us;
+
   for (l = timelines; l; l = l->next)
     {
       ClutterTimeline *timeline = l->data;
@@ -1841,8 +1844,6 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   COGL_TRACE_END (ClutterFrameClockEvents);
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockTimelines, "Clutter::FrameClock::advance_timelines()");
-  if (frame_clock->is_next_presentation_time_valid)
-    time_us = frame_clock->next_presentation_time_us;
   advance_timelines (frame_clock, time_us);
   COGL_TRACE_END (ClutterFrameClockTimelines);
 
