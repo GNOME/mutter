@@ -487,7 +487,7 @@ update_filter_cb (MetaKmsImpl       *impl,
       if (old_buffers)
         {
           meta_thread_queue_callback (meta_thread_impl_get_thread (thread_impl),
-                                      g_main_context_default (),
+                                      NULL,
                                       NULL,
                                       old_buffers,
                                       (GDestroyNotify) free_old_buffers);
@@ -503,7 +503,7 @@ update_filter_cb (MetaKmsImpl       *impl,
       if (old_buffer)
         {
           meta_thread_queue_callback (meta_thread_impl_get_thread (thread_impl),
-                                      g_main_context_default (),
+                                      NULL,
                                       NULL,
                                       old_buffer, g_object_unref);
         }
