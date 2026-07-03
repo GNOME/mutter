@@ -74,6 +74,11 @@ void meta_thread_queue_callback (MetaThread         *thread,
                                  GDestroyNotify      user_data_destroy);
 
 META_EXPORT_TEST
+void meta_thread_attach_source (MetaThread   *thread,
+                                GMainContext *main_context,
+                                GSource      *source);
+
+META_EXPORT_TEST
 void meta_thread_flush_callbacks (MetaThread *thread);
 
 META_EXPORT_TEST

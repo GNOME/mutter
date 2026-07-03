@@ -1136,6 +1136,19 @@ meta_thread_queue_callback (MetaThread         *thread,
   g_mutex_unlock (&callback_source->mutex);
 }
 
+void
+meta_thread_attach_source (MetaThread   *thread,
+                           GMainContext *main_context,
+                           GSource      *source)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  if (!main_context)
+    main_context = priv->main_context;
+
+  g_source_attach (source, main_context);
+}
+
 typedef struct _MetaSyncTaskData
 {
   gboolean done;
