@@ -444,6 +444,10 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
     meta_wayland_actor_surface_get_instance_private (actor_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (actor_surface));
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaDisplay *display = meta_context_get_display (context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
   MetaWaylandSurface *subsurface_surface;
 
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
@@ -458,7 +462,8 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
 
   clear_surface_actor (actor_surface);
 
-  priv->actor = g_object_ref_sink (meta_surface_actor_wayland_new (surface));
+  priv->actor = g_object_ref_sink (meta_surface_actor_wayland_new (compositor,
+                                                                   surface));
   priv->actor_destroyed_handler_id =
     g_signal_connect (priv->actor, "destroy",
                       G_CALLBACK (on_actor_destroyed),

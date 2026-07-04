@@ -26,12 +26,14 @@
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-content.h"
 #include "compositor/meta-window-actor-private.h"
+#include "meta/compositor.h"
 #include "meta/meta-shaped-texture.h"
 
 enum
 {
   PROP_0,
 
+  PROP_COMPOSITOR,
   PROP_IS_OBSCURED,
   PROP_IS_FROZEN,
 
@@ -42,6 +44,8 @@ static GParamSpec *obj_props[N_PROPS];
 
 typedef struct _MetaSurfaceActorPrivate
 {
+  MetaCompositor *compositor;
+
   MetaSurfaceContent *content;
 
   MtkRegion *input_region;
@@ -57,10 +61,6 @@ typedef struct _MetaSurfaceActorPrivate
   MtkRegion *pending_damage;
   gboolean is_frozen;
 } MetaSurfaceActorPrivate;
-
-#define BACKGROUND_EFFECT_BLUR_RADIUS 24.0f
-#define BACKGROUND_EFFECT_SATURATION 1.25f
-#define BACKGROUND_EFFECT_NOISE 0.015f
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
@@ -260,6 +260,27 @@ meta_surface_actor_get_paint_volume (ClutterActor       *actor,
 }
 
 static void
+meta_surface_actor_set_property (GObject      *object,
+                                 guint         prop_id,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
+{
+  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (object);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  switch (prop_id)
+    {
+    case PROP_COMPOSITOR:
+      priv->compositor = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_surface_actor_get_property (GObject      *object,
                                  guint         prop_id,
                                  GValue       *value,
@@ -271,6 +292,9 @@ meta_surface_actor_get_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_COMPOSITOR:
+      g_value_set_object (value, priv->compositor);
+      break;
     case PROP_IS_OBSCURED:
       g_value_set_boolean (value, priv->is_obscured);
       break;
@@ -345,11 +369,18 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
 
   object_class->constructed = meta_surface_actor_constructed;
   object_class->dispose = meta_surface_actor_dispose;
+  object_class->set_property = meta_surface_actor_set_property;
   object_class->get_property = meta_surface_actor_get_property;
 
   actor_class->pick = meta_surface_actor_pick;
   actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
 
+  obj_props[PROP_COMPOSITOR] =
+    g_param_spec_object ("compositor", NULL, NULL,
+                         META_TYPE_COMPOSITOR,
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
   obj_props[PROP_IS_OBSCURED] =
     g_param_spec_boolean ("is-obscured", NULL, NULL,
                           TRUE,
@@ -470,6 +501,27 @@ sync_background_blur (MetaSurfaceActor *surface_actor)
   priv->background_blur =
     meta_background_blur_new (actor,
                               priv->background_blur_sample_region);
+}
+
+static void
+update_background_blur_sample_region (MetaSurfaceActor *surface_actor)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+  float blur_radius;
+
+  g_clear_pointer (&priv->background_blur_sample_region, mtk_region_unref);
+  if (!priv->background_blur_region || !priv->compositor)
+    return;
+
+  meta_compositor_get_background_blur_params (priv->compositor,
+                                              &blur_radius,
+                                              NULL,
+                                              NULL);
+  priv->background_blur_sample_region =
+    meta_background_effect_create_blur_sample_region (
+      priv->background_blur_region,
+      blur_radius);
 }
 
 static void
@@ -715,15 +767,26 @@ meta_surface_actor_set_background_blur_region (MetaSurfaceActor *surface_actor,
                    meta_background_blur_destroy);
 
   g_clear_pointer (&priv->background_blur_region, mtk_region_unref);
-  g_clear_pointer (&priv->background_blur_sample_region, mtk_region_unref);
   if (region)
-    {
-      priv->background_blur_region = mtk_region_ref (region);
-      priv->background_blur_sample_region =
-        meta_background_effect_create_blur_sample_region (region,
-                                                          BACKGROUND_EFFECT_BLUR_RADIUS);
-    }
+    priv->background_blur_region = mtk_region_ref (region);
+  update_background_blur_sample_region (surface_actor);
 
+  sync_background_blur (surface_actor);
+
+  clutter_actor_invalidate_paint_volume (CLUTTER_ACTOR (surface_actor));
+  queue_redraw_for_region (surface_actor, priv->background_blur_sample_region);
+}
+
+void
+meta_surface_actor_invalidate_background_blur (MetaSurfaceActor *surface_actor)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  queue_redraw_for_region (surface_actor, priv->background_blur_sample_region);
+  g_clear_pointer (&priv->background_blur,
+                   meta_background_blur_destroy);
+  update_background_blur_sample_region (surface_actor);
   sync_background_blur (surface_actor);
 
   clutter_actor_invalidate_paint_volume (CLUTTER_ACTOR (surface_actor));
@@ -742,10 +805,17 @@ meta_surface_actor_paint_background_effects (MetaSurfaceActor    *surface_actor,
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (surface_actor);
+  float blur_radius;
+  float saturation;
+  float noise;
 
-  if (!priv->background_blur_region)
+  if (!priv->background_blur_region || !priv->compositor)
     return;
 
+  meta_compositor_get_background_blur_params (priv->compositor,
+                                              &blur_radius,
+                                              &saturation,
+                                              &noise);
   meta_background_effect_paint_blur_region (root_node,
                                             CLUTTER_ACTOR (surface_actor),
                                             paint_context,
@@ -754,9 +824,9 @@ meta_surface_actor_paint_background_effects (MetaSurfaceActor    *surface_actor,
                                             content_height,
                                             priv->background_blur_region,
                                             clip_region,
-                                            BACKGROUND_EFFECT_BLUR_RADIUS,
-                                            BACKGROUND_EFFECT_SATURATION,
-                                            BACKGROUND_EFFECT_NOISE,
+                                            blur_radius,
+                                            saturation,
+                                            noise,
                                             opacity);
 }
 

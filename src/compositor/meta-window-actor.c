@@ -520,7 +520,22 @@ meta_window_actor_add_surface_actor (MetaWindowActor  *window_actor,
   if (clutter_actor_is_mapped (CLUTTER_ACTOR (surface_actor)))
     priv->n_mapped_surfaces++;
   g_ptr_array_add (priv->surface_actors, surface_actor);
-  update_is_effectively_visible  (window_actor);
+  update_is_effectively_visible (window_actor);
+}
+
+void
+meta_window_actor_invalidate_background_blur (MetaWindowActor *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+  unsigned int i;
+
+  for (i = 0; i < priv->surface_actors->len; i++)
+    {
+      MetaSurfaceActor *surface_actor = priv->surface_actors->pdata[i];
+
+      meta_surface_actor_invalidate_background_blur (surface_actor);
+    }
 }
 
 void

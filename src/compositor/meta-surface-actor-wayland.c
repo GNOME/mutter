@@ -327,9 +327,11 @@ meta_surface_actor_wayland_init (MetaSurfaceActorWayland *self)
 }
 
 MetaSurfaceActor *
-meta_surface_actor_wayland_new (MetaWaylandSurface *surface)
+meta_surface_actor_wayland_new (MetaCompositor     *compositor,
+                                MetaWaylandSurface *surface)
 {
   MetaSurfaceActorWayland *self = g_object_new (META_TYPE_SURFACE_ACTOR_WAYLAND,
+                                                "compositor", compositor,
                                                 "accessible-name", "Wayland surface",
                                                 NULL);
 

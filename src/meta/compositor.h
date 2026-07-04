@@ -95,3 +95,15 @@ void meta_compositor_disable_unredirect (MetaCompositor *compositor);
 
 META_EXPORT
 void meta_compositor_enable_unredirect (MetaCompositor *compositor);
+
+META_EXPORT
+void meta_compositor_set_background_blur_params (MetaCompositor *compositor,
+                                                 float           blur_radius,
+                                                 float           saturation,
+                                                 float           noise);
+
+META_EXPORT
+void meta_compositor_get_background_blur_params (MetaCompositor *compositor,
+                                                 float          *blur_radius,
+                                                 float          *saturation,
+                                                 float          *noise);

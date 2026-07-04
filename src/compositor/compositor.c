@@ -135,7 +135,15 @@ typedef struct _MetaCompositorPrivate
   MetaWindowDrag *current_drag;
 
   MetaLaters *laters;
+
+  float background_blur_radius;
+  float background_saturation;
+  float background_noise;
 } MetaCompositorPrivate;
+
+#define DEFAULT_BACKGROUND_BLUR_RADIUS 24.0f
+#define DEFAULT_BACKGROUND_BLUR_SATURATION 1.25f
+#define DEFAULT_BACKGROUND_BLUR_NOISE 0.015f
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCompositor, meta_compositor,
                                      G_TYPE_OBJECT)
@@ -1201,6 +1209,13 @@ meta_compositor_get_property (GObject    *object,
 static void
 meta_compositor_init (MetaCompositor *compositor)
 {
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
+  priv->background_blur_radius = DEFAULT_BACKGROUND_BLUR_RADIUS;
+  priv->background_saturation = DEFAULT_BACKGROUND_BLUR_SATURATION;
+  priv->background_noise = DEFAULT_BACKGROUND_BLUR_NOISE;
+
   invalidate_top_window_actor_for_views (compositor);
 }
 
@@ -1365,6 +1380,75 @@ meta_compositor_is_unredirect_inhibited (MetaCompositor *compositor)
     meta_compositor_get_instance_private (compositor);
 
   return priv->disable_unredirect_count > 0;
+}
+
+/**
+ * meta_compositor_set_background_blur_params:
+ * @compositor: a #MetaCompositor
+ * @blur_radius: blur radius in pixels for compositor-rendered background effects
+ * @saturation: color boost applied after blurring; 1.0 leaves colors unchanged,
+ *   values above 1.0 increase color relative to luma
+ * @noise: amount of screen-space grain to add after blurring; 0.0 disables it
+ *
+ * Sets the parameters for compositor-rendered background blurs requested by
+ * clients through ext-background-effect-v1.
+ *
+ * The default parameters are a blur radius of 24.0, a saturation of 1.25, and
+ * a noise amount of 0.015.
+ */
+void
+meta_compositor_set_background_blur_params (MetaCompositor *compositor,
+                                            float           blur_radius,
+                                            float           saturation,
+                                            float           noise)
+{
+  MetaCompositorPrivate *priv;
+  GList *l;
+
+  g_return_if_fail (META_IS_COMPOSITOR (compositor));
+  g_return_if_fail (blur_radius >= 0.0f);
+  g_return_if_fail (saturation >= 0.0f);
+  g_return_if_fail (noise >= 0.0f);
+
+  priv = meta_compositor_get_instance_private (compositor);
+
+  if (priv->background_blur_radius == blur_radius &&
+      priv->background_saturation == saturation &&
+      priv->background_noise == noise)
+    return;
+
+  priv->background_blur_radius = blur_radius;
+  priv->background_saturation = saturation;
+  priv->background_noise = noise;
+
+  for (l = priv->windows; l; l = l->next)
+    meta_window_actor_invalidate_background_blur (l->data);
+}
+
+/**
+ * meta_compositor_get_background_blur_params:
+ * @compositor: a #MetaCompositor
+ * @blur_radius: (out) (optional): return location for the blur radius
+ * @saturation: (out) (optional): return location for the saturation multiplier
+ * @noise: (out) (optional): return location for the noise amount
+ *
+ * Retrieves the parameters for compositor-rendered background blurs.
+ */
+void
+meta_compositor_get_background_blur_params (MetaCompositor *compositor,
+                                            float          *blur_radius,
+                                            float          *saturation,
+                                            float          *noise)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
+  if (blur_radius)
+    *blur_radius = priv->background_blur_radius;
+  if (saturation)
+    *saturation = priv->background_saturation;
+  if (noise)
+    *noise = priv->background_noise;
 }
 
 #define FLASH_TIME_MS 50

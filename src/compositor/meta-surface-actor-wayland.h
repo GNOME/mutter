@@ -26,6 +26,7 @@
 
 #include "backends/meta-monitor-manager-private.h"
 #include "compositor/meta-surface-actor.h"
+#include "meta/types.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland.h"
 
@@ -37,7 +38,8 @@ G_DECLARE_FINAL_TYPE (MetaSurfaceActorWayland,
                       META, SURFACE_ACTOR_WAYLAND,
                       MetaSurfaceActor)
 
-MetaSurfaceActor * meta_surface_actor_wayland_new (MetaWaylandSurface *surface);
+MetaSurfaceActor * meta_surface_actor_wayland_new (MetaCompositor     *compositor,
+                                                   MetaWaylandSurface *surface);
 MetaWaylandSurface * meta_surface_actor_wayland_get_surface (MetaSurfaceActorWayland *self);
 
 gboolean meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,

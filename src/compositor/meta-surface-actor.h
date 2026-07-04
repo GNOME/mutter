@@ -44,6 +44,7 @@ void meta_surface_actor_set_opaque_region (MetaSurfaceActor *self,
 
 void meta_surface_actor_set_background_blur_region (MetaSurfaceActor *surface_actor,
                                                     MtkRegion        *region);
+void meta_surface_actor_invalidate_background_blur (MetaSurfaceActor *surface_actor);
 void meta_surface_actor_paint_background_effects (MetaSurfaceActor    *surface_actor,
                                                   ClutterPaintNode    *root_node,
                                                   ClutterPaintContext *paint_context,
