@@ -442,7 +442,8 @@ meta_color_store_new (MetaColorManager *color_manager)
   color_store->device_profiles =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
   color_store->pending_device_profiles =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
+                           (GDestroyNotify) g_ptr_array_unref);
   color_store->pending_local_profiles =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
@@ -466,27 +467,40 @@ on_profile_generated (GObject      *source_object,
 {
   MetaColorDevice *color_device = META_COLOR_DEVICE (source_object);
   g_autoptr (GTask) task = G_TASK (user_data);
+  EnsureDeviceProfileData *data = g_task_get_task_data (task);
+  MetaColorStore *color_store = data->color_store;
+  g_autofree char *stolen_key = NULL;
+  g_autoptr (GPtrArray) waiting_tasks = NULL;
   g_autoptr (GError) error = NULL;
-  MetaColorProfile *color_profile;
+  g_autoptr (MetaColorProfile) color_profile = NULL;
+  size_t i;
+
+  if (!g_hash_table_steal_extended (color_store->pending_device_profiles,
+                                    data->key,
+                                    (gpointer *) &stolen_key,
+                                    (gpointer *) &waiting_tasks))
+    g_return_if_reached ();
 
   color_profile = meta_color_device_generate_profile_finish (color_device,
                                                              res,
                                                              &error);
-  if (!color_profile)
+
+  for (i = 0; i < waiting_tasks->len; i++)
     {
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+      GTask *waiting_task = g_ptr_array_index (waiting_tasks, i);
+
+      if (!color_profile)
         {
-          g_task_return_error (task, g_steal_pointer (&error));
-          return;
+          g_task_return_prefixed_error (waiting_task, g_error_copy (error),
+                                        "Failed to generate and read ICC profile: ");
         }
-
-      g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_FAILED,
-                               "Failed to generate and read ICC profile: %s",
-                               error->message);
-      return;
+      else
+        {
+          g_task_return_pointer (waiting_task,
+                                 g_object_ref (color_profile),
+                                 g_object_unref);
+        }
     }
-
-  g_task_return_pointer (task, color_profile, g_object_unref);
 }
 
 gboolean
@@ -503,6 +517,7 @@ meta_color_store_ensure_device_profile (MetaColorStore      *color_store,
   g_autofree char *file_path = NULL;
   EnsureDeviceProfileData *data;
   MetaColorProfile *color_profile;
+  GPtrArray *waiting_tasks;
 
   monitor = meta_color_device_get_monitor (color_device);
   device_id = meta_color_device_get_id (color_device);
@@ -553,18 +568,25 @@ meta_color_store_ensure_device_profile (MetaColorStore      *color_store,
       return TRUE;
     }
 
-  if (g_hash_table_contains (color_store->pending_device_profiles, data->key))
+  waiting_tasks = g_hash_table_lookup (color_store->pending_device_profiles,
+                                       data->key);
+  if (waiting_tasks)
     {
-      g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_FAILED,
-                               "Profile generation already in progress");
+      g_ptr_array_add (waiting_tasks, g_steal_pointer (&task));
       return TRUE;
     }
 
-  g_hash_table_add (color_store->pending_device_profiles, g_strdup (data->key));
+  waiting_tasks = g_ptr_array_new_with_free_func (g_object_unref);
+  g_ptr_array_add (waiting_tasks, g_object_ref (task));
+  g_hash_table_insert (color_store->pending_device_profiles,
+                       g_strdup (data->key), g_steal_pointer (&waiting_tasks));
 
+  /* Drive the generation with the store's cancellable, not the first
+   * caller's: other callers may be waiting for the result, and each
+   * waiting task is already subject to its own cancellable. */
   meta_color_device_generate_profile (color_device,
                                       file_path,
-                                      cancellable,
+                                      color_store->cancellable,
                                       on_profile_generated,
                                       g_steal_pointer (&task));
   return TRUE;
@@ -581,8 +603,6 @@ meta_color_store_ensure_device_profile_finish (MetaColorStore  *color_store,
 
   g_assert (g_task_get_source_tag (task) ==
             meta_color_store_ensure_device_profile);
-
-  g_hash_table_remove (color_store->pending_device_profiles, data->key);
 
   color_profile = g_task_propagate_pointer (task, error);
   if (!color_profile)
