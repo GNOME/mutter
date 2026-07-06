@@ -119,9 +119,9 @@ meta_color_profile_finalize (GObject *object)
 
   if (color_profile->is_owner)
     {
-      CdProfile *cd_profile;
+      g_autoptr (CdProfile) cd_profile = NULL;
 
-      cd_profile = color_profile->cd_profile;
+      cd_profile = g_steal_pointer (&color_profile->cd_profile);
       if (!cd_profile && !color_profile->is_ready)
         {
           g_autoptr (GError) error = NULL;
