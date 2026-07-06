@@ -1757,11 +1757,8 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
         meta_kms_update_get_target_presentation_time (crtc_frame->pending_update);
 
       if (target_presentation_time_us &&
-          crtc_frame->deadline.has_expected_presentation_time &&
-          mtk_find_nearest_interval_boundary (crtc_frame->deadline.expected_presentation_time_us,
-                                              target_presentation_time_us,
-                                              us (1000)) >
-          crtc_frame->deadline.expected_presentation_time_us)
+          meta_kms_crtc_target_is_after_expected (crtc_frame->deadline.expected_presentation_time_us,
+                                                  target_presentation_time_us))
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
                       "CRTC %d deferring update targeted %ld µs after "

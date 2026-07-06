@@ -795,6 +795,20 @@ get_max_refresh_interval (MetaKmsCrtc *crtc)
 }
 
 gboolean
+meta_kms_crtc_target_is_after_expected (int64_t expected_presentation_time_us,
+                                        int64_t target_presentation_time_us)
+{
+  /* Avoid false positives due to target_presentation_time_us being slightly
+   * larger than expected_presentation_time_us, e.g. due to drift between
+   * extrapolated and real presentation times.
+   */
+  return expected_presentation_time_us <
+         mtk_find_nearest_interval_boundary (expected_presentation_time_us,
+                                             target_presentation_time_us,
+                                             ms2us (1));
+}
+
+gboolean
 meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
                                   MetaKmsUpdate  *kms_update,
                                   int64_t         target_presentation_time_us,
