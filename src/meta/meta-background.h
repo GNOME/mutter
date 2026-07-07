@@ -44,9 +44,6 @@ G_DECLARE_FINAL_TYPE (MetaBackground,
 
 
 META_EXPORT
-void meta_background_refresh_all (void);
-
-META_EXPORT
 MetaBackground *meta_background_new (MetaDisplay *display);
 
 META_EXPORT

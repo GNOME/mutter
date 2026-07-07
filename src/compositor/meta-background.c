@@ -86,8 +86,6 @@ G_DEFINE_TYPE (MetaBackground, meta_background, G_TYPE_OBJECT)
 
 static gboolean texture_has_alpha (CoglTexture *texture);
 
-static GSList *all_backgrounds = NULL;
-
 static void
 free_fbos (MetaBackground *self)
 {
@@ -230,14 +228,6 @@ meta_background_dispose (GObject *object)
 }
 
 static void
-meta_background_finalize (GObject *object)
-{
-  all_backgrounds = g_slist_remove (all_backgrounds, object);
-
-  G_OBJECT_CLASS (meta_background_parent_class)->finalize (object);
-}
-
-static void
 meta_background_constructed (GObject *object)
 {
   MetaBackground *self = META_BACKGROUND (object);
@@ -259,7 +249,6 @@ meta_background_class_init (MetaBackgroundClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_background_dispose;
-  object_class->finalize = meta_background_finalize;
   object_class->constructed = meta_background_constructed;
   object_class->set_property = meta_background_set_property;
   object_class->get_property = meta_background_get_property;
@@ -283,7 +272,6 @@ meta_background_class_init (MetaBackgroundClass *klass)
 static void
 meta_background_init (MetaBackground *self)
 {
-  all_backgrounds = g_slist_prepend (all_backgrounds, self);
 }
 
 static void
@@ -949,15 +937,6 @@ meta_background_set_blend_textures (MetaBackground          *self,
   self->style = style;
 
   mark_changed (self);
-}
-
-void
-meta_background_refresh_all (void)
-{
-  GSList *l;
-
-  for (l = all_backgrounds; l; l = l->next)
-    mark_changed (l->data);
 }
 
 ClutterColorState *
