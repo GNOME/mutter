@@ -1870,14 +1870,15 @@ get_crtc_frame (MetaKmsImplDevice *impl_device,
 }
 
 static gboolean
-is_using_deadline_timer (MetaKmsImplDevice *impl_device)
+is_using_deadline_timer (MetaKmsImplDevice *impl_device,
+                         MetaKmsCrtc       *crtc)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
 
   if (priv->deadline_timer_state != META_DEADLINE_TIMER_STATE_ENABLED)
     {
-      return FALSE;
+      return meta_kms_crtc_get_current_state (crtc)->vrr.enabled;
     }
   else
     {
@@ -1922,7 +1923,7 @@ ensure_crtc_frame (MetaKmsImplDevice *impl_device,
       g_hash_table_insert (priv->crtc_frames, latch_crtc, crtc_frame);
     }
 
-  want_deadline_timer = is_using_deadline_timer (impl_device);
+  want_deadline_timer = is_using_deadline_timer (impl_device, latch_crtc);
   have_deadline_timer = crtc_frame->deadline.timer_fd >= 0;
   if (want_deadline_timer && !have_deadline_timer)
     {
@@ -2056,7 +2057,7 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
 
   want_deadline_timer =
     !crtc_frame->await_flush &&
-    is_using_deadline_timer (impl_device);
+    is_using_deadline_timer (impl_device, latch_crtc);
 
   maybe_set_kms_ready_time (crtc_frame, update);
 
@@ -2286,7 +2287,7 @@ meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
   if (crtc_frame->await_flush)
     return;
 
-  if (is_using_deadline_timer (impl_device))
+  if (is_using_deadline_timer (impl_device, crtc))
     {
       if (crtc_frame->pending_page_flip)
         return;

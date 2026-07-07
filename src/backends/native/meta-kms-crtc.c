@@ -803,6 +803,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
                                   int64_t        *out_next_presentation_us,
                                   GError        **error)
 {
+  struct _VRR *vrr = &crtc->vrr;
   MetaKmsImplDevice *impl_device;
   int ret;
   drmModeModeInfo *drm_mode;
@@ -810,7 +811,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
   int64_t vblank_time_us, refresh_interval_us;
   int64_t next_presentation_us;
   int64_t next_deadline_us;
-  gboolean vrr_enabled;
+  gboolean vrr_enabled = crtc->current_state.vrr.enabled;
   int64_t now_us;
 
   if (!crtc->current_state.is_drm_mode_valid)
@@ -838,7 +839,9 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
                meta_calculate_drm_mode_refresh_rate (drm_mode));
 
   now_us = g_get_monotonic_time ();
-  if (now_us - crtc->last_vblank_time_us > refresh_interval_us)
+  if (vrr_enabled ?
+      now_us - vrr->last_presentation_us > refresh_interval_us :
+      now_us - crtc->last_vblank_time_us > refresh_interval_us)
     {
       drmVBlank vblank;
       int fd;
@@ -862,13 +865,19 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
       crtc->last_vblank_time_us = MAX (crtc->last_vblank_time_us,
                                        s2us (vblank.reply.tval_sec) +
                                        vblank.reply.tval_usec);
+      vblank_time_us = crtc->last_vblank_time_us;
+    }
+  else
+    {
+      if (vrr_enabled)
+        vblank_time_us = vrr->last_presentation_us;
+      else
+        vblank_time_us = crtc->last_vblank_time_us;
     }
 
-  vblank_time_us = crtc->last_vblank_time_us;
   vblank_duration_us = meta_calculate_drm_mode_vblank_duration_us (drm_mode);
   deadline_evasion_us = meta_kms_crtc_get_deadline_evasion (crtc) +
                         vblank_duration_us;
-  vrr_enabled = crtc->current_state.vrr.enabled;
 
   next_presentation_us = vblank_time_us + refresh_interval_us;
 
@@ -879,7 +888,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
 
   if (vrr_enabled)
     {
-      struct _VRR *vrr = &crtc->vrr;
       int32_t max_refresh_interval_us;
 
       max_refresh_interval_us = get_max_refresh_interval (crtc);
