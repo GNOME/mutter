@@ -123,7 +123,6 @@ typedef struct _ClutterShaderEffectPrivate
   ClutterActor *actor;
 
   CoglSnippet *snippet;
-  gboolean snippet_applied;
 
   GHashTable *uniforms;
 } ClutterShaderEffectPrivate;
@@ -251,6 +250,22 @@ clutter_shader_effect_set_actor (ClutterActorMeta *meta,
 }
 
 static void
+clutter_shader_effect_tag_snippet (CoglSnippet *snippet)
+{
+  GQuark domain;
+  unsigned int capability;
+
+  /* A snippet may be shared across effect instances; only tag it once,
+   * as CoglSnippet only supports a single capability. */
+  if (!cogl_snippet_get_capability (snippet, &domain, &capability))
+    {
+      cogl_snippet_set_capability (snippet,
+                                   CLUTTER_PIPELINE_CAPABILITY,
+                                   CLUTTER_PIPELINE_CAPABILITY_SHADER_EFFECT);
+    }
+}
+
+static void
 clutter_shader_effect_try_static_snippet (ClutterShaderEffect *self)
 {
   ClutterShaderEffectPrivate *priv =
@@ -272,6 +287,7 @@ clutter_shader_effect_try_static_snippet (ClutterShaderEffect *self)
           CLUTTER_NOTE (SHADER, "Creating shader effect snippet");
 
           class_priv->snippet = shader_effect_class->get_static_snippet (self);
+          clutter_shader_effect_tag_snippet (class_priv->snippet);
         }
 
       priv->snippet = g_object_ref (class_priv->snippet);
@@ -306,11 +322,12 @@ clutter_shader_effect_paint_target (ClutterOffscreenEffect *effect,
   /* associate the snippet to the offscreen target pipeline */
   pipeline = clutter_offscreen_effect_get_pipeline (effect);
 
-  if (!priv->snippet_applied)
-    {
-      cogl_pipeline_add_snippet (pipeline, priv->snippet);
-      priv->snippet_applied = TRUE;
-    }
+  /* The pipeline may have been replaced (e.g. on resize); re-add the
+   * snippet to it if so, since a new pipeline never has it. */
+  if (!cogl_pipeline_has_capability (pipeline,
+                                     CLUTTER_PIPELINE_CAPABILITY,
+                                     CLUTTER_PIPELINE_CAPABILITY_SHADER_EFFECT))
+    cogl_pipeline_add_snippet (pipeline, priv->snippet);
 
   clutter_shader_effect_update_uniforms (CLUTTER_SHADER_EFFECT (effect),
                                          pipeline);
@@ -330,7 +347,6 @@ clutter_shader_effect_finalize (GObject *gobject)
     clutter_shader_effect_get_instance_private (effect);
 
   g_clear_object (&priv->snippet);
-  priv->snippet_applied = FALSE;
 
   g_clear_pointer (&priv->uniforms, g_hash_table_destroy);
 
@@ -381,6 +397,7 @@ clutter_shader_effect_new_with_snippet (CoglSnippet *snippet)
   effect = g_object_new (CLUTTER_TYPE_SHADER_EFFECT, NULL);
   priv = clutter_shader_effect_get_instance_private (effect);
   priv->snippet = g_object_ref (snippet);
+  clutter_shader_effect_tag_snippet (priv->snippet);
 
   return CLUTTER_EFFECT (effect);
 }

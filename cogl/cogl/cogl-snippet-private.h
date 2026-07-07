@@ -73,8 +73,3 @@ struct _CoglSnippet
 
 void
 _cogl_snippet_make_immutable (CoglSnippet *snippet);
-
-gboolean
-cogl_snippet_get_capability (CoglSnippet  *snippet,
-                             GQuark       *domain,
-                             unsigned int *capability);

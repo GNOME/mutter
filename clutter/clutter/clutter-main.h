@@ -94,6 +94,7 @@ typedef enum
 typedef enum _ClutterPipelineCapability
 {
   CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE,
+  CLUTTER_PIPELINE_CAPABILITY_SHADER_EFFECT,
 } ClutterPipelineCapability;
 
 #define CLUTTER_PIPELINE_CAPABILITY (clutter_pipeline_capability_quark ())
