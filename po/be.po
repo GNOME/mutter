@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-06-20 13:57+0000\n"
-"PO-Revision-Date: 2025-06-22 13:21+0300\n"
+"POT-Creation-Date: 2026-06-30 09:55+0000\n"
+"PO-Revision-Date: 2026-07-09 00:24+0300\n"
 "Last-Translator: Yuras Shumovich <shumovichy@gmail.com>\n"
 "Language-Team: Belarusian <i18n-bel-gnome@googlegroups.com>\n"
 "Language: be\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.9\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -244,20 +244,20 @@ msgstr "Разгарнуць акно па вертыкалі"
 msgid "Maximize window horizontally"
 msgstr "Разгарнуць акно па гарызанталі"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Дзяленне прасторы, размяшчэнне злева"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Дзяленне прасторы, размяшчэнне справа"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr ""
 "Клавіша-мадыфікатар для доступу да пашыраных аперацый кіравання вокнамі"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -269,11 +269,11 @@ msgstr ""
 "Чакаецца, што для будзе ўжывацца або прадвызначанае значэнне, або пусты "
 "тэкставы радок."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Прычапляць мадальныя дыялогавыя вокны"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -283,11 +283,11 @@ msgstr ""
 "дыялогавыя вокны будуць прычэплівацца да загалоўка бацькоўскага акна і "
 "перамяшчацца разам з ім."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Уключыць упарадкаванне вокнаў пры перацягванні іх на краі экрана"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -298,25 +298,25 @@ msgstr ""
 "займаць палову даступнай прасторы. Пры перацягванні вокнаў на верхні край "
 "экрана, яны разгортваюцца цалкам."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Дынамічнае кіраванне працоўнымі прасторамі"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Вызначае, будзе выкарыстоўваецца дынамічнае кіраванне колькасцю або "
 "нязменная колькасць працоўных прастор (вызначаецца ключом num-workspaces у "
 "org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Працоўныя прасторы толькі на асноўным маніторы"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -324,11 +324,11 @@ msgstr ""
 "Вызначае, пераключаць працоўныя прасторы для вокнаў на ўсіх маніторах або "
 "толькі на асноўным."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Затрымліваць змяненне фокусу пакуль не спыніцца ўказальнік мышы"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -338,11 +338,11 @@ msgstr ""
 "ўказальніка на акно, фокус на яго будзе пераключацца не імгненна, а толькі "
 "пасля спынення ўказальніка мышы."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Шырыня мяжы акна для перацягвання"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -350,11 +350,11 @@ msgstr ""
 "Агульная велічыня мяжы для перацягвання. Калі недастаткова бачнай мяжы з "
 "тэмы, будзе дадавацца нябачная, каб шырыня адпавядала гэтаму значэнню."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Аўтаматычна разгортваць вокны, якія расцягнуты амаль на ўвесь экран"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -362,11 +362,11 @@ msgstr ""
 "Калі ўключана, новыя вокны, чый памер блізкі да памераў манітора, будуць "
 "аўтаматычна разгортвацца."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Змяшчаць новыя вокны ў цэнтры"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -374,63 +374,44 @@ msgstr ""
 "Калі значэнне «true», новыя вокны будуць заўсёды з'яўляцца пасярэдзіне "
 "дзейнага манітора."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Уключыць эксперыментальныя функцыі"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "Каб уключыць эксперыментальныя функцыі, дадайце ў гэты спіс адпаведнае "
 "ключавое слова. У залежнасці ад функцыі, можа патрабавацца перазапуск "
 "кампазітара. Эксперыментальныя функцыі неабавязкова застаюцца даступнымі або "
 "прыдатнымі для наладкі. Не чакайце, што дададзеныя ў спіс функцыі будуць "
-"працаваць і далей. Магчымыя ў цяперашні час ключавыя словы: • «scale-monitor-"
-"framebuffer» — прымушае mutter прадвызначана размяшчаць лагічныя маніторы ў "
-"лагічнай прасторы каардынат пікселяў, пры гэтым маштабаваць кадравы буфер "
-"манітора, а не змесціва акна. Для кіравання маніторамі HiDPI. Не патрабуе "
-"перазапуску. • «kms-modifiers» — прымушае mutter заўсёды вылучаць буферы "
-"сканавання з відавочнымі мадыфікатарамі, калі гэта падтрымліваецца "
-"драйверам. Патрабуецца перазапуск. • «autoclose-xwayland» — аўтаматычна "
-"завяршае працу Xwayland, калі зніклі ўсе адпаведныя кліенты X11. Патрабуецца "
-"перазапуск. • «variable-refresh-rate» — прымушае mutter дынамічна рэгуляваць "
-"частату абнаўлення манітора, калі гэта падтрымліваецца маніторам, GPU і "
-"драйверам DRM. Змяняецца праз Налады. Патрабуецца перазапуск. • «xwayland-"
-"native-scaling» — дазваляе кліентам Xwayland выкарыстоўваць натыўны метад "
-"маштабавання. Калі маштабаванне не падтрымліваецца кліентам, ён будзе без "
-"маштабавання. Параметр працуе толькі калі «scale-monitor-framebuffer» "
-"таксама ўключаны."
+"працаваць і далей. Магчымыя ў цяперашні час ключавыя словы: • «kms-"
+"modifiers» — прымушае mutter заўсёды вылучаць буферы сканавання з "
+"відавочнымі мадыфікатарамі, калі гэта падтрымліваецца драйверам. Патрабуецца "
+"перазапуск. • «autoclose-xwayland» — аўтаматычна завяршае працу Xwayland, "
+"калі зніклі ўсе адпаведныя кліенты X11. Патрабуецца перазапуск."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "Клавіша-мадыфікатар для выяўлення ўказальніка мышы"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Гэта клавіша запускае дзеянне «выявіць указальнік мышы»."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "Прамежак часу для праверкі актыўнасці (check-alive ping)"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -441,11 +422,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "Налады асветленасці для выхаду"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -457,15 +438,15 @@ msgstr ""
 "звязанае значэння з плавальнай кропкай, якое вызначае яркасць выхаду ў "
 "працэнтах (%). Калі значэнне не ўказана, ужываецца прадвызначанае – 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "Пераключэнне канфігурацый манітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "Па кругу змяняе ўбудаваныя канфігурацыі манітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "Скасаваць любы актыўны сеанс захопу ўваходнага сігналу"
 
@@ -616,66 +597,151 @@ msgstr ""
 "каманднага радка +byteswappedclients/-byteswappedclients для кіравання гэтай "
 "наладай. Каб змены налад уступілі ў сілу, трэба перазапусціць Xwayland."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Наладзіць каэфіцыент маштабавання Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Маштабаванне каардынатнай прасторы Xwayland згодна з каэфіцыентам. Уплывае "
+"на кліенты X11 з падтрымкай HiDPI і на кампазітар пры маштабаванні акон "
+"кліента X11. Значэнне «0» азначае, што маштаб будзе разлічвацца аўтаматычна. "
+"На гэты момант каэфіцыент акругляецца да найбліжэйшага цэлага ліку."
+
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "Праграма"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Выконвальны файл"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Дадаць кнопку запуску"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Кнопка запуску"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Тып"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Дадаць"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Запусціць"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Выдаліць"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Дзеянне"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Рэдагаваць кнопкі запуску"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Кнопкі запуску"
+
 #: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Увод"
 
 #: mdk/mdk-main-window.ui:9
 msgid "_Emulate touch"
-msgstr "_Эмуляцыя сэнсарнага ўводу"
+msgstr "_Эмуляцыя дотыку"
 
 #: mdk/mdk-main-window.ui:13
 msgid "_Inhibit system shortcuts"
-msgstr "_Блакіраваць сістэмныя спалучэнні клавіш"
+msgstr "_ Блакіраваць сістэмныя спалучэнні клавіш"
 
-#: mdk/mdk-main-window.ui:19
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "Выкарыстоўваць _раскладку хоста"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "_Маніторы"
+
+#: mdk/mdk-main-window.ui:26
+msgid "_Add monitor"
+msgstr "_Дадць манітор"
+
+#: mdk/mdk-main-window.ui:30
+msgid "_Emulate monitor modes"
+msgstr "_Эмуляцыя рэжымаў манітора"
+
+#: mdk/mdk-main-window.ui:37
+msgid "_Launchers"
+msgstr "Кнопкі _запуску"
+
+#: mdk/mdk-main-window.ui:41
+msgid "_Edit launchers"
+msgstr "_Рэдагаваць кнопкі запуску"
+
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
-msgstr "Пр_а камплект распрацоўкі Mutter"
+msgstr "_Аб праграме"
 
-#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
-msgstr "Камплект распрацоўкі Mutter"
+msgstr "Інструменты для распрацоўкі Mutter"
 
-#: mdk/mdk-main-window.ui:35
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "Галоўнае меню"
 
-#: mdk/mdk-main.c:69
+#: mdk/mdk-main.c:49
 msgid "The Mutter Team"
 msgstr "Каманда Mutter"
 
-#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
+#: mdk/mdk-main.c:62
 msgid "Mutter software development kit"
-msgstr "Камплект распрацоўкі ПЗ Mutter"
+msgstr "Інструменты для распрацоўкі праграмнага забеспячэння Mutter"
 
-#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
+#: mdk/mdk-main.c:65
 msgid "About Mutter Development Kit"
-msgstr "Пра камплект распрацоўкі Mutter"
+msgstr "Аб праграме"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:557
 msgid "Failed to create monitor"
 msgstr "Не ўдалося стварыць манітор"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:285
 msgid "Built-in display"
 msgstr "Убудаваны дысплэй"
 
-#: src/backends/meta-monitor.c:302
+#: src/backends/meta-monitor.c:312
 msgid "Unknown"
 msgstr "Невядомы"
 
-#: src/backends/meta-monitor.c:304
+#: src/backends/meta-monitor.c:314
 msgid "Unknown Display"
 msgstr "Невядомы дысплэй"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:322
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:320
+#: src/backends/meta-monitor.c:330
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -687,74 +753,54 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Падзея з сігналам"
 
-#: src/core/display.c:741
+#: src/core/display.c:623
 msgid "Privacy Screen Enabled"
 msgstr "Прыватнасць экрана ўключана"
 
-#: src/core/display.c:742
+#: src/core/display.c:624
 msgid "Privacy Screen Disabled"
 msgstr "Прыватнасць экрана адключана"
 
-#: src/core/meta-context-main.c:632
-msgid "Replace the running window manager"
-msgstr "Замяніць дзейны кіраўнік акон"
-
-#: src/core/meta-context-main.c:638
-msgid "X Display to use"
-msgstr "Патрэбны дысплэй X"
-
-#: src/core/meta-context-main.c:644
-msgid "Make X calls synchronous"
-msgstr "Сінхронна выконваць выклікі X-сістэмы"
-
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Запусціць у якасці кампазітара wayland"
 
-#: src/core/meta-context-main.c:659
-msgid "Run as a nested compositor"
-msgstr "Запусціць у якасці ўложанага кампазітара"
-
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запусціць кампазітар wayland без запуску Xwayland"
 
-#: src/core/meta-context-main.c:674
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "Вызначыць назву патрэбнага дысплэя Wayland"
 
-#: src/core/meta-context-main.c:682
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "Запусціць у якасці паўнавартаснага сервера дысплэя, я не ўложанага"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "Запусціць у якасці сервера без дысплэя"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Дадаць сталы віртуальны манітор (ШxВ або ШxВ@Ч)"
 
-#: src/core/meta-context-main.c:699
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
-msgstr "Запусціць камплект распрацоўкі (SDK)"
+msgstr "Запусціць інструменты для распрацоўкі"
 
-#: src/core/meta-context-main.c:711
-msgid "Run with X11 backend"
-msgstr "Запусціць праз X11 backend"
-
-#: src/core/meta-context-main.c:717
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "Прадукцыйнасць профілю з выкарыстаннем сродкаў трасіравання"
 
-#: src/core/meta-context-main.c:723
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "Уключыць кіраванне адладкай інтэрфейсу D-Bus"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Пераключыць рэжым (група %d)"
@@ -762,7 +808,7 @@ msgstr "Пераключыць рэжым (група %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Пераключыць рэжым"
@@ -770,11 +816,11 @@ msgstr "Пераключыць рэжым"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Пераключыць манітор"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Паказаць даведку на экране"
 
@@ -783,24 +829,24 @@ msgstr "Паказаць даведку на экране"
 msgid "Compositor"
 msgstr "Кампазітар"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Вывесці версію праграмы"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Патрэбны плагін Mutter"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Працоўная прастора %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:155
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter скампілявана без падтрымкі рэжыму падрабязнага пратакаліравання"
 
-#: src/core/workspace.c:508
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Працоўная прастора пераключана"
 
@@ -809,28 +855,24 @@ msgstr "Працоўная прастора пераключана"
 msgid "Mode Switch: Mode %d"
 msgstr "Пераключыць рэжым: %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:731
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"Дысплэй «%s» ужо мае кіраўніка акон. Паспрабуйце выкарыстаць параметр --"
-"replace, каб замяніць бягучы кіраўнік акон."
+msgid "Display “%s” already has a window manager"
+msgstr "Дысплэй «%s» ужо мае кіраўніка акон"
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1094
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не ўдалося адкрыць дысплэй X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1239
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Экран %d на дысплэі «%s» няправільны"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2417
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -841,16 +883,7 @@ msgstr "На экране %i дысплэя «%s» ужо запушчаны і�
 msgid "Format %s not supported"
 msgstr "Фармат %s не падтрымліваецца"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
-
-#~ msgid "Disable connection to session manager"
-#~ msgstr "Адключыць злучэнне з кіраўніком сеансаў"
-
-#~ msgid "Specify session management ID"
-#~ msgstr "Вызначыць ідэнтыфікатар для кіравання сеансам"
-
-#~ msgid "Initialize session from savefile"
-#~ msgstr "Ініцыяваць сеанс з файла"
