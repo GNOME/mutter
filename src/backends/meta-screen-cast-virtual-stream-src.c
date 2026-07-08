@@ -513,12 +513,14 @@ is_cursor_in_stream (MetaScreenCastVirtualStreamSrc *virtual_src)
   ClutterStageView *stage_view = view_from_src (src);
   MtkRectangle view_layout;
   graphene_rect_t view_rect;
-  ClutterCursor *cursor;
+  ClutterCursor *cursor = NULL;
 
   clutter_stage_view_get_layout (stage_view, &view_layout);
   view_rect = mtk_rectangle_to_graphene_rect (&view_layout);
 
-  cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+  if (cursor_renderer)
+    cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+
   if (cursor)
     {
       graphene_rect_t cursor_rect;

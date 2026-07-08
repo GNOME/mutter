@@ -259,7 +259,7 @@ is_cursor_in_stream (MetaScreenCastMonitorStreamSrc *monitor_src)
   MetaLogicalMonitor *logical_monitor;
   MtkRectangle logical_monitor_layout;
   graphene_rect_t logical_monitor_rect;
-  ClutterCursor *cursor;
+  ClutterCursor *cursor = NULL;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
@@ -267,7 +267,9 @@ is_cursor_in_stream (MetaScreenCastMonitorStreamSrc *monitor_src)
   logical_monitor_rect =
     mtk_rectangle_to_graphene_rect (&logical_monitor_layout);
 
-  cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+  if (cursor_renderer)
+    cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+
   if (cursor)
     {
       graphene_rect_t cursor_rect;
@@ -987,10 +989,18 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
   MetaBackend *backend = get_backend (monitor_src);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
+  MetaCursorRenderer *cursor_renderer;
   ClutterCursor *cursor;
   int x, y;
+
+  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  if (!cursor_renderer)
+    {
+      monitor_src->last_cursor_matadata.set = FALSE;
+      meta_screen_cast_stream_src_unset_cursor_metadata (src,
+                                                         spa_meta_cursor);
+      return;
+    }
 
   cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
 
