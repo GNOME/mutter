@@ -989,8 +989,8 @@ xdisplay_connection_activity_cb (gint         fd,
                          (GAsyncReadyCallback) on_init_x11_cb, NULL);
 
   /* Stop watching both file descriptors */
-  g_clear_handle_id (&manager->abstract_fd_watch_id, g_source_remove);
-  g_clear_handle_id (&manager->unix_fd_watch_id, g_source_remove);
+  g_clear_pointer (&manager->abstract_fd_watch, g_source_destroy);
+  g_clear_pointer (&manager->unix_fd_watch, g_source_destroy);
 
   return G_SOURCE_REMOVE;
 }
@@ -1081,6 +1081,25 @@ update_highest_monitor_scale (MetaXWaylandManager *manager)
   manager->highest_monitor_scale = scale;
 }
 
+static GSource *
+create_fd_watch (MetaXWaylandManager *manager,
+                 int                  fd,
+                 GIOCondition         condition)
+{
+  g_autoptr (GMainContext) main_context = NULL;
+  GSource *source;
+
+  source = g_unix_fd_source_new (fd, condition);
+  g_source_set_callback (source,
+                         (GSourceFunc) xdisplay_connection_activity_cb,
+                         manager, NULL);
+
+  main_context = g_main_context_ref_thread_default ();
+  g_source_attach (source, main_context);
+
+  return source;
+}
+
 gboolean
 meta_xwayland_init (MetaXWaylandManager    *manager,
                     MetaWaylandCompositor  *compositor,
@@ -1143,12 +1162,10 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
 
   if (policy == META_X11_DISPLAY_POLICY_ON_DEMAND)
     {
-      manager->abstract_fd_watch_id =
-        g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
-                       xdisplay_connection_activity_cb, manager);
-      manager->unix_fd_watch_id =
-        g_unix_fd_add (manager->public_connection.unix_fd, G_IO_IN,
-                       xdisplay_connection_activity_cb, manager);
+      manager->abstract_fd_watch =
+        create_fd_watch (manager, manager->public_connection.abstract_fd, G_IO_IN);
+      manager->unix_fd_watch =
+        create_fd_watch (manager, manager->public_connection.unix_fd, G_IO_IN);
     }
 
   if (policy != META_X11_DISPLAY_POLICY_DISABLED)

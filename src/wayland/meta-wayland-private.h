@@ -57,8 +57,8 @@ struct _MetaXWaylandManager
   MetaXWaylandConnection private_connection;
   MetaXWaylandConnection public_connection;
 
-  guint abstract_fd_watch_id;
-  guint unix_fd_watch_id;
+  GSource *abstract_fd_watch;
+  GSource *unix_fd_watch;
 
   gulong prepare_shutdown_id;
 
