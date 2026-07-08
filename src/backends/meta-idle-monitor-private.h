@@ -33,7 +33,6 @@ typedef struct
   gpointer		    user_data;
   GDestroyNotify            notify;
   guint64                   timeout_msec;
-  int                       idle_source_id;
   GSource                  *timeout_source;
   gboolean                  inhibitable;
 } MetaIdleMonitorWatch;

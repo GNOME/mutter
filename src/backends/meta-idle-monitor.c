@@ -64,8 +64,6 @@ meta_idle_monitor_watch_fire (MetaIdleMonitorWatch *watch)
   monitor = watch->monitor;
   g_object_ref (monitor);
 
-  g_clear_handle_id (&watch->idle_source_id, g_source_remove);
-
   id = watch->id;
   is_user_active_watch = (watch->timeout_msec == 0);
 
@@ -104,8 +102,6 @@ free_watch (gpointer data)
   MetaIdleMonitor *monitor = watch->monitor;
 
   g_object_ref (monitor);
-
-  g_clear_handle_id (&watch->idle_source_id, g_source_remove);
 
   if (watch->notify != NULL)
     watch->notify (watch->user_data);
