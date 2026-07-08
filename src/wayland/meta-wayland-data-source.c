@@ -50,7 +50,7 @@ typedef struct _MetaWaylandDataSourcePrivate
   MetaWaylandToplevelDrag *toplevel_drag;
 
   GIOChannel *fake_read_channel;
-  guint fake_read_watch_id;
+  GSource *fake_read_watch;
 
   guint actions_set : 1;
   guint in_ask : 1;
@@ -166,7 +166,7 @@ meta_wayland_data_source_finalize (GObject *object)
     meta_wayland_data_source_get_instance_private (source);
   char **pos;
 
-  g_clear_handle_id (&priv->fake_read_watch_id, g_source_remove);
+  g_clear_pointer (&priv->fake_read_watch, g_source_destroy);
   g_clear_pointer (&priv->fake_read_channel, g_io_channel_unref);
 
   wl_array_for_each (pos, &priv->mime_types)
@@ -600,7 +600,7 @@ on_fake_read_hup (GIOChannel   *channel,
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
 
-  priv->fake_read_watch_id = 0;
+  g_clear_pointer (&priv->fake_read_watch, g_source_destroy);
   meta_wayland_data_source_notify_finish (source);
   g_io_channel_shutdown (channel, FALSE, NULL);
   g_clear_pointer (&priv->fake_read_channel, g_io_channel_unref);
@@ -614,6 +614,7 @@ meta_wayland_data_source_fake_read (MetaWaylandDataSource *source,
 {
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
+  g_autoptr (GMainContext) main_context = NULL;
   GIOChannel *channel;
   int p[2];
 
@@ -632,13 +633,20 @@ meta_wayland_data_source_fake_read (MetaWaylandDataSource *source,
       return;
     }
 
+  main_context = g_main_context_ref_thread_default ();
+
   meta_wayland_data_source_send (source, mimetype, p[1]);
   close (p[1]);
   channel = g_io_channel_unix_new (p[0]);
   g_io_channel_set_close_on_unref (channel, TRUE);
   priv->fake_read_channel = channel;
-  priv->fake_read_watch_id =
-    g_io_add_watch (channel, G_IO_HUP, on_fake_read_hup, source);
+  priv->fake_read_watch =
+    g_io_create_watch (channel, G_IO_HUP);
+  g_source_set_callback (priv->fake_read_watch,
+                         (GSourceFunc) on_fake_read_hup,
+                         source, NULL);
+
+  g_source_attach (priv->fake_read_watch, main_context);
 }
 
 gboolean
