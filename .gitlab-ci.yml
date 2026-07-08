@@ -391,6 +391,24 @@ check-python-code-style:
   rules:
     - !reference [.only-merge-requests, rules]
 
+check-glib-main-context:
+  extends:
+    - .mutter.distribution-image
+    - .mutter.fedora@x86_64
+  variables:
+    MUTTER_CLONE_DEPTH: 200
+  stage: code-review
+  needs:
+    - job: build-fedora-container@x86_64
+      artifacts: false
+  script:
+      - echo "Checking possible misuses of the default main context, consider MTK helpers for those:" ;
+        git grep -E '^ *(g_idle_add |g_timeout_add |g_source_remove |g_source_attach .*NULL)' clutter/ cogl/ src/ |grep -v src/tests || exit_code=$?
+      - if [ $exit_code -ne 1 ]; then echo 'Instances found'; exit 1; fi
+  allow_failure: true
+  rules:
+    - !reference [.only-merge-requests, rules]
+
 .build-mutter-base:
   variables:
     BASE_MESON_OPTIONS:
