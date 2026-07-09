@@ -2145,6 +2145,9 @@ disarm_all_frame_sources (MetaKmsImplDevice *impl_device)
   GHashTableIter iter;
   CrtcFrame *crtc_frame;
 
+  if (!priv->crtc_frames)
+    return;
+
   g_hash_table_iter_init (&iter, priv->crtc_frames);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
     {
