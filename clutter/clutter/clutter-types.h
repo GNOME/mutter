@@ -48,7 +48,6 @@ typedef struct _ClutterFrame                    ClutterFrame;
 typedef struct _ClutterFrameInfo                ClutterFrameInfo;
 typedef struct _ClutterLayoutMeta               ClutterLayoutMeta;
 typedef struct _ClutterActorMeta                ClutterActorMeta;
-typedef struct _ClutterColorManager             ClutterColorManager;
 typedef struct _ClutterLayoutManager            ClutterLayoutManager;
 typedef struct _ClutterActorIter                ClutterActorIter;
 typedef struct _ClutterPaintContext             ClutterPaintContext;
@@ -72,8 +71,6 @@ typedef struct _ClutterConstraint               ClutterConstraint;
 typedef struct _ClutterEffect                   ClutterEffect;
 
 typedef struct _ClutterActorBox                 ClutterActorBox;
-typedef struct _ClutterColorState               ClutterColorState;
-typedef struct _ClutterColorTransformKey        ClutterColorTransformKey;
 typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;
 
@@ -91,6 +88,10 @@ typedef struct _ClutterSprite                   ClutterSprite;
 typedef union _ClutterEvent                     ClutterEvent;
 
 typedef enum _ClutterPaintFlag                  ClutterPaintFlag;
+
+typedef struct _ClutterColorManager             ClutterColorManager;
+typedef struct _ClutterColorState               ClutterColorState;
+typedef struct _ClutterColorTransformKey        ClutterColorTransformKey;
 
 /**
  * ClutterEventSequence:
