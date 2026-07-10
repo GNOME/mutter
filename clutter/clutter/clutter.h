@@ -48,6 +48,7 @@
 #include "clutter/clutter-color-manager.h"
 #include "clutter/clutter-color-op.h"
 #include "clutter/clutter-color-pipeline.h"
+#include "clutter/clutter-color-pipeline-shader.h"
 #include "clutter/clutter-color-state.h"
 #include "clutter/clutter-color-state-icc.h"
 #include "clutter/clutter-color-state-params.h"
