@@ -94,6 +94,7 @@ typedef struct _ClutterColorState               ClutterColorState;
 typedef struct _ClutterColorTransformKey        ClutterColorTransformKey;
 typedef struct _ClutterColorOp                  ClutterColorOp;
 typedef struct _ClutterColorPipeline            ClutterColorPipeline;
+typedef struct _ClutterColorTransform           ClutterColorTransform;
 
 /**
  * ClutterEventSequence:
