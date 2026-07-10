@@ -25,7 +25,6 @@
 #include "clutter/clutter-color-manager-private.h"
 
 #include "clutter/clutter-color-state-params.h"
-#include "clutter/clutter-color-state-private.h"
 #include "clutter/clutter-context.h"
 
 enum

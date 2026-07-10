@@ -6,7 +6,6 @@
 #include "clutter-mutter.h"
 #include "clutter/clutter/clutter-color-transform-private.h"
 #include "clutter/clutter/clutter-color-pipeline.h"
-#include "clutter/clutter/clutter-color-state-private.h"
 #include "tests/clutter-test-utils.h"
 
 #define COLOR_TRANSFORM_EPSILON 0.05f

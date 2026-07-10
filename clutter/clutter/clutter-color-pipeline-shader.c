@@ -28,7 +28,6 @@
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-color-op.h"
 #include "clutter/clutter-color-pipeline.h"
-#include "clutter/clutter-color-state-private.h"
 #include "clutter/clutter-color-transform-private.h"
 #include "clutter/clutter-main.h"
 #include "cogl-half-float.h"

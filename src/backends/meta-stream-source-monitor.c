@@ -31,7 +31,7 @@
 #include "backends/meta-stream.h"
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter.h"
-#include "clutter/clutter-color-state-private.h"
+#include "clutter/clutter-color-state.h"
 #include "clutter/clutter-mutter.h"
 #include "core/boxes-private.h"
 #include "core/meta-debug-control-private.h"

@@ -25,7 +25,7 @@
 #include <math.h>
 
 #include "clutter/clutter-color-pipeline-shader.h"
-#include "clutter/clutter-color-state-private.h"
+#include "clutter/clutter-color-state.h"
 #include "clutter/clutter-context-private.h"
 #include "clutter/clutter-damage-history.h"
 #include "clutter/clutter-frame-clock.h"

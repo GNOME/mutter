@@ -70,10 +70,4 @@ const ClutterEOTF * clutter_color_state_params_get_eotf (ClutterColorStateParams
 CLUTTER_EXPORT
 const ClutterLuminance * clutter_color_state_params_get_luminance (ClutterColorStateParams *color_state_params);
 
-CLUTTER_EXPORT
-void clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
-                                                 ClutterColorState *other_color_state,
-                                                 float             *data,
-                                                 int                n_samples);
-
 G_END_DECLS

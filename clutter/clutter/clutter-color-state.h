@@ -50,46 +50,8 @@ struct _ClutterColorStateClass
 {
   GObjectClass parent_class;
 
-  void (* init_color_transform_key) (ClutterColorState               *color_state,
-                                     ClutterColorState               *target_color_state,
-                                     ClutterColorStateTransformFlags  flags,
-                                     ClutterColorTransformKey        *key);
-
-  void (* append_transform_snippet) (ClutterColorState *color_state,
-                                     ClutterColorState *target_color_state,
-                                     GString           *snippet_globals,
-                                     GString           *snippet_source,
-                                     const char        *snippet_color_var);
-
-  void (* update_uniforms) (ClutterColorState *color_state,
-                            ClutterColorState *target_color_state,
-                            CoglPipeline      *pipeline);
-
-  /**
-   * ClutterColorStateClass::do_transform_to_XYZ:
-   * @color_state: the #ClutterColorState
-   * @data: (array): the given data
-   * @n_samples: the number of provided samples
-   */
-  void (* do_transform_to_XYZ) (ClutterColorState *color_state,
-                                float             *data,
-                                int                n_samples);
-
-  /**
-   * ClutterColorStateClass::do_transform_from_XYZ:
-   * @color_state: the #ClutterColorState
-   * @data: (array): the given data
-   * @n_samples: the number of provided samples
-   */
-  void (* do_transform_from_XYZ) (ClutterColorState *color_state,
-                                  float             *data,
-                                  int                n_samples);
-
   gboolean (* equals) (ClutterColorState *color_state,
                        ClutterColorState *other_color_state);
-
-  gboolean (* needs_mapping) (ClutterColorState *color_state,
-                              ClutterColorState *target_color_state);
 
   char * (* to_string) (ClutterColorState *color_state);
 
@@ -113,23 +75,8 @@ CLUTTER_EXPORT
 guint clutter_color_state_hash (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
-void clutter_color_state_update_uniforms (ClutterColorState *color_state,
-                                          ClutterColorState *target_color_state,
-                                          CoglPipeline      *pipeline);
-
-CLUTTER_EXPORT
-void clutter_color_state_do_transform (ClutterColorState *color_state,
-                                       ClutterColorState *target_color_state,
-                                       float             *data,
-                                       int                n_samples);
-
-CLUTTER_EXPORT
 gboolean clutter_color_state_equals (ClutterColorState *color_state,
                                      ClutterColorState *other_color_state);
-
-CLUTTER_EXPORT
-gboolean clutter_color_state_needs_mapping (ClutterColorState *color_state,
-                                            ClutterColorState *target_color_state);
 
 CLUTTER_EXPORT
 ClutterEncodingRequiredFormat clutter_color_state_required_format (ClutterColorState *color_state);
@@ -140,5 +87,8 @@ ClutterColorState * clutter_color_state_get_blending (ClutterColorState *color_s
 
 CLUTTER_EXPORT
 const ClutterLuminance * clutter_color_state_get_luminance (ClutterColorState *color_state);
+
+CLUTTER_EXPORT
+ClutterContext * clutter_color_state_get_context (ClutterColorState *color_state);
 
 G_END_DECLS
