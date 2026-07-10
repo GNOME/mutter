@@ -96,7 +96,6 @@
 #include "clutter/clutter-paint-node.h"
 #include "clutter/clutter-pan-gesture.h"
 #include "clutter/clutter-pick-context.h"
-#include "clutter/clutter-pipeline-cache.h"
 #include "clutter/clutter-property-transition.h"
 #include "clutter/clutter-scroll-controller.h"
 #include "clutter/clutter-seat.h"

@@ -53,9 +53,6 @@ ClutterBackend * clutter_context_get_backend (ClutterContext *context);
 
 ClutterTextDirection clutter_context_get_text_direction (ClutterContext *context);
 
-CLUTTER_EXPORT
-ClutterPipelineCache * clutter_context_get_pipeline_cache (ClutterContext *clutter_context);
-
 /**
  * clutter_context_get_color_manager:
  *

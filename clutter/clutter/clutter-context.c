@@ -87,7 +87,6 @@ typedef struct _ClutterContextPrivate
   ClutterTextDirection text_direction;
 
   ClutterColorManager *color_manager;
-  ClutterPipelineCache *pipeline_cache;
 } ClutterContextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterContext, clutter_context, G_TYPE_OBJECT)
@@ -98,7 +97,6 @@ clutter_context_dispose (GObject *object)
   ClutterContext *context = CLUTTER_CONTEXT (object);
   ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
 
-  g_clear_object (&priv->pipeline_cache);
   g_clear_object (&priv->color_manager);
   g_clear_pointer (&context->events_queue, g_async_queue_unref);
 #ifdef HAVE_FONTS
@@ -293,7 +291,6 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
   priv->color_manager = g_object_new (CLUTTER_TYPE_COLOR_MANAGER,
                                       "context", context,
                                       NULL);
-  priv->pipeline_cache = g_object_new (CLUTTER_TYPE_PIPELINE_CACHE, NULL);
 
   if (!clutter_context_init_real (context, error))
     return NULL;
@@ -357,17 +354,6 @@ clutter_context_get_text_direction (ClutterContext *context)
   ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
 
   return priv->text_direction;
-}
-
-/**
- * clutter_context_get_pipeline_cache: (skip)
- */
-ClutterPipelineCache *
-clutter_context_get_pipeline_cache (ClutterContext *context)
-{
-  ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
-
-  return priv->pipeline_cache;
 }
 
 ClutterColorManager *
