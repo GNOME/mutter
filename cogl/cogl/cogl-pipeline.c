@@ -2802,7 +2802,7 @@ typedef struct
   unsigned int capability;
 } CapabilityEntry;
 
-static void
+void
 cogl_pipeline_add_capability (CoglPipeline *pipeline,
                               GQuark        domain,
                               unsigned int  capability)
