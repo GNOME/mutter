@@ -368,10 +368,8 @@ clutter_stage_view_ensure_color_states (ClutterStageView *view)
     clutter_stage_view_get_instance_private (view);
   ClutterContext *context =
     clutter_actor_get_context (CLUTTER_ACTOR (priv->stage));
-  ClutterColorManager *color_manager =
-    clutter_context_get_color_manager (context);
   ClutterColorState *color_state =
-    clutter_color_manager_get_default_color_state (color_manager);
+    clutter_context_get_default_color_state (context);
 
   if (!priv->color_state)
     {

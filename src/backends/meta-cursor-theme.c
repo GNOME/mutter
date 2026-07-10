@@ -62,11 +62,9 @@ meta_cursor_theme_constructed (GObject *object)
   MetaCursorTheme *cursor_theme = META_CURSOR_THEME (object);
   ClutterContext *clutter_context =
     meta_backend_get_clutter_context (cursor_theme->backend);
-  ClutterColorManager *color_manager =
-    clutter_context_get_color_manager (clutter_context);
 
   g_set_object (&cursor_theme->color_state,
-                clutter_color_manager_get_default_color_state (color_manager));
+                clutter_context_get_default_color_state (clutter_context));
 
   G_OBJECT_CLASS (meta_cursor_theme_parent_class)->constructed (object);
 }

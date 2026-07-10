@@ -54,12 +54,12 @@ ClutterBackend * clutter_context_get_backend (ClutterContext *context);
 ClutterTextDirection clutter_context_get_text_direction (ClutterContext *context);
 
 /**
- * clutter_context_get_color_manager:
+ * clutter_context_get_default_color_state:
  *
- * Returns: (transfer none): The %ClutterColorManager
+ * Returns: (transfer none): The default %ClutterColorState
  */
 CLUTTER_EXPORT
-ClutterColorManager * clutter_context_get_color_manager (ClutterContext *context);
+ClutterColorState * clutter_context_get_default_color_state (ClutterContext *context);
 
 /**
  * clutter_context_get_settings:

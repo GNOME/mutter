@@ -49,7 +49,7 @@
 
 #include "clutter/clutter-color-state.h"
 
-#include "clutter/clutter-color-manager-private.h"
+#include "clutter/clutter-context.h"
 
 enum
 {
@@ -95,19 +95,33 @@ clutter_color_state_get_id (ClutterColorState *color_state)
   return priv->id;
 }
 
+static uint64_t
+get_next_color_state_id (ClutterContext *context)
+{
+  uint64_t *counter;
+
+  counter = g_object_get_data (G_OBJECT (context), "color-state-id-counter");
+  if (!counter)
+    {
+      counter = g_new0 (uint64_t, 1);
+      g_object_set_data_full (G_OBJECT (context),
+                              "color-state-id-counter",
+                              counter, g_free);
+    }
+
+  return ++(*counter);
+}
+
 static void
 clutter_color_state_constructed (GObject *object)
 {
   ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
   ClutterColorStatePrivate *priv =
     clutter_color_state_get_instance_private (color_state);
-  ClutterColorManager *color_manager;
 
   g_warn_if_fail (priv->context);
 
-  color_manager = clutter_context_get_color_manager (priv->context);
-
-  priv->id = clutter_color_manager_get_next_id (color_manager);
+  priv->id = get_next_color_state_id (priv->context);
 
   G_OBJECT_CLASS (clutter_color_state_parent_class)->constructed (object);
 }

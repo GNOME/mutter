@@ -208,10 +208,8 @@ ensure_default_color_state (MetaCursorTracker *cursor_tracker)
         meta_cursor_tracker_get_backend (cursor_tracker);
       ClutterContext *clutter_context =
         meta_backend_get_clutter_context (backend);
-      ClutterColorManager *color_manager =
-        clutter_context_get_color_manager (clutter_context);
 
-      color_state = clutter_color_manager_get_default_color_state (color_manager);
+      color_state = clutter_context_get_default_color_state (clutter_context);
 
       g_object_set_qdata_full (G_OBJECT (cursor_tracker),
                                GPOINTER_TO_INT (quark_once.retval),

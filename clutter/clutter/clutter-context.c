@@ -27,7 +27,7 @@
 
 #include "clutter/clutter-accessibility-private.h"
 #include "clutter/clutter-backend-private.h"
-#include "clutter/clutter-color-manager.h"
+#include "clutter/clutter-color-state-params.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-private.h"
@@ -86,7 +86,7 @@ typedef struct _ClutterContextPrivate
 {
   ClutterTextDirection text_direction;
 
-  ClutterColorManager *color_manager;
+  ClutterColorState *default_color_state;
 } ClutterContextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterContext, clutter_context, G_TYPE_OBJECT)
@@ -97,7 +97,7 @@ clutter_context_dispose (GObject *object)
   ClutterContext *context = CLUTTER_CONTEXT (object);
   ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
 
-  g_clear_object (&priv->color_manager);
+  g_clear_object (&priv->default_color_state);
   g_clear_pointer (&context->events_queue, g_async_queue_unref);
 #ifdef HAVE_FONTS
   g_clear_object (&context->font_map);
@@ -269,10 +269,8 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
                      GError                    **error)
 {
   ClutterContext *context;
-  ClutterContextPrivate *priv;
 
   context = g_object_new (CLUTTER_TYPE_CONTEXT, NULL);
-  priv = clutter_context_get_instance_private (context);
 
   init_clutter_debug (context);
   context->show_fps = clutter_show_fps;
@@ -287,10 +285,6 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
   context->events_queue =
     g_async_queue_new_full ((GDestroyNotify) clutter_event_free);
   context->last_repaint_id = 1;
-
-  priv->color_manager = g_object_new (CLUTTER_TYPE_COLOR_MANAGER,
-                                      "context", context,
-                                      NULL);
 
   if (!clutter_context_init_real (context, error))
     return NULL;
@@ -356,12 +350,20 @@ clutter_context_get_text_direction (ClutterContext *context)
   return priv->text_direction;
 }
 
-ClutterColorManager *
-clutter_context_get_color_manager (ClutterContext *context)
+ClutterColorState *
+clutter_context_get_default_color_state (ClutterContext *context)
 {
   ClutterContextPrivate *priv = clutter_context_get_instance_private (context);
 
-  return priv->color_manager;
+  if (!priv->default_color_state)
+    {
+      priv->default_color_state =
+        clutter_color_state_params_new (context,
+                                        CLUTTER_COLORSPACE_SRGB,
+                                        CLUTTER_TRANSFER_FUNCTION_GAMMA22);
+    }
+
+  return priv->default_color_state;
 }
 
 /**

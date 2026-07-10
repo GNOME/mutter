@@ -89,7 +89,6 @@ typedef union _ClutterEvent                     ClutterEvent;
 
 typedef enum _ClutterPaintFlag                  ClutterPaintFlag;
 
-typedef struct _ClutterColorManager             ClutterColorManager;
 typedef struct _ClutterColorState               ClutterColorState;
 typedef struct _ClutterColorOp                  ClutterColorOp;
 typedef struct _ClutterColorPipeline            ClutterColorPipeline;

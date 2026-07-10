@@ -180,14 +180,6 @@ get_meta_color_manager (MetaWaylandColorManager *color_manager)
   return meta_backend_get_color_manager (backend);
 }
 
-static ClutterColorManager *
-get_clutter_color_manager (MetaWaylandColorManager *color_manager)
-{
-  ClutterContext *clutter_context = get_clutter_context (color_manager);
-
-  return clutter_context_get_color_manager (clutter_context);
-}
-
 static float
 scaled_uint32_to_float_chromaticity (uint32_t value)
 {
@@ -336,10 +328,9 @@ clutter_colorspace_to_wayland (ClutterColorspace colorspace)
 static ClutterColorState *
 get_default_color_state (MetaWaylandColorManager *color_manager)
 {
-  ClutterColorManager *clutter_color_manager =
-    get_clutter_color_manager (color_manager);
+  ClutterContext *clutter_context = get_clutter_context (color_manager);
 
-  return clutter_color_manager_get_default_color_state (clutter_color_manager);
+  return clutter_context_get_default_color_state (clutter_context);
 }
 
 static ClutterColorState *

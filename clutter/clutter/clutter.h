@@ -45,7 +45,6 @@
 #include "clutter/clutter-brightness-contrast-effect.h"
 #include "clutter/clutter-click-gesture.h"
 #include "clutter/clutter-clone.h"
-#include "clutter/clutter-color-manager.h"
 #include "clutter/clutter-color-op.h"
 #include "clutter/clutter-color-pipeline.h"
 #include "clutter/clutter-color-pipeline-shader.h"
