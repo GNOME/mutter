@@ -33,6 +33,8 @@
 
 #include "clutter/pango/clutter-pango-display-list.h"
 #include "clutter/pango/clutter-pango-pipeline-cache.h"
+#include "clutter/clutter-color-pipeline-shader.h"
+#include "clutter/clutter-main.h"
 #include "cogl/cogl.h"
 
 typedef enum
@@ -432,10 +434,9 @@ clutter_pango_display_list_render (CoglFramebuffer          *fb,
 
       cogl_pipeline_set_color (pipeline, &draw_color);
 
-      clutter_color_state_add_pipeline_transform (color_state,
-                                                  target_color_state,
-                                                  pipeline,
-                                                  0);
+      clutter_color_pipeline_shader_set_color_state (pipeline,
+                                                     color_state,
+                                                     target_color_state, 0);
 
       switch (node->type)
         {

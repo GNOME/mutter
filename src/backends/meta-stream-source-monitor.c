@@ -31,6 +31,7 @@
 #include "backends/meta-stream.h"
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter.h"
+#include "clutter/clutter-color-state-private.h"
 #include "clutter/clutter-mutter.h"
 #include "core/boxes-private.h"
 #include "core/meta-debug-control-private.h"
@@ -647,10 +648,10 @@ ensure_blending_pipeline (MetaStreamSourceMonitor  *source_monitor,
   cogl_pipeline_set_layer_texture (pipeline, 0,
                                    cogl_offscreen_get_texture (offscreen));
 
-  clutter_color_state_add_pipeline_transform (blending_color_state,
-                                              target_color_state,
-                                              pipeline,
-                                              CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
+  clutter_color_pipeline_shader_set_color_state (pipeline,
+                                                 blending_color_state,
+                                                 target_color_state,
+                                                 CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
 
   g_set_object (&source_monitor->blending_pipeline, g_steal_pointer (&pipeline));
   g_set_object (&source_monitor->blending_framebuffer,

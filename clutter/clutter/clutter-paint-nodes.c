@@ -30,6 +30,10 @@
 #include "cogl/cogl.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-blur-private.h"
+#include "clutter/clutter-color-pipeline-shader.h"
+#include "clutter/clutter-color-state.h"
+#include "clutter/clutter-color-transform-private.h"
+#include "clutter/clutter-context-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-paint-context-private.h"
@@ -404,20 +408,16 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  if (!cogl_pipeline_has_capability (pnode->pipeline,
-                                     CLUTTER_PIPELINE_CAPABILITY,
-                                     CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE))
-    {
-      ClutterColorState *color_state =
-        clutter_paint_context_get_color_state (paint_context);
-      ClutterColorState *target_color_state =
-        clutter_paint_context_get_target_color_state (paint_context);
+  {
+    ClutterColorState *color_state =
+      clutter_paint_context_get_color_state (paint_context);
+    ClutterColorState *target_color_state =
+      clutter_paint_context_get_target_color_state (paint_context);
 
-      clutter_color_state_add_pipeline_transform (color_state,
-                                                  target_color_state,
-                                                  pnode->pipeline,
-                                                  0);
-    }
+    clutter_color_pipeline_shader_set_color_state (pnode->pipeline,
+                                                   color_state,
+                                                   target_color_state, 0);
+  }
 
   if (!cogl_pipeline_get_name (pnode->pipeline))
     cogl_pipeline_set_static_name (pnode->pipeline, node->name);
@@ -1057,22 +1057,16 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
 
   fb = clutter_paint_context_get_framebuffer (paint_context);
 
-  if (!lnode->skip_color_state_transform &&
-      !cogl_pipeline_has_capability (lnode->pipeline,
-                                     CLUTTER_PIPELINE_CAPABILITY,
-                                     CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE))
+  if (!lnode->skip_color_state_transform)
     {
-      ClutterColorState *color_state;
-      ClutterColorState *target_color_state;
-
-      color_state =
+      ClutterColorState *color_state =
         clutter_paint_context_get_color_state (paint_context);
-      target_color_state =
+      ClutterColorState *target_color_state =
         clutter_paint_context_get_target_color_state (paint_context);
-      clutter_color_state_add_pipeline_transform (color_state,
-                                                  target_color_state,
-                                                  lnode->pipeline,
-                                                  0);
+
+      clutter_color_pipeline_shader_set_color_state (lnode->pipeline,
+                                                     color_state,
+                                                     target_color_state, 0);
     }
 
   for (i = 0; i < node->operations->len; i++)
@@ -1212,6 +1206,10 @@ clutter_blit_node_draw (ClutterPaintNode    *node,
                         ClutterPaintContext *paint_context)
 {
   ClutterBlitNode *blit_node = CLUTTER_BLIT_NODE (node);
+  ClutterColorState *color_state =
+    clutter_paint_context_get_color_state (paint_context);
+  ClutterColorState *target_color_state =
+    clutter_paint_context_get_target_color_state (paint_context);
   g_autoptr (GError) error = NULL;
   CoglFramebuffer *framebuffer;
   unsigned int i;
@@ -1219,9 +1217,8 @@ clutter_blit_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  g_warn_if_fail (!clutter_color_state_needs_mapping (
-      clutter_paint_context_get_color_state (paint_context),
-      clutter_paint_context_get_target_color_state (paint_context)));
+  g_warn_if_fail (!clutter_color_pipeline_shader_needs_color_state (
+      color_state, target_color_state, 0));
 
   framebuffer = get_target_framebuffer (node, paint_context);
 

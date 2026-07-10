@@ -55,6 +55,8 @@
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-binding-pool.h"
+#include "clutter/clutter-color-pipeline-shader.h"
+#include "clutter/clutter-context-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-keysyms.h"
@@ -2147,10 +2149,9 @@ paint_selection_rectangle (ClutterText           *self,
   if (cogl_color.alpha == 0xff)
     flags = CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE;
 
-  clutter_color_state_add_pipeline_transform (color_state,
-                                              target_color_state,
-                                              color_pipeline,
-                                              flags);
+  clutter_color_pipeline_shader_set_color_state (color_pipeline,
+                                                 color_state,
+                                                 target_color_state, flags);
 
   cogl_framebuffer_push_rectangle_clip (fb,
                                         box->x1, box->y1,
@@ -2222,10 +2223,9 @@ selection_paint (ClutterText         *self,
       if (cogl_color.alpha == 0xff)
         flags = CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE;
 
-      clutter_color_state_add_pipeline_transform (color_state,
-                                                  target_color_state,
-                                                  color_pipeline,
-                                                  flags);
+      clutter_color_pipeline_shader_set_color_state (color_pipeline,
+                                                     color_state,
+                                                     target_color_state, flags);
 
       cogl_framebuffer_draw_rectangle (fb,
                                        color_pipeline,

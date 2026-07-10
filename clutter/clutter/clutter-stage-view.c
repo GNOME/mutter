@@ -24,6 +24,8 @@
 
 #include <math.h>
 
+#include "clutter/clutter-color-pipeline-shader.h"
+#include "clutter/clutter-color-state-private.h"
 #include "clutter/clutter-context-private.h"
 #include "clutter/clutter-damage-history.h"
 #include "clutter/clutter-frame-clock.h"
@@ -262,10 +264,10 @@ ensure_stage_view_offscreen_pipeline (ClutterStageView *view)
       cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
     }
 
-  clutter_color_state_add_pipeline_transform (priv->color_state,
-                                              priv->output_color_state,
-                                              pipeline,
-                                              CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
+  clutter_color_pipeline_shader_set_color_state (pipeline,
+                                                 priv->color_state,
+                                                 priv->output_color_state,
+                                                 CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
 
   g_set_object (&priv->offscreen_pipeline, g_steal_pointer (&pipeline));
 }
@@ -297,8 +299,9 @@ clutter_stage_view_invalidate_offscreen (ClutterStageView *view)
     }
 
   if (priv->transform == MTK_MONITOR_TRANSFORM_NORMAL &&
-      !clutter_color_state_needs_mapping (priv->color_state,
-                                          priv->output_color_state))
+      !clutter_color_pipeline_shader_needs_color_state (priv->color_state,
+                                                        priv->output_color_state,
+                                                        CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE))
     {
       g_clear_object (&priv->offscreen_pipeline);
       g_clear_object (&priv->offscreen);

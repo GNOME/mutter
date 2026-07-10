@@ -50,6 +50,9 @@
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-seat-native.h"
+#include "clutter/clutter-color-pipeline-shader.h"
+#include "clutter/clutter-color-transform-private.h"
+#include "clutter/clutter-main.h"
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
 #include "core/boxes-private.h"
@@ -862,10 +865,9 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer
     g_warning_once ("Dst texture format doesn't have premultiplied alpha");
 
   color_state = clutter_cursor_get_color_state (cursor);
-  clutter_color_state_add_pipeline_transform (color_state,
-                                              target_color_state,
-                                              pipeline,
-                                              0);
+  clutter_color_pipeline_shader_set_color_state (pipeline,
+                                                 color_state,
+                                                 target_color_state, 0);
 
   cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen),
                             COGL_BUFFER_BIT_COLOR,
@@ -1004,7 +1006,9 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
   if (width != crtc_dst_width || height != crtc_dst_height ||
       !graphene_matrix_is_identity (&matrix) ||
       gbm_format != cursor_renderer_gpu_data->drm_format ||
-      clutter_color_state_needs_mapping (cursor_color_state, target_color_state))
+      clutter_color_pipeline_shader_needs_color_state (cursor_color_state,
+                                                       target_color_state,
+                                                       0))
     {
       const MetaFormatInfo *format_info;
       g_autoptr (GError) error = NULL;

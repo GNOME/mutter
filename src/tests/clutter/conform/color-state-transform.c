@@ -7,7 +7,6 @@
 #include "clutter/clutter/clutter-color-transform-private.h"
 #include "clutter/clutter/clutter-color-pipeline.h"
 #include "clutter/clutter/clutter-color-state-private.h"
-#include "clutter/clutter/clutter-context-private.h"
 #include "tests/clutter-test-utils.h"
 
 #define COLOR_TRANSFORM_EPSILON 0.05f
@@ -476,16 +475,6 @@ color_state_transform_icc_to_icc (void)
   ClutterStageView *stage_view;
   ClutterActor *stage;
   GList *actors;
-
-  /* The GPU rendering still uses clutter_color_state_add_pipeline_transform
-   * which builds a 3D LUT from clutter_color_state_do_transform. That path
-   * clamps intermediate XYZ values to [0,1], losing out-of-gamut colors.
-   * The pipeline CPU transform uses the matrix shaper path which correctly
-   * preserves out-of-gamut values, so the two disagree.
-   *
-   * Remove this once the GPU rendering uses ClutterColorPipelineShader. */
-  g_test_skip ("GPU rendering still uses clamped color state transform");
-  return;
 
   stage = clutter_test_get_stage ();
 
