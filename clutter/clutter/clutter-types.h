@@ -92,6 +92,7 @@ typedef enum _ClutterPaintFlag                  ClutterPaintFlag;
 typedef struct _ClutterColorManager             ClutterColorManager;
 typedef struct _ClutterColorState               ClutterColorState;
 typedef struct _ClutterColorTransformKey        ClutterColorTransformKey;
+typedef struct _ClutterColorOp                  ClutterColorOp;
 
 /**
  * ClutterEventSequence:
