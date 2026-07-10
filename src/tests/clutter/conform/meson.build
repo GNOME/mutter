@@ -50,7 +50,6 @@ clutter_conform_tests_general_tests = [
   'gesture',
   'gesture-relationship',
   'interval',
-  'pipeline-cache',
   'timeline',
   'timeline-interpolate',
   'timeline-progress',

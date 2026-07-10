@@ -26,10 +26,3 @@
 #include "clutter/clutter-private.h"
 
 uint64_t clutter_color_manager_get_next_id (ClutterColorManager *color_manager);
-
-CoglSnippet * clutter_color_manager_lookup_snippet (ClutterColorManager            *color_manager,
-                                                    const ClutterColorTransformKey *key);
-
-void clutter_color_manager_add_snippet (ClutterColorManager            *color_manager,
-                                        const ClutterColorTransformKey *key,
-                                        CoglSnippet                    *snippet);

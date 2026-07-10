@@ -113,12 +113,6 @@ CLUTTER_EXPORT
 guint clutter_color_state_hash (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
-void clutter_color_state_add_pipeline_transform (ClutterColorState               *color_state,
-                                                 ClutterColorState               *target_color_state,
-                                                 CoglPipeline                    *pipeline,
-                                                 ClutterColorStateTransformFlags  flags);
-
-CLUTTER_EXPORT
 void clutter_color_state_update_uniforms (ClutterColorState *color_state,
                                           ClutterColorState *target_color_state,
                                           CoglPipeline      *pipeline);

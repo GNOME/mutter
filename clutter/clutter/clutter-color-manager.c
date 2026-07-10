@@ -45,7 +45,6 @@ struct _ClutterColorManager
 
   ClutterContext *context;
 
-  GHashTable *snippet_cache;
   uint64_t id_counter;
   ClutterColorState *default_color_state;
 };
@@ -58,8 +57,6 @@ clutter_color_manager_finalize (GObject *object)
   ClutterColorManager *color_manager = CLUTTER_COLOR_MANAGER (object);
 
   g_clear_object (&color_manager->default_color_state);
-
-  g_clear_pointer (&color_manager->snippet_cache, g_hash_table_unref);
 
   G_OBJECT_CLASS (clutter_color_manager_parent_class)->finalize (object);
 }
@@ -131,11 +128,6 @@ clutter_color_manager_class_init (ClutterColorManagerClass *klass)
 static void
 clutter_color_manager_init (ClutterColorManager *color_manager)
 {
-  color_manager->snippet_cache =
-    g_hash_table_new_full (clutter_color_transform_key_hash,
-                           clutter_color_transform_key_equal,
-                           g_free,
-                           g_object_unref);
 }
 
 uint64_t
@@ -156,21 +148,4 @@ clutter_color_manager_get_default_color_state (ClutterColorManager *color_manage
     }
 
   return color_manager->default_color_state;
-}
-
-CoglSnippet *
-clutter_color_manager_lookup_snippet (ClutterColorManager            *color_manager,
-                                      const ClutterColorTransformKey *key)
-{
-  return g_hash_table_lookup (color_manager->snippet_cache, key);
-}
-
-void
-clutter_color_manager_add_snippet (ClutterColorManager            *color_manager,
-                                   const ClutterColorTransformKey *key,
-                                   CoglSnippet                    *snippet)
-{
-  g_hash_table_insert (color_manager->snippet_cache,
-                       g_memdup2 (key, sizeof (*key)),
-                       g_object_ref (snippet));
 }
