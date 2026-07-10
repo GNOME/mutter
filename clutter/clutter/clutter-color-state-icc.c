@@ -267,6 +267,20 @@ clutter_color_state_icc_get_blending (ClutterColorState *color_state,
   return blending_color_state;
 }
 
+static guint
+clutter_color_state_icc_hash (ClutterColorState *color_state)
+{
+  ClutterColorStateIcc *icc = CLUTTER_COLOR_STATE_ICC (color_state);
+  guint32 parts[4];
+
+  memcpy (parts, icc->checksum, CHECKSUM_SIZE);
+
+  guint h = (parts[0] ^ parts[1] ^ parts[2] ^ parts[3]) * 31 +
+            icc->is_linear;
+
+  return h;
+}
+
 static void
 clutter_color_state_icc_class_init (ClutterColorStateIccClass *klass)
 {
@@ -285,6 +299,7 @@ clutter_color_state_icc_class_init (ClutterColorStateIccClass *klass)
   color_state_class->to_string = clutter_color_state_icc_to_string;
   color_state_class->required_format = clutter_color_state_icc_required_format;
   color_state_class->get_blending = clutter_color_state_icc_get_blending;
+  color_state_class->hash = clutter_color_state_icc_hash;
   color_state_class->get_luminance = clutter_color_state_icc_get_luminance;
 }
 

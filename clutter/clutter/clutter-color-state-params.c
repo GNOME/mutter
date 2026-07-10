@@ -1959,6 +1959,23 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
                                                          blending_luminance);
 }
 
+static guint
+clutter_color_state_params_hash (ClutterColorState *color_state)
+{
+  ClutterColorStateParams *params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  guint hash;
+
+  hash = params->colorimetry.type;
+  if (params->colorimetry.type == CLUTTER_COLORIMETRY_TYPE_COLORSPACE)
+    hash = hash * 31 + params->colorimetry.colorspace;
+
+  hash = hash * 31 + params->eotf.type;
+  if (params->eotf.type == CLUTTER_EOTF_TYPE_NAMED)
+    hash = hash * 31 + params->eotf.tf_name;
+
+  return hash;
+}
+
 static void
 clutter_color_state_params_class_init (ClutterColorStateParamsClass *klass)
 {
@@ -1977,6 +1994,7 @@ clutter_color_state_params_class_init (ClutterColorStateParamsClass *klass)
   color_state_class->to_string = clutter_color_state_params_to_string;
   color_state_class->required_format = clutter_color_state_params_required_format;
   color_state_class->get_blending = clutter_color_state_params_get_blending;
+  color_state_class->hash = clutter_color_state_params_hash;
   color_state_class->get_luminance = clutter_color_state_params_get_luminance_vfunc;
 }
 

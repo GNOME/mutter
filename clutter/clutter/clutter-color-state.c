@@ -731,6 +731,18 @@ clutter_color_state_get_context (ClutterColorState *color_state)
   return priv->context;
 }
 
+guint
+clutter_color_state_hash (ClutterColorState *color_state)
+{
+  ClutterColorStateClass *klass;
+
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), 0);
+
+  klass = CLUTTER_COLOR_STATE_GET_CLASS (color_state);
+
+  return klass->hash (color_state);
+}
+
 void
 clutter_color_state_update_uniforms (ClutterColorState *color_state,
                                      ClutterColorState *target_color_state,

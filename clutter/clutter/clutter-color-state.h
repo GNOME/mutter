@@ -98,6 +98,8 @@ struct _ClutterColorStateClass
   ClutterColorState * (* get_blending) (ClutterColorState *color_state,
                                         gboolean           force);
 
+  guint (* hash) (ClutterColorState *color_state);
+
   const ClutterLuminance * (* get_luminance) (ClutterColorState *color_state);
 };
 
@@ -106,6 +108,9 @@ char * clutter_color_state_to_string (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
 uint64_t clutter_color_state_get_id (ClutterColorState *color_state);
+
+CLUTTER_EXPORT
+guint clutter_color_state_hash (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
 void clutter_color_state_add_pipeline_transform (ClutterColorState               *color_state,
