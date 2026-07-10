@@ -30,6 +30,8 @@
 
 #include "clutter/clutter-types.h"
 
+typedef struct _ClutterLuminance ClutterLuminance;
+
 G_BEGIN_DECLS
 
 typedef enum
@@ -95,6 +97,8 @@ struct _ClutterColorStateClass
 
   ClutterColorState * (* get_blending) (ClutterColorState *color_state,
                                         gboolean           force);
+
+  const ClutterLuminance * (* get_luminance) (ClutterColorState *color_state);
 };
 
 CLUTTER_EXPORT
@@ -134,5 +138,8 @@ ClutterEncodingRequiredFormat clutter_color_state_required_format (ClutterColorS
 CLUTTER_EXPORT
 ClutterColorState * clutter_color_state_get_blending (ClutterColorState *color_state,
                                                       gboolean           force);
+
+CLUTTER_EXPORT
+const ClutterLuminance * clutter_color_state_get_luminance (ClutterColorState *color_state);
 
 G_END_DECLS

@@ -937,3 +937,11 @@ clutter_color_op_snippet_append_source (const ClutterColorOpSnippet *color_snipp
                           color_snippet->name,
                           snippet_color_var);
 }
+
+const ClutterLuminance *
+clutter_color_state_get_luminance (ClutterColorState *color_state)
+{
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), NULL);
+
+  return CLUTTER_COLOR_STATE_GET_CLASS (color_state)->get_luminance (color_state);
+}

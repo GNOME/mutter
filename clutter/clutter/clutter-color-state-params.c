@@ -307,6 +307,13 @@ needs_lum_mapping (const ClutterLuminance *lum,
                           0.1f);
 }
 
+static const ClutterLuminance *
+clutter_color_state_params_get_luminance_vfunc (ClutterColorState *color_state)
+{
+  return clutter_color_state_params_get_luminance (
+    CLUTTER_COLOR_STATE_PARAMS (color_state));
+}
+
 static void
 clutter_color_state_params_init_color_transform_key (ClutterColorState               *color_state,
                                                      ClutterColorState               *target_color_state,
@@ -1970,6 +1977,7 @@ clutter_color_state_params_class_init (ClutterColorStateParamsClass *klass)
   color_state_class->to_string = clutter_color_state_params_to_string;
   color_state_class->required_format = clutter_color_state_params_required_format;
   color_state_class->get_blending = clutter_color_state_params_get_blending;
+  color_state_class->get_luminance = clutter_color_state_params_get_luminance_vfunc;
 }
 
 static void

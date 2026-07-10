@@ -30,6 +30,7 @@
 
 #include "clutter/clutter-color-state-icc.h"
 
+#include "clutter/clutter-color-state-params.h"
 #include "clutter/clutter-color-state-private.h"
 #include "mtk-anonymous-file.h"
 
@@ -75,6 +76,12 @@ const MtkAnonymousFile *
 clutter_color_state_icc_get_file (ClutterColorStateIcc *color_state_icc)
 {
   return color_state_icc->file;
+}
+
+gpointer
+clutter_color_state_icc_get_profile (ClutterColorStateIcc *color_state_icc)
+{
+  return color_state_icc->icc_profile;
 }
 
 static void
@@ -189,6 +196,12 @@ clutter_color_state_icc_needs_mapping (ClutterColorState *color_state,
   return !clutter_color_state_icc_equals (color_state, target_color_state);
 }
 
+static const ClutterLuminance *
+clutter_color_state_icc_get_luminance (ClutterColorState *color_state)
+{
+  return clutter_luminance_get_default_sdr ();
+}
+
 static char *
 clutter_color_state_icc_to_string (ClutterColorState *color_state)
 {
@@ -272,6 +285,7 @@ clutter_color_state_icc_class_init (ClutterColorStateIccClass *klass)
   color_state_class->to_string = clutter_color_state_icc_to_string;
   color_state_class->required_format = clutter_color_state_icc_required_format;
   color_state_class->get_blending = clutter_color_state_icc_get_blending;
+  color_state_class->get_luminance = clutter_color_state_icc_get_luminance;
 }
 
 static void
