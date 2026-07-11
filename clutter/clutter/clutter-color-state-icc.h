@@ -46,4 +46,7 @@ const MtkAnonymousFile *clutter_color_state_icc_get_file (ClutterColorStateIcc *
 CLUTTER_EXPORT
 gpointer clutter_color_state_icc_get_profile (ClutterColorStateIcc *color_state_icc);
 
+CLUTTER_EXPORT
+gboolean clutter_color_state_icc_is_linearized (ClutterColorStateIcc *color_state_icc);
+
 G_END_DECLS

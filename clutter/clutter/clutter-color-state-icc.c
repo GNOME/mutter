@@ -84,6 +84,12 @@ clutter_color_state_icc_get_profile (ClutterColorStateIcc *color_state_icc)
   return color_state_icc->icc_profile;
 }
 
+gboolean
+clutter_color_state_icc_is_linearized (ClutterColorStateIcc *color_state_icc)
+{
+  return color_state_icc->is_linear;
+}
+
 static void
 clutter_color_state_icc_finalize (GObject *object)
 {
