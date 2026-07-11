@@ -29,6 +29,7 @@
 #include "clutter/clutter-color-state-params.h"
 
 #include "clutter/clutter-color-state-private.h"
+#include "clutter/clutter-color-utils.h"
 #include "clutter/clutter-context.h"
 
 #define UNIFORM_NAME_GAMMA_EXP "gamma_exp"
@@ -44,12 +45,6 @@
 #define UNIFORM_NAME_TONEMAPPING_REF_LUM "tone_mapping_ref_lum"
 #define UNIFORM_NAME_LINEAR_TONEMAPPING "linear_mapping"
 #define UNIFORM_NAME_LUMINANCE_MAPPING "luminance_factor"
-#define D50_X 0.9642f
-#define D50_Y 1.0f
-#define D50_Z 0.8251f
-#define D65_X 0.95047f
-#define D65_Y 1.0f
-#define D65_Z 1.08883f
 
 typedef struct _ClutterColorStateParams
 {
@@ -64,71 +59,6 @@ G_DEFINE_TYPE (ClutterColorStateParams,
                clutter_color_state_params,
                CLUTTER_TYPE_COLOR_STATE)
 
-static const char *
-clutter_colorspace_to_string (ClutterColorspace colorspace)
-{
-  switch (colorspace)
-    {
-    case CLUTTER_COLORSPACE_SRGB:
-      return "sRGB";
-    case CLUTTER_COLORSPACE_BT2020:
-      return "BT.2020";
-    case CLUTTER_COLORSPACE_NTSC:
-      return "NTSC";
-    case CLUTTER_COLORSPACE_PAL:
-      return "PAL";
-    case CLUTTER_COLORSPACE_P3:
-      return "P3";
-    }
-
-  g_assert_not_reached ();
-}
-
-static char *
-clutter_colorimetry_to_string (ClutterColorimetry colorimetry)
-{
-  const ClutterPrimaries *primaries;
-
-  switch (colorimetry.type)
-    {
-    case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
-      return g_strdup (clutter_colorspace_to_string (colorimetry.colorspace));
-    case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      primaries = colorimetry.primaries;
-      return g_strdup_printf ("[R: %f, %f G: %f, %f B: %f, %f W: %f, %f]",
-                              primaries->r_x, primaries->r_y,
-                              primaries->g_x, primaries->g_y,
-                              primaries->b_x, primaries->b_y,
-                              primaries->w_x, primaries->w_y);
-    }
-}
-
-static const char *
-clutter_eotf_to_string (ClutterEOTF eotf)
-{
-  switch (eotf.type)
-    {
-    case CLUTTER_EOTF_TYPE_NAMED:
-      switch (eotf.tf_name)
-        {
-        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
-          return "sRGB piece-wise";
-        case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
-          return "gamma 2.2";
-        case CLUTTER_TRANSFER_FUNCTION_PQ:
-          return "PQ";
-        case CLUTTER_TRANSFER_FUNCTION_BT1886:
-          return "BT.1886";
-        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
-          return "linear";
-        }
-      break;
-    case CLUTTER_EOTF_TYPE_GAMMA:
-      return "gamma";
-    }
-
-  g_assert_not_reached ();
-}
 
 const ClutterColorimetry *
 clutter_color_state_params_get_colorimetry (ClutterColorStateParams *color_state_params)
@@ -161,55 +91,6 @@ clutter_color_state_params_get_luminance (ClutterColorStateParams *color_state_p
     case CLUTTER_LUMINANCE_TYPE_EXPLICIT:
       return &color_state_params->luminance;
     }
-}
-
-static const ClutterLuminance sdr_default_luminance = {
-  .type = CLUTTER_LUMINANCE_TYPE_DERIVED,
-  .min = 0.2f,
-  .max = 80.0f,
-  .ref = 80.0f,
-  .mastering_max = 80.0f,
-};
-
-static const ClutterLuminance bt1886_default_luminance = {
-  .type = CLUTTER_LUMINANCE_TYPE_DERIVED,
-  .min = 0.01f,
-  .max = 100.0f,
-  .ref = 100.0f,
-  .mastering_max = 100.0f,
-};
-
-static const ClutterLuminance pq_default_luminance = {
-  .type = CLUTTER_LUMINANCE_TYPE_DERIVED,
-  .min = 0.005f,
-  .max = 10000.0f,
-  .ref = 203.0f,
-  .mastering_max = 10000.0f,
-};
-
-const ClutterLuminance *
-clutter_eotf_get_default_luminance (ClutterEOTF eotf)
-{
-  switch (eotf.type)
-    {
-    case CLUTTER_EOTF_TYPE_NAMED:
-      switch (eotf.tf_name)
-        {
-        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
-        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
-        case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
-          return &sdr_default_luminance;
-        case CLUTTER_TRANSFER_FUNCTION_BT1886:
-          return &bt1886_default_luminance;
-        case CLUTTER_TRANSFER_FUNCTION_PQ:
-          return &pq_default_luminance;
-        }
-      break;
-    case CLUTTER_EOTF_TYPE_GAMMA:
-      return &sdr_default_luminance;
-    }
-
-  g_assert_not_reached ();
 }
 
 static float
@@ -365,82 +246,6 @@ clutter_eotf_apply_inv (ClutterEOTF eotf,
   return input;
 }
 
-/* Primaries and white point retrieved from:
- * https://www.color.org */
-static const ClutterPrimaries srgb_primaries = {
-  .r_x = 0.64f, .r_y = 0.33f,
-  .g_x = 0.30f, .g_y = 0.60f,
-  .b_x = 0.15f, .b_y = 0.06f,
-  .w_x = 0.3127f, .w_y = 0.3290f,
-};
-
-static const ClutterPrimaries ntsc_primaries = {
-  .r_x = 0.63f, .r_y = 0.34f,
-  .g_x = 0.31f, .g_y = 0.595f,
-  .b_x = 0.155f, .b_y = 0.07f,
-  .w_x = 0.3127f, .w_y = 0.3290f,
-};
-
-static const ClutterPrimaries bt2020_primaries = {
-  .r_x = 0.708f, .r_y = 0.292f,
-  .g_x = 0.170f, .g_y = 0.797f,
-  .b_x = 0.131f, .b_y = 0.046f,
-  .w_x = 0.3127f, .w_y = 0.3290f,
-};
-
-static ClutterPrimaries p3_primaries = {
-  .r_x = 0.68f, .r_y = 0.32f,
-  .g_x = 0.265f, .g_y = 0.69f,
-  .b_x = 0.15f, .b_y = 0.06f,
-  .w_x = 0.3127f, .w_y = 0.329f,
-};
-
-static ClutterPrimaries pal_primaries = {
-  .r_x = 0.64f, .r_y = 0.33f,
-  .g_x = 0.29f, .g_y = 0.60f,
-  .b_x = 0.15f, .b_y = 0.06f,
-  .w_x = 0.3127f, .w_y = 0.329f,
-};
-
-const ClutterPrimaries *
-clutter_colorspace_to_primaries (ClutterColorspace colorspace)
-{
-  switch (colorspace)
-    {
-    case CLUTTER_COLORSPACE_SRGB:
-      return &srgb_primaries;
-    case CLUTTER_COLORSPACE_NTSC:
-      return &ntsc_primaries;
-    case CLUTTER_COLORSPACE_BT2020:
-      return &bt2020_primaries;
-    case CLUTTER_COLORSPACE_PAL:
-      return &pal_primaries;
-    case CLUTTER_COLORSPACE_P3:
-      return &p3_primaries;
-    }
-
-  g_warning ("Unhandled colorspace %s",
-             clutter_colorspace_to_string (colorspace));
-
-  return &srgb_primaries;
-}
-
-void
-clutter_primaries_ensure_normalized_range (ClutterPrimaries *primaries)
-{
-  if (!primaries)
-    return;
-
-  primaries->r_x = CLAMP (primaries->r_x, 0.0f, 1.0f);
-  primaries->r_y = CLAMP (primaries->r_y, 0.0f, 1.0f);
-  primaries->g_x = CLAMP (primaries->g_x, 0.0f, 1.0f);
-  primaries->g_y = CLAMP (primaries->g_y, 0.0f, 1.0f);
-  primaries->b_x = CLAMP (primaries->b_x, 0.0f, 1.0f);
-  primaries->b_y = CLAMP (primaries->b_y, 0.0f, 1.0f);
-  primaries->w_x = CLAMP (primaries->w_x, 0.0f, 1.0f);
-  primaries->w_y = CLAMP (primaries->w_y, 0.0f, 1.0f);
-}
-
 static void
 clutter_color_state_params_finalize (GObject *object)
 {
@@ -453,100 +258,6 @@ clutter_color_state_params_finalize (GObject *object)
   G_OBJECT_CLASS (clutter_color_state_params_parent_class)->finalize (object);
 }
 
-static const ClutterPrimaries *
-get_primaries (const ClutterColorimetry *colorimetry)
-{
-  switch (colorimetry->type)
-    {
-    case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
-      return clutter_colorspace_to_primaries (colorimetry->colorspace);
-    case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      return colorimetry->primaries;
-    }
-
-  g_warning ("Unhandled colorimetry when getting primaries");
-
-  return &srgb_primaries;
-}
-
-static gboolean
-chromaticity_equal (float x1,
-                    float y1,
-                    float x2,
-                    float y2)
-
-{
-  /* FIXME: the next color managment version will use more precision */
-  return G_APPROX_VALUE (x1, x2, 0.0001f) &&
-         G_APPROX_VALUE (y1, y2, 0.0001f);
-}
-
-static gboolean
-primaries_equal (const ClutterPrimaries *primaries,
-                 const ClutterPrimaries *other_primaries)
-{
-  return chromaticity_equal (primaries->r_x, primaries->r_y,
-                             other_primaries->r_x, other_primaries->r_y) &&
-         chromaticity_equal (primaries->g_x, primaries->g_y,
-                             other_primaries->g_x, other_primaries->g_y) &&
-         chromaticity_equal (primaries->b_x, primaries->b_y,
-                             other_primaries->b_x, other_primaries->b_y) &&
-         chromaticity_equal (primaries->w_x, primaries->w_y,
-                             other_primaries->w_x, other_primaries->w_y);
-}
-
-static gboolean
-colorimetry_equal (const ClutterColorimetry *colorimetry,
-                   const ClutterColorimetry *other_colorimetry)
-{
-  const ClutterPrimaries *primaries;
-  const ClutterPrimaries *other_primaries;
-
-  if (colorimetry->type == CLUTTER_COLORIMETRY_TYPE_COLORSPACE &&
-      other_colorimetry->type == CLUTTER_COLORIMETRY_TYPE_COLORSPACE)
-    return colorimetry->colorspace == other_colorimetry->colorspace;
-
-  primaries = get_primaries (colorimetry);
-  other_primaries = get_primaries (other_colorimetry);
-  return primaries_equal (primaries, other_primaries);
-}
-
-static gboolean
-eotf_equal (const ClutterEOTF *eotf,
-            const ClutterEOTF *other_eotf)
-{
-  if (eotf->type == CLUTTER_EOTF_TYPE_NAMED &&
-      other_eotf->type == CLUTTER_EOTF_TYPE_NAMED)
-    return eotf->tf_name == other_eotf->tf_name;
-
-  if (eotf->type == CLUTTER_EOTF_TYPE_GAMMA &&
-      other_eotf->type == CLUTTER_EOTF_TYPE_GAMMA)
-    return G_APPROX_VALUE (eotf->gamma_exp, other_eotf->gamma_exp, 0.0001f);
-
-  return FALSE;
-}
-
-static gboolean
-luminance_value_approx_equal (float lum,
-                              float other_lum,
-                              float epsilon)
-{
-  if (lum == 0.0f || other_lum == 0.0f)
-    return lum == other_lum;
-
-  return G_APPROX_VALUE (lum / other_lum, 1.0f, epsilon);
-}
-
-static gboolean
-luminances_equal (const ClutterLuminance *lum,
-                  const ClutterLuminance *other_lum)
-{
-  return luminance_value_approx_equal (lum->min, other_lum->min, 0.1f) &&
-         luminance_value_approx_equal (lum->max, other_lum->max, 0.1f) &&
-         luminance_value_approx_equal (lum->mastering_max,
-                                       other_lum->mastering_max, 0.1f) &&
-         luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f);
-}
 
 static guint
 get_eotf_key (ClutterEOTF eotf)
@@ -616,8 +327,8 @@ clutter_color_state_params_init_color_transform_key (ClutterColorState          
   key->target_eotf_bits = get_eotf_key (target_color_state_params->eotf);
   key->luminance_bit = needs_lum_mapping (lum, target_lum) ? 1 : 0;
   key->color_trans_bit =
-    colorimetry_equal (&color_state_params->colorimetry,
-                       &target_color_state_params->colorimetry) ? 0 : 1;
+    clutter_colorimetry_equal (&color_state_params->colorimetry,
+                               &target_color_state_params->colorimetry) ? 0 : 1;
   key->tone_mapping_bit = needs_tone_mapping (lum, target_lum) ? 1 : 0;
   key->lut_3d = 0;
   key->opaque_bit = !!(flags & CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
@@ -1063,8 +774,8 @@ get_color_space_mapping_snippet (ClutterColorStateParams      *color_state_param
                                  ClutterColorStateParams      *target_color_state_params,
                                  const ClutterColorOpSnippet **color_space_mapping_snippet)
 {
-  if (colorimetry_equal (&color_state_params->colorimetry,
-                         &target_color_state_params->colorimetry))
+  if (clutter_colorimetry_equal (&color_state_params->colorimetry,
+                                 &target_color_state_params->colorimetry))
     return;
 
   *color_space_mapping_snippet = &color_space_mapping;
@@ -1252,7 +963,7 @@ get_to_XYZ (ClutterColorStateParams *color_state_params,
             graphene_matrix_t       *to_XYZ)
 {
   const ClutterPrimaries *primaries =
-    get_primaries (&color_state_params->colorimetry);
+    clutter_colorimetry_get_primaries (&color_state_params->colorimetry);
   graphene_matrix_t coefficients_mat;
   graphene_matrix_t inv_primaries_mat;
   graphene_matrix_t primaries_mat;
@@ -1383,10 +1094,10 @@ get_to_D50 (ClutterColorStateParams *color_state_params,
   graphene_vec3_t D50_XYZ;
   graphene_vec3_t white_point_XYZ;
   const ClutterPrimaries *primaries =
-    get_primaries (&color_state_params->colorimetry);
+    clutter_colorimetry_get_primaries (&color_state_params->colorimetry);
 
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, &white_point_XYZ);
-  graphene_vec3_init (&D50_XYZ, D50_X, D50_Y, D50_Z);
+  graphene_vec3_init (&D50_XYZ, CLUTTER_D50_X, CLUTTER_D50_Y, CLUTTER_D50_Z);
 
   compute_chromatic_adaptation (&white_point_XYZ, &D50_XYZ, to_D50);
 }
@@ -1398,9 +1109,9 @@ get_from_D50 (ClutterColorStateParams *color_state_params,
   graphene_vec3_t D50_XYZ;
   graphene_vec3_t white_point_XYZ;
   const ClutterPrimaries *primaries =
-    get_primaries (&color_state_params->colorimetry);
+    clutter_colorimetry_get_primaries (&color_state_params->colorimetry);
 
-  graphene_vec3_init (&D50_XYZ, D50_X, D50_Y, D50_Z);
+  graphene_vec3_init (&D50_XYZ, CLUTTER_D50_X, CLUTTER_D50_Y, CLUTTER_D50_Z);
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, &white_point_XYZ);
 
   compute_chromatic_adaptation (&D50_XYZ, &white_point_XYZ, from_D50);
@@ -1413,10 +1124,10 @@ get_to_D65 (ClutterColorStateParams *color_state_params,
   graphene_vec3_t D65_XYZ;
   graphene_vec3_t white_point_XYZ;
   const ClutterPrimaries *primaries =
-    get_primaries (&color_state_params->colorimetry);
+    clutter_colorimetry_get_primaries (&color_state_params->colorimetry);
 
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, &white_point_XYZ);
-  graphene_vec3_init (&D65_XYZ, D65_X, D65_Y, D65_Z);
+  graphene_vec3_init (&D65_XYZ, CLUTTER_D65_X, CLUTTER_D65_Y, CLUTTER_D65_Z);
 
   compute_chromatic_adaptation (&white_point_XYZ, &D65_XYZ, to_D65);
 }
@@ -1428,9 +1139,9 @@ get_from_D65 (ClutterColorStateParams *color_state_params,
   graphene_vec3_t D65_XYZ;
   graphene_vec3_t white_point_XYZ;
   const ClutterPrimaries *primaries =
-    get_primaries (&color_state_params->colorimetry);
+    clutter_colorimetry_get_primaries (&color_state_params->colorimetry);
 
-  graphene_vec3_init (&D65_XYZ, D65_X, D65_Y, D65_Z);
+  graphene_vec3_init (&D65_XYZ, CLUTTER_D65_X, CLUTTER_D65_Y, CLUTTER_D65_Z);
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, &white_point_XYZ);
 
   compute_chromatic_adaptation (&D65_XYZ, &white_point_XYZ, from_D65);
@@ -1638,8 +1349,8 @@ update_color_space_mapping_uniforms (ClutterColorStateParams *color_state_params
   float matrix[16];
   int uniform_location_color_space_mapping;
 
-  if (colorimetry_equal (&color_state_params->colorimetry,
-                         &target_color_state_params->colorimetry))
+  if (clutter_colorimetry_equal (&color_state_params->colorimetry,
+                                 &target_color_state_params->colorimetry))
     return;
 
   clutter_color_state_params_get_color_space_mapping (color_state_params,
@@ -1842,8 +1553,8 @@ clutter_luminance_apply_tone_mapping (const ClutterLuminance *lum,
   int i;
 
   /* Data is in XYZ (D50) */
-  graphene_vec3_init (&D65_XYZ, D65_X, D65_Y, D65_Z);
-  graphene_vec3_init (&D50_XYZ, D50_X, D50_Y, D50_Z);
+  graphene_vec3_init (&D65_XYZ, CLUTTER_D65_X, CLUTTER_D65_Y, CLUTTER_D65_Z);
+  graphene_vec3_init (&D50_XYZ, CLUTTER_D50_X, CLUTTER_D50_Y, CLUTTER_D50_Z);
 
   compute_chromatic_adaptation (&D50_XYZ, &D65_XYZ, &to_D65);
   get_to_LMS (&to_LMS);
@@ -2045,7 +1756,7 @@ clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
     }
   else
     {
-      src_lum = &sdr_default_luminance;
+      src_lum = clutter_luminance_get_default_sdr ();
     }
 
   if (CLUTTER_IS_COLOR_STATE_PARAMS (other_color_state))
@@ -2055,7 +1766,7 @@ clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
     }
   else
     {
-      dst_lum = &sdr_default_luminance;
+      dst_lum = clutter_luminance_get_default_sdr ();
     }
 
   if (needs_tone_mapping (src_lum, dst_lum))
@@ -2084,16 +1795,17 @@ clutter_color_state_params_equals (ClutterColorState *color_state,
     CLUTTER_COLOR_STATE_PARAMS (other_color_state);
   const ClutterLuminance *lum, *target_lum;
 
-  if (!colorimetry_equal (&color_state_params->colorimetry,
-                          &other_color_state_params->colorimetry) ||
-      !eotf_equal (&color_state_params->eotf, &other_color_state_params->eotf))
+  if (!clutter_colorimetry_equal (&color_state_params->colorimetry,
+                                  &other_color_state_params->colorimetry) ||
+      !clutter_eotf_equal (&color_state_params->eotf,
+                           &other_color_state_params->eotf))
     return FALSE;
 
   lum = clutter_color_state_params_get_luminance (color_state_params);
   target_lum =
     clutter_color_state_params_get_luminance (other_color_state_params);
 
-  return luminances_equal (lum, target_lum);
+  return clutter_luminance_equal (lum, target_lum);
 }
 
 static gboolean
@@ -2106,9 +1818,10 @@ clutter_color_state_params_needs_mapping (ClutterColorState *color_state,
     CLUTTER_COLOR_STATE_PARAMS (target_color_state);
   const ClutterLuminance *lum, *target_lum;
 
-  if (!colorimetry_equal (&color_state_params->colorimetry,
-                          &target_color_state_params->colorimetry) ||
-      !eotf_equal (&color_state_params->eotf, &target_color_state_params->eotf))
+  if (!clutter_colorimetry_equal (&color_state_params->colorimetry,
+                                  &target_color_state_params->colorimetry) ||
+      !clutter_eotf_equal (&color_state_params->eotf,
+                           &target_color_state_params->eotf))
     return TRUE;
 
   lum = clutter_color_state_params_get_luminance (color_state_params);
@@ -2213,9 +1926,9 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
       blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_GAMMA22;
     }
 
-  if (eotf_equal (&blending_eotf, &color_state_params->eotf) &&
-      colorimetry_equal (&blending_colorimetry,
-                         &color_state_params->colorimetry))
+  if (clutter_eotf_equal (&blending_eotf, &color_state_params->eotf) &&
+      clutter_colorimetry_equal (&blending_colorimetry,
+                                 &color_state_params->colorimetry))
     return g_object_ref (color_state);
 
   luminance = *clutter_color_state_params_get_luminance (color_state_params);
@@ -2228,7 +1941,7 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
       blending_luminance = *clutter_eotf_get_default_luminance (blending_eotf);
       blending_luminance.type = CLUTTER_LUMINANCE_TYPE_EXPLICIT;
       blending_luminance.mastering_max = blending_luminance.ref *
-        luminance.mastering_max / luminance.ref;
+                                         luminance.mastering_max / luminance.ref;
     }
 
   g_object_get (G_OBJECT (color_state), "context", &context, NULL);
@@ -2380,7 +2093,8 @@ clutter_color_state_params_new_from_primitives (ClutterContext     *context,
       break;
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
       colorspace = CLUTTER_COLORSPACE_SRGB;
-      if (!primaries_equal (colorimetry.primaries, &srgb_primaries))
+      if (!clutter_primaries_equal (colorimetry.primaries,
+                                    clutter_colorspace_to_primaries (CLUTTER_COLORSPACE_SRGB)))
         primaries = colorimetry.primaries;
       break;
     }
