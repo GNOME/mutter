@@ -35,12 +35,6 @@
 
 #define CHECKSUM_SIZE 16
 
-typedef enum _ClutterColorStateIccFlags
-{
-  CLUTTER_COLOR_STATE_ICC_FLAG_NONE = 0,
-  CLUTTER_COLOR_STATE_ICC_FLAG_LINEAR = 1 << 0,
-} ClutterColorStateIccFlags;
-
 typedef struct _ClutterColorStateIcc
 {
   ClutterColorState parent;
@@ -58,7 +52,6 @@ typedef struct _ClutterColorStateIcc
 static ClutterColorState * clutter_color_state_icc_new_full (ClutterContext             *context,
                                                              const uint8_t              *icc_bytes,
                                                              uint32_t                    icc_length,
-                                                             ClutterColorStateIccFlags   flags,
                                                              GError                    **error);
 
 G_DEFINE_TYPE (ClutterColorStateIcc,
@@ -173,13 +166,19 @@ clutter_color_state_icc_get_blending (ClutterColorState *color_state,
     clutter_color_state_icc_new_full (context,
                                       bytes,
                                       length,
-                                      CLUTTER_COLOR_STATE_ICC_FLAG_LINEAR,
                                       &error);
   if (!blending_color_state)
     {
       g_warning ("Couldn't get ICC blending color state: %s", error->message);
       return g_object_ref (color_state);
     }
+
+  {
+    ClutterColorStateIcc *blending_color_state_icc =
+      CLUTTER_COLOR_STATE_ICC (blending_color_state);
+
+    blending_color_state_icc->is_linear = TRUE;
+  }
 
   return blending_color_state;
 }
@@ -299,7 +298,6 @@ static ClutterColorState *
 clutter_color_state_icc_new_full (ClutterContext             *context,
                                   const uint8_t              *icc_bytes,
                                   uint32_t                    icc_length,
-                                  ClutterColorStateIccFlags   flags,
                                   GError                    **error)
 {
   ClutterColorStateIcc *color_state_icc;
@@ -324,7 +322,6 @@ clutter_color_state_icc_new_full (ClutterContext             *context,
   color_state_icc->bytes = g_bytes_new (icc_bytes, icc_length);
   color_state_icc->icc_profile = g_steal_pointer (&icc_profile);
   memcpy (color_state_icc->checksum, checksum, sizeof (checksum));
-  color_state_icc->is_linear = flags & CLUTTER_COLOR_STATE_ICC_FLAG_LINEAR;
 
   return CLUTTER_COLOR_STATE (color_state_icc);
 }
@@ -345,6 +342,5 @@ clutter_color_state_icc_new (ClutterContext  *context,
   return clutter_color_state_icc_new_full (context,
                                            icc_bytes,
                                            icc_length,
-                                           CLUTTER_COLOR_STATE_ICC_FLAG_NONE,
                                            error);
 }
