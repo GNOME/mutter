@@ -31,3 +31,14 @@
 CLUTTER_EXPORT
 void clutter_color_pipeline_shader_add_transform (ClutterColorPipeline *color_pipeline,
                                                   CoglPipeline         *cogl_pipeline);
+
+CLUTTER_EXPORT
+void clutter_color_pipeline_shader_set_color_state (CoglPipeline                    *cogl_pipeline,
+                                                    ClutterColorState               *source_color_state,
+                                                    ClutterColorState               *target_color_state,
+                                                    ClutterColorStateTransformFlags  flags);
+
+CLUTTER_EXPORT
+gboolean clutter_color_pipeline_shader_needs_color_state (ClutterColorState               *source_color_state,
+                                                          ClutterColorState               *target_color_state,
+                                                          ClutterColorStateTransformFlags  flags);

@@ -28,7 +28,8 @@
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-color-op.h"
 #include "clutter/clutter-color-pipeline.h"
-#include "clutter/clutter-color-state.h"
+#include "clutter/clutter-color-state-private.h"
+#include "clutter/clutter-color-transform-private.h"
 #include "clutter/clutter-main.h"
 #include "cogl-half-float.h"
 
@@ -922,4 +923,55 @@ clutter_color_pipeline_shader_add_transform (ClutterColorPipeline *color_pipelin
       ClutterColorOp *op = l->data;
       update_shader_state (op, op_id, cogl_pipeline);
     }
+}
+
+void
+clutter_color_pipeline_shader_set_color_state (CoglPipeline                    *cogl_pipeline,
+                                               ClutterColorState               *source_color_state,
+                                               ClutterColorState               *target_color_state,
+                                               ClutterColorStateTransformFlags  flags)
+{
+  ClutterContext *context;
+  ClutterColorTransform *transform;
+
+  if (cogl_pipeline_has_capability (cogl_pipeline,
+                                    CLUTTER_PIPELINE_CAPABILITY,
+                                    CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE))
+    return;
+
+  context = clutter_color_state_get_context (source_color_state);
+  transform = clutter_color_transform_from_color_states (context,
+                                                         source_color_state,
+                                                         target_color_state,
+                                                         flags);
+  clutter_color_pipeline_shader_add_transform (
+    clutter_color_transform_get_pipeline (transform),
+    cogl_pipeline);
+  cogl_pipeline_add_capability (cogl_pipeline,
+                                CLUTTER_PIPELINE_CAPABILITY,
+                                CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE);
+}
+
+gboolean
+clutter_color_pipeline_shader_needs_color_state (ClutterColorState               *source_color_state,
+                                                 ClutterColorState               *target_color_state,
+                                                 ClutterColorStateTransformFlags  flags)
+{
+  ClutterContext *context;
+  ClutterColorTransform *transform;
+  ClutterColorPipeline *pipeline;
+
+  if (source_color_state == target_color_state)
+    return FALSE;
+
+  if (source_color_state == NULL || target_color_state == NULL)
+    return TRUE;
+
+  context = clutter_color_state_get_context (source_color_state);
+  transform = clutter_color_transform_from_color_states (context,
+                                                         source_color_state,
+                                                         target_color_state,
+                                                         flags);
+  pipeline = clutter_color_transform_get_pipeline (transform);
+  return !clutter_color_pipeline_is_empty (pipeline);
 }
