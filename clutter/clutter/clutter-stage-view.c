@@ -307,6 +307,7 @@ clutter_stage_view_invalidate_offscreen (ClutterStageView *view)
     }
 
   g_clear_object (&priv->offscreen_pipeline);
+  g_clear_object (&priv->offscreen);
 
   if (priv->ensure_offscreen_idle_id != 0)
     return;
