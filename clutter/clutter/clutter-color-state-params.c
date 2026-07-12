@@ -2207,6 +2207,7 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
   else if (blending_eotf.type == CLUTTER_EOTF_TYPE_NAMED &&
            blending_eotf.tf_name == CLUTTER_TRANSFER_FUNCTION_PQ)
     {
+      blending_colorimetry.type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
       blending_colorimetry.colorspace = CLUTTER_COLORSPACE_SRGB;
       blending_eotf.type = CLUTTER_EOTF_TYPE_NAMED;
       blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_GAMMA22;
