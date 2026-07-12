@@ -184,6 +184,9 @@ ensure_stage_view_offscreen (ClutterStageView *view)
   if (priv->offscreen)
     return;
 
+  clutter_stage_view_invalidate_projection (view);
+  clutter_stage_view_invalidate_viewport (view);
+
   required_format = clutter_color_state_required_format (priv->color_state);
 
   if (required_format <= CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8)
