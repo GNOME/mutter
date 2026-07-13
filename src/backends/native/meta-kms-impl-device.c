@@ -68,6 +68,7 @@ typedef struct _CrtcDeadline
   MetaKmsUpdate *pending_update;
   gboolean await_flush;
   gboolean cursor_enabled;
+  gboolean cursor_moved_last_frame;
   gboolean pending_page_flip;
   int64_t kms_ready_time_us;
 
@@ -1414,7 +1415,8 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   kms_update = crtc_frame->pending_update;
   if (kms_update)
     {
-      if (!crtc_frame->cursor_enabled)
+      if (!crtc_frame->cursor_enabled ||
+          !crtc_frame->cursor_moved_last_frame)
         asap = TRUE;
 
       target_presentation_us =
@@ -1673,7 +1675,15 @@ do_process (MetaKmsImplDevice *impl_device,
       cursor_assignment =
         meta_kms_update_get_cursor_plane_assignment (update, latch_crtc);
       if (cursor_assignment)
-        crtc_frame->cursor_enabled = cursor_assignment->buffer != NULL;
+        {
+          crtc_frame->cursor_enabled = cursor_assignment->buffer != NULL;
+          if (crtc_frame->cursor_enabled)
+            crtc_frame->cursor_moved_last_frame = TRUE;
+        }
+      else
+        {
+          crtc_frame->cursor_moved_last_frame = FALSE;
+        }
     }
 
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
