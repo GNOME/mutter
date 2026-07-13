@@ -63,6 +63,7 @@ void meta_kms_crtc_set_min_refresh_rate (MetaKmsCrtc *crtc,
 gboolean meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
                                            MetaKmsUpdate  *kms_update,
                                            int64_t         target_presentation_time_us,
+                                           gboolean        asap,
                                            int64_t        *out_next_deadline_us,
                                            int64_t        *out_next_presentation_us,
                                            GError        **error);

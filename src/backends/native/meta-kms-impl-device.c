@@ -1419,6 +1419,7 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
                                          kms_update,
                                          target_presentation_us,
+                                         FALSE,
                                          &next_deadline_us,
                                          &next_presentation_us,
                                          &local_error))

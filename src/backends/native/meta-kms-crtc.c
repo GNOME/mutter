@@ -798,6 +798,7 @@ gboolean
 meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
                                   MetaKmsUpdate  *kms_update,
                                   int64_t         target_presentation_time_us,
+                                  gboolean        asap,
                                   int64_t        *out_next_deadline_us,
                                   int64_t        *out_next_presentation_us,
                                   GError        **error)
@@ -870,7 +871,11 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
   vrr_enabled = crtc->current_state.vrr.enabled;
 
   next_presentation_us = vblank_time_us + refresh_interval_us;
-  next_deadline_us = next_presentation_us - deadline_evasion_us;
+
+  if (asap)
+    next_deadline_us = now_us;
+  else
+    next_deadline_us = next_presentation_us - deadline_evasion_us;
 
   if (vrr_enabled)
     {
@@ -996,7 +1001,11 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
         }
 
       next_presentation_us += skip_us;
-      next_deadline_us += skip_us;
+
+      if (asap)
+        next_deadline_us = next_presentation_us - refresh_interval_us;
+      else
+        next_deadline_us += skip_us;
     }
 
   *out_next_presentation_us = next_presentation_us;
