@@ -795,12 +795,12 @@ get_max_refresh_interval (MetaKmsCrtc *crtc)
 }
 
 gboolean
-meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
-                                  gboolean      have_kms_update,
-                                  int64_t       target_presentation_time_us,
-                                  int64_t      *out_next_deadline_us,
-                                  int64_t      *out_next_presentation_us,
-                                  GError      **error)
+meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
+                                  MetaKmsUpdate  *kms_update,
+                                  int64_t         target_presentation_time_us,
+                                  int64_t        *out_next_deadline_us,
+                                  int64_t        *out_next_presentation_us,
+                                  GError        **error)
 {
   MetaKmsImplDevice *impl_device;
   int ret;
@@ -879,7 +879,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
 
       max_refresh_interval_us = get_max_refresh_interval (crtc);
 
-      if (!have_kms_update &&
+      if (!kms_update &&
           next_presentation_us - vrr->last_presentation_us <
           vrr->min_present_interval_us + max_refresh_interval_us)
         {

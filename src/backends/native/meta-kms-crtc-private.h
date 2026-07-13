@@ -60,12 +60,12 @@ uint64_t meta_kms_crtc_get_prop_drm_value (MetaKmsCrtc     *crtc,
 void meta_kms_crtc_set_min_refresh_rate (MetaKmsCrtc *crtc,
                                          int32_t      min_refresh_rate);
 
-gboolean meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
-                                           gboolean      have_kms_update,
-                                           int64_t       target_presentation_time_us,
-                                           int64_t      *out_next_deadline_us,
-                                           int64_t      *out_next_presentation_us,
-                                           GError      **error);
+gboolean meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
+                                           MetaKmsUpdate  *kms_update,
+                                           int64_t         target_presentation_time_us,
+                                           int64_t        *out_next_deadline_us,
+                                           int64_t        *out_next_presentation_us,
+                                           GError        **error);
 
 void meta_kms_crtc_set_is_leased (MetaKmsCrtc *crtc,
                                   gboolean     leased);
