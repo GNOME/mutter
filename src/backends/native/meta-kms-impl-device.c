@@ -67,6 +67,7 @@ typedef struct _CrtcDeadline
   MetaKmsCrtc *crtc;
   MetaKmsUpdate *pending_update;
   gboolean await_flush;
+  gboolean cursor_enabled;
   gboolean pending_page_flip;
   int64_t kms_ready_time_us;
 
@@ -1405,6 +1406,7 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   int64_t next_deadline_us, next_presentation_us, target_presentation_us = 0;
   MetaKmsUpdate *kms_update;
   g_autoptr (GError) local_error = NULL;
+  gboolean asap = FALSE;
 
   if (!meta_kms_crtc_get_current_state (crtc_frame->crtc)->is_drm_mode_valid)
     return FALSE;
@@ -1412,6 +1414,9 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   kms_update = crtc_frame->pending_update;
   if (kms_update)
     {
+      if (!crtc_frame->cursor_enabled)
+        asap = TRUE;
+
       target_presentation_us =
         meta_kms_update_get_target_presentation_time (kms_update);
     }
@@ -1419,7 +1424,7 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
                                          kms_update,
                                          target_presentation_us,
-                                         FALSE,
+                                         asap,
                                          &next_deadline_us,
                                          &next_presentation_us,
                                          &local_error))
@@ -1659,9 +1664,16 @@ do_process (MetaKmsImplDevice *impl_device,
   if (crtc_frame &&
       meta_kms_feedback_get_result (feedback) == META_KMS_FEEDBACK_PASSED)
     {
+      MetaKmsPlaneAssignment *cursor_assignment;
+
       crtc_frame->pending_page_flip = TRUE;
       meta_kms_feedback_set_ready_time_us (feedback,
                                            crtc_frame->kms_ready_time_us);
+
+      cursor_assignment =
+        meta_kms_update_get_cursor_plane_assignment (update, latch_crtc);
+      if (cursor_assignment)
+        crtc_frame->cursor_enabled = cursor_assignment->buffer != NULL;
     }
 
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
