@@ -2464,10 +2464,24 @@ meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
     {
       GHashTableIter iter;
       CrtcFrame *crtc_frame;
+      GList *l;
 
       g_hash_table_iter_init (&iter, priv->crtc_frames);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
         discard_update (impl_device, &crtc_frame->pending_update);
+
+      l = priv->inhibited_updates;
+      while (l)
+        {
+          GList *l_next = l->next;
+          InhibitedUpdate *inhibited_update = l->data;
+
+          discard_update (impl_device, &inhibited_update->update);
+          inhibited_update_free (inhibited_update);
+          priv->inhibited_updates =
+            g_list_delete_link (priv->inhibited_updates, l);
+          l = l_next;
+        }
     }
 
   klass->discard_pending_page_flips (impl_device);
