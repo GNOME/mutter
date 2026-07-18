@@ -2040,6 +2040,9 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
   graphene_rect_t src_rect;
   MtkRectangle dst_rect;
 
+  if (onscreen_native->secondary_gpu_state)
+    return FALSE;
+
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
