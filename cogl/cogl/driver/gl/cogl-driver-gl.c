@@ -64,16 +64,19 @@ cogl_driver_gl_dispose (GObject *object)
     cogl_driver_gl_get_instance_private (driver);
   int i;
 
-  for (i = 0; i < priv->texture_units->len; i++)
+  if (priv->texture_units)
     {
-      CoglTextureUnit *unit =
-        &g_array_index (priv->texture_units, CoglTextureUnit, i);
+      for (i = 0; i < priv->texture_units->len; i++)
+        {
+          CoglTextureUnit *unit =
+            &g_array_index (priv->texture_units, CoglTextureUnit, i);
 
-      if (unit->layer)
-        g_object_unref (unit->layer);
-      g_object_unref (unit->matrix_stack);
+          if (unit->layer)
+            g_object_unref (unit->layer);
+          g_object_unref (unit->matrix_stack);
+        }
+      g_clear_pointer (&priv->texture_units, g_array_unref);
     }
-  g_array_free (priv->texture_units, TRUE);
 
   G_OBJECT_CLASS (cogl_driver_gl_parent_class)->dispose (object);
 }
