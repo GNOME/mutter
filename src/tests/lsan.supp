@@ -12,6 +12,7 @@ leak:meta_egl_bind_wayland_display
 leak:meta_egl_initialize
 leak:meta_egl_get_platform_display
 leak:g_daemon_vfs_init
+leak:libgvfsdbus.so
 leak:st_link_shader
 leak:xkbcomp.c
 leak:dix_main
