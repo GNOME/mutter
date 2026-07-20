@@ -18,6 +18,7 @@
 
 #include <link.h>
 #include <linux/limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +26,7 @@
 
 extern char *program_invocation_name;
 
-void asan_auto_loader () __attribute__((constructor));
+void asan_auto_loader (void) __attribute__((constructor));
 
 typedef struct _DlIteratorState
 {
@@ -72,7 +73,7 @@ dl_iterate_cb (struct dl_phdr_info *info,
 }
 
 void
-asan_auto_loader ()
+asan_auto_loader (void)
 {
   DlIteratorState state = {};
 
