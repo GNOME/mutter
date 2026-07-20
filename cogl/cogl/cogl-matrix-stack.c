@@ -70,7 +70,13 @@ cogl_matrix_stack_dispose (GObject *object)
 {
   CoglMatrixStack *stack = COGL_MATRIX_STACK (object);
 
-  cogl_matrix_entry_unref (stack->last_entry);
+  /* The context field is a weak pointer. If the context has already been
+   * finalized, the identity_entry embedded in it is freed and must not be
+   * accessed. In that case skip unreffing the entry chain. */
+  if (stack->context)
+    cogl_matrix_entry_unref (stack->last_entry);
+
+  g_clear_weak_pointer (&stack->context);
 
   G_OBJECT_CLASS (cogl_matrix_stack_parent_class)->dispose (object);
 }
@@ -490,7 +496,7 @@ cogl_matrix_stack_new (CoglContext *ctx)
         _cogl_magazine_new (sizeof (CoglMatrixEntryFull), 20);
     }
 
-  stack->context = ctx;
+  g_set_weak_pointer (&stack->context, ctx);
   stack->last_entry = NULL;
 
   cogl_matrix_entry_ref (cogl_context_get_identity_entry (ctx));
