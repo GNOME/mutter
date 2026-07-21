@@ -935,21 +935,6 @@ typedef struct _MetaWaylandDmaBufSource
 } MetaWaylandDmaBufSource;
 
 static gboolean
-is_fd_readable (int fd)
-{
-  GPollFD poll_fd;
-
-  poll_fd.fd = fd;
-  poll_fd.events = G_IO_IN;
-  poll_fd.revents = 0;
-
-  if (!g_poll (&poll_fd, 1, 0))
-    return FALSE;
-
-  return (poll_fd.revents & (G_IO_IN | G_IO_NVAL)) != 0;
-}
-
-static gboolean
 meta_wayland_dma_buf_source_dispatch (GSource     *base,
                                       GSourceFunc  callback,
                                       gpointer     user_data)
@@ -975,7 +960,7 @@ meta_wayland_dma_buf_source_dispatch (GSource     *base,
       if (fd < 0)
         fd = dma_buf->fds[i];
 
-      if (!is_fd_readable (fd))
+      if (!mtk_is_fd_readable (fd))
         {
           ready = FALSE;
           continue;
@@ -1096,7 +1081,7 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
       if (fd < 0)
         break;
 
-      if (is_fd_readable (fd))
+      if (mtk_is_fd_readable (fd))
         continue;
 
       if (!source)
@@ -1133,7 +1118,7 @@ meta_wayland_drm_syncobj_create_source (MetaWaylandBuffer                *buffer
       return NULL;
     }
 
-  if (is_fd_readable (sync_fd))
+  if (mtk_is_fd_readable (sync_fd))
     {
       return NULL;
     }

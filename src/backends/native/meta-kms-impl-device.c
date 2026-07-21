@@ -2068,21 +2068,6 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
   return GINT_TO_POINTER (TRUE);
 }
 
-static gboolean
-is_fd_readable (int fd)
-{
-  GPollFD poll_fd;
-
-  poll_fd.fd = fd;
-  poll_fd.events = G_IO_IN;
-  poll_fd.revents = 0;
-
-  if (!g_poll (&poll_fd, 1, 0))
-    return FALSE;
-
-  return (poll_fd.revents & (G_IO_IN | G_IO_NVAL)) != 0;
-}
-
 static void
 do_handle_update (MetaKmsImplDevice *impl_device,
                   CrtcFrame         *crtc_frame)
@@ -2111,7 +2096,7 @@ do_handle_update (MetaKmsImplDevice *impl_device,
     }
 
   if (sync_fd < 0 ||
-      is_fd_readable (sync_fd))
+      mtk_is_fd_readable (sync_fd))
     {
       meta_kms_impl_device_update_ready (thread_impl,
                                          crtc_frame,
