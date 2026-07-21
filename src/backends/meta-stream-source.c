@@ -1357,14 +1357,17 @@ dequeue_pw_buffer (MetaStreamSource  *source,
 
 static void
 queue_pw_buffer (MetaStreamSource *source,
-                 struct pw_buffer *buffer)
+                 struct pw_buffer *buffer,
+                 gboolean          bump_buffer_age)
 {
   MetaStreamSourcePrivate *priv =
     meta_stream_source_get_instance_private (source);
   MetaStreamBuffer *stream_buffer;
 
   stream_buffer = ensure_stream_buffer (buffer);
-  stream_buffer->age_sequence = priv->buffer_age_counter++;
+
+  if (bump_buffer_age)
+    stream_buffer->age_sequence = priv->buffer_age_counter++;
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 }
@@ -1499,7 +1502,7 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
       if (header)
         header->flags = SPA_META_HEADER_FLAG_CORRUPTED;
 
-      queue_pw_buffer (source, buffer);
+      queue_pw_buffer (source, buffer, FALSE);
       return record_result;
     }
 
@@ -1564,14 +1567,6 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
       spa_data->chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
     }
 
-  if (spa_data->chunk->flags == SPA_CHUNK_FLAG_CORRUPTED)
-    {
-      g_clear_pointer (&damage, mtk_region_unref);
-      damage = mtk_region_create ();
-      do_record_frame (source, flags, paint_phase, buffer, damage, &error);
-      maybe_add_damaged_regions_metadata (source, spa_buffer, damage);
-    }
-
   record_result |= maybe_record_cursor (source, spa_buffer);
 
   priv->last_frame_timestamp_us = frame_timestamp_us;
@@ -1591,7 +1586,9 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
       meta_topic (META_DEBUG_SCREEN_CAST, "Queuing unsequenced PipeWire buffer");
     }
 
-  queue_pw_buffer (source, buffer);
+  queue_pw_buffer (source,
+                   buffer,
+                   !(spa_data->chunk->flags & SPA_CHUNK_FLAG_CORRUPTED));
 
   return record_result;
 }
@@ -3341,7 +3338,7 @@ meta_stream_source_queue_empty_buffer (MetaStreamSource *source)
                   buffer->buffer);
     }
 
-  queue_pw_buffer (source, buffer);
+  queue_pw_buffer (source, buffer, FALSE);
 }
 
 ClutterColorState *
