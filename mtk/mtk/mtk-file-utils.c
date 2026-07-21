@@ -3,7 +3,7 @@
  *
  * A low-level base library.
  *
- * Copyright (C) 2023 Red Hat
+ * Copyright (C) 2026 Red Hat
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,19 +19,19 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "mtk-file-utils.h"
 
-#define __MTK_H_INSIDE__
+gboolean
+mtk_is_fd_readable (int fd)
+{
+  GPollFD poll_fd;
 
-#include "mtk/mtk-anonymous-file.h"
-#include "mtk/mtk-dbus.h"
-#include "mtk/mtk-dispose-bin.h"
-#include "mtk/mtk-file-utils.h"
-#include "mtk/mtk-rectangle.h"
-#include "mtk/mtk-region.h"
-#include "mtk/mtk-macros.h"
-#include "mtk/mtk-monitor-transform.h"
-#include "mtk/mtk-time-utils.h"
-#include "mtk/mtk-utils.h"
+  poll_fd.fd = fd;
+  poll_fd.events = G_IO_IN;
+  poll_fd.revents = 0;
 
-#undef __MTK_H_INSIDE__
+  if (!g_poll (&poll_fd, 1, 0))
+    return FALSE;
+
+  return (poll_fd.revents & (G_IO_IN | G_IO_NVAL)) != 0;
+}
