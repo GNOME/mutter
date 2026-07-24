@@ -568,6 +568,107 @@ meta_test_color_management_device_no_gamma (void)
 }
 
 static void
+meta_test_color_management_device_no_edid (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitor *monitor;
+  MetaColorDevice *color_device;
+  MetaColorProfile *color_profile;
+  CdIcc *cd_icc;
+  const char *device_id;
+  g_autofree char *device_id_checksum = NULL;
+  g_autofree char *expected_file_name = NULL;
+  g_autofree char *file_name = NULL;
+
+  test_case_setup.outputs[0].serial = "device_no_edid/serial";
+
+  test_case_setup.n_outputs = 1;
+  test_case_setup.n_crtcs = 1;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  monitor =
+    META_MONITOR (meta_monitor_manager_get_monitors (monitor_manager)->data);
+  g_assert_null (meta_monitor_get_edid_checksum_md5 (monitor));
+  g_assert_true (meta_monitor_supports_gamma_lut (monitor));
+
+  color_device = meta_color_manager_get_color_device (color_manager, monitor);
+  g_assert_nonnull (color_device);
+
+  while (!meta_color_device_is_ready (color_device))
+    g_main_context_iteration (NULL, TRUE);
+
+  color_profile = meta_color_device_get_device_profile (color_device);
+  g_assert_nonnull (color_profile);
+
+  /* The fallback file name is derived from the hashed device ID. */
+  device_id = meta_color_device_get_id (color_device);
+  device_id_checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5,
+                                                      device_id, -1);
+  expected_file_name = g_strdup_printf ("device-%s.icc", device_id_checksum);
+  file_name =
+    g_path_get_basename (meta_color_profile_get_file_path (color_profile));
+  g_assert_cmpstr (file_name, ==, expected_file_name);
+
+  cd_icc = meta_color_profile_get_cd_icc (color_profile);
+  g_assert_nonnull (cd_icc);
+
+  /* colord relies on this metadata to auto-add the profile to its device. */
+  g_assert_cmpstr (cd_icc_get_metadata_item (cd_icc,
+                                             CD_PROFILE_METADATA_MAPPING_DEVICE_ID),
+                   ==,
+                   device_id);
+}
+
+static void
+meta_test_color_management_device_no_edid_no_gamma (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitor *monitor;
+  MetaColorDevice *color_device;
+
+  test_case_setup.outputs[0].serial = "device_no_edid_no_gamma/serial";
+  test_case_setup.crtcs[0].disable_gamma_lut = TRUE;
+
+  test_case_setup.n_outputs = 1;
+  test_case_setup.n_crtcs = 1;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  monitor =
+    META_MONITOR (meta_monitor_manager_get_monitors (monitor_manager)->data);
+  g_assert_null (meta_monitor_get_edid_checksum_md5 (monitor));
+  g_assert_false (meta_monitor_supports_gamma_lut (monitor));
+
+  color_device = meta_color_manager_get_color_device (color_manager, monitor);
+  g_assert_nonnull (color_device);
+
+  while (!meta_color_device_is_ready (color_device))
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Without gamma LUT support, no fallback profile should be created. */
+  g_assert_null (meta_color_device_get_device_profile (color_device));
+}
+
+static void
 meta_test_color_management_profile_device (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -1452,6 +1553,10 @@ init_tests (void)
                   meta_test_color_management_device_basic);
   add_color_test ("/color-management/device/no-gamma",
                   meta_test_color_management_device_no_gamma);
+  add_color_test ("/color-management/device/no-edid",
+                  meta_test_color_management_device_no_edid);
+  add_color_test ("/color-management/device/no-edid-no-gamma",
+                  meta_test_color_management_device_no_edid_no_gamma);
   add_color_test ("/color-management/profile/device",
                   meta_test_color_management_profile_device);
   add_color_test ("/color-management/profile/device-bogus",
