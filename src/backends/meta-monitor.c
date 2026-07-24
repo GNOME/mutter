@@ -867,6 +867,9 @@ meta_monitor_get_gamma_lut_size (MetaMonitor *monitor)
 
   output = meta_monitor_get_main_output (monitor);
   crtc = meta_output_get_assigned_crtc (output);
+  if (!crtc)
+    return 0;
+
   return meta_crtc_get_gamma_lut_size (crtc);
 }
 
