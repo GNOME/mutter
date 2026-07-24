@@ -873,6 +873,42 @@ meta_monitor_get_gamma_lut_size (MetaMonitor *monitor)
   return meta_crtc_get_gamma_lut_size (crtc);
 }
 
+/**
+ * meta_monitor_supports_gamma_lut:
+ * @monitor: The MetaMonitor instance to check.
+ *
+ * Check whether the monitor supports gamma LUT adjustment.
+ *
+ * Unlike meta_monitor_get_gamma_lut_size(), this is not tied to the
+ * currently assigned CRTC: for a monitor without one (e.g. a disabled
+ * monitor), the CRTCs that could drive its main output are checked
+ * instead.
+ *
+ * Returns: %TRUE if the monitor supports gamma LUT adjustment.
+ */
+gboolean
+meta_monitor_supports_gamma_lut (MetaMonitor *monitor)
+{
+  MetaOutput *output;
+  MetaCrtc *crtc;
+  const MetaOutputInfo *output_info;
+  unsigned int i;
+
+  output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
+  if (crtc)
+    return meta_crtc_get_gamma_lut_size (crtc) > 0;
+
+  output_info = meta_output_get_info (output);
+  for (i = 0; i < output_info->n_possible_crtcs; i++)
+    {
+      if (meta_crtc_get_gamma_lut_size (output_info->possible_crtcs[i]) > 0)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static gboolean
 set_gamma_lut (MetaMonitor          *monitor,
                MetaMonitorMode      *mode,

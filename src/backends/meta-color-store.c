@@ -165,9 +165,10 @@ should_ignore_store_file (GFile *file)
 {
   g_autofree char *file_name = NULL;
 
-  /* Ignore profiles from EDID, as they will always be generated on demand. */
+  /* Ignore device profiles, as they will always be generated on demand. */
   file_name = g_file_get_basename (file);
-  return g_str_has_prefix (file_name, "edid-");
+  return g_str_has_prefix (file_name, "edid-") ||
+         g_str_has_prefix (file_name, "device-");
 }
 
 static void
@@ -496,7 +497,7 @@ meta_color_store_ensure_device_profile (MetaColorStore      *color_store,
                                         gpointer             user_data)
 {
   MetaMonitor *monitor;
-  const char *edid_checksum_md5;
+  const char *device_id, *edid_checksum_md5;
   g_autoptr (GTask) task = NULL;
   g_autofree char *file_name = NULL;
   g_autofree char *file_path = NULL;
@@ -504,20 +505,42 @@ meta_color_store_ensure_device_profile (MetaColorStore      *color_store,
   MetaColorProfile *color_profile;
 
   monitor = meta_color_device_get_monitor (color_device);
+  device_id = meta_color_device_get_id (color_device);
+
+  /* Use EDID if available, fall back to device ID hash */
   edid_checksum_md5 = meta_monitor_get_edid_checksum_md5 (monitor);
   if (!edid_checksum_md5)
-    return FALSE;
+    {
+      /* Only create a fallback sRGB profile for non-EDID monitors if the
+       * display supports gamma LUT adjustment (e.g. for Night Light). */
+      if (!meta_monitor_supports_gamma_lut (monitor))
+        return FALSE;
+    }
 
   task = g_task_new (G_OBJECT (color_store), cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_color_store_ensure_device_profile);
 
-  file_name = g_strdup_printf ("edid-%s.icc", edid_checksum_md5);
+  if (edid_checksum_md5)
+    {
+      file_name = g_strdup_printf ("edid-%s.icc", edid_checksum_md5);
+    }
+  else
+    {
+      g_autofree char *device_id_checksum = NULL;
+
+      /* Hash the device ID to avoid special characters (e.g. apostrophes
+       * in vendor names) that can break colord's FD-based profile import */
+      device_id_checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5,
+                                                          device_id, -1);
+      file_name = g_strdup_printf ("device-%s.icc", device_id_checksum);
+    }
+
   file_path = g_build_filename (g_get_user_data_dir (),
                                 "icc", file_name, NULL);
 
   data = g_new0 (EnsureDeviceProfileData, 1);
   data->color_store = color_store;
-  data->key = g_strdup (meta_color_device_get_id (color_device));
+  data->key = g_strdup (device_id);
   g_task_set_task_data (task, data,
                         (GDestroyNotify) ensure_device_profile_data_free);
 
