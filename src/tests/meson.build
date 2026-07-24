@@ -373,6 +373,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'monitor-orientation-phone-tests',
+    'suite': 'backend',
+    'sources': [
+      'monitor-orientation-phone-tests.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'monitor-custom-config-tests',
     'suite': 'backend',
     'sources': [
