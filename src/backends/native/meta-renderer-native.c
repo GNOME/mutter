@@ -984,8 +984,10 @@ detach_onscreens (MetaRenderer *renderer)
       ClutterStageView *stage_view = l->data;
       CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (stage_view);
 
-      if (META_IS_ONSCREEN_NATIVE (onscreen))
-        meta_onscreen_native_detach (META_ONSCREEN_NATIVE (onscreen));
+      if (!META_IS_ONSCREEN_NATIVE (onscreen))
+        continue;
+
+      meta_onscreen_native_detach (META_ONSCREEN_NATIVE (onscreen));
 
       renderer_native->detached_onscreens =
         g_list_prepend (renderer_native->detached_onscreens,
