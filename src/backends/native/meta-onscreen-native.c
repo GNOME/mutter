@@ -442,16 +442,12 @@ meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
 }
 
 static void
-notify_view_crtc_presented (MetaRendererView *view,
-                            MetaKmsCrtc      *kms_crtc,
-                            int64_t           time_us,
-                            CoglFrameInfoFlag flags,
-                            unsigned int      sequence)
+notify_crtc_presented (CoglOnscreen     *onscreen,
+                       MetaKmsCrtc      *kms_crtc,
+                       int64_t           time_us,
+                       CoglFrameInfoFlag flags,
+                       unsigned int      sequence)
 {
-  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
-  CoglFramebuffer *framebuffer =
-    clutter_stage_view_get_onscreen (stage_view);
-  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglFrameInfo *frame_info;
   MetaCrtc *crtc;
@@ -486,6 +482,10 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
                             gpointer      user_data)
 {
   MetaRendererView *view = user_data;
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
+  CoglFramebuffer *framebuffer =
+    clutter_stage_view_get_onscreen (stage_view);
+  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   struct timeval page_flip_time;
   MetaKmsDevice *kms_device;
   int64_t presentation_time_us;
@@ -511,10 +511,10 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
       presentation_time_us = g_get_monotonic_time ();
     }
 
-  notify_view_crtc_presented (view, kms_crtc,
-                              presentation_time_us,
-                              flags,
-                              sequence);
+  notify_crtc_presented (onscreen, kms_crtc,
+                         presentation_time_us,
+                         flags,
+                         sequence);
 }
 
 static void
@@ -539,6 +539,10 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
   MetaRendererView *view = user_data;
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
+  CoglFramebuffer *framebuffer =
+    clutter_stage_view_get_onscreen (stage_view);
+  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   int64_t now_us;
 
   /*
@@ -548,11 +552,11 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
 
   now_us = g_get_monotonic_time ();
 
-  notify_view_crtc_presented (view,
-                              kms_crtc,
-                              now_us,
-                              COGL_FRAME_INFO_FLAG_NONE,
-                              0);
+  notify_crtc_presented (onscreen,
+                         kms_crtc,
+                         now_us,
+                         COGL_FRAME_INFO_FLAG_NONE,
+                         0);
 }
 
 static void
