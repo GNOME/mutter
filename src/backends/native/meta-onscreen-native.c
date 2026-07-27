@@ -428,13 +428,11 @@ maybe_update_frame_info (MetaCrtc         *crtc,
 }
 
 static void
-meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
+notify_frame_info_complete (CoglFrameInfo *info)
 {
-  CoglFrameInfo *info;
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (info);
 
-  info = cogl_onscreen_pop_head_frame_info (onscreen);
-
-  g_return_if_fail (info);
+  cogl_onscreen_remove_frame_info (onscreen, info);
 
   _cogl_onscreen_notify_frame_sync (onscreen, info);
   _cogl_onscreen_notify_complete (onscreen, info);
@@ -466,7 +464,8 @@ notify_crtc_presented (MetaKmsCrtc      *kms_crtc,
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
 
-  meta_onscreen_native_notify_frame_complete (onscreen);
+  notify_frame_info_complete (frame_info);
+
   meta_onscreen_native_promote_posted_frame (onscreen);
 }
 
@@ -519,7 +518,8 @@ page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
-  meta_onscreen_native_notify_frame_complete (onscreen);
+  notify_frame_info_complete (frame_info);
+
   meta_onscreen_native_promote_posted_frame (onscreen);
 }
 
@@ -582,7 +582,8 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
         }
     }
 
-  meta_onscreen_native_notify_frame_complete (onscreen);
+  notify_frame_info_complete (frame_info);
+
   meta_onscreen_native_clear_posted_fb (onscreen);
 }
 
@@ -614,7 +615,7 @@ clear_superseded_frame (CoglOnscreen *onscreen)
 
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
-  meta_onscreen_native_notify_frame_complete (onscreen);
+  notify_frame_info_complete (frame_info);
 }
 
 void
@@ -1608,7 +1609,7 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
   if (frame_info)
     {
       frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
-      meta_onscreen_native_notify_frame_complete (onscreen);
+      notify_frame_info_complete (frame_info);
     }
 
   meta_onscreen_native_clear_posted_fb (onscreen);
@@ -2051,7 +2052,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
 
 post_failed:
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
-  meta_onscreen_native_notify_frame_complete (onscreen);
+  notify_frame_info_complete (frame_info);
 }
 
 gboolean
@@ -2145,7 +2146,7 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
-  meta_onscreen_native_notify_frame_complete (onscreen);
+  notify_frame_info_complete (frame_info);
   meta_onscreen_native_clear_posted_fb (onscreen);
 }
 
@@ -2358,7 +2359,7 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
-  meta_onscreen_native_notify_frame_complete (onscreen);
+  notify_frame_info_complete (frame_info);
   meta_onscreen_native_clear_posted_fb (onscreen);
 }
 
