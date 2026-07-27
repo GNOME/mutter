@@ -306,6 +306,15 @@ cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen)
   return g_queue_pop_head (&priv->pending_frame_infos);
 }
 
+void
+cogl_onscreen_remove_frame_info (CoglOnscreen  *onscreen,
+                                 CoglFrameInfo *frame_info)
+{
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  g_queue_remove (&priv->pending_frame_infos, frame_info);
+}
+
 CoglFrameClosure *
 cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
                                   CoglFrameCallback callback,

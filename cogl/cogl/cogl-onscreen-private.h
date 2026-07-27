@@ -56,3 +56,7 @@ cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen);
 
 COGL_EXPORT CoglFrameInfo *
 cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen);
+
+COGL_EXPORT void
+cogl_onscreen_remove_frame_info (CoglOnscreen  *onscreen,
+                                 CoglFrameInfo *frame_info);
