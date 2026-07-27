@@ -481,11 +481,8 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
                             unsigned int  tv_usec,
                             gpointer      user_data)
 {
-  MetaRendererView *view = user_data;
-  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
-  CoglFramebuffer *framebuffer =
-    clutter_stage_view_get_onscreen (stage_view);
-  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  CoglFrameInfo *frame_info = user_data;
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   struct timeval page_flip_time;
   MetaKmsDevice *kms_device;
   int64_t presentation_time_us;
@@ -521,13 +518,9 @@ static void
 page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
                           gpointer     user_data)
 {
-  MetaRendererView *view = user_data;
-  CoglFramebuffer *framebuffer =
-    clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
-  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-  CoglFrameInfo *frame_info;
+  CoglFrameInfo *frame_info = user_data;
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
 
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   meta_onscreen_native_notify_frame_complete (onscreen);
@@ -538,11 +531,8 @@ static void
 page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
-  MetaRendererView *view = user_data;
-  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
-  CoglFramebuffer *framebuffer =
-    clutter_stage_view_get_onscreen (stage_view);
-  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  CoglFrameInfo *frame_info = user_data;
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   int64_t now_us;
 
   /*
@@ -564,12 +554,9 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
                               gpointer      user_data,
                               const GError *error)
 {
-  MetaRendererView *view = user_data;
-  CoglFramebuffer *framebuffer =
-    clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
-  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  CoglFrameInfo *frame_info = user_data;
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  CoglFrameInfo *frame_info;
   int64_t frame_counter;
 
   /*
@@ -584,7 +571,6 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
 
     g_warning ("Page flip discarded: %s", error->message);
 
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   frame_counter = cogl_frame_info_get_frame_counter (frame_info);
@@ -756,6 +742,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaFrameNative *frame_native;
+  CoglFrameInfo *frame_info;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
@@ -826,11 +813,12 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
       break;
     }
 
+  frame_info = clutter_frame_get_cogl_frame_info (frame);
   meta_kms_update_add_page_flip_listener (kms_update,
                                           kms_crtc,
                                           &page_flip_listener_vtable,
                                           NULL,
-                                          g_object_ref (view),
+                                          g_object_ref (frame_info),
                                           g_object_unref);
   return TRUE;
 }
@@ -2475,6 +2463,7 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+  CoglFrameInfo *frame_info;
 
   meta_kms_update_add_result_listener (kms_update,
                                        &finish_frame_result_listener_vtable,
@@ -2482,13 +2471,14 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
                                        onscreen_native,
                                        NULL);
 
+  add_onscreen_frame_info (crtc, frame);
+  frame_info = clutter_frame_get_cogl_frame_info (frame);
   meta_kms_update_add_page_flip_listener (kms_update,
                                           kms_crtc,
                                           &page_flip_listener_vtable,
                                           NULL,
-                                          g_object_ref (onscreen_native->view),
+                                          g_object_ref (frame_info),
                                           g_object_unref);
-  add_onscreen_frame_info (crtc, frame);
 
   meta_topic (META_DEBUG_KMS,
               "Posting non-primary plane update for CRTC %u (%s)",
