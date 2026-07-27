@@ -284,6 +284,7 @@ typedef struct _CoglContext CoglContext;
 typedef struct _CoglDisplay CoglDisplay;
 typedef struct _CoglFrameInfo CoglFrameInfo;
 typedef struct _CoglIndices CoglIndices;
+typedef struct _CoglOnscreen CoglOnscreen;
 typedef struct _CoglParamSpecColor CoglParamSpecColor;
 typedef struct _CoglPipeline CoglPipeline;
 typedef struct _CoglPixelBuffer CoglPixelBuffer;

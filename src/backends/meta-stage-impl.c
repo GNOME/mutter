@@ -263,7 +263,6 @@ swap_framebuffer (ClutterStageWindow *stage_window,
   MetaStageImplPrivate *priv =
     meta_stage_impl_get_instance_private (stage_impl);
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (stage_view);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
 
   COGL_TRACE_BEGIN_SCOPED (SwapFramebuffer, "Meta::StageImpl::swap_framebuffer()");
 
@@ -277,7 +276,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
 
 
       frame_info =
-        cogl_frame_info_new (cogl_context, priv->global_frame_counter,
+        cogl_frame_info_new (onscreen, priv->global_frame_counter,
                              frame->frame_count);
       priv->global_frame_counter++;
 
@@ -775,7 +774,6 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
     meta_stage_impl_get_instance_private (stage_impl);
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglOnscreen *onscreen;
   CoglFrameInfo *frame_info;
 
@@ -783,7 +781,7 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
 
   onscreen = COGL_ONSCREEN (framebuffer);
 
-  frame_info = cogl_frame_info_new (cogl_context, priv->global_frame_counter,
+  frame_info = cogl_frame_info_new (onscreen, priv->global_frame_counter,
                                     frame->frame_count);
 
   if (!cogl_onscreen_direct_scanout (onscreen,
@@ -840,10 +838,10 @@ meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
   MetaStageImplPrivate *priv =
     meta_stage_impl_get_instance_private (stage_impl);
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (stage_view);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   CoglFrameInfo *frame_info;
 
-  frame_info = cogl_frame_info_new (cogl_context, priv->global_frame_counter,
+  frame_info = cogl_frame_info_new (onscreen, priv->global_frame_counter,
                                     frame->frame_count);
   priv->global_frame_counter++;
 

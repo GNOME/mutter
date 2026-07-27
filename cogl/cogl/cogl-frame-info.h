@@ -71,6 +71,17 @@ COGL_EXPORT
 int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
 
 /**
+ * cogl_frame_info_get_onscreen:
+ * @info: a #CoglFrameInfo object
+ *
+ * Gets the #CoglOnscreen for this frame.
+ *
+ * Return value: (transfer none): The onscreen pointer
+ */
+COGL_EXPORT
+CoglOnscreen *cogl_frame_info_get_onscreen (CoglFrameInfo *info);
+
+/**
  * cogl_frame_info_get_presentation_time_us:
  * @info: a #CoglFrameInfo object
  *

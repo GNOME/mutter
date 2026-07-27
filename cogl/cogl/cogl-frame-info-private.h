@@ -61,7 +61,7 @@ struct _CoglFrameInfo
 {
   GObject parent_instance;
 
-  CoglContext *context;
+  CoglOnscreen *onscreen;
 
   int64_t frame_counter;
   int64_t kms_ready_time_us;
@@ -77,6 +77,6 @@ struct _CoglFrameInfo
 };
 
 COGL_EXPORT
-CoglFrameInfo *cogl_frame_info_new (CoglContext *context,
-                                    int64_t      global_frame_counter,
-                                    int64_t      view_frame_counter);
+CoglFrameInfo *cogl_frame_info_new (CoglOnscreen *onscreen,
+                                    int64_t       global_frame_counter,
+                                    int64_t       view_frame_counter);

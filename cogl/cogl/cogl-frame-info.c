@@ -36,6 +36,16 @@
 G_DEFINE_FINAL_TYPE (CoglFrameInfo, cogl_frame_info, G_TYPE_OBJECT);
 
 static void
+cogl_frame_info_dispose (GObject *object)
+{
+  CoglFrameInfo *info = COGL_FRAME_INFO (object);
+
+  g_clear_object (&info->onscreen);
+
+  G_OBJECT_CLASS (cogl_frame_info_parent_class)->dispose (object);
+}
+
+static void
 cogl_frame_info_init (CoglFrameInfo *info)
 {
 }
@@ -43,17 +53,20 @@ cogl_frame_info_init (CoglFrameInfo *info)
 static void
 cogl_frame_info_class_init (CoglFrameInfoClass *class)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->dispose = cogl_frame_info_dispose;
 }
 
 CoglFrameInfo *
-cogl_frame_info_new (CoglContext *context,
-                     int64_t      global_frame_counter,
-                     int64_t      view_frame_counter)
+cogl_frame_info_new (CoglOnscreen *onscreen,
+                     int64_t       global_frame_counter,
+                     int64_t       view_frame_counter)
 {
   CoglFrameInfo *info;
 
   info = g_object_new (COGL_TYPE_FRAME_INFO, NULL);
-  info->context = context;
+  info->onscreen = g_object_ref (onscreen);
   info->global_frame_counter = global_frame_counter;
   info->view_frame_counter = view_frame_counter;
 
@@ -64,6 +77,12 @@ int64_t
 cogl_frame_info_get_frame_counter (CoglFrameInfo *info)
 {
   return info->frame_counter;
+}
+
+CoglOnscreen *
+cogl_frame_info_get_onscreen (CoglFrameInfo *info)
+{
+  return info->onscreen;
 }
 
 int64_t
