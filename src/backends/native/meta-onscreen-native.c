@@ -1578,21 +1578,19 @@ static void
 swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
                              gpointer               user_data)
 {
-  CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
+  CoglFrameInfo *frame_info = user_data;
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   const GError *error = NULL;
-  CoglFrameInfo *frame_info;
 
   /*
    * Page flipping failed, but we want to fail gracefully, so to avoid freezing
    * the frame clock, emit a symbolic flip.
    */
 
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
-
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
     {
-      if (frame_info && frame_info->kms_ready_time_us == 0)
+      if (frame_info->kms_ready_time_us == 0)
         {
           frame_info->kms_ready_time_us =
             meta_kms_feedback_get_ready_time_us (kms_feedback);
@@ -1856,6 +1854,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   g_clear_pointer (&onscreen_native->next_frame_ready_source, g_source_destroy);
 
   frame = g_steal_pointer (&onscreen_native->next_frame);
+  frame_info = clutter_frame_get_cogl_frame_info (frame);
   frame_native = meta_frame_native_from_frame (frame);
   region = meta_frame_native_get_damage (frame_native);
 
@@ -1973,8 +1972,8 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   meta_kms_update_add_result_listener (kms_update,
                                        listener,
                                        NULL,
-                                       onscreen_native,
-                                       NULL);
+                                       g_object_ref (frame_info),
+                                       g_object_unref);
 
   ensure_crtc_modes (onscreen, kms_update);
   if (!meta_onscreen_native_flip_crtc (onscreen,
@@ -2056,7 +2055,6 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   return;
 
 post_failed:
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
   meta_onscreen_native_notify_frame_complete (onscreen);
 }
@@ -2112,12 +2110,10 @@ static void
 scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
                          gpointer               user_data)
 {
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (user_data);
-  CoglOnscreen *onscreen = COGL_ONSCREEN (onscreen_native);
+  CoglFrameInfo *frame_info = user_data;
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   const GError *error = NULL;
-  CoglFrameInfo *frame_info;
-
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
@@ -2341,16 +2337,14 @@ static void
 finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
                               gpointer               user_data)
 {
-  CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
+  CoglFrameInfo *frame_info = user_data;
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   const GError *error = NULL;
-  CoglFrameInfo *frame_info;
-
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
     {
-      if (frame_info && frame_info->kms_ready_time_us == 0)
+      if (frame_info->kms_ready_time_us == 0)
         {
           frame_info->kms_ready_time_us =
             meta_kms_feedback_get_ready_time_us (kms_feedback);
@@ -2366,12 +2360,6 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
                         META_KMS_ERROR,
                         META_KMS_ERROR_EMPTY_UPDATE))
     g_warning ("Cursor update failed: %s", error->message);
-
-  if (!frame_info)
-    {
-      g_warning ("The feedback callback was called, but there was no frame info");
-      return;
-    }
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
@@ -2465,14 +2453,15 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
   CoglFrameInfo *frame_info;
 
+  add_onscreen_frame_info (crtc, frame);
+  frame_info = clutter_frame_get_cogl_frame_info (frame);
+
   meta_kms_update_add_result_listener (kms_update,
                                        &finish_frame_result_listener_vtable,
                                        NULL,
-                                       onscreen_native,
-                                       NULL);
+                                       g_object_ref (frame_info),
+                                       g_object_unref);
 
-  add_onscreen_frame_info (crtc, frame);
-  frame_info = clutter_frame_get_cogl_frame_info (frame);
   meta_kms_update_add_page_flip_listener (kms_update,
                                           kms_crtc,
                                           &page_flip_listener_vtable,
