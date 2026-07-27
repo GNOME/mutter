@@ -442,20 +442,16 @@ meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
 }
 
 static void
-notify_crtc_presented (CoglOnscreen     *onscreen,
-                       MetaKmsCrtc      *kms_crtc,
+notify_crtc_presented (MetaKmsCrtc      *kms_crtc,
+                       CoglFrameInfo    *frame_info,
                        int64_t           time_us,
                        CoglFrameInfoFlag flags,
                        unsigned int      sequence)
 {
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  CoglFrameInfo *frame_info;
   MetaCrtc *crtc;
   int64_t frame_counter;
-
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
-
-  g_return_if_fail (frame_info != NULL);
 
   frame_counter = cogl_frame_info_get_frame_counter (frame_info);
 
@@ -482,7 +478,6 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
                             gpointer      user_data)
 {
   CoglFrameInfo *frame_info = user_data;
-  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   struct timeval page_flip_time;
   MetaKmsDevice *kms_device;
   int64_t presentation_time_us;
@@ -508,7 +503,8 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
       presentation_time_us = g_get_monotonic_time ();
     }
 
-  notify_crtc_presented (onscreen, kms_crtc,
+  notify_crtc_presented (kms_crtc,
+                         frame_info,
                          presentation_time_us,
                          flags,
                          sequence);
@@ -532,7 +528,6 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
   CoglFrameInfo *frame_info = user_data;
-  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   int64_t now_us;
 
   /*
@@ -542,8 +537,8 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
 
   now_us = g_get_monotonic_time ();
 
-  notify_crtc_presented (onscreen,
-                         kms_crtc,
+  notify_crtc_presented (kms_crtc,
+                         frame_info,
                          now_us,
                          COGL_FRAME_INFO_FLAG_NONE,
                          0);
