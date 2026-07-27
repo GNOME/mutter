@@ -133,7 +133,6 @@ struct _MetaOnscreenNative
 
   ClutterFrame *presented_frame;
   ClutterFrame *posted_frame;
-  ClutterFrame *superseded_frame;
   ClutterFrame *next_frame;
   GSource *next_frame_ready_source;
 
@@ -602,33 +601,15 @@ meta_onscreen_native_get_egl (MetaOnscreenNative *onscreen_native)
   return meta_renderer_native_get_egl (renderer_native);
 }
 
-static void
-clear_superseded_frame (CoglOnscreen *onscreen)
-{
-  CoglFrameInfo *frame_info;
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-
-  if (onscreen_native->superseded_frame == NULL)
-    return;
-
-  g_clear_pointer (&onscreen_native->superseded_frame, clutter_frame_unref);
-
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
-  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
-  notify_frame_info_complete (frame_info);
-}
-
 void
 meta_onscreen_native_dummy_power_save_page_flip (CoglOnscreen *onscreen)
 {
-  clear_superseded_frame (onscreen);
-
   /* If the monitor woke up in the 100ms between this callback being queued
    * and dispatched, and the shell is fully idle (has nothing more to swap)
    * then we just woke to an indefinitely black screen. The only saving grace
    * here is that shells usually have multiple frames they want to display
    * soon after wakeup. But let's not assume that's always the case. Fix it
-   * by displaying the last swap (which is never classified as "superseded").
+   * by displaying the last swap.
    */
   maybe_post_next_frame (onscreen);
 }
@@ -1603,14 +1584,8 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
                         G_IO_ERROR_PERMISSION_DENIED))
     g_warning ("Page flip failed: %s", error->message);
 
-  /* After resuming from suspend, clear_superseded_frame might have done this
-   * already and emptied the frame_info queue.
-   */
-  if (frame_info)
-    {
-      frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
-      notify_frame_info_complete (frame_info);
-    }
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+  notify_frame_info_complete (frame_info);
 
   meta_onscreen_native_clear_posted_fb (onscreen);
 }
@@ -1854,8 +1829,6 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   frame_native = meta_frame_native_from_frame (frame);
   region = meta_frame_native_get_damage (frame_native);
 
-  clear_superseded_frame (onscreen);
-
   is_direct_scanout = meta_frame_native_get_scanout (frame_native) != NULL;
   is_swap_buffers = region != NULL;
 
@@ -1955,10 +1928,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
 
   if (power_save_mode != META_POWER_SAVE_ON ||
       meta_kms_is_shutting_down (kms))
-    {
-      onscreen_native->superseded_frame = g_steal_pointer (&frame);
-      return;
-    }
+    goto post_failed;
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   kms_device = meta_kms_crtc_get_device (kms_crtc);
@@ -2499,8 +2469,6 @@ meta_onscreen_native_discard_pending_swaps (CoglOnscreen *onscreen)
   secondary_gpu_state = onscreen_native->secondary_gpu_state;
   if (secondary_gpu_state)
     g_clear_object (&secondary_gpu_state->source_framebuffer);
-
-  discard_pending_swap (&onscreen_native->superseded_frame);
 
   render_source_remove_frame (onscreen_native->render_source,
                               onscreen_native->next_frame);
