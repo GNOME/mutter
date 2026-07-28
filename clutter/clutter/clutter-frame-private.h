@@ -37,6 +37,8 @@ struct _ClutterFrame
 
   gboolean has_result;
   ClutterFrameResult result;
+
+  CoglFrameInfo *cogl_frame_info;
 };
 
 CLUTTER_EXPORT

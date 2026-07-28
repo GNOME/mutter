@@ -47,6 +47,21 @@ CLUTTER_EXPORT
 gboolean clutter_frame_get_frame_deadline (ClutterFrame *frame,
                                            int64_t      *frame_deadline_us);
 
+/**
+ * clutter_frame_get_cogl_frame_info:
+ * @frame: a #ClutterFrame object
+ *
+ * Gets the #CoglFrameInfo for this frame.
+ *
+ * Return value: (transfer none): The #CoglFrameInfo pointer
+ */
+CLUTTER_EXPORT
+CoglFrameInfo * clutter_frame_get_cogl_frame_info (ClutterFrame *frame);
+
+CLUTTER_EXPORT
+void clutter_frame_set_cogl_frame_info (ClutterFrame  *frame,
+                                        CoglFrameInfo *frame_info);
+
 CLUTTER_EXPORT
 void clutter_frame_set_result (ClutterFrame       *frame,
                                ClutterFrameResult  result);

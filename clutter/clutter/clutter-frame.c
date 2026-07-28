@@ -92,6 +92,21 @@ clutter_frame_get_frame_deadline (ClutterFrame *frame,
     }
 }
 
+CoglFrameInfo *
+clutter_frame_get_cogl_frame_info (ClutterFrame *frame)
+{
+  return frame->cogl_frame_info;
+}
+
+void
+clutter_frame_set_cogl_frame_info (ClutterFrame  *frame,
+                                   CoglFrameInfo *frame_info)
+{
+  g_return_if_fail (!frame->cogl_frame_info);
+
+  frame->cogl_frame_info = frame_info;
+}
+
 ClutterFrameResult
 clutter_frame_get_result (ClutterFrame *frame)
 {

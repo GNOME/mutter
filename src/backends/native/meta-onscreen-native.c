@@ -1751,9 +1751,7 @@ mark_next_frame_kms_ready (CoglOnscreen *onscreen)
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglFrameInfo *frame_info;
 
-  frame_info =
-    cogl_onscreen_peek_frame_info (onscreen,
-                                   onscreen_native->next_frame->frame_count);
+  frame_info = clutter_frame_get_cogl_frame_info (onscreen_native->next_frame);
 
   if (frame_info->kms_ready_time_us == 0)
     frame_info->kms_ready_time_us = g_get_monotonic_time ();

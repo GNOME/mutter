@@ -280,6 +280,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
                              frame->frame_count);
       priv->global_frame_counter++;
 
+      clutter_frame_set_cogl_frame_info (frame, frame_info);
+
       n_rects = mtk_region_num_rectangles (swap_region);
       if (n_rects > 0 && !swap_with_damage)
         {
@@ -783,6 +785,7 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
 
   frame_info = cogl_frame_info_new (onscreen, priv->global_frame_counter,
                                     frame->frame_count);
+  clutter_frame_set_cogl_frame_info (frame, frame_info);
 
   if (!cogl_onscreen_direct_scanout (onscreen,
                                      scanout,
@@ -846,6 +849,7 @@ meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
   priv->global_frame_counter++;
 
   cogl_onscreen_add_frame_info (COGL_ONSCREEN (framebuffer), frame_info);
+  clutter_frame_set_cogl_frame_info (frame, frame_info);
 }
 
 static void
