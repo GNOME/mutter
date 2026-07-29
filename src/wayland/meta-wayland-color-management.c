@@ -1259,9 +1259,8 @@ meta_wayland_creator_params_new (MetaWaylandColorManager *color_manager,
 static void
 meta_wayland_creator_params_free (MetaWaylandCreatorParams *creator_params)
 {
-  if (creator_params->is_colorimetry_set &&
-      creator_params->colorimetry.type == CLUTTER_COLORIMETRY_TYPE_PRIMARIES)
-    g_clear_pointer (&creator_params->colorimetry.primaries, g_free);
+  if (creator_params->is_colorimetry_set)
+    clutter_colorimetry_clear (&creator_params->colorimetry);
 
   g_free (creator_params);
 }

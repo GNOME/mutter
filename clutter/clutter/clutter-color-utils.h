@@ -160,6 +160,11 @@ CLUTTER_EXPORT
 const ClutterPrimaries * clutter_colorimetry_get_primaries (const ClutterColorimetry *colorimetry);
 
 CLUTTER_EXPORT
+void clutter_colorimetry_clear (ClutterColorimetry *colorimetry);
+
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC (ClutterColorimetry, clutter_colorimetry_clear)
+
+CLUTTER_EXPORT
 const char * clutter_colorspace_to_string (ClutterColorspace colorspace);
 
 CLUTTER_EXPORT

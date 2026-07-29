@@ -318,6 +318,13 @@ clutter_colorimetry_get_primaries (const ClutterColorimetry *colorimetry)
 }
 
 void
+clutter_colorimetry_clear (ClutterColorimetry *colorimetry)
+{
+  if (colorimetry->type == CLUTTER_COLORIMETRY_TYPE_PRIMARIES)
+    g_clear_pointer (&colorimetry->primaries, g_free);
+}
+
+void
 clutter_xyY_to_XYZ (float            x,
                     float            y,
                     float            Y,
