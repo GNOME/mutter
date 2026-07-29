@@ -111,4 +111,9 @@ gboolean clutter_seat_query_state (ClutterSeat         *seat,
                                    graphene_point_t    *coords,
                                    ClutterModifierType *modifiers);
 
+CLUTTER_EXPORT
+void clutter_colorimetry_clear (ClutterColorimetry *colorimetry);
+
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC (ClutterColorimetry, clutter_colorimetry_clear)
+
 #undef __CLUTTER_H_INSIDE__

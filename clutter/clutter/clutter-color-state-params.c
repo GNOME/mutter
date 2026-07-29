@@ -30,6 +30,7 @@
 
 #include "clutter/clutter-color-state-private.h"
 #include "clutter/clutter-context.h"
+#include "clutter/clutter-mutter.h"
 
 #define UNIFORM_NAME_GAMMA_EXP "gamma_exp"
 #define UNIFORM_NAME_INV_GAMMA_EXP "inv_gamma_exp"
@@ -447,8 +448,7 @@ clutter_color_state_params_finalize (GObject *object)
   ClutterColorStateParams *color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (object);
 
-  if (color_state_params->colorimetry.type == CLUTTER_COLORIMETRY_TYPE_PRIMARIES)
-    g_clear_pointer (&color_state_params->colorimetry.primaries, g_free);
+  clutter_colorimetry_clear (&color_state_params->colorimetry);
 
   G_OBJECT_CLASS (clutter_color_state_params_parent_class)->finalize (object);
 }
@@ -2537,4 +2537,11 @@ clutter_color_state_params_new_from_cicp (ClutterContext     *context,
                                                          colorimetry,
                                                          eotf,
                                                          lum);
+}
+
+void
+clutter_colorimetry_clear (ClutterColorimetry *colorimetry)
+{
+  if (colorimetry->type == CLUTTER_COLORIMETRY_TYPE_PRIMARIES)
+    g_clear_pointer (&colorimetry->primaries, g_free);
 }
