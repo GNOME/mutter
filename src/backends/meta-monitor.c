@@ -946,6 +946,60 @@ meta_monitor_set_gamma_lut (MetaMonitor        *monitor,
                                   NULL);
 }
 
+gboolean
+meta_monitor_is_ctm_supported (MetaMonitor *monitor)
+{
+  MetaOutput *output;
+  MetaCrtc *crtc;
+
+  output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
+  if (!crtc)
+    return FALSE;
+
+  return meta_crtc_is_ctm_supported (crtc);
+}
+
+static gboolean
+set_ctm (MetaMonitor          *monitor,
+         MetaMonitorMode      *mode,
+         MetaMonitorCrtcMode  *monitor_crtc_mode,
+         gpointer              user_data,
+         GError              **error)
+{
+  const MetaCtm *ctm = user_data;
+  MetaCrtc *crtc;
+
+  crtc = meta_output_get_assigned_crtc (monitor_crtc_mode->output);
+
+  if (meta_crtc_is_ctm_supported (crtc))
+    meta_crtc_set_ctm (crtc, ctm);
+
+  return TRUE;
+}
+
+/**
+ * meta_monitor_set_ctm:
+ *
+ * Set a color transformation matrix on the monitor's CRTCs that support CTM.
+ * Used as a Night Light fallback when GAMMA_LUT is unavailable.
+ */
+void
+meta_monitor_set_ctm (MetaMonitor   *monitor,
+                      const MetaCtm *ctm)
+{
+  MetaMonitorMode *current_mode;
+
+  current_mode = meta_monitor_get_current_mode (monitor);
+  g_return_if_fail (current_mode);
+
+  meta_monitor_mode_foreach_crtc (monitor,
+                                  current_mode,
+                                  set_ctm,
+                                  (gpointer) ctm,
+                                  NULL);
+}
+
 void
 meta_monitor_create_backlight (MetaMonitor *monitor)
 {

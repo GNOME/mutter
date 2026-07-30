@@ -166,9 +166,10 @@ struct _MetaOnscreenNative
   union {
     struct {
       KmsProperty gamma_lut;
+      KmsProperty ctm;
       KmsProperty privacy_screen;
     } property;
-    KmsProperty properties[2];
+    KmsProperty properties[3];
   };
 };
 
@@ -2482,6 +2483,21 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
         target_frame_counter;
     }
 
+  if (onscreen_native->property.ctm.invalidated)
+    {
+      const MetaCtm *ctm;
+      MetaKmsUpdate *kms_update;
+
+      kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                        kms_device);
+
+      ctm = meta_crtc_kms_peek_ctm (crtc_kms);
+      meta_kms_update_set_crtc_ctm (kms_update, kms_crtc, ctm);
+      onscreen_native->property.ctm.invalidated = FALSE;
+      onscreen_native->property.ctm.target_frame_counter =
+        target_frame_counter;
+    }
+
   if (onscreen_native->property.privacy_screen.invalidated)
     {
       MetaKmsConnector *kms_connector =
@@ -3745,6 +3761,8 @@ meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native)
 
   if (meta_crtc_get_gamma_lut_size (onscreen_native->crtc) > 0)
     onscreen_native->property.gamma_lut.invalidated = TRUE;
+  if (meta_crtc_is_ctm_supported (onscreen_native->crtc))
+    onscreen_native->property.ctm.invalidated = TRUE;
   if (output_info->supports_privacy_screen)
     onscreen_native->property.privacy_screen.invalidated = TRUE;
 }
@@ -3756,6 +3774,16 @@ on_gamma_lut_changed (MetaCrtc           *crtc,
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
 
   onscreen_native->property.gamma_lut.invalidated = TRUE;
+  clutter_stage_view_schedule_update (stage_view);
+}
+
+static void
+on_ctm_changed (MetaCrtc           *crtc,
+                MetaOnscreenNative *onscreen_native)
+{
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+
+  onscreen_native->property.ctm.invalidated = TRUE;
   clutter_stage_view_schedule_update (stage_view);
 }
 
@@ -3808,6 +3836,15 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
                           onscreen_native);
     }
 
+  if (meta_crtc_is_ctm_supported (crtc))
+    {
+      onscreen_native->property.ctm.invalidated = TRUE;
+      onscreen_native->property.ctm.signal_handler_id =
+        g_signal_connect (crtc, "ctm-changed",
+                          G_CALLBACK (on_ctm_changed),
+                          onscreen_native);
+    }
+
   if (output_info->supports_privacy_screen)
     {
       onscreen_native->property.privacy_screen.invalidated = TRUE;
@@ -3824,6 +3861,8 @@ static void
 clear_invalidation_handlers (MetaOnscreenNative *onscreen_native)
 {
   g_clear_signal_handler (&onscreen_native->property.gamma_lut.signal_handler_id,
+                          onscreen_native->crtc);
+  g_clear_signal_handler (&onscreen_native->property.ctm.signal_handler_id,
                           onscreen_native->crtc);
   g_clear_signal_handler (&onscreen_native->property.privacy_screen.signal_handler_id,
                           onscreen_native->output);

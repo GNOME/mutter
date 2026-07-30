@@ -52,3 +52,10 @@ MetaGammaLut * meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorMan
 void meta_monitor_manager_native_update_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
                                                            MetaCrtcKms              *crtc_kms,
                                                            MetaGammaLut             *gamma);
+
+MetaCtm * meta_monitor_manager_native_get_cached_crtc_ctm (MetaMonitorManagerNative *manager_native,
+                                                           MetaCrtcKms              *crtc_kms);
+
+void meta_monitor_manager_native_update_cached_crtc_ctm (MetaMonitorManagerNative *manager_native,
+                                                         MetaCrtcKms              *crtc_kms,
+                                                         MetaCtm                  *ctm);

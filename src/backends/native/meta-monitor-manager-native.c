@@ -78,6 +78,7 @@ typedef struct _MetaMonitorManagerNativePrivate
   gulong kms_resources_changed_handler_id;
 
   GHashTable *crtc_gamma_cache;
+  GHashTable *crtc_ctm_cache;
 
   gboolean needs_outputs;
 
@@ -332,6 +333,42 @@ meta_monitor_manager_native_update_cached_crtc_gamma (MetaMonitorManagerNative *
   g_hash_table_replace (priv->crtc_gamma_cache,
                         GUINT_TO_POINTER (meta_crtc_get_id (crtc)),
                         gamma);
+}
+
+MetaCtm *
+meta_monitor_manager_native_get_cached_crtc_ctm (MetaMonitorManagerNative *manager_native,
+                                                 MetaCrtcKms              *crtc_kms)
+{
+  MetaMonitorManagerNativePrivate *priv =
+    meta_monitor_manager_native_get_instance_private (manager_native);
+  uint64_t crtc_id;
+
+  crtc_id = meta_crtc_get_id (META_CRTC (crtc_kms));
+  return g_hash_table_lookup (priv->crtc_ctm_cache,
+                              GUINT_TO_POINTER (crtc_id));
+}
+
+void
+meta_monitor_manager_native_update_cached_crtc_ctm (MetaMonitorManagerNative *manager_native,
+                                                    MetaCrtcKms              *crtc_kms,
+                                                    MetaCtm                  *ctm)
+{
+  MetaMonitorManagerNativePrivate *priv =
+    meta_monitor_manager_native_get_instance_private (manager_native);
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
+  uint64_t crtc_id = meta_crtc_get_id (crtc);
+
+  if (ctm)
+    {
+      g_hash_table_replace (priv->crtc_ctm_cache,
+                            GUINT_TO_POINTER (crtc_id),
+                            ctm);
+    }
+  else
+    {
+      g_hash_table_remove (priv->crtc_ctm_cache,
+                           GUINT_TO_POINTER (crtc_id));
+    }
 }
 
 static void
@@ -604,6 +641,7 @@ meta_monitor_manager_native_dispose (GObject *object)
 
   g_clear_handle_id (&priv->rebuild_virtual_idle_id, mtk_source_remove);
   g_clear_pointer (&priv->crtc_gamma_cache, g_hash_table_unref);
+  g_clear_pointer (&priv->crtc_ctm_cache, g_hash_table_unref);
 
   G_OBJECT_CLASS (meta_monitor_manager_native_parent_class)->dispose (object);
 }
@@ -656,6 +694,10 @@ meta_monitor_manager_native_initable_init (GInitable    *initable,
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) meta_gamma_lut_free);
+  priv->crtc_ctm_cache =
+    g_hash_table_new_full (NULL, NULL,
+                           NULL,
+                           (GDestroyNotify) meta_ctm_free);
 
   g_signal_connect (manager, "monitors-changed",
                     G_CALLBACK (on_monitors_changed), NULL);

@@ -302,6 +302,12 @@ gboolean meta_monitor_supports_gamma_lut (MetaMonitor *monitor);
 void meta_monitor_set_gamma_lut (MetaMonitor        *monitor,
                                  const MetaGammaLut *lut);
 
+META_EXPORT_TEST
+gboolean meta_monitor_is_ctm_supported (MetaMonitor *monitor);
+
+void meta_monitor_set_ctm (MetaMonitor   *monitor,
+                           const MetaCtm *ctm);
+
 MetaColorMode meta_monitor_get_color_mode (MetaMonitor *monitor);
 
 META_EXPORT_TEST

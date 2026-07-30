@@ -37,6 +37,7 @@
 enum
 {
   GAMMA_LUT_CHANGED,
+  CTM_CHANGED,
 
   N_SIGNALS
 };
@@ -80,6 +81,18 @@ meta_crtc_kms_get_gamma_lut_size (MetaCrtc *crtc)
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
   return crtc_state->gamma.size;
+}
+
+static gboolean
+meta_crtc_kms_is_ctm_supported (MetaCrtc *crtc)
+{
+  MetaKmsCrtc *kms_crtc;
+  const MetaKmsCrtcState *crtc_state;
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
+
+  return crtc_state->ctm.supported;
 }
 
 const MetaGammaLut *
@@ -204,6 +217,60 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc           *crtc,
                                                         new_gamma);
 
   g_signal_emit (crtc_kms, signals[GAMMA_LUT_CHANGED], 0);
+
+  renderer_view = meta_renderer_get_view_for_crtc (renderer, crtc);
+  if (renderer_view)
+    clutter_stage_view_schedule_update (CLUTTER_STAGE_VIEW (renderer_view));
+}
+
+const MetaCtm *
+meta_crtc_kms_peek_ctm (MetaCrtcKms *crtc_kms)
+{
+  MetaMonitorManagerNative *monitor_manager_native =
+    monitor_manager_from_crtc (META_CRTC (crtc_kms));
+
+  return meta_monitor_manager_native_get_cached_crtc_ctm (monitor_manager_native,
+                                                          crtc_kms);
+}
+
+static void
+meta_crtc_kms_set_ctm (MetaCrtc      *crtc,
+                       const MetaCtm *ctm)
+{
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaBackend *backend = meta_gpu_get_backend (meta_crtc_get_gpu (crtc));
+  MetaMonitorManagerNative *monitor_manager_native =
+    monitor_manager_from_crtc (crtc);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererView *renderer_view;
+  MetaCtm *new_ctm = NULL;
+
+  if (ctm)
+    {
+      const double one = (double) ((uint64_t) 1 << 32);
+
+      meta_topic (META_DEBUG_COLOR,
+                  "Setting CRTC (%" G_GUINT64_FORMAT ") CTM diagonal to "
+                  "%.3f, %.3f, %.3f",
+                  meta_crtc_get_id (crtc),
+                  ctm->matrix[0] / one,
+                  ctm->matrix[4] / one,
+                  ctm->matrix[8] / one);
+
+      new_ctm = meta_ctm_copy (ctm);
+    }
+  else
+    {
+      meta_topic (META_DEBUG_COLOR,
+                  "Clearing CRTC (%" G_GUINT64_FORMAT ") CTM",
+                  meta_crtc_get_id (crtc));
+    }
+
+  meta_monitor_manager_native_update_cached_crtc_ctm (monitor_manager_native,
+                                                      crtc_kms,
+                                                      new_ctm);
+
+  g_signal_emit (crtc_kms, signals[CTM_CHANGED], 0);
 
   renderer_view = meta_renderer_get_view_for_crtc (renderer, crtc);
   if (renderer_view)
@@ -572,6 +639,8 @@ meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
   crtc_class->get_gamma_lut_size = meta_crtc_kms_get_gamma_lut_size;
   crtc_class->get_gamma_lut = meta_crtc_kms_get_gamma_lut;
   crtc_class->set_gamma_lut = meta_crtc_kms_set_gamma_lut;
+  crtc_class->is_ctm_supported = meta_crtc_kms_is_ctm_supported;
+  crtc_class->set_ctm = meta_crtc_kms_set_ctm;
   crtc_class->assign_extra = meta_crtc_kms_assign_extra;
   crtc_class->set_config = meta_crtc_kms_set_config;
   crtc_class->unset_config = meta_crtc_kms_unset_config;
@@ -583,6 +652,14 @@ meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
 
   signals[GAMMA_LUT_CHANGED] =
     g_signal_new ("gamma-lut-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  signals[CTM_CHANGED] =
+    g_signal_new ("ctm-changed",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0,
