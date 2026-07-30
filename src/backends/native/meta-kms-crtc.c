@@ -303,6 +303,15 @@ read_crtc_ctm (MetaKmsCrtc       *crtc,
   if (!prop_ctm->prop_id)
     return;
 
+  /* CTM is only applied via the atomic color-update path, so do not advertise
+   * support on simple backends, where programming it would be a no-op. */
+  if (!META_IS_KMS_IMPL_DEVICE_ATOMIC (impl_device))
+    return;
+
+  /* The property existing means CTM is supported, even when it is currently
+   * unset (blob id 0). */
+  crtc_state->ctm.supported = TRUE;
+
   blob_id = prop_ctm->value;
   if (blob_id == 0)
     return;
@@ -320,8 +329,6 @@ read_crtc_ctm (MetaKmsCrtc       *crtc,
 
   drm_ctm = blob->data;
 
-  /* Allocate internal structure for CTM */
-  crtc_state->ctm.supported = TRUE;
   crtc_state->ctm.value = meta_ctm_new ();
 
   /* Copy the 3x3 matrix from KMS blob */
@@ -443,11 +450,15 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
   crtc->current_state = crtc_state;
 
   meta_topic (META_DEBUG_KMS,
-              "Read CRTC %u state: active: %d, mode: %s, changed: %s",
+              "Read CRTC %u state: active: %d, mode: %s, "
+              "gamma_lut: %s (size %d), ctm: %s, changed: %s",
               crtc->id, crtc->current_state.is_active,
               crtc->current_state.is_drm_mode_valid
                 ? crtc->current_state.drm_mode.name
                 : "(nil)",
+              crtc->current_state.gamma.supported ? "yes" : "no",
+              crtc->current_state.gamma.size,
+              crtc->current_state.ctm.supported ? "yes" : "no",
               changes == META_KMS_RESOURCE_CHANGE_NONE
                 ? "no"
                 : "yes");
