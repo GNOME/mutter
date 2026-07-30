@@ -1624,6 +1624,7 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
     }
 
   meta_onscreen_native_clear_posted_fb (onscreen);
+  maybe_post_next_frame_if_gl_finished (onscreen);
 }
 
 static void
@@ -2164,7 +2165,7 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
   meta_onscreen_native_notify_frame_complete (onscreen);
   meta_onscreen_native_clear_posted_fb (onscreen);
 
-  maybe_post_next_frame (onscreen);
+  maybe_post_next_frame_if_gl_finished (onscreen);
 }
 
 static gboolean
@@ -2386,6 +2387,7 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
 
   meta_onscreen_native_notify_frame_complete (onscreen);
   meta_onscreen_native_clear_posted_fb (onscreen);
+  maybe_post_next_frame_if_gl_finished (onscreen);
 }
 
 static const MetaKmsResultListenerVtable finish_frame_result_listener_vtable = {
