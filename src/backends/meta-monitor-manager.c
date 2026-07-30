@@ -1234,7 +1234,8 @@ update_night_light_supported (MetaMonitorManager *manager)
         {
           MetaCrtc *crtc = l_crtc->data;
 
-          if (meta_crtc_get_gamma_lut_size (crtc) > 0)
+          if (meta_crtc_get_gamma_lut_size (crtc) > 0 ||
+              meta_crtc_is_ctm_supported (crtc))
             {
               night_light_supported = TRUE;
               break;
