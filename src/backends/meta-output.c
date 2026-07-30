@@ -22,6 +22,7 @@
 #include "backends/edid.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-monitor-manager-private.h"
+#include "clutter/clutter-mutter.h"
 
 enum
 {
@@ -548,11 +549,36 @@ meta_output_get_color_metadata (MetaOutput            *output,
       *colorspace = META_OUTPUT_COLORSPACE_DEFAULT;
       break;
     case META_COLOR_MODE_BT2100:
-      *hdr_metadata = (MetaOutputHdrMetadata) {
-        .active = TRUE,
-        .eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ,
-      };
-      *colorspace = META_OUTPUT_COLORSPACE_BT2020;
+      {
+        ClutterEOTF eotf = {
+          .type = CLUTTER_EOTF_TYPE_NAMED,
+          .tf_name = CLUTTER_TRANSFER_FUNCTION_PQ,
+        };
+        const ClutterPrimaries *primaries =
+          clutter_colorspace_to_primaries (CLUTTER_COLORSPACE_BT2020);
+        const ClutterLuminance *luminance =
+          clutter_eotf_get_default_luminance (eotf);
+
+        /* Some sinks tone map differently when the mastering display is
+         * left undescribed, so fill in the volume the frames are produced
+         * in. MaxCLL and MaxFALL are unknown for a composited scene. */
+        *hdr_metadata = (MetaOutputHdrMetadata) {
+          .active = TRUE,
+          .eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ,
+          .mastering_display_primaries = {
+            { .x = primaries->r_x, .y = primaries->r_y },
+            { .x = primaries->g_x, .y = primaries->g_y },
+            { .x = primaries->b_x, .y = primaries->b_y },
+          },
+          .mastering_display_white_point = {
+            .x = primaries->w_x,
+            .y = primaries->w_y,
+          },
+          .mastering_display_min_luminance = luminance->min,
+          .mastering_display_max_luminance = luminance->mastering_max,
+        };
+        *colorspace = META_OUTPUT_COLORSPACE_BT2020;
+      }
       break;
     }
 }
