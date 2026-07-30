@@ -2351,7 +2351,6 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
                               gpointer               user_data)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   const GError *error = NULL;
   CoglFrameInfo *frame_info;
 
@@ -2386,7 +2385,7 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   meta_onscreen_native_notify_frame_complete (onscreen);
-  g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
+  meta_onscreen_native_clear_posted_fb (onscreen);
 }
 
 static const MetaKmsResultListenerVtable finish_frame_result_listener_vtable = {
