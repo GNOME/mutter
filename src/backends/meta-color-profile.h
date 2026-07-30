@@ -71,6 +71,14 @@ MetaGammaLut * meta_color_profile_generate_gamma_lut (MetaColorProfile *color_pr
                                                       unsigned int      temperature,
                                                       size_t            lut_size);
 
+/* Blackbody RGB scale factors for a color temperature; this is the same math
+ * the uncalibrated gamma LUT is generated from. */
+META_EXPORT_TEST
+void meta_color_get_temperature_rgb_scales (unsigned int  temperature,
+                                            float        *out_red,
+                                            float        *out_green,
+                                            float        *out_blue);
+
 META_EXPORT_TEST
 const MetaColorCalibration * meta_color_profile_get_calibration (MetaColorProfile *color_profile);
 

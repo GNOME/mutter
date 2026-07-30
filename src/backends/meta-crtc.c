@@ -19,6 +19,8 @@
 
 #include "backends/meta-crtc.h"
 
+#include <math.h>
+
 #include "backends/meta-gpu.h"
 #include "meta/meta-backend.h"
 
@@ -178,6 +180,27 @@ meta_crtc_set_gamma_lut (MetaCrtc           *crtc,
                          const MetaGammaLut *lut)
 {
   return META_CRTC_GET_CLASS (crtc)->set_gamma_lut (crtc, lut);
+}
+
+gboolean
+meta_crtc_is_ctm_supported (MetaCrtc *crtc)
+{
+  MetaCrtcClass *klass = META_CRTC_GET_CLASS (crtc);
+
+  if (klass->is_ctm_supported)
+    return klass->is_ctm_supported (crtc);
+
+  return FALSE;
+}
+
+void
+meta_crtc_set_ctm (MetaCrtc      *crtc,
+                   const MetaCtm *ctm)
+{
+  MetaCrtcClass *klass = META_CRTC_GET_CLASS (crtc);
+
+  if (klass->set_ctm)
+    klass->set_ctm (crtc, ctm);
 }
 
 void
@@ -362,6 +385,32 @@ meta_ctm_new (void)
   ctm->matrix[0] = (int64_t)1 << 32;
   ctm->matrix[4] = (int64_t)1 << 32;
   ctm->matrix[8] = (int64_t)1 << 32;
+
+  return ctm;
+}
+
+static uint64_t
+scale_to_s31_32 (float scale)
+{
+  if (!isfinite (scale) || scale < 0.0f)
+    scale = 0.0f;
+  else if (scale > 1.0f)
+    scale = 1.0f;
+
+  return (uint64_t) (scale * (double) ((uint64_t) 1 << 32));
+}
+
+MetaCtm *
+meta_ctm_new_from_rgb_scales (float red,
+                              float green,
+                              float blue)
+{
+  MetaCtm *ctm = g_new0 (MetaCtm, 1);
+
+  /* Diagonal 3x3 matrix in S31.32 fixed-point, row-major */
+  ctm->matrix[0] = scale_to_s31_32 (red);
+  ctm->matrix[4] = scale_to_s31_32 (green);
+  ctm->matrix[8] = scale_to_s31_32 (blue);
 
   return ctm;
 }

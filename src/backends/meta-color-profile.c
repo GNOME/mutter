@@ -501,6 +501,23 @@ meta_color_profile_generate_gamma_lut (MetaColorProfile *color_profile,
     }
 }
 
+void
+meta_color_get_temperature_rgb_scales (unsigned int  temperature,
+                                       float        *out_red,
+                                       float        *out_green,
+                                       float        *out_blue)
+{
+  CdColorRGB blackbody_color;
+
+  g_return_if_fail (out_red && out_green && out_blue);
+
+  set_blackbody_color_for_temperature (&blackbody_color, temperature);
+
+  *out_red = (float) blackbody_color.R;
+  *out_green = (float) blackbody_color.G;
+  *out_blue = (float) blackbody_color.B;
+}
+
 const MetaColorCalibration *
 meta_color_profile_get_calibration (MetaColorProfile *color_profile)
 {

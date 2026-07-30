@@ -47,6 +47,11 @@ struct _MetaCrtcClass
   void (* set_gamma_lut) (MetaCrtc           *crtc,
                           const MetaGammaLut *lut);
 
+  gboolean (* is_ctm_supported) (MetaCrtc *crtc);
+
+  void (* set_ctm) (MetaCrtc      *crtc,
+                    const MetaCtm *ctm);
+
   gboolean (* assign_extra) (MetaCrtc            *crtc,
                              MetaCrtcAssignment  *crtc_assignment,
                              GPtrArray           *crtc_assignments,
@@ -105,6 +110,11 @@ MetaGammaLut * meta_crtc_get_gamma_lut (MetaCrtc *crtc);
 void meta_crtc_set_gamma_lut (MetaCrtc           *crtc,
                               const MetaGammaLut *lut);
 
+gboolean meta_crtc_is_ctm_supported (MetaCrtc *crtc);
+
+void meta_crtc_set_ctm (MetaCrtc      *crtc,
+                        const MetaCtm *ctm);
+
 META_EXPORT_TEST
 void meta_gamma_lut_free (MetaGammaLut *lut);
 
@@ -131,10 +141,19 @@ META_EXPORT_TEST
 gboolean meta_gamma_lut_equal (const MetaGammaLut *gamma,
                                const MetaGammaLut *other_gamma);
 
+META_EXPORT_TEST
 void meta_ctm_free (MetaCtm *ctm);
 
 MetaCtm * meta_ctm_new (void);
 
+/* Diagonal matrix from RGB scale factors. Scales are clamped to [0, 1], and
+ * non-finite scales are treated as 0. */
+META_EXPORT_TEST
+MetaCtm * meta_ctm_new_from_rgb_scales (float red,
+                                        float green,
+                                        float blue);
+
+META_EXPORT_TEST
 MetaCtm * meta_ctm_copy (const MetaCtm *ctm);
 
 gboolean meta_ctm_equal (const MetaCtm *ctm,
@@ -148,3 +167,4 @@ MetaCrtcConfig * meta_crtc_config_new (graphene_rect_t     *layout,
 gboolean meta_crtc_is_leased (MetaCrtc *crtc);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaGammaLut, meta_gamma_lut_free)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaCtm, meta_ctm_free)
