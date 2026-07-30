@@ -489,16 +489,15 @@ meta_color_profile_generate_gamma_lut (MetaColorProfile *color_profile,
 {
   g_assert (lut_size > 0);
 
-  if (color_profile->calibration->has_vcgt)
+  if (color_profile && color_profile->calibration->has_vcgt)
     {
       return generate_gamma_lut_from_vcgt (color_profile,
                                            color_profile->calibration->vcgt,
                                            temperature, lut_size);
     }
-  else
-    {
-      return generate_gamma_lut (color_profile, temperature, lut_size);
-    }
+
+  /* Uncalibrated temperature ramp; @color_profile may be NULL. */
+  return generate_gamma_lut (color_profile, temperature, lut_size);
 }
 
 void

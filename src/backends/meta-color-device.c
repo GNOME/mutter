@@ -82,6 +82,7 @@ struct _MetaColorDevice
 
   PendingState pending_state;
   gboolean is_ready;
+  gboolean has_white_point;
 
   float reference_luminance_factor;
 
@@ -1488,28 +1489,42 @@ update_white_point (MetaColorDevice *color_device)
   MetaColorProfile *color_profile;
   size_t lut_size;
   unsigned int temperature;
+  gboolean is_identity;
 
   if (!meta_color_device_is_ready (color_device))
     return 0;
 
+  /* Night Light needs the temperature, not a profile: the uncalibrated gamma
+   * ramp works without one. Devices that have no colord profile assigned must
+   * still get the temperature applied. */
   color_profile = meta_color_device_get_assigned_profile (color_device);
-  if (!color_profile)
-    return 0;
 
   if (color_device->is_calibrating)
     temperature = meta_color_manager_get_default_temperature (color_manager);
   else
     temperature = meta_color_manager_get_temperature (color_manager);
 
+  /* Without a profile the ramp comes from the temperature alone, and at the
+   * default temperature it is a bit-exact identity. Programming that would
+   * queue a KMS update that cannot change the output, so skip it unless a
+   * non-identity white point is programmed and has to be cleared. */
+  is_identity = !color_profile &&
+    temperature == meta_color_manager_get_default_temperature (color_manager);
+  if (is_identity && !color_device->has_white_point)
+    return 0;
+
+  color_device->has_white_point = !is_identity;
+
   meta_topic (META_DEBUG_COLOR,
               "Updating white point of device '%s' (%s) "
               "using color profile '%s' and temperature %uK",
               meta_color_device_get_id (color_device),
               meta_monitor_get_connector (monitor),
-              meta_color_profile_get_id (color_profile),
+              color_profile ? meta_color_profile_get_id (color_profile)
+                            : "(none)",
               temperature);
 
-  if (meta_monitor_is_builtin (monitor))
+  if (color_profile && meta_monitor_is_builtin (monitor))
     {
       const char *brightness_profile;
 
