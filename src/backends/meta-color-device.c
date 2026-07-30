@@ -29,6 +29,7 @@
 #include "backends/meta-color-manager-private.h"
 #include "backends/meta-color-profile.h"
 #include "backends/meta-color-store.h"
+#include "backends/meta-crtc.h"
 #include "backends/meta-monitor-private.h"
 #include "core/meta-debug-control-private.h"
 
@@ -1490,13 +1491,14 @@ update_white_point (MetaColorDevice *color_device)
   size_t lut_size;
   unsigned int temperature;
   gboolean is_identity;
+  gboolean applied = FALSE;
 
   if (!meta_color_device_is_ready (color_device))
     return 0;
 
-  /* Night Light needs the temperature, not a profile: the uncalibrated gamma
-   * ramp works without one. Devices that have no colord profile assigned must
-   * still get the temperature applied. */
+  /* Night Light needs the temperature, not a profile: both the uncalibrated
+   * gamma ramp and the CTM fallback work without one. Devices that have no
+   * colord profile assigned must still get the temperature applied. */
   color_profile = meta_color_device_get_assigned_profile (color_device);
 
   if (color_device->is_calibrating)
@@ -1545,14 +1547,41 @@ update_white_point (MetaColorDevice *color_device)
     {
       g_autoptr (MetaGammaLut) lut = NULL;
 
+      /* Prefer GAMMA_LUT whenever the hardware exposes it, even without a
+       * profile (uncalibrated blackbody ramp), and never fall back to CTM. */
       lut = meta_color_profile_generate_gamma_lut (color_profile,
                                                    temperature,
                                                    lut_size);
 
       meta_monitor_set_gamma_lut (monitor, lut);
+      applied = TRUE;
+    }
+  else if (meta_monitor_is_ctm_supported (monitor))
+    {
+      float red_scale, green_scale, blue_scale;
+      g_autoptr (MetaCtm) ctm = NULL;
+
+      /* Only reached when GAMMA_LUT is unavailable: a diagonal matrix built
+       * from the same blackbody RGB scales the uncalibrated gamma path uses.
+       * No ICC profile is needed, the scales come only from the temperature. */
+      meta_color_get_temperature_rgb_scales (temperature,
+                                             &red_scale,
+                                             &green_scale,
+                                             &blue_scale);
+
+      meta_topic (META_DEBUG_COLOR,
+                  "Falling back to CTM on '%s' (no GAMMA_LUT); scales "
+                  "(%.3f, %.3f, %.3f) for %uK",
+                  meta_color_device_get_id (color_device),
+                  red_scale, green_scale, blue_scale,
+                  temperature);
+
+      ctm = meta_ctm_new_from_rgb_scales (red_scale, green_scale, blue_scale);
+      meta_monitor_set_ctm (monitor, ctm);
+      applied = TRUE;
     }
 
-  return UPDATE_RESULT_CALIBRATION;
+  return applied ? UPDATE_RESULT_CALIBRATION : 0;
 }
 
 static void
