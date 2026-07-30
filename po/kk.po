@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-28 15:06+0000\n"
-"PO-Revision-Date: 2026-03-04 06:44+0500\n"
+"POT-Creation-Date: 2026-07-07 13:52+0000\n"
+"PO-Revision-Date: 2026-07-30 11:48+0500\n"
 "Last-Translator: Baurzhan Muftakhidinov <baurthefirst@gmail.com>\n"
 "Language-Team: Kazakh <kk@li.org>\n"
 "Language: kk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -228,8 +228,8 @@ msgstr "Терезені барлық жұмыс орындарында көрс
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
 msgstr ""
-"Терезе басқалармен үстінен жабылған болса, алдына көтеру, болмаса, "
-"басқалардың артына апару"
+"Терезе басқалармен үстінен жабылған болса, алдына көтеру, болмаса, басқалардың "
+"артына апару"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
@@ -264,13 +264,13 @@ msgstr ""
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
-"key” on PC hardware. It’s expected that this binding either the default or "
-"set to the empty string."
+"key” on PC hardware. It’s expected that this binding either the default or set "
+"to the empty string."
 msgstr ""
-"Бұл перне терезелерге шолу және қолданбаларды іске қосу жүйесінің "
-"комбинациясы болып табылатын «overlay» режимін іске қосады. Әдетте ол ДК "
-"жабдығындағы «Windows пернесі» болып табылады. Бұл байланыстыру әдепкі "
-"бойынша қалады немесе бос жол ретінде орнатылады деп күтіледі."
+"Бұл перне терезелерге шолу және қолданбаларды іске қосу жүйесінің комбинациясы "
+"болып табылатын «overlay» режимін іске қосады. Әдетте ол ДК жабдығындағы "
+"«Windows пернесі» болып табылады. Бұл байланыстыру әдепкі бойынша қалады "
+"немесе бос жол ретінде орнатылады деп күтіледі."
 
 #: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
@@ -279,12 +279,12 @@ msgstr "Модальды диалогтарды жалғау"
 #: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
-"attached to the titlebar of the parent window and are moved together with "
-"the parent window."
+"attached to the titlebar of the parent window and are moved together with the "
+"parent window."
 msgstr ""
 "Егер ақиқат болса, тәуелсіз тақырыптамалардың орнына модальді сұхбат "
-"терезелері аталық терезенің тақырыптамасына бекітілген түрде пайда болады "
-"және аталық тереземен бірге жылжытылады."
+"терезелері аталық терезенің тақырыптамасына бекітілген түрде пайда болады және "
+"аталық тереземен бірге жылжытылады."
 
 #: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
@@ -295,13 +295,13 @@ msgstr ""
 #: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
-"vertically and resizes them horizontally to cover half of the available "
-"area. Dropping windows on the top screen edge maximizes them completely."
+"vertically and resizes them horizontally to cover half of the available area. "
+"Dropping windows on the top screen edge maximizes them completely."
 msgstr ""
-"Іске қосылған болса, терезелерді экранның вертикалды жиектеріне тастаған "
-"кезде олар вертикалды түрде жайылады және қолжетімді аймақтың жартысын жабу "
-"үшін горизонталды түрде өлшемі өзгереді. Терезелерді экранның жоғарғы "
-"жиегіне тастаған кезде олар толығымен жайылады."
+"Іске қосылған болса, терезелерді экранның вертикалды жиектеріне тастаған кезде "
+"олар вертикалды түрде жайылады және қолжетімді аймақтың жартысын жабу үшін "
+"горизонталды түрде өлшемі өзгереді. Терезелерді экранның жоғарғы жиегіне "
+"тастаған кезде олар толығымен жайылады."
 
 #: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
@@ -314,8 +314,8 @@ msgid ""
 "org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Жұмыс орындарының динамикалық түрде басқарылатынын немесе жұмыс орындарының "
-"саны статикалық болатынын анықтайды (org.gnome.desktop.wm.preferences "
-"ішіндегі num-workspaces кілті арқылы анықталады)."
+"саны статикалық болатынын анықтайды (org.gnome.desktop.wm.preferences ішіндегі "
+"num-workspaces кілті арқылы анықталады)."
 
 #: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
@@ -349,8 +349,8 @@ msgstr "Сүйрелетін жиектің ені"
 
 #: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
-"The amount of total draggable borders. If the theme’s visible borders are "
-"not enough, invisible borders will be added to meet this value."
+"The amount of total draggable borders. If the theme’s visible borders are not "
+"enough, invisible borders will be added to meet this value."
 msgstr ""
 "Жалпы сүйрелетін жиектердің мөлшері. Егер тақырыптың көрінетін жиектері "
 "жеткіліксіз болса, осы мәнге жету үшін көрінбейтін жиектер қосылады."
@@ -364,8 +364,8 @@ msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr ""
-"Іске қосылған болса, бастапқы өлшемі монитор өлшеміндей болатын жаңа "
-"терезелер автоматты түрде жайылады."
+"Іске қосылған болса, бастапқы өлшемі монитор өлшеміндей болатын жаңа терезелер "
+"автоматты түрде жайылады."
 
 #: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
@@ -385,26 +385,26 @@ msgstr "Эксперименталды мүмкіндіктерді іске қ�
 
 #: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
+"To enable experimental features, add the feature keyword to the list. Whether "
+"the feature requires restarting the compositor depends on the given feature. "
+"Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future proof. "
+"Currently possible keywords: • “kms-modifiers” — makes mutter always allocate "
+"scanout buffers with explicit modifiers, if supported by the driver. Requires "
+"a restart. • “autoclose-xwayland” — automatically terminates Xwayland if all "
+"relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "Сынақ сатысындағы мүмкіндіктерді қосу үшін мүмкіндіктің кілт сөзін тізімге "
 "қосыңыз. Мүмкіндікті іске қосу үшін композиторды қайта жүктеу қажеттілігі "
 "таңдалған мүмкіндікке байланысты. Кез келген эксперименталды мүмкіндіктің "
-"болашақта қолжетімді болуы немесе баптауға келуі міндетті емес. Бұл "
-"параметрге кез келген нәрсені қосудың болашақта өзгеріссіз қалатынына "
-"сенбеңіз. Қазіргі уақытта қолжетімді кілт сөздер: • “kms-modifiers” — егер "
-"драйвер қолдайтын болса, mutter терезе менеджеріне сканерлеу буферлерін "
-"(scanout buffers) әрқашан нақты модификаторлармен бөлуге мәжбүрлейді. Жүйені "
-"қайта жүктеуді қажет етеді. • “autoclose-xwayland” — егер барлық тиісті X11 "
-"клиенттері жабылса, Xwayland жұмысын автоматты түрде тоқтатады. Жүйені қайта "
-"жүктеуді қажет етеді."
+"болашақта қолжетімді болуы немесе баптауға келуі міндетті емес. Бұл параметрге "
+"кез келген нәрсені қосудың болашақта өзгеріссіз қалатынына сенбеңіз. Қазіргі "
+"уақытта қолжетімді кілт сөздер: • “kms-modifiers” — егер драйвер қолдайтын "
+"болса, mutter терезе менеджеріне сканерлеу буферлерін (scanout buffers) "
+"әрқашан нақты модификаторлармен бөлуге мәжбүрлейді. Жүйені қайта жүктеуді "
+"қажет етеді. • “autoclose-xwayland” — егер барлық тиісті X11 клиенттері "
+"жабылса, Xwayland жұмысын автоматты түрде тоқтатады. Жүйені қайта жүктеуді "
+"қажет етеді."
 
 #: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
@@ -516,26 +516,25 @@ msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
-"Allow all keyboard events to be routed to X11 “override redirect” windows "
-"with a grab when running in Xwayland. This option is to support X11 clients "
-"which map an “override redirect” window (which do not receive keyboard "
-"focus) and issue a keyboard grab to force all keyboard events to that "
-"window. This option is seldom used and has no effect on regular X11 windows "
-"which can receive keyboard focus under normal circumstances. For a X11 grab "
-"to be taken into account under Wayland, the client must also either send a "
-"specific X11 ClientMessage to the root window or be among the applications "
-"allowed in key “xwayland-grab-access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows with "
+"a grab when running in Xwayland. This option is to support X11 clients which "
+"map an “override redirect” window (which do not receive keyboard focus) and "
+"issue a keyboard grab to force all keyboard events to that window. This option "
+"is seldom used and has no effect on regular X11 windows which can receive "
+"keyboard focus under normal circumstances. For a X11 grab to be taken into "
+"account under Wayland, the client must also either send a specific X11 "
+"ClientMessage to the root window or be among the applications allowed in key "
+"“xwayland-grab-access-rules”."
 msgstr ""
-"Xwayland ішінде орындалған кезде барлық пернетақта оқиғаларын қармауы бар "
-"X11 “override redirect” терезелеріне бағыттауға рұқсат беру. Бұл опция "
-"“override redirect” терезесін (пернетақта фокусын алмайтын) бейнелейтін және "
-"барлық пернетақта оқиғаларын сол терезеге мәжбүрлеу үшін пернетақтаны "
-"қармауды шығаратын X11 клиенттерін қолдауға арналған. Бұл опция сирек "
-"қолданылады және қалыпты жағдайда пернетақта фокусын ала алатын кәдімгі X11 "
-"терезелеріне әсер етпейді. X11 қармауы Wayland астында ескерілуі үшін, "
-"клиент түбірлік терезеге арнайы X11 ClientMessage жіберуі керек немесе "
-"“xwayland-grab-access-rules” кілтінде рұқсат етілген қолданбалар арасында "
-"болуы керек."
+"Xwayland ішінде орындалған кезде барлық пернетақта оқиғаларын қармауы бар X11 "
+"“override redirect” терезелеріне бағыттауға рұқсат беру. Бұл опция “override "
+"redirect” терезесін (пернетақта фокусын алмайтын) бейнелейтін және барлық "
+"пернетақта оқиғаларын сол терезеге мәжбүрлеу үшін пернетақтаны қармауды "
+"шығаратын X11 клиенттерін қолдауға арналған. Бұл опция сирек қолданылады және "
+"қалыпты жағдайда пернетақта фокусын ала алатын кәдімгі X11 терезелеріне әсер "
+"етпейді. X11 қармауы Wayland астында ескерілуі үшін, клиент түбірлік терезеге "
+"арнайы X11 ClientMessage жіберуі керек немесе “xwayland-grab-access-rules” "
+"кілтінде рұқсат етілген қолданбалар арасында болуы керек."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -543,13 +542,13 @@ msgstr "Пернетақтаны қармауға рұқсаты бар Xwayland
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
-"List the resource names or resource class of X11 windows either allowed or "
-"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
-"resource class of a given X11 window can be obtained using the command "
-"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are denied, which has precedence over the list of "
-"values allowed, to revoke applications from the default system list. The "
-"default system list includes the following applications: "
+"List the resource names or resource class of X11 windows either allowed or not "
+"allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command “xprop "
+"WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. Values "
+"starting with “!” are denied, which has precedence over the list of values "
+"allowed, to revoke applications from the default system list. The default "
+"system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -562,8 +561,8 @@ msgstr ""
 "қолданбаларды әдепкі жүйелік тізімнен алып тастау үшін рұқсат етілген мәндер "
 "тізімінен басым болады. Әдепкі жүйелік тізімге келесі қолданбалар кіреді: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Пайдаланушылар “restore-shortcuts” "
-"пернелер тіркесімі кілтімен анықталған арнайы пернетақта жарлығын "
-"пайдаланып, бар қармауды бұза алады."
+"пернелер тіркесімі кілтімен анықталған арнайы пернетақта жарлығын пайдаланып, "
+"бар қармауды бұза алады."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:116
 msgid "Disable selected X extensions in Xwayland"
@@ -573,14 +572,13 @@ msgstr "Xwayland ішінде таңдалған X кеңейтулерін сө
 msgid ""
 "This option disables the selected X extensions in Xwayland if Xwayland was "
 "built with support for those X extensions. This option has no effect if "
-"Xwayland was built without support for the selected extensions. Xwayland "
-"needs to be restarted for this setting to take effect."
+"Xwayland was built without support for the selected extensions. Xwayland needs "
+"to be restarted for this setting to take effect."
 msgstr ""
-"Егер Xwayland сол X кеңейтулеріне қолдаумен жиналған болса, бұл опция "
-"Xwayland ішіндегі таңдалған X кеңейтулерін сөндіреді. Егер Xwayland "
-"таңдалған кеңейтулерге қолдаусыз жиналған болса, бұл опцияның әсері "
-"болмайды. Бұл параметр күшіне енуі үшін Xwayland бағдарламасын қайта іске "
-"қосу керек."
+"Егер Xwayland сол X кеңейтулеріне қолдаумен жиналған болса, бұл опция Xwayland "
+"ішіндегі таңдалған X кеңейтулерін сөндіреді. Егер Xwayland таңдалған "
+"кеңейтулерге қолдаусыз жиналған болса, бұл опцияның әсері болмайды. Бұл "
+"параметр күшіне енуі үшін Xwayland бағдарламасын қайта іске қосу керек."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
@@ -592,22 +590,21 @@ msgid ""
 "Xwayland. The X server byte-swapping code is a huge attack surface, much of "
 "that code in Xwayland is prone to security issues. The use-case of byte-"
 "swapped clients is very niche, and disabled by default in Xwayland. Enable "
-"this option to instruct Xwayland to accept connections from X11 clients with "
-"a different endianness. This option has no effect if Xwayland does not "
-"support the command line option +byteswappedclients/-byteswappedclients to "
-"control that setting. Xwayland needs to be restarted for this setting to "
-"take effect."
+"this option to instruct Xwayland to accept connections from X11 clients with a "
+"different endianness. This option has no effect if Xwayland does not support "
+"the command line option +byteswappedclients/-byteswappedclients to control "
+"that setting. Xwayland needs to be restarted for this setting to take effect."
 msgstr ""
 "Байттар реті (endianness) Xwayland-тан өзгеше клиенттердің қосылуына рұқсат "
-"беру. X-сервердің байттарды алмастыру коды үлкен шабуыл аймағы болып "
-"табылады, Xwayland-тағы сол кодтың көп бөлігі қауіпсіздік мәселелеріне "
-"бейім. Байттары алмастырылған клиенттерді пайдалану жағдайы өте сирек "
-"кездеседі және Xwayland-та әдепкі бойынша сөндірілген. Xwayland-қа байттар "
-"реті басқа X11 клиенттерінен қосылымдарды қабылдауды тапсыру үшін бұл "
-"опцияны іске қосыңыз. Егер Xwayland сол параметрді басқару үшін "
-"+byteswappedclients/-byteswappedclients командалық жол опциясына қолдау "
-"көрсетпесе, бұл опцияның әсері болмайды. Бұл параметр күшіне енуі үшін "
-"Xwayland бағдарламасын қайта іске қосу керек."
+"беру. X-сервердің байттарды алмастыру коды үлкен шабуыл аймағы болып табылады, "
+"Xwayland-тағы сол кодтың көп бөлігі қауіпсіздік мәселелеріне бейім. Байттары "
+"алмастырылған клиенттерді пайдалану жағдайы өте сирек кездеседі және Xwayland-"
+"та әдепкі бойынша сөндірілген. Xwayland-қа байттар реті басқа X11 "
+"клиенттерінен қосылымдарды қабылдауды тапсыру үшін бұл опцияны іске қосыңыз. "
+"Егер Xwayland сол параметрді басқару үшін +byteswappedclients/-"
+"byteswappedclients командалық жол опциясына қолдау көрсетпесе, бұл опцияның "
+"әсері болмайды. Бұл параметр күшіне енуі үшін Xwayland бағдарламасын қайта "
+"іске қосу керек."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:154
 msgid "Configure the Xwayland scaling factor"
@@ -615,17 +612,17 @@ msgstr "Xwayland масштабтау коэффициентін баптау"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:155
 msgid ""
-"Scale the Xwayland coordinate space according to this factor. This will "
-"affect what scale HiDPI capable X11 clients will present themselves as, and "
-"how the compositor scales X11 client windows. Setting the scale to 0 means "
-"the scale will be automatically calculated. The scale will as of now be "
-"rounded to the closest integer."
+"Scale the Xwayland coordinate space according to this factor. This will affect "
+"what scale HiDPI capable X11 clients will present themselves as, and how the "
+"compositor scales X11 client windows. Setting the scale to 0 means the scale "
+"will be automatically calculated. The scale will as of now be rounded to the "
+"closest integer."
 msgstr ""
 "Xwayland координаталық кеңістігін осы коэффициентке сәйкес масштабтаңыз. Бұл "
 "HiDPI қолдайтын X11 клиенттерінің қалай көрінетініне және композитордың X11 "
 "терезелерін қалай масштабтайтынына әсер етеді. Масштабты 0 деп орнату оның "
-"автоматты түрде есептелетінін білдіреді. Қазіргі уақытта масштаб мәні ең "
-"жақын бүтін санға дейін дөңгелектенеді."
+"автоматты түрде есептелетінін білдіреді. Қазіргі уақытта масштаб мәні ең жақын "
+"бүтін санға дейін дөңгелектенеді."
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
@@ -711,7 +708,7 @@ msgstr "Жібергіштерді _түзету"
 msgid "_About Mutter Development Kit"
 msgstr "Mutter әзірлеу жиынтығы _туралы"
 
-#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Mutter әзірлеу жиынтығы"
 
@@ -719,42 +716,46 @@ msgstr "Mutter әзірлеу жиынтығы"
 msgid "Main Menu"
 msgstr "Бас мәзір"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "Mutter командасы"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "Mutter бағдарламалық қамтаманы әзірлеу жиынтығы"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "Mutter әзірлеу жиынтығы туралы"
 
-#: mdk/mdk-monitor.c:557
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "Devkit опциялары"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "Мониторды жасау сәтсіз аяқталды"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "Құрамындағы экран"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "Белгісіз"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "Белгісіз дисплей"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -766,53 +767,56 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Қоңырау оқиғасы"
 
-#: src/core/display.c:608
+#: src/core/display.c:612
 msgid "Privacy Screen Enabled"
 msgstr "Жекелік экраны іске қосылған"
 
-#: src/core/display.c:609
+#: src/core/display.c:613
 msgid "Privacy Screen Disabled"
 msgstr "Жекелік экраны сөндірілген"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "Wayland композиторы ретінде орындау"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland композиторын Xwayland-ты іске қоспай орындау"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "Қолданылатын Wayland дисплейінің атын көрсету"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "Кірістірілген емес, толық дисплей сервері ретінде орындау"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "Дисплейсіз көрсету сервері ретінде орындау"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Тұрақты виртуалды мониторды қосу (WxH немесе WxH@R)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "Әзірлеу жиынтығын орындау"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "Әзірлеу жиынтығының аргументтері"
+
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "Трассировка құралдарының көмегімен өнімділікті профильдеу"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "D-Bus жөндеуді басқару интерфейсін іске қосу"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
-#.
 #: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
@@ -820,7 +824,6 @@ msgstr "Режимді ауыстыру (%d тобы)"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
-#.
 #: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
@@ -828,7 +831,6 @@ msgstr "Режимді ауыстыру"
 
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
-#.
 #: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Мониторды ауыстыру"
@@ -850,12 +852,12 @@ msgstr "Нұсқа ақпаратын шығару"
 msgid "Mutter plugin to use"
 msgstr "Қолданылатын Mutter плагині"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "Жұмыс орны %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter егжей-тегжейлі режимді қолдаусыз жинақталған"
 
@@ -868,24 +870,24 @@ msgstr "Жұмыс орны ауыстырылды"
 msgid "Mode Switch: Mode %d"
 msgstr "Режимді ауыстыру: %d режимі"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "\"%s\" дисплейінде терезе менеджері бар"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "“%s” X Window System дисплейін ашу мүмкін емес"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "%d экраны “%s” дисплейінде жарамсыз"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
