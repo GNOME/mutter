@@ -19,6 +19,8 @@
 
 #include "tests/meta-crtc-test.h"
 
+#include "backends/meta-crtc.h"
+
 #define GAMMA_SIZE 256
 
 G_DEFINE_TYPE (MetaCrtcTest, meta_crtc_test, META_TYPE_CRTC_NATIVE)
@@ -29,6 +31,23 @@ meta_crtc_test_get_gamma_lut_size (MetaCrtc *crtc)
   MetaCrtcTest *crtc_test = META_CRTC_TEST (crtc);
 
   return crtc_test->gamma.size;
+}
+
+static gboolean
+meta_crtc_test_is_ctm_supported (MetaCrtc *crtc)
+{
+  return META_CRTC_TEST (crtc)->ctm_supported;
+}
+
+static void
+meta_crtc_test_set_ctm (MetaCrtc      *crtc,
+                        const MetaCtm *ctm)
+{
+  MetaCrtcTest *crtc_test = META_CRTC_TEST (crtc);
+
+  g_clear_pointer (&crtc_test->ctm, meta_ctm_free);
+  if (ctm)
+    crtc_test->ctm = meta_ctm_copy (ctm);
 }
 
 static MetaGammaLut *
@@ -99,6 +118,7 @@ meta_crtc_test_finalize (GObject *object)
   g_free (crtc_test->gamma.red);
   g_free (crtc_test->gamma.green);
   g_free (crtc_test->gamma.blue);
+  g_clear_pointer (&crtc_test->ctm, meta_ctm_free);
 
   G_OBJECT_CLASS (meta_crtc_test_parent_class)->finalize (object);
 }
@@ -115,6 +135,8 @@ meta_crtc_test_class_init (MetaCrtcTestClass *klass)
   crtc_class->get_gamma_lut_size = meta_crtc_test_get_gamma_lut_size;
   crtc_class->get_gamma_lut = meta_crtc_test_get_gamma_lut;
   crtc_class->set_gamma_lut = meta_crtc_test_set_gamma_lut;
+  crtc_class->is_ctm_supported = meta_crtc_test_is_ctm_supported;
+  crtc_class->set_ctm = meta_crtc_test_set_ctm;
 
   crtc_native_class->is_transform_handled =
     meta_crtc_test_is_transform_handled;
@@ -154,6 +176,18 @@ meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test)
   g_clear_pointer (&crtc_test->gamma.red, g_free);
   g_clear_pointer (&crtc_test->gamma.green, g_free);
   g_clear_pointer (&crtc_test->gamma.blue, g_free);
+}
+
+void
+meta_crtc_test_enable_ctm (MetaCrtcTest *crtc_test)
+{
+  crtc_test->ctm_supported = TRUE;
+}
+
+const MetaCtm *
+meta_crtc_test_peek_ctm (MetaCrtcTest *crtc_test)
+{
+  return crtc_test->ctm;
 }
 
 void

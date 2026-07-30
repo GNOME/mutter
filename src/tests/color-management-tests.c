@@ -19,10 +19,14 @@
 #include "config.h"
 
 #include <fcntl.h>
+#include <math.h>
 
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-manager-private.h"
 #include "backends/meta-color-profile.h"
+#include "backends/meta-crtc.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-monitor-private.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-crtc-test.h"
 #include "tests/meta-monitor-test-utils.h"
@@ -1505,6 +1509,333 @@ meta_test_color_management_night_light_uncalibrated (void)
                       crtc_test->gamma.size);
 }
 
+static void
+assert_ctm_scales (const MetaCtm *ctm,
+                   float          expected_r,
+                   float          expected_g,
+                   float          expected_b)
+{
+  const double scale = (double) ((uint64_t) 1 << 32);
+  double r, g, b;
+  int i;
+
+  g_assert_nonnull (ctm);
+
+  r = (double) ctm->matrix[0] / scale;
+  g = (double) ctm->matrix[4] / scale;
+  b = (double) ctm->matrix[8] / scale;
+
+  g_assert_cmpfloat_with_epsilon (r, expected_r, 0.002);
+  g_assert_cmpfloat_with_epsilon (g, expected_g, 0.002);
+  g_assert_cmpfloat_with_epsilon (b, expected_b, 0.002);
+
+  for (i = 0; i < 9; i++)
+    {
+      if (i == 0 || i == 4 || i == 8)
+        continue;
+      g_assert_cmpuint (ctm->matrix[i], ==, 0);
+    }
+}
+
+/*
+ * The uncalibrated Night Light ramp is a linear ramp scaled by the blackbody
+ * factors, so the last entry of each channel is 0xffff times the scale.
+ */
+static void
+assert_gamma_lut_scales (MetaCrtcTest *crtc_test,
+                         float         expected_r,
+                         float         expected_g,
+                         float         expected_b)
+{
+  const double max = 0xffff;
+  size_t last;
+
+  g_assert_cmpuint (crtc_test->gamma.size, >, 0);
+  last = crtc_test->gamma.size - 1;
+
+  g_assert_cmpfloat_with_epsilon (crtc_test->gamma.red[last] / max,
+                                  expected_r, 0.002);
+  g_assert_cmpfloat_with_epsilon (crtc_test->gamma.green[last] / max,
+                                  expected_g, 0.002);
+  g_assert_cmpfloat_with_epsilon (crtc_test->gamma.blue[last] / max,
+                                  expected_b, 0.002);
+}
+
+/*
+ * Applying a temperature is only observable when it differs from the one
+ * currently held by the color manager, which is process wide and therefore
+ * carried over between tests. Every test below picks temperatures no other
+ * test leaves behind, so each change reliably triggers an update.
+ *
+ * Note that only the Temperature property is followed: gsd-color reports the
+ * default temperature when Night Light is inactive.
+ */
+static gboolean
+on_calibration_wait_timeout (gpointer user_data)
+{
+  gboolean *timed_out = user_data;
+
+  *timed_out = TRUE;
+
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+apply_night_light_temperature (MetaColorDevice *color_device,
+                               unsigned int     temperature,
+                               gboolean         active)
+{
+  gboolean run = TRUE;
+  gboolean timed_out = FALSE;
+  gulong handler_id;
+  guint timeout_id;
+
+  handler_id = g_signal_connect (color_device, "calibration-changed",
+                                 G_CALLBACK (on_device_calibration_changed),
+                                 &run);
+  /*
+   * Bounded, unlike wait_for_device_calibration_changed(): these tests have no
+   * color profile assigned, so a regression that makes the white point update
+   * bail out early emits nothing at all. Waiting forever would surface that as
+   * an unexplained suite timeout instead of a failure naming the cause.
+   */
+  timeout_id = g_timeout_add_seconds (10, on_calibration_wait_timeout,
+                                      &timed_out);
+
+  set_night_light_temperature (temperature);
+  set_night_light_active (active);
+
+  while (run && !timed_out)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_clear_handle_id (&timeout_id, g_source_remove);
+  g_signal_handler_disconnect (color_device, handler_id);
+
+  if (timed_out)
+    g_error ("Timed out waiting for %uK to be applied: the color device "
+             "emitted no calibration change", temperature);
+}
+
+static void
+meta_test_color_management_night_light_prefer_gamma_lut (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitor *monitor;
+  MetaOutput *output;
+  MetaCrtc *crtc;
+  MetaCrtcTest *crtc_test;
+  MetaColorDevice *color_device;
+  float expected_r, expected_g, expected_b;
+  unsigned int temperature = 4000;
+
+  /* Hardware exposing both GAMMA_LUT and CTM must keep using the LUT. */
+  test_case_setup.crtcs[0].enable_ctm = TRUE;
+  test_case_setup.outputs[0].edid_info = CALTECH_MONITOR_EDID;
+  test_case_setup.outputs[0].has_edid_info = TRUE;
+  test_case_setup.n_outputs = 1;
+  test_case_setup.n_crtcs = 1;
+
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  monitor = meta_monitor_manager_get_monitors (monitor_manager)->data;
+  g_assert_cmpuint (meta_monitor_get_gamma_lut_size (monitor), >, 0);
+  g_assert_true (meta_monitor_is_ctm_supported (monitor));
+
+  color_device = meta_color_manager_get_color_device (color_manager, monitor);
+  g_assert_nonnull (color_device);
+
+  while (!meta_color_device_is_ready (color_device))
+    g_main_context_iteration (NULL, TRUE);
+
+  output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
+  crtc_test = META_CRTC_TEST (crtc);
+
+  /* No colord profile is assigned, so this is the uncalibrated ramp. */
+  apply_night_light_temperature (color_device, temperature, TRUE);
+
+  meta_color_get_temperature_rgb_scales (temperature,
+                                         &expected_r,
+                                         &expected_g,
+                                         &expected_b);
+  assert_gamma_lut_scales (crtc_test, expected_r, expected_g, expected_b);
+  g_assert_null (meta_crtc_test_peek_ctm (crtc_test));
+
+  /* Back to daylight; still no CTM. */
+  apply_night_light_temperature (color_device, 6500, FALSE);
+
+  meta_color_get_temperature_rgb_scales (6500,
+                                         &expected_r,
+                                         &expected_g,
+                                         &expected_b);
+  assert_gamma_lut_scales (crtc_test, expected_r, expected_g, expected_b);
+  g_assert_null (meta_crtc_test_peek_ctm (crtc_test));
+}
+
+static void
+meta_test_color_management_night_light_ctm_fallback (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitor *monitor;
+  MetaOutput *output;
+  MetaCrtc *crtc;
+  MetaCrtcTest *crtc_test;
+  MetaColorDevice *color_device;
+  float expected_r, expected_g, expected_b;
+  unsigned int temperature = 4700;
+
+  /* No GAMMA_LUT, but CTM available. */
+  test_case_setup.crtcs[0].disable_gamma_lut = TRUE;
+  test_case_setup.crtcs[0].enable_ctm = TRUE;
+  test_case_setup.outputs[0].edid_info = CALTECH_MONITOR_EDID;
+  test_case_setup.outputs[0].has_edid_info = TRUE;
+  test_case_setup.n_outputs = 1;
+  test_case_setup.n_crtcs = 1;
+
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  monitor = meta_monitor_manager_get_monitors (monitor_manager)->data;
+  g_assert_cmpuint (meta_monitor_get_gamma_lut_size (monitor), ==, 0);
+  g_assert_true (meta_monitor_is_ctm_supported (monitor));
+
+  color_device = meta_color_manager_get_color_device (color_manager, monitor);
+  g_assert_nonnull (color_device);
+
+  while (!meta_color_device_is_ready (color_device))
+    g_main_context_iteration (NULL, TRUE);
+
+  /* No profile is assigned, which is the case the fallback has to work in:
+   * requiring one used to make Night Light do nothing at all here. */
+  g_assert_null (meta_color_device_get_assigned_profile (color_device));
+
+  output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
+  crtc_test = META_CRTC_TEST (crtc);
+
+  /* A warm temperature becomes a diagonal CTM built from the blackbody
+   * scales, without needing a color profile. */
+  apply_night_light_temperature (color_device, temperature, TRUE);
+
+  meta_color_get_temperature_rgb_scales (temperature,
+                                         &expected_r,
+                                         &expected_g,
+                                         &expected_b);
+  assert_ctm_scales (meta_crtc_test_peek_ctm (crtc_test),
+                     expected_r, expected_g, expected_b);
+
+  /* Back to daylight. */
+  apply_night_light_temperature (color_device, 6500, FALSE);
+
+  meta_color_get_temperature_rgb_scales (6500,
+                                         &expected_r,
+                                         &expected_g,
+                                         &expected_b);
+  assert_ctm_scales (meta_crtc_test_peek_ctm (crtc_test),
+                     expected_r, expected_g, expected_b);
+}
+
+/*
+ * Nothing outside [0, 1] may reach the kernel, whatever the scales are, so
+ * check the boundaries of the conversion directly rather than only through a
+ * temperature that happens to produce sane values.
+ */
+static void
+meta_test_color_management_ctm_scale_clamping (void)
+{
+  g_autoptr (MetaCtm) out_of_range = NULL;
+  g_autoptr (MetaCtm) non_finite = NULL;
+  g_autoptr (MetaCtm) boundaries = NULL;
+
+  out_of_range = meta_ctm_new_from_rgb_scales (-1.0f, 2.0f, 0.5f);
+  assert_ctm_scales (out_of_range, 0.0f, 1.0f, 0.5f);
+
+  non_finite = meta_ctm_new_from_rgb_scales (NAN, INFINITY, -INFINITY);
+  assert_ctm_scales (non_finite, 0.0f, 0.0f, 0.0f);
+
+  boundaries = meta_ctm_new_from_rgb_scales (0.0f, 1.0f, 0.0f);
+  assert_ctm_scales (boundaries, 0.0f, 1.0f, 0.0f);
+}
+
+/*
+ * The generated D-Bus accessors are not exported from libmutter, so read the
+ * property off the skeleton directly.
+ */
+static gboolean
+get_night_light_supported (MetaMonitorManager *monitor_manager)
+{
+  gboolean supported = FALSE;
+
+  g_object_get (monitor_manager->display_config,
+                "night-light-supported", &supported,
+                NULL);
+
+  return supported;
+}
+
+/*
+ * NightLightSupported must follow CTM capability, otherwise the toggle stays
+ * hidden on exactly the hardware this series targets.
+ */
+static void
+meta_test_color_management_night_light_supported (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+
+  test_case_setup.outputs[0].edid_info = CALTECH_MONITOR_EDID;
+  test_case_setup.outputs[0].has_edid_info = TRUE;
+  test_case_setup.n_outputs = 1;
+  test_case_setup.n_crtcs = 1;
+
+  /* Neither property: Night Light cannot be applied at all. */
+  test_case_setup.crtcs[0].disable_gamma_lut = TRUE;
+  test_case_setup.crtcs[0].enable_ctm = FALSE;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  g_assert_false (get_night_light_supported (monitor_manager));
+
+  /* CTM only: still supported, via the fallback. */
+  test_case_setup.crtcs[0].enable_ctm = TRUE;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  g_assert_true (get_night_light_supported (monitor_manager));
+
+  /* GAMMA_LUT only: unchanged behaviour. */
+  test_case_setup.crtcs[0].disable_gamma_lut = FALSE;
+  test_case_setup.crtcs[0].enable_ctm = FALSE;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  g_assert_true (get_night_light_supported (monitor_manager));
+}
+
 static MetaMonitorTestSetup *
 create_stage_view_test_setup (MetaBackend *backend)
 {
@@ -1569,6 +1900,14 @@ init_tests (void)
                   meta_test_color_management_night_light_calibrated);
   add_color_test ("/color-management/night-light/uncalibrated",
                   meta_test_color_management_night_light_uncalibrated);
+  add_color_test ("/color-management/night-light/prefer-gamma-lut",
+                  meta_test_color_management_night_light_prefer_gamma_lut);
+  add_color_test ("/color-management/night-light/ctm-fallback",
+                  meta_test_color_management_night_light_ctm_fallback);
+  add_color_test ("/color-management/night-light/ctm-scale-clamping",
+                  meta_test_color_management_ctm_scale_clamping);
+  add_color_test ("/color-management/night-light/supported",
+                  meta_test_color_management_night_light_supported);
 }
 
 int

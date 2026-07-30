@@ -706,6 +706,8 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                            NULL);
       if (setup->crtcs[i].disable_gamma_lut)
         meta_crtc_test_disable_gamma_lut (META_CRTC_TEST (crtc));
+      if (setup->crtcs[i].enable_ctm)
+        meta_crtc_test_enable_ctm (META_CRTC_TEST (crtc));
 
       test_setup->crtcs = g_list_append (test_setup->crtcs, crtc);
     }
