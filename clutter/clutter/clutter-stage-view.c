@@ -300,6 +300,8 @@ clutter_stage_view_invalidate_offscreen (ClutterStageView *view)
       !clutter_color_state_needs_mapping (priv->color_state,
                                           priv->output_color_state))
     {
+      clutter_stage_view_invalidate_viewport (view);
+      clutter_stage_view_invalidate_projection (view);
       g_clear_object (&priv->offscreen_pipeline);
       g_clear_object (&priv->offscreen);
       g_clear_handle_id (&priv->ensure_offscreen_idle_id, g_source_remove);
