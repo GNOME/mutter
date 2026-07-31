@@ -406,6 +406,7 @@
         Available color modes:
           0 : default
           1 : BT.2100
+          2 : SDR native
 
         Available RGB quantization ranges:
           1: auto
