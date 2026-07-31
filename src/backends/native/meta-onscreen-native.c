@@ -234,7 +234,7 @@ render_source_ready (GSource *source)
 }
 
 static void
-maybe_post_next_frame_if_gl_finished (CoglOnscreen *onscreen)
+maybe_post_next_frame_if_renderer_finished (CoglOnscreen *onscreen)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   RenderSource *render_source = (RenderSource *) onscreen_native->render_source;
@@ -356,7 +356,7 @@ maybe_init_render_source (MetaOnscreenNative *onscreen_native)
       g_source_set_name (source, "MetaOnscreenNative.render_source");
       g_source_set_can_recurse (source, FALSE);
       g_source_set_callback (source,
-                             (GSourceFunc) maybe_post_next_frame_if_gl_finished,
+                             (GSourceFunc) maybe_post_next_frame_if_renderer_finished,
                              onscreen_native,
                              NULL);
       g_source_attach (source, NULL);
@@ -384,7 +384,7 @@ meta_onscreen_native_promote_posted_frame (CoglOnscreen *onscreen)
         g_steal_pointer (&onscreen_native->posted_frame);
     }
 
-  maybe_post_next_frame_if_gl_finished (onscreen);
+  maybe_post_next_frame_if_renderer_finished (onscreen);
 }
 
 static void
@@ -396,7 +396,7 @@ meta_onscreen_native_clear_posted_fb (CoglOnscreen *onscreen)
     return;
 
   g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
-  maybe_post_next_frame_if_gl_finished (onscreen);
+  maybe_post_next_frame_if_renderer_finished (onscreen);
 }
 
 static void
