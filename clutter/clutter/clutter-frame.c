@@ -37,6 +37,7 @@ clutter_frame_unref (ClutterFrame *frame)
     {
       if (frame->release)
         frame->release (frame);
+      g_clear_object (&frame->cogl_frame_info);
       g_free (frame);
     }
 }
@@ -99,12 +100,18 @@ clutter_frame_get_cogl_frame_info (ClutterFrame *frame)
 }
 
 void
-clutter_frame_set_cogl_frame_info (ClutterFrame  *frame,
-                                   CoglFrameInfo *frame_info)
+clutter_frame_take_cogl_frame_info (ClutterFrame  *frame,
+                                    CoglFrameInfo *frame_info)
 {
   g_return_if_fail (!frame->cogl_frame_info);
 
   frame->cogl_frame_info = frame_info;
+}
+
+void
+clutter_frame_notify_presented (ClutterFrame *frame)
+{
+  g_clear_object (&frame->cogl_frame_info);
 }
 
 ClutterFrameResult

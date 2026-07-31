@@ -272,15 +272,14 @@ swap_framebuffer (ClutterStageWindow *stage_window,
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       int n_rects;
-      CoglFrameInfo *frame_info;
-
+      g_autoptr (CoglFrameInfo) frame_info = NULL;
 
       frame_info =
         cogl_frame_info_new (onscreen, priv->global_frame_counter,
                              frame->frame_count);
       priv->global_frame_counter++;
 
-      clutter_frame_set_cogl_frame_info (frame, frame_info);
+      clutter_frame_take_cogl_frame_info (frame, g_object_ref (frame_info));
 
       n_rects = mtk_region_num_rectangles (swap_region);
       if (n_rects > 0 && !swap_with_damage)
@@ -777,7 +776,7 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
   CoglOnscreen *onscreen;
-  CoglFrameInfo *frame_info;
+  g_autoptr (CoglFrameInfo) frame_info = NULL;
 
   g_assert (COGL_IS_ONSCREEN (framebuffer));
 
@@ -785,17 +784,14 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
 
   frame_info = cogl_frame_info_new (onscreen, priv->global_frame_counter,
                                     frame->frame_count);
-  clutter_frame_set_cogl_frame_info (frame, frame_info);
+  clutter_frame_take_cogl_frame_info (frame, g_object_ref (frame_info));
 
   if (!cogl_onscreen_direct_scanout (onscreen,
                                      scanout,
                                      frame_info,
                                      frame,
                                      error))
-    {
-      g_object_unref (frame_info);
-      return FALSE;
-    }
+    return FALSE;
 
   priv->global_frame_counter++;
   return TRUE;
@@ -842,14 +838,14 @@ meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
     meta_stage_impl_get_instance_private (stage_impl);
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (stage_view);
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-  CoglFrameInfo *frame_info;
+  g_autoptr (CoglFrameInfo) frame_info = NULL;
 
   frame_info = cogl_frame_info_new (onscreen, priv->global_frame_counter,
                                     frame->frame_count);
   priv->global_frame_counter++;
 
   cogl_onscreen_add_frame_info (COGL_ONSCREEN (framebuffer), frame_info);
-  clutter_frame_set_cogl_frame_info (frame, frame_info);
+  clutter_frame_take_cogl_frame_info (frame, g_steal_pointer (&frame_info));
 }
 
 static void

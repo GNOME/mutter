@@ -381,6 +381,7 @@ meta_onscreen_native_promote_posted_frame (CoglOnscreen *onscreen)
       g_clear_pointer (&onscreen_native->presented_frame, clutter_frame_unref);
       onscreen_native->presented_frame =
         g_steal_pointer (&onscreen_native->posted_frame);
+      clutter_frame_notify_presented (onscreen_native->presented_frame);
     }
 
   maybe_post_next_frame_if_renderer_finished (onscreen);
@@ -435,7 +436,6 @@ notify_frame_info_complete (CoglFrameInfo *info)
 
   _cogl_onscreen_notify_frame_sync (onscreen, info);
   _cogl_onscreen_notify_complete (onscreen, info);
-  g_object_unref (info);
 }
 
 static void
