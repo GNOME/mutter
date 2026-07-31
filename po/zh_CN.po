@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-27 17:52+0000\n"
-"PO-Revision-Date: 2026-02-28 09:39+0800\n"
+"POT-Creation-Date: 2026-07-07 13:52+0000\n"
+"PO-Revision-Date: 2026-07-31 08:57+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -31,7 +31,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 49.0\n"
+"X-Generator: Gtranslator 50.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -685,7 +685,7 @@ msgstr "编辑启动器(_E)"
 msgid "_About Mutter Development Kit"
 msgstr "关于 Mutter 开发工具集(_A)"
 
-#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Mutter 开发工具集"
 
@@ -693,42 +693,46 @@ msgstr "Mutter 开发工具集"
 msgid "Main Menu"
 msgstr "主菜单"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "Mutter 团队"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "Mutter 软件开发工具集"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "关于 Mutter 开发工具集"
 
-#: mdk/mdk-monitor.c:556
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "开发工具集选项"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "创建监视器失败"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "内置显示器"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "未知"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "未知的显示器"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -740,47 +744,51 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "响铃事件"
 
-#: src/core/display.c:608
+#: src/core/display.c:612
 msgid "Privacy Screen Enabled"
 msgstr "隐私屏幕已启用"
 
-#: src/core/display.c:609
+#: src/core/display.c:613
 msgid "Privacy Screen Disabled"
 msgstr "隐私屏幕已禁用"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "以 wayland 合成器运行"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "运行 wayland 合成器但不启动 Xwayland"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "指定要使用的 Wayland 显示的名称"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "以无外设显示服务器运行"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "添加持久性虚拟显示器（WxH 或 WxH@R）"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "运行开发工具集"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "开发工具集参数"
+
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "使用追踪仪表剖析性能"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "启用调试控制 D-Bus 接口"
 
@@ -824,12 +832,12 @@ msgstr "打印版本"
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 插件"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter 编译的时候没有加入详细模式的支持"
 
@@ -842,24 +850,24 @@ msgstr "工作区已切换"
 msgid "Mode Switch: Mode %d"
 msgstr "模式切换：%d 模式"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "显示“%s”上已经有一个窗口管理器"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "无法打开 X 窗口系统显示“%s”"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "显示“%2$s”上的屏幕 %1$d 无效"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
