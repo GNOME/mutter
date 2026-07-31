@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-28 09:38+0000\n"
-"PO-Revision-Date: 2026-02-28 18:56+0100\n"
+"POT-Creation-Date: 2026-07-07 13:52+0000\n"
+"PO-Revision-Date: 2026-07-31 06:35+0200\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -709,7 +709,7 @@ msgstr "გამშვებ_ების ჩასწორება"
 msgid "_About Mutter Development Kit"
 msgstr "Mutter-ის პროგრამისტების ნაკრების შეს_ახებ"
 
-#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Mutter-ის პროგრამისტების ნაკრები"
 
@@ -717,42 +717,46 @@ msgstr "Mutter-ის პროგრამისტების ნაკრე
 msgid "Main Menu"
 msgstr "მთავარი მენიუ"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "Mutter-ის გუნდი"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "Mutter-ის პროგრამისტების ნაკრები"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "Mutter-ის პროგრამისტების ნაკრების შესახებ"
 
-#: mdk/mdk-monitor.c:557
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "Devkit-ის მორგება"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "მონიტორის შექმნა ჩავარდა"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "ჩაშენებული ეკრანი"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "უცნობია"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "უცნობი ეკრანი"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -764,47 +768,51 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "მოვლენის ზარი"
 
-#: src/core/display.c:608
+#: src/core/display.c:612
 msgid "Privacy Screen Enabled"
 msgstr "კონფიდენციალური ეკრანი ჩართულია"
 
-#: src/core/display.c:609
+#: src/core/display.c:613
 msgid "Privacy Screen Disabled"
 msgstr "კონფიდენციალური ეკრანი გამორთულია"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "Wayland-ის კომპოზიტორად გაშვება"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland კომპოზიტორის Xwayland-ის შესრულებს გარეშე გაშვება"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "მიუთითეთ Wayland-ის ეკრანის სახელი"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "ჩადგმულის მაგიერ ეკრანის სრულ სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "უთავო ეკრანის სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "მუდმინი ვირტუალური ეკრანის დამატება (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "პროგრამისტების ნაკრების გაშვება"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "პროგრამისტების ნაკრების არგუმენტები"
+
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "წარმადობის პროფილირება ტრეისის ინსტრუმენტებით"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "გამართვის კონტროლის D-Bus-ის ინტერფეისის ჩართვა"
 
@@ -848,12 +856,12 @@ msgstr "მიმდინარე ვერსიის დაბეჭდვ�
 msgid "Mutter plugin to use"
 msgstr "Mutter-ის დამატება"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "სამუშაო სივრცე %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter დამატებითი შეტყობინების მხარდაჭერის გარეშეა აგებული"
 
@@ -866,24 +874,24 @@ msgstr "სამუშაო სივრცე გადაირთო"
 msgid "Mode Switch: Mode %d"
 msgstr "რეჟიმის შეცვლა რეჟიმი %d"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "ეკრანს \"%s\" უკვე აქვს ფანჯრების მმართველი"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "ფანჯრების X სისტემის ეკრანის (%s) გახსნის შეცდომა"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "ასლი \"%d\" ეკრანზე \"%s\" არასწორია"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
