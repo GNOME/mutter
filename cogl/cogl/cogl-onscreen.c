@@ -36,17 +36,13 @@
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-frame-info-private.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-context-private.h"
 #include "cogl/cogl-closure-list-private.h"
-#include "cogl/cogl-renderer-private.h"
 
 typedef struct _CoglOnscreenPrivate
 {
   CoglList frame_closures;
 
   int64_t frame_counter;
-
-  GQueue pending_frame_infos;
 } CoglOnscreenPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
@@ -87,13 +83,8 @@ cogl_onscreen_dispose (GObject *object)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (object);
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  CoglFrameInfo *frame_info;
 
   _cogl_closure_list_disconnect_all (&priv->frame_closures);
-
-  while ((frame_info = g_queue_pop_tail (&priv->pending_frame_infos)))
-    g_object_unref (frame_info);
-  g_queue_clear (&priv->pending_frame_infos);
 
   G_OBJECT_CLASS (cogl_onscreen_parent_class)->dispose (object);
 }
@@ -161,7 +152,6 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
   info->frame_counter = priv->frame_counter;
-  g_queue_push_tail (&priv->pending_frame_infos, info);
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
@@ -190,7 +180,6 @@ cogl_onscreen_swap_region (CoglOnscreen    *onscreen,
   g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
   info->frame_counter = priv->frame_counter;
-  g_queue_push_tail (&priv->pending_frame_infos, info);
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
@@ -245,74 +234,17 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
     }
 
   info->frame_counter = priv->frame_counter;
-  g_queue_push_tail (&priv->pending_frame_infos, info);
 
   if (!klass->direct_scanout (onscreen,
                               scanout,
                               info,
                               user_data,
                               error))
-    {
-      g_queue_pop_tail (&priv->pending_frame_infos);
-      return FALSE;
-    }
+    return FALSE;
 
   info->flags |= COGL_FRAME_INFO_FLAG_ZERO_COPY;
   priv->frame_counter++;
   return TRUE;
-}
-
-void
-cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,
-                              CoglFrameInfo *info)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  info->frame_counter = priv->frame_counter;
-  g_queue_push_tail (&priv->pending_frame_infos, info);
-}
-
-CoglFrameInfo *
-cogl_onscreen_peek_frame_info (CoglOnscreen *onscreen,
-                               int64_t       frame_counter)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  GList *l;
-
-  for (l = priv->pending_frame_infos.head; l; l = l->next)
-    {
-      CoglFrameInfo *frame_info = l->data;
-
-      if (frame_info->view_frame_counter == frame_counter)
-        return frame_info;
-    }
-
-  return NULL;
-}
-
-CoglFrameInfo *
-cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  return g_queue_peek_head (&priv->pending_frame_infos);
-}
-
-CoglFrameInfo *
-cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  return g_queue_pop_head (&priv->pending_frame_infos);
-}
-
-void
-cogl_onscreen_remove_frame_info (CoglOnscreen  *onscreen,
-                                 CoglFrameInfo *frame_info)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  g_queue_remove (&priv->pending_frame_infos, frame_info);
 }
 
 CoglFrameClosure *

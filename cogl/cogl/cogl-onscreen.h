@@ -203,15 +203,6 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
                               GError        **error);
 
 /**
- * cogl_onscreen_add_frame_info:
- * @onscreen: A #CoglOnscreen framebuffer
- * @info: (transfer full): A #CoglFrameInfo
- */
-COGL_EXPORT void
-cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,
-                              CoglFrameInfo *info);
-
-/**
  * cogl_onscreen_swap_region:
  * @onscreen: A #CoglOnscreen framebuffer
  * @region: A region

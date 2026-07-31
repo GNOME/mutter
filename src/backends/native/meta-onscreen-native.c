@@ -432,8 +432,6 @@ notify_frame_info_complete (CoglFrameInfo *info)
 {
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (info);
 
-  cogl_onscreen_remove_frame_info (onscreen, info);
-
   _cogl_onscreen_notify_frame_sync (onscreen, info);
   _cogl_onscreen_notify_complete (onscreen, info);
 }
@@ -2179,8 +2177,8 @@ meta_onscreen_native_get_window_handles (CoglOnscreen *onscreen,
 }
 
 static void
-add_onscreen_frame_info (MetaCrtc     *crtc,
-                         ClutterFrame *frame)
+add_cogl_frame_info (MetaCrtc     *crtc,
+                     ClutterFrame *frame)
 {
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   MetaBackend *backend = meta_gpu_get_backend (gpu);
@@ -2189,9 +2187,9 @@ add_onscreen_frame_info (MetaCrtc     *crtc,
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererView *view = meta_renderer_get_view_for_crtc (renderer, crtc);
 
-  meta_stage_impl_add_onscreen_frame_info (META_STAGE_IMPL (stage_window),
-                                           CLUTTER_STAGE_VIEW (view),
-                                           frame);
+  meta_stage_impl_add_cogl_frame_info (META_STAGE_IMPL (stage_window),
+                                       CLUTTER_STAGE_VIEW (view),
+                                       frame);
 }
 
 void
@@ -2419,7 +2417,7 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
   CoglFrameInfo *frame_info;
 
-  add_onscreen_frame_info (crtc, frame);
+  add_cogl_frame_info (crtc, frame);
   frame_info = clutter_frame_get_cogl_frame_info (frame);
 
   meta_kms_update_add_result_listener (kms_update,

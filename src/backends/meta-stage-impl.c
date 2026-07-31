@@ -830,9 +830,9 @@ meta_stage_impl_redraw_view (ClutterStageWindow *stage_window,
 }
 
 void
-meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
-                                         ClutterStageView *stage_view,
-                                         ClutterFrame     *frame)
+meta_stage_impl_add_cogl_frame_info (MetaStageImpl    *stage_impl,
+                                     ClutterStageView *stage_view,
+                                     ClutterFrame     *frame)
 {
   MetaStageImplPrivate *priv =
     meta_stage_impl_get_instance_private (stage_impl);
@@ -844,7 +844,6 @@ meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
                                     frame->frame_count);
   priv->global_frame_counter++;
 
-  cogl_onscreen_add_frame_info (COGL_ONSCREEN (framebuffer), frame_info);
   clutter_frame_take_cogl_frame_info (frame, g_steal_pointer (&frame_info));
 }
 

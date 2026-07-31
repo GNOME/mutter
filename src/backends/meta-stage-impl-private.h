@@ -62,9 +62,9 @@ GType meta_stage_impl_get_type (void);
 
 MetaBackend * meta_stage_impl_get_backend (MetaStageImpl *stage_impl);
 
-void meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
-                                              ClutterStageView *view,
-                                              ClutterFrame     *frame);
+void meta_stage_impl_add_cogl_frame_info (MetaStageImpl    *stage_impl,
+                                          ClutterStageView *view,
+                                          ClutterFrame     *frame);
 
 void meta_stage_impl_rebuild_views (MetaStageImpl *stage_impl);
 

@@ -31,10 +31,6 @@
 #pragma once
 
 #include "cogl/cogl-onscreen.h"
-#include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-closure-list-private.h"
-#include "cogl/cogl-list.h"
-#include "mtk/mtk-rectangle.h"
 
 #include <glib.h>
 
@@ -46,17 +42,3 @@ _cogl_onscreen_notify_complete (CoglOnscreen *onscreen, CoglFrameInfo *info);
 
 COGL_EXPORT void
 cogl_onscreen_bind (CoglOnscreen *onscreen);
-
-COGL_EXPORT CoglFrameInfo *
-cogl_onscreen_peek_frame_info (CoglOnscreen *onscreen,
-                               int64_t       frame_counter);
-
-COGL_EXPORT CoglFrameInfo *
-cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen);
-
-COGL_EXPORT CoglFrameInfo *
-cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen);
-
-COGL_EXPORT void
-cogl_onscreen_remove_frame_info (CoglOnscreen  *onscreen,
-                                 CoglFrameInfo *frame_info);
