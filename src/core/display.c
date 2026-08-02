@@ -164,7 +164,6 @@ enum
   GRAB_OP_BEGIN,
   GRAB_OP_END,
   SHOW_RESIZE_POPUP,
-  GL_VIDEO_MEMORY_PURGED,
   SHOW_PAD_OSD,
   SHOW_OSD,
   PAD_MODE_SWITCH,
@@ -407,14 +406,6 @@ meta_display_class_init (MetaDisplayClass *klass)
                   NULL, NULL,
                   G_TYPE_BOOLEAN, 4,
                   G_TYPE_BOOLEAN, MTK_TYPE_RECTANGLE, G_TYPE_INT, G_TYPE_INT);
-
-  display_signals[GL_VIDEO_MEMORY_PURGED] =
-    g_signal_new ("gl-video-memory-purged",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
 
   /**
    * MetaDisplay::show-pad-osd:

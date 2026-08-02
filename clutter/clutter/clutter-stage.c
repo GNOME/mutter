@@ -137,7 +137,6 @@ enum
   AFTER_UPDATE,
   PAINT_VIEW,
   PRESENTED,
-  GL_VIDEO_MEMORY_PURGED,
 
   LAST_SIGNAL
 };
@@ -1670,22 +1669,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   g_signal_set_va_marshaller (stage_signals[PRESENTED],
                               G_TYPE_FROM_CLASS (gobject_class),
                               _clutter_marshal_VOID__OBJECT_POINTERv);
-
- /**
-   * ClutterStage::gl-video-memory-purged: (skip)
-   * @stage: the stage that received the event
-   *
-   * Signals that the underlying GL driver has had its texture memory purged
-   * so anything presently held in texture memory is now invalidated, and
-   * likely corrupt. It needs redrawing.
-   */
-  stage_signals[GL_VIDEO_MEMORY_PURGED] =
-    g_signal_new (I_("gl-video-memory-purged"),
-                  G_TYPE_FROM_CLASS (gobject_class),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
 }
 
 static void

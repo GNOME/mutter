@@ -1004,8 +1004,6 @@ meta_compositor_real_after_paint (MetaCompositor     *compositor,
   switch (status)
     {
     case COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:
-      g_signal_emit_by_name (priv->display, "gl-video-memory-purged");
-      g_signal_emit_by_name (stage_actor, "gl-video-memory-purged");
       clutter_actor_queue_redraw (stage_actor);
       break;
 

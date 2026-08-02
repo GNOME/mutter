@@ -121,8 +121,6 @@ typedef struct _ClutterOffscreenEffectPrivate
      regenerate the fbo */
   int target_width;
   int target_height;
-
-  gulong purge_handler_id;
 } ClutterOffscreenEffectPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterOffscreenEffect,
@@ -204,15 +202,6 @@ clutter_offscreen_effect_real_create_pipeline (ClutterOffscreenEffect *effect,
   return pipeline;
 }
 
-static void
-video_memory_purged (ClutterOffscreenEffect *self)
-{
-  ClutterOffscreenEffectPrivate *priv =
-    clutter_offscreen_effect_get_instance_private (self);
-
-  g_clear_object (&priv->offscreen);
-}
-
 static gboolean
 update_fbo (ClutterEffect *effect,
             int            target_width,
@@ -233,21 +222,7 @@ update_fbo (ClutterEffect *effect,
 
   stage_actor = clutter_actor_get_stage (priv->actor);
   if (stage_actor != priv->stage)
-    {
-      g_clear_signal_handler (&priv->purge_handler_id, priv->stage);
-
-      priv->stage = stage_actor;
-
-      if (priv->stage)
-        {
-          priv->purge_handler_id =
-            g_signal_connect_object (priv->stage,
-                                     "gl-video-memory-purged",
-                                     G_CALLBACK (video_memory_purged),
-                                     self,
-                                     G_CONNECT_SWAPPED);
-        }
-    }
+    priv->stage = stage_actor;
 
   if (priv->stage == NULL)
     {
