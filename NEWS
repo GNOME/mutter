@@ -1,3 +1,46 @@
+51.beta
+=======
+* Allow to get last input device from backend [Sergio; !5084]
+* Send sprite object with grab-op-begin signal [Alessandro; !5135]
+* Hook up disable-while-typing timeout setting [Peter; !4795]
+* Hide cursor while input capture is active [KoljaFrahm; !5113]
+* Add ext-background-effect-v1 blur support [Kristof; !5071]
+* Fix blurred rendering with non-pixel-aligned monitors [James; !5115]
+* Use staging xdg_session_management_v1 protocol [Carlos; !4806]
+* Allow for button scrolling on mice [Peter; !4993]
+* Allow external cursor implementations [Carlos; !5104]
+* Do not add unsuported fallback monitor modes [ramyayella; !5110]
+* Improve frame scheduling [Michel; !5138, !5131, !5183, !5167, !5156]
+* Add dedicated "input panel" group [Carlos; !5171]
+* Fix reapplying shader snippet after resize/scale operations [Kristof; !5165]
+* Fill in mastering display metadata for HDR output [Boogie61; !5199]
+* Add transition-removed signal on ClutterActor [Joan; !4925]
+* Fix invalid redraw clips on rotated monitors [Marco; !5203]
+* Avoid using cairo in public screenshot API [Bilal; !4172]
+* Split experimental features into separate settings [Sebastian K.; !4893]
+* Use MetaWindowConfig to process window state changes [Jonas; !4988]
+* Allow global shortcut inhibitors to inhibit a11y shortcuts [Lukáš; !4926]
+* Fixed crashes [Jonas, Carlos, Sundeep, Michel; !5143, !5153, !5151,
+  !5163, !5169, !5170]
+* Misc. bug fixes and cleanups [Jonas, Daniel, Toluwaleke, Carlos, Michel,
+  Bilal, Florian, Cleo, Maximiliano, Sergio, Sebastian W.; !4711, !5152, !5141,
+  !5014, !5121, !5056, !5137, !5166, !5159, !5168, !5164, !5106, !5173, !5184,
+  !5187, !5162, !5193, !5176, !5158, !5206, !5175, !4991, !5145, !5209, !5210]
+
+Contributors:
+  AnonymouX47, Alessandro Astone, Boogie61, Sergio Costas Rodriguez,
+  Michel Dänzer, Bilal Elmoussaoui, Carlos Garnacho, Peter Hutterer,
+  Kristof Imeri, Sebastian Keller, KoljaFrahm, Sundeep Mediratta,
+  Cleo Menezes Jr., Florian Müllner, Toluwaleke Ogundipe, James Railton,
+  ramyayella, Maximiliano Sandoval, Joan Torres Lopez,
+  Marco Trevisan (Treviño), Lukáš Tyrychtr, Daniel van Vugt, Sebastian Wick,
+  Jonas Ådahl
+
+Translators:
+  Emin Tufan Çetin [tr], Vasil Pupkin [be], Daniel Rusek [cs],
+  Baurzhan Muftakhidinov [kk], Yuri Chornoivan [uk], luming zh [zh_CN],
+  Ekaterine Papava [ka]
+
 51.alpha
 ========
 * Fix size increases when quickly unmaximizing window by drag [Jonas; !4856]
