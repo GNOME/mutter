@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-cursor-renderer.h"
 #include "backends/meta-renderer.h"
 #include "tests/meta-test/meta-context-test.h"
 #include "tests/meta-ref-test.h"
@@ -80,10 +81,55 @@ meta_test_cursor_overlay_damage (void)
 }
 
 static void
+meta_test_cursor_overlay_hidden_cursor (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
+  g_autoptr (MetaVirtualMonitor) test_monitor = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+
+  test_monitor = meta_create_test_monitor (test_context, 100, 100, 60.0);
+  g_assert_nonnull (test_monitor);
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+
+  clutter_actor_set_cursor_type (stage, CLUTTER_CURSOR_DEFAULT);
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       50.0f, 50.0f);
+  meta_flush_input (test_context);
+  meta_wait_for_presented (test_context);
+
+  g_assert_true (meta_cursor_renderer_needs_overlay_on_view (cursor_renderer,
+                                                             get_view ()));
+
+  /* A hidden cursor still realizes a blank texture, so the overlay decision
+   * must not be derived from the texture alone: leaving it visible costs
+   * direct scanout on whichever view the pointer is on. */
+  clutter_actor_set_cursor_type (stage, CLUTTER_CURSOR_NONE);
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       75.0f, 75.0f);
+  meta_flush_input (test_context);
+  meta_wait_for_presented (test_context);
+
+  g_assert_false (meta_cursor_renderer_needs_overlay_on_view (cursor_renderer,
+                                                              get_view ()));
+
+  clutter_actor_set_cursor_type (stage, CLUTTER_CURSOR_DEFAULT);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/cursor-overlay/damage",
                    meta_test_cursor_overlay_damage);
+  g_test_add_func ("/backends/cursor-overlay/hidden-cursor",
+                   meta_test_cursor_overlay_hidden_cursor);
 }
 
 int

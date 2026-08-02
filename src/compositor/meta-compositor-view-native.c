@@ -226,7 +226,8 @@ has_overlapping_cursor_overlay_foreach (ClutterStage  *stage,
                                                                  sprite);
   if (!cursor_renderer)
     return TRUE;
-  if (!meta_cursor_renderer_needs_overlay (cursor_renderer))
+  if (!meta_cursor_renderer_needs_overlay_on_view (cursor_renderer,
+                                                   data->stage_view))
     return TRUE;
 
   cursor = meta_cursor_renderer_get_cursor (cursor_renderer);

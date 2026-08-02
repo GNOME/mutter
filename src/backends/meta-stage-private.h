@@ -61,8 +61,12 @@ void              meta_stage_update_cursor_overlay   (MetaStage               *s
                                                       const graphene_matrix_t *matrix,
                                                       const graphene_rect_t   *dst_rect);
 
-void meta_overlay_set_visible (MetaOverlay *overlay,
-                               gboolean     is_visible);
+void meta_overlay_set_view_visible (MetaOverlay      *overlay,
+                                    ClutterStageView *view,
+                                    gboolean          is_visible);
+
+gboolean meta_overlay_get_view_visible (MetaOverlay      *overlay,
+                                        ClutterStageView *view);
 
 META_EXPORT_TEST
 MetaStageWatch * meta_stage_watch_view (MetaStage           *stage,

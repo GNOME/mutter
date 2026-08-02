@@ -48,13 +48,12 @@ typedef struct _MetaOverlayViewState
 {
   graphene_rect_t painted_rect;
   gboolean has_painted_rect;
+  gboolean is_visible;
 } MetaOverlayViewState;
 
 struct _MetaOverlay
 {
   MetaStage *stage;
-
-  gboolean is_visible;
 
   CoglPipeline *pipeline;
   CoglTexture *texture;
@@ -189,7 +188,7 @@ meta_overlay_paint (MetaOverlay         *overlay,
   if (should_paint_any)
     {
       should_paint =
-        (overlay->texture && overlay->is_visible) ||
+        (overlay->texture && view_state && view_state->is_visible) ||
         (clutter_paint_context_get_paint_flags (paint_context) &
          CLUTTER_PAINT_FLAG_FORCE_CURSORS);
     }
@@ -458,7 +457,7 @@ queue_redraw_for_cursor_overlay (MetaStage   *stage,
           intersect_and_queue_redraw (view, &clip);
         }
 
-      if (overlay->is_visible &&
+      if (view_state->is_visible &&
           overlay->texture &&
           !(clutter_stage_view_get_default_paint_flags (view) &
             CLUTTER_PAINT_FLAG_NO_CURSORS) &&
@@ -508,15 +507,33 @@ meta_stage_update_cursor_overlay (MetaStage               *stage,
   queue_redraw_for_cursor_overlay (stage, overlay);
 }
 
+/**
+ * meta_overlay_set_view_visible:
+ *
+ * Sets whether the overlay is visible on @view. Queuing the redraw is left to
+ * the caller, so that a transition affecting several views costs one sweep
+ * over the stage rather than one per view.
+ */
 void
-meta_overlay_set_visible (MetaOverlay *overlay,
-                          gboolean     is_visible)
+meta_overlay_set_view_visible (MetaOverlay      *overlay,
+                               ClutterStageView *view,
+                               gboolean          is_visible)
 {
-  if (overlay->is_visible == is_visible)
-    return;
+  MetaOverlayViewState *view_state;
 
-  overlay->is_visible = is_visible;
-  queue_redraw_for_cursor_overlay (overlay->stage, overlay);
+  view_state = ensure_view_state (overlay, view);
+  view_state->is_visible = is_visible;
+}
+
+gboolean
+meta_overlay_get_view_visible (MetaOverlay      *overlay,
+                               ClutterStageView *view)
+{
+  MetaOverlayViewState *view_state;
+
+  view_state = get_view_state (overlay, view);
+
+  return view_state && view_state->is_visible;
 }
 
 MetaStageWatch *

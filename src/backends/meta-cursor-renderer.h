@@ -51,8 +51,11 @@ struct _MetaCursorRendererClass
   void (* update_sprite) (MetaCursorRenderer *renderer,
                           ClutterSprite      *sprite);
 
-  gboolean (* update_cursor) (MetaCursorRenderer *renderer,
-                              ClutterCursor      *cursor);
+  void (* update_cursor) (MetaCursorRenderer *renderer,
+                          ClutterCursor      *cursor);
+
+  gboolean (* view_has_hw_cursor) (MetaCursorRenderer *renderer,
+                                   ClutterStageView   *view);
 };
 
 MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend *backend);
@@ -82,4 +85,6 @@ void meta_cursor_renderer_set_sprite (MetaCursorRenderer *renderer,
 void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
                                                 ClutterCursor      *cursor);
 
-gboolean meta_cursor_renderer_needs_overlay (MetaCursorRenderer *renderer);
+META_EXPORT_TEST
+gboolean meta_cursor_renderer_needs_overlay_on_view (MetaCursorRenderer *renderer,
+                                                     ClutterStageView   *view);
