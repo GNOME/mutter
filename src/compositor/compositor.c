@@ -309,7 +309,6 @@ meta_compositor_manage (MetaCompositor  *compositor,
   priv->top_window_group = meta_window_group_new (display);
   clutter_actor_set_accessible_name (priv->top_window_group, "Top window group");
   priv->input_panel_group = clutter_actor_new ();
-  clutter_actor_set_position (priv->input_panel_group, -1, -1);
   clutter_actor_set_size (priv->input_panel_group, 0, 0);
   clutter_actor_set_accessible_name (priv->input_panel_group, "Input panel group");
   priv->feedback_group = meta_window_group_new (display);
