@@ -26,9 +26,11 @@
 
 #include "config.h"
 
+#include "backends/meta-logical-monitor-private.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-feedback-actor-private.h"
 #include "core/display-private.h"
+#include "core/window-private.h"
 
 enum
 {
@@ -56,6 +58,58 @@ struct _MetaFeedbackActorPrivate
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaFeedbackActor, meta_feedback_actor, CLUTTER_TYPE_ACTOR)
+
+static void
+meta_feedback_actor_apply_transform (ClutterActor *actor, graphene_matrix_t *matrix)
+{
+  MetaFeedbackActor *self = META_FEEDBACK_ACTOR (actor);
+  ClutterActor *parent = clutter_actor_get_parent (actor);
+  MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (self);
+  MetaDisplay *display = meta_compositor_get_display (priv->compositor);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *logical_monitor;
+  MtkRectangle monitor_rect;
+  float scale;
+  float rel_x, rel_y;
+  float abs_x, abs_y;
+  float adj_rel_x, adj_rel_y;
+  float x_off, y_off;
+
+  CLUTTER_ACTOR_CLASS (meta_feedback_actor_parent_class)->apply_transform (actor, matrix);
+
+  if (!parent)
+    return;
+
+  logical_monitor =
+    meta_monitor_manager_get_logical_monitor_at (monitor_manager, priv->pos_x, priv->pos_y);
+
+  if (!logical_monitor)
+    return;
+
+  scale = meta_logical_monitor_get_scale (logical_monitor);
+  monitor_rect = meta_logical_monitor_get_layout (logical_monitor);
+
+  abs_x = clutter_actor_get_x (parent) + clutter_actor_get_x (actor);
+  abs_y = clutter_actor_get_y (parent) + clutter_actor_get_y (actor);
+
+  rel_x = abs_x - monitor_rect.x;
+  rel_y = abs_y - monitor_rect.y;
+
+  adj_rel_x = roundf (rel_x * scale) / scale;
+  adj_rel_y = roundf (rel_y * scale) / scale;
+
+  x_off = adj_rel_x - rel_x;
+  y_off = adj_rel_y - rel_y;
+
+  if (!G_APPROX_VALUE (x_off, 0.0, FLT_EPSILON) ||
+      !G_APPROX_VALUE (y_off, 0.0, FLT_EPSILON))
+    {
+      graphene_matrix_translate (matrix,
+                                 &GRAPHENE_POINT3D_INIT (x_off, y_off, 0));
+    }
+}
 
 static void
 meta_feedback_actor_constructed (GObject *object)
@@ -153,8 +207,11 @@ meta_feedback_actor_get_property (GObject      *object,
 static void
 meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
 {
+  ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GParamSpec *pspec;
+
+  actor_class->apply_transform = meta_feedback_actor_apply_transform;
 
   object_class->constructed = meta_feedback_actor_constructed;
   object_class->finalize = meta_feedback_actor_finalize;
