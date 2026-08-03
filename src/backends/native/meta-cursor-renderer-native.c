@@ -1250,6 +1250,63 @@ realize_cursor_sprite_from_xcursor_for_crtc (MetaCursorRenderer *renderer,
 }
 
 static gboolean
+realize_cursor_sprite_from_texture (MetaCursorRenderer *renderer,
+                                    MetaCrtcKms        *crtc_kms,
+                                    ClutterColorState  *target_color_state,
+                                    ClutterCursor      *cursor)
+{
+  MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
+  CoglTexture *texture;
+  int texture_width, texture_height, bpp;
+  uint64_t cursor_stride, cursor_size;
+  g_autofree uint8_t *cursor_data = NULL;
+
+  clutter_cursor_realize_texture (cursor);
+  texture = clutter_cursor_get_texture (cursor, NULL, NULL);
+  if (!texture)
+    return FALSE;
+
+  texture_width = cogl_texture_get_width (texture);
+  texture_height = cogl_texture_get_height (texture);
+
+  cursor_renderer_gpu_data =
+    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
+  bpp =
+    cogl_pixel_format_get_bytes_per_pixel (cursor_renderer_gpu_data->cogl_format,
+                                           0);
+  cursor_stride = texture_width * bpp;
+  cursor_data = g_malloc_n (cursor_stride, texture_height);
+  if (!cursor_data)
+    return FALSE;
+
+  cursor_size = cursor_stride * texture_height;
+  if (cogl_texture_get_data (texture,
+                             cursor_renderer_gpu_data->cogl_format,
+                             cursor_stride,
+                             cursor_data) != cursor_size)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "cogl_texture_get_data failed for %ux%u",
+                  texture_width, texture_height);
+      return FALSE;
+    }
+
+  return load_scaled_and_transformed_cursor_sprite (native,
+                                                    crtc_kms,
+                                                    target_color_state,
+                                                    cursor,
+                                                    cursor_data,
+                                                    texture_width,
+                                                    texture_height,
+                                                    cursor_stride,
+                                                    cursor_renderer_gpu_data->drm_format);
+}
+
+static gboolean
 realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
                                 MetaCrtcKms        *crtc_kms,
                                 ClutterColorState  *target_color_state,
@@ -1285,7 +1342,10 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
     }
   else
     {
-      return FALSE;
+      return realize_cursor_sprite_from_texture (renderer,
+                                                 crtc_kms,
+                                                 target_color_state,
+                                                 cursor);
     }
 }
 
