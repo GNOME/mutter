@@ -1236,29 +1236,6 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
 }
 
 static gboolean
-realize_cursor_sprite_from_xcursor_for_crtc (MetaCursorRenderer *renderer,
-                                             MetaCrtcKms        *crtc_kms,
-                                             ClutterColorState  *target_color_state,
-                                             MetaCursorXcursor  *cursor_xcursor)
-{
-  MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
-  ClutterCursor *cursor = CLUTTER_CURSOR (cursor_xcursor);
-  XcursorImage *xc_image;
-
-  xc_image = meta_cursor_xcursor_get_current_image (cursor_xcursor);
-
-  return load_scaled_and_transformed_cursor_sprite (native,
-                                                    crtc_kms,
-                                                    target_color_state,
-                                                    cursor,
-                                                    (uint8_t *) xc_image->pixels,
-                                                    xc_image->width,
-                                                    xc_image->height,
-                                                    xc_image->width * 4,
-                                                    GBM_FORMAT_ARGB8888);
-}
-
-static gboolean
 realize_cursor_sprite_from_texture (MetaCursorRenderer *renderer,
                                     MetaCrtcKms        *crtc_kms,
                                     ClutterColorState  *target_color_state,
@@ -1331,16 +1308,8 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
 
   COGL_TRACE_BEGIN_SCOPED (CursorRendererNativeRealize,
                            "Meta::CursorRendererNative::realize_cursor_sprite_for_crtc()");
-  if (META_IS_CURSOR_XCURSOR (cursor))
-    {
-      MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
 
-      return realize_cursor_sprite_from_xcursor_for_crtc (renderer,
-                                                          crtc_kms,
-                                                          target_color_state,
-                                                          cursor_xcursor);
-    }
-  else if (META_IS_CURSOR_WAYLAND (cursor))
+  if (META_IS_CURSOR_WAYLAND (cursor))
     {
       MetaCursorWayland *cursor_wayland = META_CURSOR_WAYLAND (cursor);
 
