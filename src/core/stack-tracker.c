@@ -578,15 +578,19 @@ drop_x11_windows (MetaDisplay      *display,
   g_array_unref (tracker->verified_stack);
   tracker->verified_stack = new_stack;
 
-  for (l = tracker->unverified_predictions->head; l; l = l->next)
+  l = tracker->unverified_predictions->head;
+  while (l)
     {
       MetaStackOp *op = l->data;
+      GList *next = l->next;
 
       if (META_STACK_ID_IS_X11 (op->any.window))
         {
           g_queue_remove (tracker->unverified_predictions, op);
           meta_stack_op_free (op);
         }
+
+      l = next;
     }
 
   meta_stack_tracker_dump (tracker);
