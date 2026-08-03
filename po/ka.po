@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-07-07 13:52+0000\n"
-"PO-Revision-Date: 2026-07-31 06:35+0200\n"
+"POT-Creation-Date: 2026-08-01 08:02+0000\n"
+"PO-Revision-Date: 2026-08-03 17:12+0200\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -248,13 +248,38 @@ msgstr "ფანჯრის ვერტიკალურად მაქს�
 msgid "Maximize window horizontally"
 msgstr "ფანჯრის ჰორიზონტალურად გაშლა"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "ხედის მარცხნივ გაყოფა"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "ხედის მარჯვნივ გაყოფა"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "სკანაუტის ბუფერების, ყოველთვის, აშკარა მოდიფიკატორებით გამოყოფა"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"როცა ჭეშმარიტია, mutter ყოველთვის გამოჰყოფს სკანაუტის ბუფერებს აშკარა "
+"მოდიფიკატორებით, თუ დრაივერს ამისი მხარდაჭერა აქვს. ეს პარამეტრი "
+"გადატვირთვას მოითხოვს."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "Xwayland-ის ავტომატური შეწყვეტა ბოლო კლიენტის გასვლის შემდეგ"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"როცა ჭეშმარიტია, mutter ავტომატურად შეწყვეტს Xwayland-ს ბოლო კლიენტის "
+"გასვლის შემდეგ. ეს პარამეტრი გადატვირთვას ითხოვს."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -376,44 +401,19 @@ msgstr ""
 "თუ ჩართულია, ახალი ფანჯრები, ყოველთვის, მონიტორის აქტიური ეკრანის შუაში "
 "გამოჩნდება."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "ექსპერიმენტალური თვისებების ჩართვა"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr ""
-"ექსპერიმენტული ფუნქციების ჩასართავად დაამატეთ ფუნქციის საკვანძო სიტყვა სიას. "
-"მოითხოვს თუ არა ფუნქცია კომპოზიტორის გადატვირთვას, დამოკიდებულია მოცემულ "
-"ფუნქციაზე. ნებისმიერი ექსპერიმენტული ფუნქცია არ არის საჭირო, რომ კვლავ "
-"ხელმისაწვდომი, ან კონფიგურირებადი იყოს. ნუ ელით, რომ ამ პარამეტრში რაიმეს "
-"დამატება მომავალშიც იმუშავებს. ამჟამად შესაძლო საკვანძო სიტყვები: • „kms-"
-"modifiers“ — ხდის mutter-ს ყოველთვის გამოყოს scanout ბუფერები აშკარა "
-"მოდიფიკატორებით, თუ მხარდაჭერილია დრაივერის მიერ. საჭიროებს გადატვირთვას. • "
-"„autoclose-xwayland“ — ავტომატურად წყვეტს Xwayland-ს, თუ ყველა შესაბამისი "
-"X11 კლიენტი გაქრება. საჭიროებს გადატვირთვას."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "მაჩვენებლის მოსაძებნი მოდიფიკატორი"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "მალსახმობი \"მაჩვენებლის მოძებნის\" ქმედებას გაუშვებს."
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "სიცოცხლის შემოწმების ვადა გავიდა"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -423,11 +423,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "თითოეული გამოტანის განათების პარამეტრები"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -440,15 +440,15 @@ msgstr ""
 "განათების მნიშვნელობაა პროცენტებში (%). ნაგულისხმევი, როცა მითითებული არაა, "
 "არის 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "ეკრანის კონფიგურაციის გადართვა"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "ეკრანის ჩაშენებული კონფიგურაციის შემობრუნება"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "ყველა არსებული ეკრანის ჩაჭერის სესიის გაუქმება"
 
@@ -907,6 +907,30 @@ msgstr "ფორმატი მხარდაუჭერელია: %s"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s-ზე)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "ექსპერიმენტალური თვისებების ჩართვა"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the "
+#~ "given feature. Any experimental feature is not required to still be "
+#~ "available, or configurable. Don’t expect adding anything in this setting "
+#~ "to be future proof. Currently possible keywords: • “kms-modifiers” — "
+#~ "makes mutter always allocate scanout buffers with explicit modifiers, if "
+#~ "supported by the driver. Requires a restart. • “autoclose-xwayland” — "
+#~ "automatically terminates Xwayland if all relevant X11 clients are gone. "
+#~ "Requires a restart."
+#~ msgstr ""
+#~ "ექსპერიმენტული ფუნქციების ჩასართავად დაამატეთ ფუნქციის საკვანძო სიტყვა "
+#~ "სიას. მოითხოვს თუ არა ფუნქცია კომპოზიტორის გადატვირთვას, დამოკიდებულია "
+#~ "მოცემულ ფუნქციაზე. ნებისმიერი ექსპერიმენტული ფუნქცია არ არის საჭირო, რომ "
+#~ "კვლავ ხელმისაწვდომი, ან კონფიგურირებადი იყოს. ნუ ელით, რომ ამ პარამეტრში "
+#~ "რაიმეს დამატება მომავალშიც იმუშავებს. ამჟამად შესაძლო საკვანძო სიტყვები: "
+#~ "• „kms-modifiers“ — ხდის mutter-ს ყოველთვის გამოყოს scanout ბუფერები "
+#~ "აშკარა მოდიფიკატორებით, თუ მხარდაჭერილია დრაივერის მიერ. საჭიროებს "
+#~ "გადატვირთვას. • „autoclose-xwayland“ — ავტომატურად წყვეტს Xwayland-ს, თუ "
+#~ "ყველა შესაბამისი X11 კლიენტი გაქრება. საჭიროებს გადატვირთვას."
 
 #~ msgid "_Resizable"
 #~ msgstr "შეცვლადი _ზომით"
