@@ -24,22 +24,9 @@
 #include "core/util-private.h"
 #include "meta/meta-cursor.h"
 #include "meta/types.h"
-#include "third_party/xcursor/xcursor.h"
 
 #define META_TYPE_CURSOR_XCURSOR meta_cursor_xcursor_get_type ()
 G_DECLARE_FINAL_TYPE (MetaCursorXcursor, meta_cursor_xcursor,
                       META, CURSOR_XCURSOR, MetaCursor)
-
-MetaCursorXcursor * meta_cursor_xcursor_get (ClutterCursorType  cursor_type,
-                                             MetaCursorTracker *cursor_tracker);
-
-void meta_cursor_xcursor_set_theme_scale (MetaCursorXcursor *sprite_xcursor,
-                                          int                scale);
-
-XcursorImage * meta_cursor_xcursor_get_current_image (MetaCursorXcursor *sprite_xcursor);
-
-void meta_cursor_xcursor_get_scaled_image_size (MetaCursorXcursor *sprite_xcursor,
-                                                int               *width,
-                                                int               *height);
 
 const char * meta_cursor_get_legacy_name (ClutterCursorType cursor);

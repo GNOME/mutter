@@ -26,6 +26,7 @@
 #include "cogl/cogl.h"
 #include "meta/prefs.h"
 #include "meta/util.h"
+#include "third_party/xcursor/xcursor.h"
 
 typedef struct _MetaCursorImageData
 {
@@ -51,6 +52,8 @@ struct _MetaCursorXcursor
   int theme_scale;
   gboolean invalidated;
 };
+
+static XcursorImage * meta_cursor_xcursor_get_current_image (MetaCursorXcursor *cursor_xcursor);
 
 G_DEFINE_TYPE_WITH_CODE (MetaCursorXcursor, meta_cursor_xcursor,
                          META_TYPE_CURSOR,
@@ -245,7 +248,7 @@ load_from_current_xcursor_image (MetaCursorXcursor *cursor_xcursor)
   clutter_cursor_emit_texture_changed (CLUTTER_CURSOR (cursor_xcursor));
 }
 
-void
+static void
 meta_cursor_xcursor_set_theme_scale (MetaCursorXcursor *cursor_xcursor,
                                      int                theme_scale)
 {
@@ -257,7 +260,7 @@ meta_cursor_xcursor_set_theme_scale (MetaCursorXcursor *cursor_xcursor,
   clutter_cursor_invalidate (CLUTTER_CURSOR (cursor_xcursor));
 }
 
-void
+static void
 meta_cursor_xcursor_get_scaled_image_size (MetaCursorXcursor *cursor_xcursor,
                                            int               *width,
                                            int               *height)
@@ -285,7 +288,7 @@ meta_cursor_xcursor_is_animated (ClutterCursor *cursor)
           cursor_xcursor->xcursor_images->nimage > 1);
 }
 
-XcursorImage *
+static XcursorImage *
 meta_cursor_xcursor_get_current_image (MetaCursorXcursor *cursor_xcursor)
 {
   return cursor_xcursor->xcursor_images->images[cursor_xcursor->current_frame];
