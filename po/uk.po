@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-07-07 13:52+0000\n"
-"PO-Revision-Date: 2026-07-30 22:16+0300\n"
+"POT-Creation-Date: 2026-08-01 08:02+0000\n"
+"PO-Revision-Date: 2026-08-03 09:42+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -249,13 +249,42 @@ msgstr "Розгорнути вікно на весь екран вертика�
 msgid "Maximize window horizontally"
 msgstr "Розгорнути вікно на весь екран горизонтально"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "Перегляд розділити ліворуч"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "Перегляд розділити праворуч"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr ""
+"Завжди розподіляти буфери зовнішнього сканування з явними модифікаторами"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"Якщо увімкнено, mutter завжди розподілятиме буфери зовнішнього сканування з я"
+"вними модифікаторами, якщо підтримку цього передбачено у драйвері. Зміна знач"
+"ення цього параметра потребує перезапуску."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr ""
+"Автоматично зупиняти роботу Xwayland після завершення роботи останнього клієн"
+"та"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"Якщо увімкнено, mutter автоматично зупинятиме роботу Xwayland після завершенн"
+"я роботи останнього клієнта. Зміна значення цього параметра потребує перезапу"
+"ску."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -375,46 +404,19 @@ msgid ""
 "screen of the monitor."
 msgstr "Якщо вказано, нові вікна будуть завжди в центрі чинного екрана."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "Увімкнути експериментальні можливості"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr ""
-"Щоб увімкнути експериментальну можливість, додайте до списку ключове слово "
-"можливості. Те, чи потребуватиме вмикання можливості перезапуску "
-"композитора, залежить від типу можливості. Експериментальні можливості не "
-"обов'язково завжди доступні чи придатні до налаштовування. Не слід "
-"очікувати, що у майбутніх версіях обов'язково буде збережено якусь із "
-"експериментальних можливостей. У поточній версії передбачено такі ключові "
-"слова: • «kms-modifiers» — наказує mutter завжди отримувати буфери "
-"сканування із явними модифікаторами, якщо у драйвері передбачено підтримку "
-"відповідних дій. Потребує перезапуску композитора. • «autoclose-xwayland» — "
-"автоматично перериває роботу Xwayland, якщо завершать роботу усі відповідні "
-"клієнти X11. Потребує перезапуску композитора."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "Модифікатор для пошуку вказівника"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ця комбінація ініціює дію «встановити розташування вказівника»"
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "Інтервал між послідовними перевірками працездатності"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -425,11 +427,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "Окремі параметри для освітленості виведеного"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -442,15 +444,15 @@ msgstr ""
 "що відповідає освітленості результату у відсотках (%). Типовим значенням, "
 "якщо не задано, є 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "Перемкнути налаштування монітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "Зміна конфігурації вбудованого монітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "Скасувати усі активні сеанси перехоплення введення"
 
@@ -809,7 +811,6 @@ msgid "Run development kit"
 msgstr "Запустити інструменти для розробників"
 
 #: src/core/meta-context-main.c:385
-#| msgid "Run development kit"
 msgid "Development kit arguments"
 msgstr "Аргументи інструментів для розробників"
 
@@ -912,6 +913,32 @@ msgstr "Підтримки формату %s не передбачено"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "Увімкнути експериментальні можливості"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the "
+#~ "given feature. Any experimental feature is not required to still be "
+#~ "available, or configurable. Don’t expect adding anything in this setting "
+#~ "to be future proof. Currently possible keywords: • “kms-modifiers” — "
+#~ "makes mutter always allocate scanout buffers with explicit modifiers, if "
+#~ "supported by the driver. Requires a restart. • “autoclose-xwayland” — "
+#~ "automatically terminates Xwayland if all relevant X11 clients are gone. "
+#~ "Requires a restart."
+#~ msgstr ""
+#~ "Щоб увімкнути експериментальну можливість, додайте до списку ключове "
+#~ "слово можливості. Те, чи потребуватиме вмикання можливості перезапуску "
+#~ "композитора, залежить від типу можливості. Експериментальні можливості не "
+#~ "обов'язково завжди доступні чи придатні до налаштовування. Не слід "
+#~ "очікувати, що у майбутніх версіях обов'язково буде збережено якусь із "
+#~ "експериментальних можливостей. У поточній версії передбачено такі ключові "
+#~ "слова: • «kms-modifiers» — наказує mutter завжди отримувати буфери "
+#~ "сканування із явними модифікаторами, якщо у драйвері передбачено "
+#~ "підтримку відповідних дій. Потребує перезапуску композитора. • «autoclose-"
+#~ "xwayland» — автоматично перериває роботу Xwayland, якщо завершать роботу "
+#~ "усі відповідні клієнти X11. Потребує перезапуску композитора."
 
 #~ msgid "_Resizable"
 #~ msgstr "З_мінні розміри"
