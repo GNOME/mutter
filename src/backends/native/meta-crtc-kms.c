@@ -274,7 +274,16 @@ meta_crtc_kms_set_ctm (MetaCrtc      *crtc,
 
   renderer_view = meta_renderer_get_view_for_crtc (renderer, crtc);
   if (renderer_view)
-    clutter_stage_view_schedule_update (CLUTTER_STAGE_VIEW (renderer_view));
+    {
+      ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (renderer_view);
+
+      /* A colour-only update leaves the frame with nothing to paint, so it is
+       * committed without a buffer being scanned out. On apple-dcp the panel
+       * keeps showing the previous matrix until something else repaints, so
+       * damage the view to make the update carry a frame. */
+      clutter_stage_view_add_redraw_clip (stage_view, NULL);
+      clutter_stage_view_schedule_update (stage_view);
+    }
 }
 
 static gboolean
