@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-07-07 13:52+0000\n"
-"PO-Revision-Date: 2026-07-31 08:57+0800\n"
+"POT-Creation-Date: 2026-08-01 08:02+0000\n"
+"PO-Revision-Date: 2026-08-03 09:15+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -261,13 +261,37 @@ msgstr "垂直最大化窗口"
 msgid "Maximize window horizontally"
 msgstr "水平最大化窗口"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "分屏到左侧"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "分屏到右侧"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "始终用显式修饰符分配扫描输出缓冲区"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"设为 true 时，如果驱动程序支持，则 mutter 将始终使用显式修饰符分配扫描输出缓"
+"冲区。此选项需要重启。"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "最后一个客户端关闭后自动终止 Xwayland"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"设为 true 时，mutter 将在最后一个相关客户端关闭后自动终止 Xwayland。此选项需"
+"要重启。"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -378,40 +402,19 @@ msgid ""
 "screen of the monitor."
 msgstr "为 true 时，新窗口将总是置于此显示器已激活屏幕的中央。"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "开启实验性功能"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr ""
-"要启用实验性功能，请将功能关键字添加到列表中。功能是否要重启合成器取决于功能"
-"本身。任何实验性功能都不一定仍旧可用和可配置。请不要期望此设置中的实验性功能"
-"将来有所保障。当前可用的关键字：•“kms-modifiers”——如果驱动支持则让 mutter 总"
-"是用明确的修改器分配 scanout 缓冲区。需要重启。•“autoclose-xwayland”——所有关"
-"联的 X11 客户端退出时自动终止 Xwayland。需要重启。"
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "用来定位指针的修饰键"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "此按键将启动“定位指针”操作。"
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "检测活动的 ping 超时"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -421,11 +424,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "每个输出的亮度设置"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -436,15 +439,15 @@ msgstr ""
 "和色彩模式及相关联以百分比（%）表示输出亮度的浮点数值的元组构成。未指定时的默"
 "认值为 100%。"
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "切换显示器配置"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "旋转内置显示器配置"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "取消任何活动的输入捕获会话"
 
@@ -882,6 +885,26 @@ msgstr "不支持 %s 格式"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s（于 %s）"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "开启实验性功能"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the "
+#~ "given feature. Any experimental feature is not required to still be "
+#~ "available, or configurable. Don’t expect adding anything in this setting "
+#~ "to be future proof. Currently possible keywords: • “kms-modifiers” — "
+#~ "makes mutter always allocate scanout buffers with explicit modifiers, if "
+#~ "supported by the driver. Requires a restart. • “autoclose-xwayland” — "
+#~ "automatically terminates Xwayland if all relevant X11 clients are gone. "
+#~ "Requires a restart."
+#~ msgstr ""
+#~ "要启用实验性功能，请将功能关键字添加到列表中。功能是否要重启合成器取决于功"
+#~ "能本身。任何实验性功能都不一定仍旧可用和可配置。请不要期望此设置中的实验性"
+#~ "功能将来有所保障。当前可用的关键字：•“kms-modifiers”——如果驱动支持则让 "
+#~ "mutter 总是用明确的修改器分配 scanout 缓冲区。需要重启。•“autoclose-"
+#~ "xwayland”——所有关联的 X11 客户端退出时自动终止 Xwayland。需要重启。"
 
 #~ msgid "Replace the running window manager"
 #~ msgstr "替换正在运行的窗口管理器"
