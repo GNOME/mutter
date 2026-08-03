@@ -1,3 +1,20 @@
+50.4
+====
+* Fix blurred rendering with non-pixel-aligned monitors [James; !5115]
+* Do not add unsupported fallback monitor modes [ramyayella; !5110]
+* Fill in mastering display metadata for HDR output [Boogie61; !5199]
+* Fix invalid redraw clips on rotated monitors [Marco; !5203]
+* Fixed crashes [Michel; !5189, !5163, !5170]
+* Misc. bug fixes and cleanups [Carlos, Michel, Sebastian;
+  !5121, !5159, !5184, !5176, !5137]
+
+Contributors:
+  Boogie61, Michel Dänzer, Carlos Garnacho, James Railton, ramyayella,
+  Marco Trevisan (Treviño), Sebastian Wick
+
+Translators:
+  Vasil Pupkin [be]
+
 50.3
 ====
 * Fix erroneous stack order changes on workspace switches [AnonymouX47; !4992]
