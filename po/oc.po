@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-27 08:40+0000\n"
-"PO-Revision-Date: 2026-02-27 12:35+0100\n"
+"POT-Creation-Date: 2026-07-07 13:52+0000\n"
+"PO-Revision-Date: 2026-08-01 13:57+0200\n"
 "Last-Translator: Quentin PAGÈS\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -716,7 +716,7 @@ msgstr "_Modificar los aviadors"
 msgid "_About Mutter Development Kit"
 msgstr "_A prepaus del kit de desvolopament Mutter"
 
-#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Kit de desvolopament Mutter"
 
@@ -724,42 +724,46 @@ msgstr "Kit de desvolopament Mutter"
 msgid "Main Menu"
 msgstr "Menú principal"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "L’equipa de Mutter"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "Kit de desvolopament logicial Mutter"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "A prepaus del kit de desvolopament Mutter"
 
-#: mdk/mdk-monitor.c:556
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "Opcions devkit"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "Impossible de crear lo monitor"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "Afichatge integrat"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "Desconegut"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "Afichatge desconegut"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -771,47 +775,51 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Eveniment sonòr"
 
-#: src/core/display.c:608
+#: src/core/display.c:612
 msgid "Privacy Screen Enabled"
 msgstr "Ecran de confidencialitat activat"
 
-#: src/core/display.c:609
+#: src/core/display.c:613
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidencialitat desactivat"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "Aviar coma un compositor wayland"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar lo compositor wayland sens aviar Xwayland"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "Indicar lo nom d'afichar per Wayland"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "Aviar coma un servidor d'afichatge complèt, puslèu qu'imbricat"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "Aviar coma un servidor sens afichatge"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Apondre un monitor virtual persistant (WxH o WxH@R)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "Lançar lo kit de desvolopament"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "Paramètres del kit de desvolopament"
+
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "Perfilar las performanças en utilizant las instruccions de traçatge"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "Activar lo contraròtle de desbugatge de l’interfàcia D-Bus"
 
@@ -855,12 +863,12 @@ msgstr "Imprimir la version"
 msgid "Mutter plugin to use"
 msgstr "Empeuton de Mutter d'utilizar"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "Espaci de trabalh %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter es estat compilat sens la presa en carga del mòde verbós"
 
@@ -873,24 +881,24 @@ msgstr "Espaci de trabalh cambiat"
 msgid "Mode Switch: Mode %d"
 msgstr "Cambiament de mòde : mòde %d"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "L'ecran « %s » a ja un gestionari de fenèstras"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Impossible de dobrir l'afichatge « %s » del sistèma X Window"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "L'ecran %d sus l'afichatge « %s » es pas valid"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
