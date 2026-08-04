@@ -1488,7 +1488,7 @@ process_plane_assignment (MetaKmsImplDevice       *impl_device,
         meta_kms_plane_feedback_new_take_error (plane,
                                                 plane_assignment->crtc,
                                                 g_steal_pointer (&error));
-      return TRUE;
+      return FALSE;
     }
 
   g_assert_not_reached ();
