@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-06-22 20:50+0000\n"
-"PO-Revision-Date: 2026-06-24 10:36+0200\n"
+"POT-Creation-Date: 2026-08-01 08:02+0000\n"
+"PO-Revision-Date: 2026-08-04 15:48+0200\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -259,13 +259,38 @@ msgstr "Maximizează fereastra pe verticală"
 msgid "Maximize window horizontally"
 msgstr "Maximizează fereastra pe orizontală"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "Împarte în stânga"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "Împarte în dreapta"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "Folosește mereu modificatori expliciți pentru bufferele de scanout"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"Când e „true” (adevărat), mutter va folosi totdeauna modificatori expliciți "
+"pentru bufferele de scanout, dacă driverul permite acest lucru. Este "
+"necesară repornirea sistemului."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "Închide automat Xwayland după închiderea ultimului client"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"Când e „true” (adevărat), mutter va opri automat Xwayland imediat ce nu mai "
+"există clienți activi. Este necesară repornirea sistemului."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -293,9 +318,9 @@ msgid ""
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr ""
-"Când e adevărat, în loc de a avea banda de sus independentă, ferestrele de "
-"confirmare apar atașate la banda de sus a ferestrei părinte și sunt mutate "
-"împreună cu fereastra părinte."
+"Când e „true” (adevărat), în loc să aibă zona titlului independentă, "
+"ferestrele de confirmare apar atașate la zona titlului a ferestrei părinte "
+"și sunt mutate împreună cu fereastra părinte."
 
 #: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
@@ -322,28 +347,25 @@ msgid ""
 "static number of workspaces (determined by the num-workspaces key in "
 "org.gnome.desktop.wm.preferences)."
 msgstr ""
-"Determină dacă spațiile de lucru sunt gestionate dinamic sau dacă există un "
+"Stabilește dacă spațiile de lucru sunt gestionate dinamic sau dacă există un "
 "număr fix de spații de lucru (determinat de tasta num-workspaces din "
 "org.gnome.desktop.wm.preferences)"
 
 #: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
-msgstr "Spații de lucru doar pe ecranul principal"
+msgstr "Schimbă spațiul de lucru doar la monitorul principal"
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 msgstr ""
-"Determină dacă schimbarea spațiilor de lucru trebuie să se întâmple pentru "
-"ferestrele de pe toate monitoarele sau doar pentru ferestrele de pe "
-"monitorul principal."
+"Stabilește dacă schimbarea spațiului de lucru trebuie să se facă pentru "
+"toate monitoarele sau doar pentru monitorul principal."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
-msgstr ""
-"Întârzie schimbările de focalizare până când indicatorul încetează să se "
-"miște"
+msgstr "Amână activarea ferestrei până la oprirea indicatorului"
 
 #: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
@@ -351,9 +373,9 @@ msgid ""
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr ""
-"Dacă este stabilit ca adevărat, iar modul de focalizare este ori „neglijent” "
-"ori „maus”, atunci focalizarea nu va fi schimbată imediat la intrarea într-o "
-"fereastră, ci doar după ce indicatorul nu se mai mișcă."
+"Dacă este stabilită la „true” (adevărat), iar modul de activare este "
+"„sloppy” (permisiv) sau „mouse”, atunci fereastra nu va fi activată imediat "
+"la intrarea în ea, ci doar după oprirea indicatorului."
 
 #: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
@@ -392,44 +414,19 @@ msgstr ""
 "Când este „true” (adevărat), ferestrele noi vor fi așezate în centrul "
 "ecranului activ."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "Activează caracteristicile experimentale"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr ""
-"Pentru a activa caracteristicile experimentale, trebuie adăugat în listă "
-"cuvântul cheie al caracteristicii. În funcție de caracteristică, poate fi "
-"necesară repornirea compozitorului. Este posibil ca o caracteristică "
-"experimentală să dispară sau să nu mai poată fi configurată. Este posibil ca "
-"această configurație să nu fie stabilă în timp. Cuvintele cheie disponibile "
-"în prezent sunt: • „kms-modifiers” — face ca mutter să aloce mereu tampoane "
-"de scanare cu modificatori expliciți, dacă este permis de driver. Necesită "
-"repornire. • „autoclose-xwayland” — închide automat Xwayland dacă toate "
-"aplicațiile X11 relevante au dispărut. Necesită repornire."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "Tasta de utilizat pentru localizarea indicatorului"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Această tastă va iniția acțiunea „localizează indicatorul”."
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "Timp de așteptare pentru verificarea activității"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -440,11 +437,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "Reglări de luminanță per ieșire"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -457,15 +454,15 @@ msgstr ""
 "nivelul de luminanță la ieșire, exprimat în procente (%). Când nu se "
 "specifică altceva, se utilizează o valoare prestabilită de 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
-msgstr "Schimbă configurarea monitorului"
+msgstr "Schimbă reglările monitorului"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
-msgstr "Treci la următoarea configurare a monitorului integrat"
+msgstr "Schimbă orientarea monitorului integrat"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "Anulează toate sesiunile active de introducere a datelor"
 
@@ -787,11 +784,11 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Eveniment sonor"
 
-#: src/core/display.c:611
+#: src/core/display.c:612
 msgid "Privacy Screen Enabled"
 msgstr "Ecran de confidențialitate activat"
 
-#: src/core/display.c:612
+#: src/core/display.c:613
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidențialitate dezactivat"
 
@@ -926,4 +923,4 @@ msgstr "Formatul %s nu este acceptat"
 #: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
-msgstr "%s (pe %s)"
+msgstr "%s (din %s)"
