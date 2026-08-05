@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity HEAD\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-04-02 12:00+0000\n"
-"PO-Revision-Date: 2026-04-27 23:28+0330\n"
+"POT-Creation-Date: 2026-08-05 14:52+0000\n"
+"PO-Revision-Date: 2026-08-06 02:09+0330\n"
 "Last-Translator: Danial Behzadi <dani.behzi@ubuntu.com>\n"
 "Language-Team: Persian\n"
 "Language: fa\n"
@@ -250,13 +250,37 @@ msgstr "بیشینه‌کردن عمودی پنجره"
 msgid "Maximize window horizontally"
 msgstr "بیشینه‌کردن افقی پنجره"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "نمایش انشعاب در سمت راست"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "نمایش انشعاب در سمت راست"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "تخصیص همیشگی میانگیرهای ردیابی با اصلاح‌کننده‌های صریح"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit modifiers, "
+"if supported by the driver. This option requires a restart."
+msgstr ""
+"هنگام درست بودن، ماتر همیشه میانگیرهای ردیابی را در صورت پشتیبانی از سوی گرداننده "
+"با اصلاح‌کننده‌های صریح تخصیص خواهد داد. این گزینه نیازمند آغاز دوباره است."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "پایان دادن خودکار Xwayland پس از بسته شدن آخرین کارخواه"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last relevant "
+"client is gone. This option requires a restart."
+msgstr ""
+"هنگم درست بودن* ماتر پس از بستن آخرین کارخواه مربوط، به Xwayland پایان خواهد داد. "
+"این گزینه نیازمند آغاز دوباره است."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -374,43 +398,19 @@ msgid ""
 msgstr ""
 "هنگام درست بودن، پنجره‌های جدید همواره در مرکز صفحهٔ فعّال نمایشگر قرار خواهند گرفت."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "فعال‌سازی امکانات آزمایشی"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. Whether the "
-"feature requires restarting the compositor depends on the given feature. Any "
-"experimental feature is not required to still be available, or configurable. "
-"Don’t expect adding anything in this setting to be future proof. Currently "
-"possible keywords: • “kms-modifiers” — makes mutter always allocate scanout "
-"buffers with explicit modifiers, if supported by the driver. Requires a restart. "
-"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant X11 "
-"clients are gone. Requires a restart."
-msgstr ""
-"برای به کار انداختن ویژگی‌های آزمایشی، کلیدواژهٔ ویژگی را به سیاهه بیفزایید. این که "
-"آیا این ویژگی نیاز به راه‌اندازی دوبارهٔ ترکیبگر دارد یا نه به ویژگی داده شده بستگی "
-"دارد. لازم نیست هیچ ویژگی آزمایشی‌ای همچنان در دسترس یا قابل تنظیم باشد. انتظار "
-"نداشته باشید که افزودن چیزی در این تنظیم در آینده مشکل نسازد. کلیدواژگان ممکن در "
-"حال حاضر: • \"kms-modifiers\" - باعث می‌شود ماتر در صورت پشتیبانی راه‌انداز همیشه "
-"میانگیرهای scanout را با اصلاح‌کننده‌های صریح تخصیص دهد. نیاز به راه‌اندازی دوباره "
-"دارد. • \"autoclose-xwayland\" - اگر همهٔ کارخواه‌های X11 مربوطه از بین بروند "
-"Xwayland را خودکار پایان می‌دهد. نیازمند راه‌اندازی دوباره."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "تغییردهندهٔ استفاده شده برای مکان‌یابی اشاره‌گر"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "این کلید کنش «مکان‌یابی اشاره‌گر» را آغاز می‌کند."
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "زمان پایان برای پینگ بررسی زنده بودن"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to not "
 "be detected as frozen. Using 0 will disable the alive check completely."
@@ -420,11 +420,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "به ازای تنظیمات نوردهی"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple with "
 "connector, vendor, product, serial, and a color mode, as well as an associated "
@@ -435,15 +435,15 @@ msgstr ""
 "سازنده، محصول، سریال و حالت رنگی تشکیل شده به همراه مقداری اعضاری که نوردهی خروجی "
 "را به درصد (٪) نشان می‌دهد. مقدار پیش‌گزیده ۱۰۰٪ است."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "تعویض پیکربندی‌های نمایشگر"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "پیکربندی نمایشگر توکار را می‌چرخاند"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "لغو همهٔ نشست‌های ضبط ورودی فعّال"
 
@@ -690,7 +690,7 @@ msgstr "_ویرایش اجراگرها"
 msgid "_About Mutter Development Kit"
 msgstr "_دربارهٔ جعبهٔ توسعهٔ ماتر"
 
-#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "جعبهٔ توسعهٔ ماتر"
 
@@ -698,42 +698,46 @@ msgstr "جعبهٔ توسعهٔ ماتر"
 msgid "Main Menu"
 msgstr "فهرست اصلی"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "گروه ماتر"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "جعبهٔ توسعهٔ نرم‌افزاری ماتر"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "_دربارهٔ جعبهٔ توسعهٔ نرم‌افزاری ماتر"
 
-#: mdk/mdk-monitor.c:557
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "گزینه‌های جعبهٔ توسعه"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "شکست در ایجاد پایشگر"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "نمایشگر توکار"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "ناشناس"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "نمایشگر ناشناس"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in inches "
@@ -745,47 +749,51 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "رویداد زنگ"
 
-#: src/core/display.c:608
+#: src/core/display.c:603
 msgid "Privacy Screen Enabled"
 msgstr "صفحهٔ محرمانگی به کار افتاده"
 
-#: src/core/display.c:609
+#: src/core/display.c:604
 msgid "Privacy Screen Disabled"
 msgstr "صفحهٔ محرمانگی از کار افتاده"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "اجرا به عنوان یک ترکیب‌بند ویلند"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "اجرای ترکیب‌بند ویلند بدون شروع‌کردن ایکس‌ویلند"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "مشخص کردن نام نمایشگر ویلند جهت استفاده"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "اجرا به عنوان یک کارساز نمایش کامل، به جای تودرتو"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "اجرا به عنوان یک کارساز نمایش بی‌سر"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "افزودن نمایشگر مجازی ثابت (WxHیا WxH@R)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "اجرای جعبهٔ توسعه"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "آرگومان‌های جعبهٔ توسعه"
+
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "عملکرد نمایه با استفاده از ابزار دقیق ردیابی"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "به کار انداختن اشکال‌زدایی میانای دی‌باس واپایش"
 
@@ -829,12 +837,12 @@ msgstr "چاپ نگارش"
 msgid "Mutter plugin to use"
 msgstr "افزایهٔ ماتر جهت استفاده"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "فضای‌کاری %Id"
 
-#: src/core/util.c:155
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "ماتر بدون پشتیبانی حالت مفصل کامپایل شده است"
 
@@ -847,24 +855,24 @@ msgstr "فضای کاری تعویض شد"
 msgid "Mode Switch: Mode %d"
 msgstr "تعویض حالت: حالت %Id"
 
-#: src/x11/meta-x11-display.c:770
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "نمایشگر «%s» از پیش مدیر پنجره دارد"
 
-#: src/x11/meta-x11-display.c:1133
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "شکست در گشودن نمایشگر «%s» سامانهٔ پنجرهٔ X"
 
-#: src/x11/meta-x11-display.c:1278
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "صفحهٔ %Id روی نمایشگر «%s» نامعتبر است"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2463
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
@@ -879,6 +887,29 @@ msgstr "قالب %s پشتیبانی نمی‌شود"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (بر روی %s)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "فعال‌سازی امکانات آزمایشی"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. Whether "
+#~ "the feature requires restarting the compositor depends on the given feature. "
+#~ "Any experimental feature is not required to still be available, or "
+#~ "configurable. Don’t expect adding anything in this setting to be future proof. "
+#~ "Currently possible keywords: • “kms-modifiers” — makes mutter always allocate "
+#~ "scanout buffers with explicit modifiers, if supported by the driver. Requires "
+#~ "a restart. • “autoclose-xwayland” — automatically terminates Xwayland if all "
+#~ "relevant X11 clients are gone. Requires a restart."
+#~ msgstr ""
+#~ "برای به کار انداختن ویژگی‌های آزمایشی، کلیدواژهٔ ویژگی را به سیاهه بیفزایید. این "
+#~ "که آیا این ویژگی نیاز به راه‌اندازی دوبارهٔ ترکیبگر دارد یا نه به ویژگی داده شده "
+#~ "بستگی دارد. لازم نیست هیچ ویژگی آزمایشی‌ای همچنان در دسترس یا قابل تنظیم باشد. "
+#~ "انتظار نداشته باشید که افزودن چیزی در این تنظیم در آینده مشکل نسازد. "
+#~ "کلیدواژگان ممکن در حال حاضر: • \"kms-modifiers\" - باعث می‌شود ماتر در صورت "
+#~ "پشتیبانی راه‌انداز همیشه میانگیرهای scanout را با اصلاح‌کننده‌های صریح تخصیص دهد. "
+#~ "نیاز به راه‌اندازی دوباره دارد. • \"autoclose-xwayland\" - اگر همهٔ کارخواه‌های "
+#~ "X11 مربوطه از بین بروند Xwayland را خودکار پایان می‌دهد. نیازمند راه‌اندازی "
+#~ "دوباره."
 
 #~ msgid "Replace the running window manager"
 #~ msgstr "جای‌گزینی مدیر پنجرهٔ در حال اجرا"
