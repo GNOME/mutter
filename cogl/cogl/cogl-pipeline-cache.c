@@ -83,6 +83,10 @@ _cogl_pipeline_cache_new (CoglContext *ctx)
 void
 _cogl_pipeline_cache_free (CoglPipelineCache *cache)
 {
+  cogl_pipeline_hash_table_dispose_pipelines (&cache->fragment_hash);
+  cogl_pipeline_hash_table_dispose_pipelines (&cache->vertex_hash);
+  cogl_pipeline_hash_table_dispose_pipelines (&cache->combined_hash);
+
   _cogl_pipeline_hash_table_destroy (&cache->fragment_hash);
   _cogl_pipeline_hash_table_destroy (&cache->vertex_hash);
   _cogl_pipeline_hash_table_destroy (&cache->combined_hash);

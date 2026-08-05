@@ -488,9 +488,7 @@ cogl_context_set_current_pipeline (CoglContext  *context,
   CoglContextPrivate *priv =
     cogl_context_get_instance_private (context);
 
-  if (priv->current_pipeline != NULL)
-    g_object_unref (priv->current_pipeline);
-  priv->current_pipeline = pipeline;
+  g_set_object (&priv->current_pipeline, pipeline);
 }
 
 unsigned long

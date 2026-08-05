@@ -64,7 +64,7 @@ value_destroy_cb (void *value)
 {
   CoglPipelineHashTableEntry *entry = value;
 
-  g_object_unref (entry->parent.pipeline);
+  g_clear_object (&entry->parent.pipeline);
 
   g_free (entry);
 }
@@ -107,6 +107,22 @@ _cogl_pipeline_hash_table_init (CoglPipelineHashTable *hash,
                                        entry_equal,
                                        NULL, /* key destroy */
                                        value_destroy_cb);
+}
+
+static void
+dispose_pipelines_cb (gpointer key,
+                      gpointer value,
+                      gpointer user_data)
+{
+  CoglPipelineCacheEntry *entry = value;
+
+  g_clear_object (&entry->pipeline);
+}
+
+void
+cogl_pipeline_hash_table_dispose_pipelines (CoglPipelineHashTable *hash)
+{
+  g_hash_table_foreach (hash->table, dispose_pipelines_cb, NULL);
 }
 
 void

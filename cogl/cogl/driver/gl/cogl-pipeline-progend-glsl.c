@@ -287,6 +287,7 @@ destroy_program_state (void *user_data)
     program_state->last_used_for_pipeline = NULL;
 
   if (program_state->cache_entry &&
+      program_state->cache_entry->pipeline &&
       program_state->cache_entry->pipeline != cache->instance)
     program_state->cache_entry->usage_count--;
 

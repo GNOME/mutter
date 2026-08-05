@@ -972,7 +972,6 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
    * XXX: The issue should largely go away when we switch to using
    * weak pipelines for overrides.
    */
-  g_object_ref (pipeline);
   cogl_context_set_current_pipeline (ctx, pipeline);
   cogl_context_set_current_pipeline_changes_since_flush (ctx, 0);
   cogl_context_set_current_pipeline_with_color_attrib (ctx, with_color_attrib);
