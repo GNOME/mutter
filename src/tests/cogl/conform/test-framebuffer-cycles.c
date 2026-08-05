@@ -40,6 +40,9 @@ test_framebuffer_cycles (void)
 
   g_test_assert_expected_messages ();
 
+  g_clear_object (&pipeline1);
+  g_clear_object (&pipeline2);
+
   pipeline1 = cogl_pipeline_new (test_ctx);
   cogl_pipeline_set_layer_texture (pipeline1, 0, tex2);
   cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen1), pipeline1,
