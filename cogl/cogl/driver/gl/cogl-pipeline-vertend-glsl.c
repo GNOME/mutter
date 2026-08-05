@@ -112,6 +112,7 @@ destroy_shader_state (void *user_data)
   CoglContext *ctx = cache->instance->context;
 
   if (shader_state->cache_entry &&
+      shader_state->cache_entry->pipeline &&
       shader_state->cache_entry->pipeline != cache->instance)
     shader_state->cache_entry->usage_count--;
 
