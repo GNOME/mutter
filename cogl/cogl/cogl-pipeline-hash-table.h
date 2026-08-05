@@ -63,6 +63,9 @@ _cogl_pipeline_hash_table_init (CoglPipelineHashTable *hash,
                                 const char *debug_string);
 
 void
+cogl_pipeline_hash_table_dispose_pipelines (CoglPipelineHashTable *hash);
+
+void
 _cogl_pipeline_hash_table_destroy (CoglPipelineHashTable *hash);
 
 /*

@@ -7,7 +7,7 @@
 static void
 paint (void)
 {
-  CoglPipeline *pipeline = cogl_pipeline_new (test_ctx);
+  g_autoptr (CoglPipeline) pipeline = NULL;
   int width = cogl_framebuffer_get_width (test_fb);
   int half_width = width / 2;
   int height = cogl_framebuffer_get_height (test_fb);
@@ -41,6 +41,7 @@ paint (void)
    * primitive will be drawn with blending still disabled.
    */
 
+  pipeline = cogl_pipeline_new (test_ctx);
   cogl_primitive_draw (tri0, test_fb, pipeline);
   cogl_primitive_draw (tri1, test_fb, pipeline);
 

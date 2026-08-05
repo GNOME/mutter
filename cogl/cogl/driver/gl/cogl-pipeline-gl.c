@@ -1017,10 +1017,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
    * XXX: The issue should largely go away when we switch to using
    * weak pipelines for overrides.
    */
-  g_object_ref (pipeline);
-  if (ctx->current_pipeline != NULL)
-    g_object_unref (ctx->current_pipeline);
-  ctx->current_pipeline = pipeline;
+  g_set_object (&ctx->current_pipeline, pipeline);
   ctx->current_pipeline_changes_since_flush = 0;
   ctx->current_pipeline_with_color_attrib = with_color_attrib;
   ctx->current_pipeline_unknown_color_alpha = unknown_color_alpha;
