@@ -9,9 +9,9 @@ test_pipeline_shader_state (void)
 {
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
-  CoglPipeline *base_pipeline;
+  g_autoptr (CoglPipeline) base_pipeline = NULL;
   CoglPipeline *draw_pipeline;
-  CoglTexture *tex;
+  g_autoptr (CoglTexture) tex = NULL;
   CoglSnippet *snippet;
   CoglColor color;
 

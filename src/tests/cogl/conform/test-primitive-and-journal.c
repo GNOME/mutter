@@ -70,7 +70,7 @@ static void
 test_primitive_and_journal (void)
 {
   CoglPrimitive *primitives[2];
-  CoglPipeline *pipeline;
+  g_autoptr (CoglPipeline) pipeline = NULL;
 
   setup_orthographic_modelview ();
   create_primitives (primitives);
