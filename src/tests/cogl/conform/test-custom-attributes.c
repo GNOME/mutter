@@ -171,7 +171,7 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
   CoglAttribute *attributes[2];
   CoglAttributeBuffer *buffer;
   CoglPipeline *pipeline, *pipeline2;
-  CoglSnippet *snippet;
+  g_autoptr (CoglSnippet) snippet = NULL;
   CoglPrimitive *primitive;
   CoglColor color;
 

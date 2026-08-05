@@ -114,7 +114,7 @@ check_texture (CoglPipeline *pipeline,
 static void
 test_premult (void)
 {
-  CoglPipeline *pipeline;
+  g_autoptr (CoglPipeline) pipeline = NULL;
   CoglTexture *tex;
 
   cogl_framebuffer_orthographic (test_fb, 0, 0,
