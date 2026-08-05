@@ -72,6 +72,8 @@ detect_hardware_rendering (MetaRenderDevice *render_device)
 {
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (priv->backend);
   MetaEgl *egl = meta_backend_get_egl (priv->backend);
   g_autoptr (GError) error = NULL;
   EGLint *attributes;
@@ -117,9 +119,19 @@ detect_hardware_rendering (MetaRenderDevice *render_device)
   priv->is_hardware_rendering = TRUE;
 
 out_current_context:
-  meta_egl_make_current (egl, priv->egl_display,
-                         EGL_NO_SURFACE, EGL_NO_SURFACE,
-                         EGL_NO_CONTEXT, NULL);
+  if (clutter_backend)
+    {
+      CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+      CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+
+      cogl_display_egl_ensure_current (COGL_DISPLAY_EGL (cogl_display));
+    }
+  else
+    {
+      meta_egl_make_current (egl, priv->egl_display,
+                             EGL_NO_SURFACE, EGL_NO_SURFACE,
+                             EGL_NO_CONTEXT, NULL);
+    }
 
 out_has_context:
   meta_egl_destroy_context (egl, priv->egl_display, egl_context, NULL);
