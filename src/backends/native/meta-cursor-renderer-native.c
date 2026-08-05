@@ -31,7 +31,6 @@
 #include <errno.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
@@ -487,7 +486,8 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
 
   return (!cursor_hw_managed &&
           cursor &&
-          clutter_cursor_get_texture (cursor));
+          (clutter_cursor_get_data (cursor, NULL) ||
+           clutter_cursor_get_texture (cursor)));
 }
 
 static void
@@ -1230,6 +1230,33 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
 }
 
 static gboolean
+realize_cursor_sprite_from_data (MetaCursorRenderer *renderer,
+                                 MetaCrtcKms        *crtc_kms,
+                                 ClutterColorState  *target_color_state,
+                                 ClutterCursor      *cursor)
+{
+  MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
+  int width, height, stride;
+  uint8_t *cursor_data;
+
+  cursor_data =
+    clutter_cursor_get_data (cursor, &stride);
+  if (!cursor_data)
+    return FALSE;
+
+  clutter_cursor_get_geometry (cursor, &width, &height, NULL, NULL);
+
+  return load_scaled_and_transformed_cursor_sprite (native,
+                                                    crtc_kms,
+                                                    target_color_state,
+                                                    cursor,
+                                                    cursor_data,
+                                                    width, height,
+                                                    stride,
+                                                    GBM_FORMAT_ARGB8888);
+}
+
+static gboolean
 realize_cursor_sprite_from_texture (MetaCursorRenderer *renderer,
                                     MetaCrtcKms        *crtc_kms,
                                     ClutterColorState  *target_color_state,
@@ -1314,6 +1341,12 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
     }
   else
     {
+      if (realize_cursor_sprite_from_data (renderer,
+                                           crtc_kms,
+                                           target_color_state,
+                                           cursor))
+        return TRUE;
+
       return realize_cursor_sprite_from_texture (renderer,
                                                  crtc_kms,
                                                  target_color_state,

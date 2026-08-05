@@ -44,6 +44,9 @@ struct _ClutterCursorClass
                          int           *hot_x,
                          int           *hot_y);
 
+  uint8_t * (* get_data) (ClutterCursor *cursor,
+                          int           *out_stride);
+
   CoglTexture * (* get_texture) (ClutterCursor *cursor);
 
   void (* invalidate) (ClutterCursor *cursor);

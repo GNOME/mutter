@@ -53,6 +53,10 @@ void clutter_cursor_get_geometry (ClutterCursor *cursor,
                                   int           *hot_y);
 
 CLUTTER_EXPORT
+uint8_t * clutter_cursor_get_data (ClutterCursor *cursor,
+                                   int           *out_stride);
+
+CLUTTER_EXPORT
 CoglTexture * clutter_cursor_get_texture (ClutterCursor *cursor);
 
 CLUTTER_EXPORT

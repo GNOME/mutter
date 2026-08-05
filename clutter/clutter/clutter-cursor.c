@@ -194,6 +194,16 @@ clutter_cursor_get_geometry (ClutterCursor *cursor,
                                                    hot_x, hot_y);
 }
 
+uint8_t *
+clutter_cursor_get_data (ClutterCursor *cursor,
+                         int           *out_stride)
+{
+  if (!CLUTTER_CURSOR_GET_CLASS (cursor)->get_data)
+    return NULL;
+
+  return CLUTTER_CURSOR_GET_CLASS (cursor)->get_data (cursor, out_stride);
+}
+
 CoglTexture *
 clutter_cursor_get_texture (ClutterCursor *cursor)
 {

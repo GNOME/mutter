@@ -51,6 +51,7 @@ struct _MetaCursorXcursor
 
   int theme_scale;
   gboolean invalidated;
+  gboolean texture_invalidated;
 };
 
 static XcursorImage * meta_cursor_xcursor_get_current_image (MetaCursorXcursor *cursor_xcursor);
@@ -201,7 +202,7 @@ load_cursor_on_client (MetaCursorXcursor *cursor_xcursor,
 }
 
 static void
-load_from_current_xcursor_image (MetaCursorXcursor *cursor_xcursor)
+load_texture_from_current_xcursor_image (MetaCursorXcursor *cursor_xcursor)
 {
   MetaBackend *backend = meta_cursor_get_backend (META_CURSOR (cursor_xcursor));
   XcursorImage *xc_image;
@@ -211,7 +212,6 @@ load_from_current_xcursor_image (MetaCursorXcursor *cursor_xcursor)
   CoglContext *cogl_context;
   g_autoptr (CoglTexture) texture = NULL;
   g_autoptr (GError) error = NULL;
-  int hotspot_x, hotspot_y;
 
   xc_image = meta_cursor_xcursor_get_current_image (cursor_xcursor);
   width = (int) xc_image->width;
@@ -235,17 +235,7 @@ load_from_current_xcursor_image (MetaCursorXcursor *cursor_xcursor)
   if (!texture)
     g_warning ("Failed to allocate cursor texture: %s", error->message);
 
-  hotspot_x = ((int) roundf ((float) xc_image->xhot /
-                              cursor_xcursor->theme_scale) *
-                cursor_xcursor->theme_scale);
-  hotspot_y = ((int) roundf ((float) xc_image->yhot /
-                              cursor_xcursor->theme_scale) *
-                cursor_xcursor->theme_scale);
-
   g_set_object (&cursor_xcursor->texture, texture);
-  cursor_xcursor->hot_x = hotspot_x;
-  cursor_xcursor->hot_y = hotspot_y;
-  clutter_cursor_emit_texture_changed (CLUTTER_CURSOR (cursor_xcursor));
 }
 
 static void
@@ -307,7 +297,7 @@ meta_cursor_xcursor_tick_frame (ClutterCursor *cursor)
   if (cursor_xcursor->current_frame >= cursor_xcursor->xcursor_images->nimage)
     cursor_xcursor->current_frame = 0;
 
-  load_from_current_xcursor_image (cursor_xcursor);
+  clutter_cursor_invalidate (cursor);
 }
 
 static unsigned int
@@ -362,19 +352,27 @@ load_cursor_from_theme (MetaCursorXcursor *cursor_xcursor)
 
   cursor_xcursor->xcursor_images = xcursor_images;
   cursor_xcursor->current_frame = 0;
-  load_from_current_xcursor_image (cursor_xcursor);
 }
 
 static void
 meta_cursor_xcursor_realize (ClutterCursor *cursor)
 {
   MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
+  XcursorImage *xc_image;
 
   if (!cursor_xcursor->invalidated)
     return;
 
   load_cursor_from_theme (cursor_xcursor);
   cursor_xcursor->invalidated = FALSE;
+
+  xc_image = meta_cursor_xcursor_get_current_image (cursor_xcursor);
+  cursor_xcursor->hot_x = ((int) roundf ((float) xc_image->xhot /
+                                         cursor_xcursor->theme_scale) *
+                           cursor_xcursor->theme_scale);
+  cursor_xcursor->hot_y = ((int) roundf ((float) xc_image->yhot /
+                                         cursor_xcursor->theme_scale) *
+                           cursor_xcursor->theme_scale);
 }
 
 static void
@@ -383,6 +381,8 @@ meta_cursor_xcursor_invalidate (ClutterCursor *cursor)
   MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
 
   cursor_xcursor->invalidated = TRUE;
+  cursor_xcursor->texture_invalidated = TRUE;
+  clutter_cursor_emit_texture_changed (CLUTTER_CURSOR (cursor_xcursor));
 }
 
 static void
@@ -459,12 +459,34 @@ meta_cursor_xcursor_get_geometry (ClutterCursor *cursor,
     *hot_y = cursor_xcursor->hot_y;
 }
 
+static uint8_t *
+meta_cursor_xcursor_get_data (ClutterCursor *cursor,
+                              int           *out_stride)
+{
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
+  XcursorImage *xc_image;
+
+  meta_cursor_xcursor_realize (cursor);
+  xc_image = meta_cursor_xcursor_get_current_image (cursor_xcursor);
+
+  if (out_stride)
+    *out_stride = xc_image->width * sizeof (XcursorPixel);
+
+  return (uint8_t *) xc_image->pixels;
+}
+
 static CoglTexture *
 meta_cursor_xcursor_get_texture (ClutterCursor *cursor)
 {
   MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
 
-  meta_cursor_xcursor_realize (cursor);
+  if (cursor_xcursor->texture_invalidated)
+    {
+      meta_cursor_xcursor_realize (cursor);
+      load_texture_from_current_xcursor_image (cursor_xcursor);
+      cursor_xcursor->texture_invalidated = FALSE;
+    }
+
   return cursor_xcursor->texture;
 }
 
@@ -489,6 +511,7 @@ static void
 meta_cursor_xcursor_init (MetaCursorXcursor *cursor_xcursor)
 {
   cursor_xcursor->invalidated = TRUE;
+  cursor_xcursor->texture_invalidated = TRUE;
   cursor_xcursor->theme_scale = 1;
   cursor_xcursor->cursor_images =
     g_array_new (FALSE, FALSE, sizeof (MetaCursorImageData));
@@ -511,5 +534,6 @@ meta_cursor_xcursor_class_init (MetaCursorXcursorClass *klass)
     meta_cursor_xcursor_get_current_frame_time;
   cursor_class->prepare_at = meta_cursor_xcursor_prepare_at;
   cursor_class->get_geometry = meta_cursor_xcursor_get_geometry;
+  cursor_class->get_data = meta_cursor_xcursor_get_data;
   cursor_class->get_texture = meta_cursor_xcursor_get_texture;
 }
