@@ -351,7 +351,7 @@ meta_cursor_tracker_get_scale (MetaCursorTracker *tracker)
   if (!cursor)
     return 1.0;
 
-  return clutter_cursor_get_texture_scale (cursor);
+  return clutter_cursor_get_scale (cursor);
 }
 
 /**

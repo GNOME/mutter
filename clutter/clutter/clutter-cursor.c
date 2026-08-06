@@ -47,8 +47,8 @@ typedef struct _ClutterCursorPrivate
 {
   GObject parent;
 
-  float texture_scale;
-  MtkMonitorTransform texture_transform;
+  float scale;
+  MtkMonitorTransform transform;
   gboolean has_viewport_src_rect;
   graphene_rect_t viewport_src_rect;
   gboolean has_viewport_dst_size;
@@ -87,30 +87,30 @@ clutter_cursor_get_current_frame_time (ClutterCursor *cursor)
 }
 
 void
-clutter_cursor_set_texture_scale (ClutterCursor *cursor,
+clutter_cursor_set_scale (ClutterCursor *cursor,
                                   float          scale)
 {
   ClutterCursorPrivate *priv =
     clutter_cursor_get_instance_private (cursor);
 
-  if (G_APPROX_VALUE (priv->texture_scale, scale, FLT_EPSILON))
+  if (G_APPROX_VALUE (priv->scale, scale, FLT_EPSILON))
     return;
 
-  priv->texture_scale = scale;
+  priv->scale = scale;
   clutter_cursor_invalidate (cursor);
 }
 
 void
-clutter_cursor_set_texture_transform (ClutterCursor       *cursor,
+clutter_cursor_set_transform (ClutterCursor       *cursor,
                                       MtkMonitorTransform  transform)
 {
   ClutterCursorPrivate *priv =
     clutter_cursor_get_instance_private (cursor);
 
-  if (priv->texture_transform == transform)
+  if (priv->transform == transform)
     return;
 
-  priv->texture_transform = transform;
+  priv->transform = transform;
   clutter_cursor_invalidate (cursor);
 }
 
@@ -211,21 +211,21 @@ clutter_cursor_get_texture (ClutterCursor *cursor)
 }
 
 float
-clutter_cursor_get_texture_scale (ClutterCursor *cursor)
+clutter_cursor_get_scale (ClutterCursor *cursor)
 {
   ClutterCursorPrivate *priv =
     clutter_cursor_get_instance_private (cursor);
 
-  return priv->texture_scale;
+  return priv->scale;
 }
 
 MtkMonitorTransform
-clutter_cursor_get_texture_transform (ClutterCursor *cursor)
+clutter_cursor_get_transform (ClutterCursor *cursor)
 {
   ClutterCursorPrivate *priv =
     clutter_cursor_get_instance_private (cursor);
 
-  return priv->texture_transform;
+  return priv->transform;
 }
 
 const graphene_rect_t *
@@ -283,8 +283,8 @@ clutter_cursor_init (ClutterCursor *cursor)
   ClutterCursorPrivate *priv =
     clutter_cursor_get_instance_private (cursor);
 
-  priv->texture_scale = 1.0f;
-  priv->texture_transform = MTK_MONITOR_TRANSFORM_NORMAL;
+  priv->scale = 1.0f;
+  priv->transform = MTK_MONITOR_TRANSFORM_NORMAL;
 }
 
 static void

@@ -197,9 +197,9 @@ maybe_draw_cursor_sprite (MetaStreamSourceWindow *source_window,
                                                           &view_scale))
     return;
 
-  cursor_scale = clutter_cursor_get_texture_scale (cursor);
+  cursor_scale = clutter_cursor_get_scale (cursor);
   scale = cursor_scale * view_scale;
-  cursor_transform = clutter_cursor_get_texture_transform (cursor);
+  cursor_transform = clutter_cursor_get_transform (cursor);
   src_rect = clutter_cursor_get_viewport_src_rect (cursor);
 
   clutter_cursor_get_geometry (cursor,
@@ -317,9 +317,9 @@ maybe_blit_cursor_sprite (MetaStreamSourceWindow *source_window,
                                                           &view_scale))
     return;
 
-  cursor_scale = clutter_cursor_get_texture_scale (cursor);
+  cursor_scale = clutter_cursor_get_scale (cursor);
   scale = cursor_scale * view_scale;
-  cursor_transform = clutter_cursor_get_texture_transform (cursor);
+  cursor_transform = clutter_cursor_get_transform (cursor);
   src_rect = clutter_cursor_get_viewport_src_rect (cursor);
 
   clutter_cursor_get_geometry (cursor,

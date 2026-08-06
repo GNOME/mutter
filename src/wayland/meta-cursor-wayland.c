@@ -73,7 +73,7 @@ meta_cursor_wayland_prepare_at (ClutterCursor *cursor,
   if (logical_monitor)
     {
       int surface_scale;
-      float texture_scale;
+      float scale;
 #ifdef HAVE_XWAYLAND
       MetaXWaylandManager *xwayland_manager =
         &surface->compositor->xwayland_manager;
@@ -85,15 +85,15 @@ meta_cursor_wayland_prepare_at (ClutterCursor *cursor,
         surface_scale = surface->applied_state.scale;
 
       if (surface->viewport.has_dst_size)
-        texture_scale = 1.0f;
+        scale = 1.0f;
       else if (meta_backend_is_stage_views_scaled (backend))
-        texture_scale = 1.0f / surface_scale;
+        scale = 1.0f / surface_scale;
       else
-        texture_scale = (meta_logical_monitor_get_scale (logical_monitor) /
-                         surface_scale);
+        scale = (meta_logical_monitor_get_scale (logical_monitor) /
+                 surface_scale);
 
-      clutter_cursor_set_texture_scale (cursor, texture_scale);
-      clutter_cursor_set_texture_transform (cursor, surface->buffer_transform);
+      clutter_cursor_set_scale (cursor, scale);
+      clutter_cursor_set_transform (cursor, surface->buffer_transform);
 
       if (surface->viewport.has_src_rect)
         {

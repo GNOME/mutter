@@ -428,7 +428,7 @@ meta_cursor_xcursor_prepare_at (ClutterCursor *cursor,
         {
           meta_cursor_xcursor_set_theme_scale (cursor_xcursor,
                                                (int) logical_monitor->scale);
-          clutter_cursor_set_texture_scale (cursor, 1.0f);
+          clutter_cursor_set_scale (cursor, 1.0f);
 
           clutter_cursor_reset_viewport_dst_size (cursor);
         }

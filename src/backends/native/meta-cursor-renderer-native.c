@@ -935,7 +935,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
 
   logical_transform = meta_logical_monitor_get_transform (logical_monitor);
-  cursor_transform = clutter_cursor_get_texture_transform (cursor);
+  cursor_transform = clutter_cursor_get_transform (cursor);
   relative_transform = mtk_monitor_transform_transform (
     mtk_monitor_transform_invert (cursor_transform),
     meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
@@ -976,7 +976,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
   else
     {
       relative_scale_x = relative_scale_y =
-        monitor_scale * clutter_cursor_get_texture_scale (cursor);
+        monitor_scale * clutter_cursor_get_scale (cursor);
 
       if (mtk_monitor_transform_is_rotated (cursor_transform))
         {
@@ -992,7 +992,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
 
   graphene_matrix_init_identity (&matrix);
   pipeline_transform = mtk_monitor_transform_invert (relative_transform);
-  cursor_scale = clutter_cursor_get_texture_scale (cursor);
+  cursor_scale = clutter_cursor_get_scale (cursor);
   mtk_compute_viewport_matrix (&matrix,
                                width,
                                height,

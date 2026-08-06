@@ -31,12 +31,12 @@ CLUTTER_EXPORT
 void clutter_cursor_invalidate (ClutterCursor *cursor);
 
 CLUTTER_EXPORT
-void clutter_cursor_set_texture_scale (ClutterCursor *cursor,
-                                       float          scale);
+void clutter_cursor_set_scale (ClutterCursor *cursor,
+                               float          scale);
 
 CLUTTER_EXPORT
-void clutter_cursor_set_texture_transform (ClutterCursor       *cursor,
-                                           MtkMonitorTransform  transform);
+void clutter_cursor_set_transform (ClutterCursor       *cursor,
+                                   MtkMonitorTransform  transform);
 
 CLUTTER_EXPORT
 void clutter_cursor_set_viewport_src_rect (ClutterCursor         *cursor,
@@ -60,10 +60,10 @@ CLUTTER_EXPORT
 CoglTexture * clutter_cursor_get_texture (ClutterCursor *cursor);
 
 CLUTTER_EXPORT
-float clutter_cursor_get_texture_scale (ClutterCursor *cursor);
+float clutter_cursor_get_scale (ClutterCursor *cursor);
 
 CLUTTER_EXPORT
-MtkMonitorTransform clutter_cursor_get_texture_transform (ClutterCursor *cursor);
+MtkMonitorTransform clutter_cursor_get_transform (ClutterCursor *cursor);
 
 CLUTTER_EXPORT
 const graphene_rect_t * clutter_cursor_get_viewport_src_rect (ClutterCursor *cursor);

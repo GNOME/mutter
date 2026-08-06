@@ -854,8 +854,8 @@ meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
                                &cursor_width, &cursor_height,
                                &hotspot_x, &hotspot_y);
 
-  cursor_scale = clutter_cursor_get_texture_scale (cursor);
-  cursor_transform = clutter_cursor_get_texture_transform (cursor);
+  cursor_scale = clutter_cursor_get_scale (cursor);
+  cursor_transform = clutter_cursor_get_transform (cursor);
   src_rect = clutter_cursor_get_viewport_src_rect (cursor);
 
   if (clutter_cursor_get_viewport_dst_size (cursor,
