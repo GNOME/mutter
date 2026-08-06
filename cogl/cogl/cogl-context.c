@@ -240,7 +240,9 @@ cogl_context_dispose (GObject *object)
   g_clear_object (&priv->rectangle_byte_indices);
   g_clear_object (&priv->rectangle_short_indices);
 
+  g_clear_object (&priv->stencil_pipeline);
   g_clear_object (&priv->default_pipeline);
+  g_clear_object (&priv->current_pipeline);
 
   g_clear_object (&priv->dummy_layer_dependant);
   g_clear_object (&priv->default_layer_n);
