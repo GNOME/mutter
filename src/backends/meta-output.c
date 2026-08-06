@@ -550,18 +550,12 @@ meta_output_get_color_metadata (MetaOutput            *output,
       break;
     case META_COLOR_MODE_BT2100:
       {
-        ClutterEOTF eotf = {
-          .type = CLUTTER_EOTF_TYPE_NAMED,
-          .tf_name = CLUTTER_TRANSFER_FUNCTION_PQ,
-        };
         const ClutterPrimaries *primaries =
           clutter_colorspace_to_primaries (CLUTTER_COLORSPACE_BT2020);
-        const ClutterLuminance *luminance =
-          clutter_eotf_get_default_luminance (eotf);
 
-        /* Some sinks tone map differently when the mastering display is
-         * left undescribed, so fill in the volume the frames are produced
-         * in. MaxCLL and MaxFALL are unknown for a composited scene. */
+        /* Some sinks tone map differently when the mastering display
+         * chromaticity is left undescribed.
+         */
         *hdr_metadata = (MetaOutputHdrMetadata) {
           .active = TRUE,
           .eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ,
@@ -574,8 +568,6 @@ meta_output_get_color_metadata (MetaOutput            *output,
             .x = primaries->w_x,
             .y = primaries->w_y,
           },
-          .mastering_display_min_luminance = luminance->min,
-          .mastering_display_max_luminance = luminance->mastering_max,
         };
         *colorspace = META_OUTPUT_COLORSPACE_BT2020;
       }
