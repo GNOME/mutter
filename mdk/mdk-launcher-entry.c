@@ -163,6 +163,12 @@ mdk_launcher_entry_constructed (GObject *object)
     icon = g_themed_icon_new ("application-x-executable");
   gtk_image_set_from_gicon (GTK_IMAGE (launcher_entry->icon), icon);
 
+  expression =
+    gtk_property_expression_new (MDK_TYPE_LAUNCHER_ACTION_ITEM,
+                                 NULL,
+                                 "name");
+  adw_combo_row_set_expression (launcher_entry->actions, expression);
+
   actions_list = mdk_launcher_get_actions (launcher);
   if (actions_list && actions_list->len > 0)
     {
@@ -198,12 +204,6 @@ mdk_launcher_entry_constructed (GObject *object)
       item = mdk_launcher_action_item_new (_("Run"), NULL);
       g_list_store_append (launcher_entry->actions_list, item);
     }
-
-  expression =
-    gtk_property_expression_new (MDK_TYPE_LAUNCHER_ACTION_ITEM,
-                                 NULL,
-                                 "name");
-  adw_combo_row_set_expression (launcher_entry->actions, expression);
 
   g_signal_connect_swapped (launcher_entry->delete_button,
                             "clicked",
