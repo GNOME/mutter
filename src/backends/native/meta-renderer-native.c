@@ -172,21 +172,17 @@ struct gbm_device *
 meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms)
 {
   MetaRendererNative *renderer_native = meta_renderer_native_from_gpu (gpu_kms);
-  MetaRendererNativeGpuData *renderer_gpu_data;
+  MetaRendererNativeGpuData *renderer_gpu_data =
+    meta_renderer_native_get_gpu_data (renderer_native, gpu_kms);
   MetaRenderDevice *render_device;
   MetaRenderDeviceGbm *render_device_gbm;
   g_autoptr (GError) error = NULL;
 
-  if (!meta_renderer_native_ensure_gpu_data (renderer_native, gpu_kms, &error))
-    {
-      g_warning ("meta_gbm_device_from_gpu: could not create gpu_data for gpu %s: %s",
-                 meta_gpu_kms_get_file_path (gpu_kms), error->message);
-      return NULL;
-    }
-
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          gpu_kms);
-  g_assert (renderer_gpu_data);
+  if (!renderer_gpu_data)
+    return NULL;
+
   render_device = renderer_gpu_data->render_device;
 
   if (!META_IS_RENDER_DEVICE_GBM (render_device))
