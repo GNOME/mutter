@@ -178,6 +178,8 @@ meta_monitor_manager_set_primary_logical_monitor (MetaMonitorManager *manager,
                                                   MetaLogicalMonitor *logical_monitor)
 {
   manager->primary_logical_monitor = logical_monitor;
+  g_list_foreach (manager->logical_monitors,
+                  (GFunc) meta_logical_monitor_clear_primary, NULL);
   if (logical_monitor)
     meta_logical_monitor_make_primary (logical_monitor);
 }
