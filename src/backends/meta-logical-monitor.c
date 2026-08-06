@@ -178,6 +178,12 @@ meta_logical_monitor_make_primary (MetaLogicalMonitor *logical_monitor)
   logical_monitor->is_primary = TRUE;
 }
 
+void
+meta_logical_monitor_clear_primary (MetaLogicalMonitor *logical_monitor)
+{
+  logical_monitor->is_primary = FALSE;
+}
+
 float
 meta_logical_monitor_get_scale (MetaLogicalMonitor *logical_monitor)
 {

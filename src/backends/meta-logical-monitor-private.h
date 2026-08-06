@@ -65,6 +65,7 @@ META_EXPORT_TEST
 gboolean meta_logical_monitor_is_primary (MetaLogicalMonitor *logical_monitor);
 
 void meta_logical_monitor_make_primary (MetaLogicalMonitor *logical_monitor);
+void meta_logical_monitor_clear_primary (MetaLogicalMonitor *logical_monitor);
 
 META_EXPORT_TEST
 float meta_logical_monitor_get_scale (MetaLogicalMonitor *logical_monitor);
