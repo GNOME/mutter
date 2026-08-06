@@ -49,6 +49,7 @@
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-renderer-native.h"
+#include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-seat-native.h"
 #include "clutter/clutter-color-pipeline-shader.h"
 #include "clutter/clutter-color-transform-private.h"
@@ -91,6 +92,8 @@ struct _MetaCursorRendererNativePrivate
   gboolean input_disconnected;
   GMutex input_mutex;
   GCond input_cond;
+
+  GHashTable *deferred_hw_cursor_init;
 };
 typedef struct _MetaCursorRendererNativePrivate MetaCursorRendererNativePrivate;
 
@@ -115,6 +118,10 @@ static GQuark quark_cursor_renderer_native_gpu_data = 0;
 static GQuark quark_cursor_stage_view = 0;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRendererNative, meta_cursor_renderer_native, META_TYPE_CURSOR_RENDERER);
+
+static void
+init_hw_cursor_support_for_gpu (MetaCursorRendererNative *native,
+                                MetaGpuKms               *gpu_kms);
 
 static gboolean
 realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
@@ -202,6 +209,7 @@ meta_cursor_renderer_native_finalize (GObject *object)
                           priv->current_cursor);
   g_clear_object (&priv->current_cursor);
   g_clear_handle_id (&priv->animation_timeout_id, mtk_source_remove);
+  g_clear_pointer (&priv->deferred_hw_cursor_init, g_hash_table_destroy);
 
   G_OBJECT_CLASS (meta_cursor_renderer_native_parent_class)->finalize (object);
 }
@@ -1367,11 +1375,42 @@ meta_cursor_renderer_native_class_init (MetaCursorRendererNativeClass *klass)
     g_quark_from_static_string ("-meta-cursor-stage-view-native");
 }
 
+static gboolean
+maybe_init_hw_cursor_support_for_gpu (MetaCursorRendererNative *native,
+                                      MetaGpuKms               *gpu_kms)
+{
+  MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  MetaKms *kms = meta_kms_device_get_kms (kms_device);
+  MetaBackend *backend = meta_kms_get_backend (kms);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+
+  if (!meta_renderer_native_get_gpu_data (renderer_native, gpu_kms))
+    return FALSE;
+
+  init_hw_cursor_support_for_gpu (native, gpu_kms);
+  return TRUE;
+}
+
 static void
 on_monitors_changed (MetaMonitorManager       *monitors,
                      MetaCursorRendererNative *native)
 {
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
   MetaCursorRenderer *renderer = META_CURSOR_RENDERER (native);
+  GHashTableIter iter;
+  gpointer key;
+
+  g_hash_table_iter_init (&iter, priv->deferred_hw_cursor_init);
+
+  while (g_hash_table_iter_next (&iter, &key, NULL))
+    {
+      MetaGpuKms *gpu_kms = key;
+
+      if (maybe_init_hw_cursor_support_for_gpu (native, gpu_kms))
+        g_hash_table_iter_remove (&iter);
+    }
 
   meta_cursor_renderer_force_update (renderer);
 }
@@ -1436,11 +1475,16 @@ find_cursor_format_info (MetaGpuKms        *gpu_kms,
 }
 
 static void
-init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
+init_hw_cursor_support_for_gpu (MetaCursorRendererNative *native,
+                                MetaGpuKms               *gpu_kms)
 {
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
   MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   MetaKms *kms = meta_kms_device_get_kms (kms_device);
   MetaBackend *backend = meta_kms_get_backend (kms);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   const MetaFormatInfo *format_info;
   struct gbm_device *gbm_device;
@@ -1449,6 +1493,12 @@ init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
 
   if (meta_backend_is_headless (backend))
     return;
+
+  if (!meta_renderer_native_get_gpu_data (renderer_native, gpu_kms))
+    {
+      g_hash_table_insert (priv->deferred_hw_cursor_init, gpu_kms, NULL);
+      return;
+    }
 
   cursor_renderer_gpu_data =
     meta_create_cursor_renderer_native_gpu_data (gpu_kms);
@@ -1492,11 +1542,12 @@ init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
 }
 
 static void
-on_gpu_added_for_cursor (MetaBackend *backend,
-                         MetaGpu     *gpu)
+on_gpu_added_for_cursor (MetaBackend              *backend,
+                         MetaGpu                  *gpu,
+                         MetaCursorRendererNative *native)
 {
   if (META_IS_GPU_KMS (gpu))
-    init_hw_cursor_support_for_gpu (META_GPU_KMS (gpu));
+    init_hw_cursor_support_for_gpu (native, META_GPU_KMS (gpu));
 }
 
 static void
@@ -1587,7 +1638,8 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
       if (!META_IS_GPU_KMS (gpu))
         continue;
 
-      init_hw_cursor_support_for_gpu (META_GPU_KMS (gpu));
+      init_hw_cursor_support_for_gpu (cursor_renderer_native,
+                                      META_GPU_KMS (gpu));
     }
 
   seat = meta_backend_get_default_seat (priv->backend);
@@ -1652,7 +1704,8 @@ meta_cursor_renderer_native_new (MetaBackend *backend)
                            G_CALLBACK (on_monitors_changed),
                            cursor_renderer_native, 0);
   g_signal_connect (backend, "gpu-added",
-                    G_CALLBACK (on_gpu_added_for_cursor), NULL);
+                    G_CALLBACK (on_gpu_added_for_cursor),
+                    cursor_renderer_native);
   g_signal_connect (backend,
                     "prepare-shutdown",
                     G_CALLBACK (on_prepare_shutdown),
@@ -1668,4 +1721,9 @@ meta_cursor_renderer_native_new (MetaBackend *backend)
 static void
 meta_cursor_renderer_native_init (MetaCursorRendererNative *native)
 {
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
+
+  priv->deferred_hw_cursor_init =
+    g_hash_table_new (g_direct_hash, g_direct_equal);
 }
