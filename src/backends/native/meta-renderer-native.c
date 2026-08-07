@@ -1632,10 +1632,6 @@ on_gpu_added (MetaBackendNative  *backend_native,
               MetaGpu            *gpu,
               MetaRendererNative *renderer_native)
 {
-  MetaBackend *backend = META_BACKEND (backend_native);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   MetaGpuKms *gpu_kms;
   GError *error = NULL;
 
@@ -1650,8 +1646,6 @@ on_gpu_added (MetaBackendNative  *backend_native,
                  meta_gpu_kms_get_file_path (gpu_kms), error->message);
       g_clear_error (&error);
     }
-
-  cogl_display_egl_ensure_current (COGL_DISPLAY_EGL (cogl_display));
 }
 
 static void
