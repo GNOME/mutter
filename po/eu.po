@@ -11,8 +11,8 @@
 msgid ""
 msgstr "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-07-07 13:52+0000\n"
-"PO-Revision-Date: 2026-08-06 10:00+0100\n"
+"POT-Creation-Date: 2026-08-05 14:52+0000\n"
+"PO-Revision-Date: 2026-08-07 10:00+0100\n"
 "Last-Translator: Asier Saratsua Garmendia <asiersarasua@ni.eus>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -249,13 +249,33 @@ msgstr "Maximizatu leihoa bertikalean"
 msgid "Maximize window horizontally"
 msgstr "Maximizatu leihoa horizontalean"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "Ikusi zatia ezkerrean"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "Ikusi zatia eskuinean"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "Beti esleitu eskaneatze-bufferrak aldatzaile esplizituekin"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr "Egia denean, mutter-ek beti esleituko ditu eskaneatze-bufferrak aldatzaile esplizituekin, kontrolatzaileak onartzen badu. Aukera hau indarrean sartzeko, sistema berrabiarazi behar da."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "Automatikoki amaitu Xwayland azken bezeroa joan ondoren"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr "Egia denean, mutter-ek automatikoki amaituko du Xwayland azken bezero nabarmena joan ondoren. Aukera hau indarren sartzeko, sistema berrabiarazi behar da."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -353,35 +373,19 @@ msgid ""
 "screen of the monitor."
 msgstr "TRUE (egia) denean, leiho berriak beti jarriko dira monitorearen pantaila aktiboaren zentroan."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "Gaitu eginbide esperimentalak"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr "Eginbide esperimentalak gaitzeko, gehitu eginbidearen gako-hitza zerrendari. Eginbideak konposatzailea berrabiaraztea behar izan dezake. Eginbide esperimentalak ez du erabilgarri edo konfiguragarri egon beharrik. Ez espero ezarpen honetan etorkizunean funtzionatzeko bermea duen ezer egoterik. Balizko gako-hitzak: • “kms-modifiers” — mutter-ek eskaneatze-bufferrak beti aldatzaile esplizituekin esleitzen ditu, kontrolatzaileak onartzen badu. Berrabiarazi behar da. • “autoclose-xwayland” — Xwayland automatikoki amaitzen du X11 bezero nabarmenik ez badago. Berrabiarazi behar da."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "Erakuslea kokatzeko erabiliko den aldatzailea"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Gako honek “kokatu erakuslea” ekintza abiarazten du."
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "Bizirik egotearen ping-aren denbora-muga"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -389,11 +393,11 @@ msgstr "Bezero batek ping eskari bati erantzuteko duen milisegundo kopurua, izoz
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "Irteerako luminantzia-ezarpenen arabera"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -401,15 +405,15 @@ msgid ""
 "(%). The default when not specified is 100%."
 msgstr "Irteerako eta kolore-moduko luminantzia-ezarpenaren arabera. Sarrera bakoitza tupla bat da, non konektorea, fabrikatzailea, produktua, serieko zenbakia eta kolore-modu bat, bai eta irteerako luminantzia adierazten duen koma mugikorreko balio bat ehunekoetan (%), ematen diren. Zehazten ez denean, balio lehenetsia %100 da."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "Aldatu monitorearen konfigurazioak"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "Biratu barneko monitorearen konfigurazioa"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "Utzi bertan behera sarrera aktiboen kaptura-saio guztiak"
 
@@ -685,11 +689,11 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Soinuaren gertaera"
 
-#: src/core/display.c:612
+#: src/core/display.c:603
 msgid "Privacy Screen Enabled"
 msgstr "Pribatutasun-pantaila gaituta"
 
-#: src/core/display.c:613
+#: src/core/display.c:604
 msgid "Privacy Screen Disabled"
 msgstr "Pribatutasun-pantaila desgaituta"
 
@@ -823,6 +827,30 @@ msgstr "%s formatua ez da onartzen"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "Gaitu eginbide esperimentalak"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the "
+#~ "given feature. Any experimental feature is not required to still be "
+#~ "available, or configurable. Don’t expect adding anything in this setting "
+#~ "to be future proof. Currently possible keywords: • “kms-modifiers” — "
+#~ "makes mutter always allocate scanout buffers with explicit modifiers, if "
+#~ "supported by the driver. Requires a restart. • “autoclose-xwayland” — "
+#~ "automatically terminates Xwayland if all relevant X11 clients are gone. "
+#~ "Requires a restart."
+#~ msgstr ""
+#~ "Eginbide esperimentalak gaitzeko, gehitu eginbidearen gako-hitza "
+#~ "zerrendari. Eginbideak konposatzailea berrabiaraztea behar izan dezake. "
+#~ "Eginbide esperimentalak ez du erabilgarri edo konfiguragarri egon "
+#~ "beharrik. Ez espero ezarpen honetan etorkizunean funtzionatzeko bermea "
+#~ "duen ezer egoterik. Balizko gako-hitzak: • “kms-modifiers” — mutter-ek "
+#~ "eskaneatze-bufferrak beti aldatzaile esplizituekin esleitzen ditu, "
+#~ "kontrolatzaileak onartzen badu. Berrabiarazi behar da. • “autoclose-"
+#~ "xwayland” — Xwayland automatikoki amaitzen du X11 bezero nabarmenik ez "
+#~ "badago. Berrabiarazi behar da."
 
 #~ msgid "Replace the running window manager"
 #~ msgstr "Ordeztu exekutatzen dagoen leiho-kudeatzailea"
