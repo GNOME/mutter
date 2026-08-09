@@ -608,7 +608,6 @@ ensure_blending_pipeline (MetaStreamSourceMonitor  *source_monitor,
   ClutterEncodingRequiredFormat required_format;
   CoglPixelFormat formats[10];
   size_t n_formats = 0;
-  g_autoptr (CoglTexture) texture = NULL;
   g_autoptr (CoglOffscreen) offscreen = NULL;
   g_autoptr (CoglPipeline) pipeline = NULL;
 
@@ -656,8 +655,10 @@ ensure_blending_pipeline (MetaStreamSourceMonitor  *source_monitor,
   g_set_object (&source_monitor->blending_pipeline, pipeline);
   g_set_object (&source_monitor->blending_framebuffer,
                 COGL_FRAMEBUFFER (offscreen));
+
   *blending_pipeline = source_monitor->blending_pipeline;
   *blending_framebuffer = source_monitor->blending_framebuffer;
+
   return TRUE;
 }
 
