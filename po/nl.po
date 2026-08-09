@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-04-02 12:00+0000\n"
-"PO-Revision-Date: 2026-04-19 19:41+0200\n"
+"POT-Creation-Date: 2026-08-05 14:52+0000\n"
+"PO-Revision-Date: 2026-08-09 17:23+0200\n"
 "Last-Translator: Nathan Follens <nfollens@gnome.org>\n"
 "Language-Team: GNOME-NL https://matrix.to/#/#nl:gnome.org\n"
 "Language: nl\n"
@@ -250,13 +250,38 @@ msgstr "Venster verticaal maximaliseren"
 msgid "Maximize window horizontally"
 msgstr "Venster horizontaal maximaliseren"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "Weergave gesplitst op links"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "Weergave gesplitst op rechts"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "Scanoutbuffers altijd toewijzen met expliciete controletoetsen"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"Indien ingeschakeld zal mutter scanoutbuffers altijd toewijzen met "
+"expliciete controletoetsen, indien ondersteund door het stuurprogramma. Deze "
+"optie vereist een herstart."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "Xwayland automatisch beëindigen nadat de laatste cliënt weg is"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"Indien ingeschakeld zal mutter Xwayland automatisch beëindigen nadat de "
+"laatste relevante cliënt weg is. Deze optie vereist een herstart."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -380,46 +405,19 @@ msgstr ""
 "Indien waar zullen nieuwe vensters steeds in het midden van het actieve "
 "scherm van de monitor geplaatst worden."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "Experimentele functies inschakelen"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr ""
-"Voeg het sleutelwoord van een experimentele functie toe aan de lijst om deze "
-"in te schakelen. Of de compositor herstart moet worden vooraleer de functie "
-"gebruikt kan worden is afhankelijk van de functie. Experimentele functies "
-"die u aan deze lijst toevoegt kunnen op een later moment weer verwijderd of "
-"op een andere manier ingesteld worden, waardoor het mogelijk is dat ze dan "
-"niet meer werken. Momenteel bruikbare sleutelwoorden: • ‘kms-modifiers’ — "
-"zorgt ervoor dat mutter scanoutbuffers steeds toewijst met uitdrukkelijke "
-"modifiers, indien dit ondersteund wordt door het stuurprogramma. Hiervoor is "
-"opnieuw opstarten vereist. • ‘autoclose-xwayland’ — beëindigt Xwayland "
-"automatisch wanneer er geen relevante X11-cliënten meer zijn. Hiervoor is "
-"opnieuw opstarten vereist."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "Controletoets om de muispijl te lokaliseren"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Deze sleutel activeert de actie ‘muispijl lokaliseren’."
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "Time-out voor levenscontroleping"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -430,11 +428,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "Luminantie-instellingen per uitvoer"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -446,15 +444,15 @@ msgstr ""
 "evenals een een zwevendekommawaarde die de uitvoerluminantie in procent (%) "
 "voorstelt. Indien niet gespecificeerd is de standaard 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "Tussen beeldschermconfiguraties schakelen"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roteert de ingebouwde beeldschermconfiguratie"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "Alle actieve sessies voor opvang van invoer annuleren"
 
@@ -715,7 +713,7 @@ msgstr "Starters b_ewerken"
 msgid "_About Mutter Development Kit"
 msgstr "_Over Mutter-ontwikkelingskit"
 
-#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Mutter-ontwikkelingskit"
 
@@ -723,42 +721,46 @@ msgstr "Mutter-ontwikkelingskit"
 msgid "Main Menu"
 msgstr "Hoofdmenu"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "Het Mutter-team"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "Mutter-softwareontwikkelingskit"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "Over Mutter-ontwikkelingskit"
 
-#: mdk/mdk-monitor.c:557
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "Ontwikkelingskitopties"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "Kon beeldscherm niet aanmaken"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "Ingebouwd beeldscherm"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "Onbekend beeldscherm"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -770,48 +772,52 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Bel-gebeurtenis"
 
-#: src/core/display.c:608
+#: src/core/display.c:603
 msgid "Privacy Screen Enabled"
 msgstr "Privacyscherm ingeschakeld"
 
-#: src/core/display.c:609
+#: src/core/display.c:604
 msgid "Privacy Screen Disabled"
 msgstr "Privacyscherm uitgeschakeld"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "Uitvoeren als een wayland compositor"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland-compositor uitvoeren zonder Xwayland te starten"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "Bepaal de te gebruiken Wayland-weergavenaam"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "Uitvoeren als een volledige displayserver, in plaats van genest"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "Uitvoeren als een ‘headless’ displayserver"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Blijvend virtueel beeldscherm toevoegen (BxH of BxH@V)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "Ontwikkelingskit uitvoeren"
 
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "Ontwikkelingskitparameters"
+
 # Onduidelijk of 'profile' hier een naamwoord of werkwoord is - Nathan
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "Prestaties profileren met trace-hulpmiddelen"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "Debugbesturing van D-Bus-interface inschakelen"
 
@@ -855,12 +861,12 @@ msgstr "Versie-informatie tonen"
 msgid "Mutter plugin to use"
 msgstr "Te gebruiken Mutter-plug-in"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "Werkblad %d"
 
-#: src/core/util.c:155
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter is gecompileerd zonder ondersteuning voor verbose-mode"
 
@@ -873,24 +879,24 @@ msgstr "Werkblad gewisseld"
 msgid "Mode Switch: Mode %d"
 msgstr "Moduswisselaar: modus %d"
 
-#: src/x11/meta-x11-display.c:770
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "Display ‘%s’ heeft al een vensterbeheerder"
 
-#: src/x11/meta-x11-display.c:1133
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Openen van X Window System display ‘%s’ mislukt"
 
-#: src/x11/meta-x11-display.c:1278
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Scherm %d op beeldscherm ‘%s’ is ongeldig"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2463
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -907,6 +913,33 @@ msgstr "Formaat %s wordt niet ondersteund"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (op %s)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "Experimentele functies inschakelen"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the "
+#~ "given feature. Any experimental feature is not required to still be "
+#~ "available, or configurable. Don’t expect adding anything in this setting "
+#~ "to be future proof. Currently possible keywords: • “kms-modifiers” — "
+#~ "makes mutter always allocate scanout buffers with explicit modifiers, if "
+#~ "supported by the driver. Requires a restart. • “autoclose-xwayland” — "
+#~ "automatically terminates Xwayland if all relevant X11 clients are gone. "
+#~ "Requires a restart."
+#~ msgstr ""
+#~ "Voeg het sleutelwoord van een experimentele functie toe aan de lijst om "
+#~ "deze in te schakelen. Of de compositor herstart moet worden vooraleer de "
+#~ "functie gebruikt kan worden is afhankelijk van de functie. Experimentele "
+#~ "functies die u aan deze lijst toevoegt kunnen op een later moment weer "
+#~ "verwijderd of op een andere manier ingesteld worden, waardoor het "
+#~ "mogelijk is dat ze dan niet meer werken. Momenteel bruikbare "
+#~ "sleutelwoorden: • ‘kms-modifiers’ — zorgt ervoor dat mutter "
+#~ "scanoutbuffers steeds toewijst met uitdrukkelijke modifiers, indien dit "
+#~ "ondersteund wordt door het stuurprogramma. Hiervoor is opnieuw opstarten "
+#~ "vereist. • ‘autoclose-xwayland’ — beëindigt Xwayland automatisch wanneer "
+#~ "er geen relevante X11-cliënten meer zijn. Hiervoor is opnieuw opstarten "
+#~ "vereist."
 
 #~ msgid "Replace the running window manager"
 #~ msgstr "De huidige toepassing voor vensterbeheer vervangen"
