@@ -269,7 +269,7 @@ ensure_stage_view_offscreen_pipeline (ClutterStageView *view)
                                                  priv->output_color_state,
                                                  CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
 
-  g_set_object (&priv->offscreen_pipeline, g_steal_pointer (&pipeline));
+  g_set_object (&priv->offscreen_pipeline, pipeline);
 }
 
 static gboolean
