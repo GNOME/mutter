@@ -653,9 +653,9 @@ ensure_blending_pipeline (MetaStreamSourceMonitor  *source_monitor,
                                                  target_color_state,
                                                  CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
 
-  g_set_object (&source_monitor->blending_pipeline, g_steal_pointer (&pipeline));
+  g_set_object (&source_monitor->blending_pipeline, pipeline);
   g_set_object (&source_monitor->blending_framebuffer,
-                COGL_FRAMEBUFFER (g_steal_pointer (&offscreen)));
+                COGL_FRAMEBUFFER (offscreen));
   *blending_pipeline = source_monitor->blending_pipeline;
   *blending_framebuffer = source_monitor->blending_framebuffer;
   return TRUE;
