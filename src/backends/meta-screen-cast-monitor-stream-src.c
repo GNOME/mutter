@@ -693,9 +693,9 @@ ensure_blending_pipeline (MetaScreenCastMonitorStreamSrc  *monitor_src,
                                               pipeline,
                                               CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
 
-  g_set_object (&monitor_src->blending_pipeline, g_steal_pointer (&pipeline));
+  g_set_object (&monitor_src->blending_pipeline, pipeline);
   g_set_object (&monitor_src->blending_framebuffer,
-                COGL_FRAMEBUFFER (g_steal_pointer (&offscreen)));
+                COGL_FRAMEBUFFER (offscreen));
   *blending_pipeline = monitor_src->blending_pipeline;
   *blending_framebuffer = monitor_src->blending_framebuffer;
   return TRUE;
