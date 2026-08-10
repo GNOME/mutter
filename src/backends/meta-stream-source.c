@@ -819,7 +819,7 @@ meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
   CoglTexture *cursor_texture;
   struct spa_meta_bitmap *spa_meta_bitmap;
   int hotspot_x, hotspot_y;
-  int texture_width, texture_height;
+  int cursor_width, cursor_height;
   int bitmap_width, bitmap_height;
   int dst_width, dst_height;
   uint8_t *bitmap_data;
@@ -829,7 +829,7 @@ meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
   graphene_matrix_t matrix;
   g_autoptr (GError) error = NULL;
 
-  cursor_texture = clutter_cursor_get_texture (cursor, &hotspot_x, &hotspot_y);
+  cursor_texture = clutter_cursor_get_texture (cursor);
   if (!cursor_texture)
     {
       meta_stream_source_set_empty_cursor_sprite_metadata (source,
@@ -850,8 +850,9 @@ meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
   spa_meta_bitmap->format = SPA_VIDEO_FORMAT_RGBA;
   spa_meta_bitmap->offset = sizeof (struct spa_meta_bitmap);
 
-  texture_width = cogl_texture_get_width (cursor_texture);
-  texture_height = cogl_texture_get_height (cursor_texture);
+  clutter_cursor_get_geometry (cursor,
+                               &cursor_width, &cursor_height,
+                               &hotspot_x, &hotspot_y);
 
   cursor_scale = clutter_cursor_get_texture_scale (cursor);
   cursor_transform = clutter_cursor_get_texture_transform (cursor);
@@ -864,8 +865,8 @@ meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
       float cursor_scale_x, cursor_scale_y;
       float scaled_hotspot_x, scaled_hotspot_y;
 
-      cursor_scale_x = (float) dst_width / texture_width;
-      cursor_scale_y = (float) dst_height / texture_height;
+      cursor_scale_x = (float) dst_width / cursor_width;
+      cursor_scale_y = (float) dst_height / cursor_height;
 
       scaled_hotspot_x = roundf (hotspot_x * cursor_scale_x);
       scaled_hotspot_y = roundf (hotspot_y * cursor_scale_y);
@@ -879,8 +880,8 @@ meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
     {
       float scale_x, scale_y;
 
-      scale_x = (float) src_rect->size.width / texture_width * view_scale;
-      scale_y = (float) src_rect->size.height / texture_height * view_scale;
+      scale_x = (float) src_rect->size.width / cursor_width * view_scale;
+      scale_y = (float) src_rect->size.height / cursor_height * view_scale;
 
       bitmap_width = (int) ceilf (src_rect->size.width * view_scale);
       bitmap_height = (int) ceilf (src_rect->size.height * view_scale);
@@ -895,13 +896,13 @@ meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
 
       if (mtk_monitor_transform_is_rotated (cursor_transform))
         {
-          bitmap_width = (int) ceilf (texture_height * scale);
-          bitmap_height = (int) ceilf (texture_width * scale);
+          bitmap_width = (int) ceilf (cursor_height * scale);
+          bitmap_height = (int) ceilf (cursor_width * scale);
         }
       else
         {
-          bitmap_width = (int) ceilf (texture_width * scale);
-          bitmap_height = (int) ceilf (texture_height * scale);
+          bitmap_width = (int) ceilf (cursor_width * scale);
+          bitmap_height = (int) ceilf (cursor_height * scale);
         }
 
       spa_meta_cursor->hotspot.x = (int32_t) ceilf (hotspot_x * scale);
@@ -910,8 +911,8 @@ meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
 
   graphene_matrix_init_identity (&matrix);
   mtk_compute_viewport_matrix (&matrix,
-                               texture_width,
-                               texture_height,
+                               cursor_width,
+                               cursor_height,
                                cursor_scale,
                                cursor_transform,
                                src_rect);

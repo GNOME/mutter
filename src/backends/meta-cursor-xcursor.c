@@ -435,20 +435,36 @@ meta_cursor_xcursor_prepare_at (ClutterCursor *cursor,
     }
 }
 
-static CoglTexture *
-meta_cursor_xcursor_get_texture (ClutterCursor *cursor,
-                                 int           *hot_x,
-                                 int           *hot_y)
+static void
+meta_cursor_xcursor_get_geometry (ClutterCursor *cursor,
+                                  int           *width,
+                                  int           *height,
+                                  int           *hot_x,
+                                  int           *hot_y)
 {
   MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
+  XcursorImage *xc_image;
 
   meta_cursor_xcursor_realize (cursor);
+  xc_image = meta_cursor_xcursor_get_current_image (cursor_xcursor);
+
+  if (width)
+    *width = xc_image->width;
+  if (height)
+    *height = xc_image->height;
 
   if (hot_x)
     *hot_x = cursor_xcursor->hot_x;
   if (hot_y)
     *hot_y = cursor_xcursor->hot_y;
+}
 
+static CoglTexture *
+meta_cursor_xcursor_get_texture (ClutterCursor *cursor)
+{
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
+
+  meta_cursor_xcursor_realize (cursor);
   return cursor_xcursor->texture;
 }
 
@@ -494,5 +510,6 @@ meta_cursor_xcursor_class_init (MetaCursorXcursorClass *klass)
   cursor_class->get_current_frame_time =
     meta_cursor_xcursor_get_current_frame_time;
   cursor_class->prepare_at = meta_cursor_xcursor_prepare_at;
+  cursor_class->get_geometry = meta_cursor_xcursor_get_geometry;
   cursor_class->get_texture = meta_cursor_xcursor_get_texture;
 }

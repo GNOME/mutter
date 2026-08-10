@@ -182,14 +182,22 @@ clutter_cursor_reset_viewport_dst_size (ClutterCursor *cursor)
   clutter_cursor_invalidate (cursor);
 }
 
-CoglTexture *
-clutter_cursor_get_texture (ClutterCursor *cursor,
-                            int           *hot_x,
-                            int           *hot_y)
+void
+clutter_cursor_get_geometry (ClutterCursor *cursor,
+                             int           *width,
+                             int           *height,
+                             int           *hot_x,
+                             int           *hot_y)
 {
-  return CLUTTER_CURSOR_GET_CLASS (cursor)->get_texture (cursor,
-                                                         hot_x,
-                                                         hot_y);
+  CLUTTER_CURSOR_GET_CLASS (cursor)->get_geometry (cursor,
+                                                   width, height,
+                                                   hot_x, hot_y);
+}
+
+CoglTexture *
+clutter_cursor_get_texture (ClutterCursor *cursor)
+{
+  return CLUTTER_CURSOR_GET_CLASS (cursor)->get_texture (cursor);
 }
 
 float

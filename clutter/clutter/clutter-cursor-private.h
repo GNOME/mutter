@@ -46,9 +46,14 @@ CLUTTER_EXPORT
 void clutter_cursor_reset_viewport_src_rect (ClutterCursor *cursor);
 
 CLUTTER_EXPORT
-CoglTexture * clutter_cursor_get_texture (ClutterCursor *cursor,
-                                          int           *hot_x,
-                                          int           *hot_y);
+void clutter_cursor_get_geometry (ClutterCursor *cursor,
+                                  int           *width,
+                                  int           *height,
+                                  int           *hot_x,
+                                  int           *hot_y);
+
+CLUTTER_EXPORT
+CoglTexture * clutter_cursor_get_texture (ClutterCursor *cursor);
 
 CLUTTER_EXPORT
 float clutter_cursor_get_texture_scale (ClutterCursor *cursor);

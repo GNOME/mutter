@@ -139,17 +139,42 @@ meta_cursor_wayland_prepare_at (ClutterCursor *cursor,
   meta_wayland_surface_notify_preferred_scale_monitor (surface);
 }
 
-static CoglTexture *
-meta_cursor_wayland_get_texture (ClutterCursor *cursor,
-                                 int           *hot_x,
-                                 int           *hot_y)
+static void
+meta_cursor_wayland_get_geometry (ClutterCursor *cursor,
+                                  int           *width,
+                                  int           *height,
+                                  int           *hot_x,
+                                  int           *hot_y)
 {
   MetaCursorWayland *cursor_wayland = META_CURSOR_WAYLAND (cursor);
 
+  if (width)
+    {
+      if (cursor_wayland->texture)
+        *width = cogl_texture_get_width (cursor_wayland->texture);
+      else
+        *width = 0;
+    }
+
+  if (height)
+    {
+      if (cursor_wayland->texture)
+        *height = cogl_texture_get_height (cursor_wayland->texture);
+      else
+        *height = 0;
+    }
+
   if (hot_x)
     *hot_x = cursor_wayland->hot_x;
+
   if (hot_y)
     *hot_y = cursor_wayland->hot_y;
+}
+
+static CoglTexture *
+meta_cursor_wayland_get_texture (ClutterCursor *cursor)
+{
+  MetaCursorWayland *cursor_wayland = META_CURSOR_WAYLAND (cursor);
 
   return cursor_wayland->texture;
 }
@@ -236,6 +261,7 @@ meta_cursor_wayland_class_init (MetaCursorWaylandClass *klass)
 
   cursor_class->is_animated = meta_cursor_wayland_is_animated;
   cursor_class->prepare_at = meta_cursor_wayland_prepare_at;
+  cursor_class->get_geometry = meta_cursor_wayland_get_geometry;
   cursor_class->get_texture = meta_cursor_wayland_get_texture;
 }
 

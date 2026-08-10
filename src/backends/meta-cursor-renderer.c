@@ -149,7 +149,7 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
       dst_rect = meta_cursor_renderer_calculate_rect (renderer, cursor);
       align_cursor_position (renderer, &dst_rect);
 
-      texture = clutter_cursor_get_texture (cursor, NULL, NULL);
+      texture = clutter_cursor_get_texture (cursor);
       if (texture)
         {
           int cursor_width, cursor_height;
@@ -157,8 +157,9 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
           MtkMonitorTransform cursor_transform;
           const graphene_rect_t *src_rect;
 
-          cursor_width = cogl_texture_get_width (texture);
-          cursor_height = cogl_texture_get_height (texture);
+          clutter_cursor_get_geometry (cursor,
+                                       &cursor_width, &cursor_height,
+                                       NULL, NULL);
           cursor_scale = clutter_cursor_get_texture_scale (cursor);
           cursor_transform =
             clutter_cursor_get_texture_transform (cursor);
@@ -346,21 +347,17 @@ calculate_sprite_geometry (MetaCursorRenderer *renderer,
                            graphene_size_t    *size,
                            graphene_point_t   *hotspot)
 {
-  CoglTexture *texture;
   MtkMonitorTransform cursor_transform;
   const graphene_rect_t *src_rect;
   int hot_x, hot_y;
-  int tex_width, tex_height;
+  int cursor_width, cursor_height;
   int dst_width, dst_height;
 
-  texture = clutter_cursor_get_texture (cursor, &hot_x, &hot_y);
-  if (!texture)
-    return FALSE;
-
+  clutter_cursor_get_geometry (cursor,
+                               &cursor_width, &cursor_height,
+                               &hot_x, &hot_y);
   cursor_transform = clutter_cursor_get_texture_transform (cursor);
   src_rect = clutter_cursor_get_viewport_src_rect (cursor);
-  tex_width = cogl_texture_get_width (texture);
-  tex_height = cogl_texture_get_height (texture);
 
   if (clutter_cursor_get_viewport_dst_size (cursor,
                                             &dst_width,
@@ -369,8 +366,8 @@ calculate_sprite_geometry (MetaCursorRenderer *renderer,
       float scale_x;
       float scale_y;
 
-      scale_x = (float) dst_width / tex_width;
-      scale_y = (float) dst_height / tex_height;
+      scale_x = (float) dst_width / cursor_width;
+      scale_y = (float) dst_height / cursor_height;
 
       *size = (graphene_size_t) {
         .width = dst_width,
@@ -401,15 +398,15 @@ calculate_sprite_geometry (MetaCursorRenderer *renderer,
       if (mtk_monitor_transform_is_rotated (cursor_transform))
         {
           *size = (graphene_size_t) {
-            .width = tex_height * cursor_scale,
-            .height = tex_width * cursor_scale
+            .width = cursor_height * cursor_scale,
+            .height = cursor_width * cursor_scale
           };
         }
       else
         {
           *size = (graphene_size_t) {
-            .width = tex_width * cursor_scale,
-            .height = tex_height * cursor_scale
+            .width = cursor_width * cursor_scale,
+            .height = cursor_height * cursor_scale
           };
         }
 

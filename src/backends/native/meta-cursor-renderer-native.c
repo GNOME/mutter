@@ -487,7 +487,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
 
   return (!cursor_hw_managed &&
           cursor &&
-          clutter_cursor_get_texture (cursor, NULL, NULL));
+          clutter_cursor_get_texture (cursor));
 }
 
 static void
@@ -918,8 +918,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
   MtkMonitorTransform pipeline_transform;
   const graphene_rect_t *src_rect;
   graphene_matrix_t matrix;
-  CoglTexture *sprite_texture;
-  int tex_width, tex_height;
+  int cursor_width, cursor_height;
   int dst_width;
   int dst_height;
   int crtc_dst_width;
@@ -941,9 +940,9 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
     mtk_monitor_transform_invert (cursor_transform),
     meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
   src_rect = clutter_cursor_get_viewport_src_rect (cursor);
-  sprite_texture = clutter_cursor_get_texture (cursor, &hot_x, &hot_y);
-  tex_width = cogl_texture_get_width (sprite_texture);
-  tex_height = cogl_texture_get_height (sprite_texture);
+  clutter_cursor_get_geometry (cursor,
+                               &cursor_width, &cursor_height,
+                               &hot_x, &hot_y);
 
   if (meta_backend_is_stage_views_scaled (priv->backend))
     monitor_scale = meta_logical_monitor_get_scale (logical_monitor);
@@ -957,8 +956,8 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
       float scale_x;
       float scale_y;
 
-      scale_x = (float) dst_width / tex_width;
-      scale_y = (float) dst_height / tex_height;
+      scale_x = (float) dst_width / cursor_width;
+      scale_y = (float) dst_height / cursor_height;
 
       relative_scale_x = scale_x * monitor_scale;
       relative_scale_y = scale_y * monitor_scale;
@@ -1098,8 +1097,7 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
   ClutterCursor *cursor = CLUTTER_CURSOR (cursor_wayland);
   MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  CoglTexture *texture;
-  uint width, height;
+  int width, height;
   MetaWaylandBuffer *buffer;
   struct wl_shm_buffer *shm_buffer;
 
@@ -1185,9 +1183,7 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
        * access to the data, but it's not possible if the buffer is in GPU
        * memory (and possibly tiled too), so if we don't get the right size, we
        * fallback to GL. */
-      texture = clutter_cursor_get_texture (cursor, &hot_x, &hot_y);
-      width = cogl_texture_get_width (texture);
-      height = cogl_texture_get_height (texture);
+      clutter_cursor_get_geometry (cursor, &width, &height, &hot_x, &hot_y);
 
       if (!supports_exact_cursor_size (crtc_kms, width, height))
         {
@@ -1245,28 +1241,29 @@ realize_cursor_sprite_from_texture (MetaCursorRenderer *renderer,
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   CoglTexture *texture;
-  int texture_width, texture_height, bpp;
+  int cursor_width, cursor_height, bpp;
   uint64_t cursor_stride, cursor_size;
   g_autofree uint8_t *cursor_data = NULL;
 
-  texture = clutter_cursor_get_texture (cursor, NULL, NULL);
+  texture = clutter_cursor_get_texture (cursor);
   if (!texture)
     return FALSE;
 
-  texture_width = cogl_texture_get_width (texture);
-  texture_height = cogl_texture_get_height (texture);
+  clutter_cursor_get_geometry (cursor,
+                               &cursor_width, &cursor_height,
+                               NULL, NULL);
 
   cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
   bpp =
     cogl_pixel_format_get_bytes_per_pixel (cursor_renderer_gpu_data->cogl_format,
                                            0);
-  cursor_stride = texture_width * bpp;
-  cursor_data = g_malloc_n (cursor_stride, texture_height);
+  cursor_stride = cursor_width * bpp;
+  cursor_data = g_malloc_n (cursor_stride, cursor_height);
   if (!cursor_data)
     return FALSE;
 
-  cursor_size = cursor_stride * texture_height;
+  cursor_size = cursor_stride * cursor_height;
   if (cogl_texture_get_data (texture,
                              cursor_renderer_gpu_data->cogl_format,
                              cursor_stride,
@@ -1274,7 +1271,7 @@ realize_cursor_sprite_from_texture (MetaCursorRenderer *renderer,
     {
       meta_topic (META_DEBUG_KMS,
                   "cogl_texture_get_data failed for %ux%u",
-                  texture_width, texture_height);
+                  cursor_width, cursor_height);
       return FALSE;
     }
 
@@ -1283,8 +1280,8 @@ realize_cursor_sprite_from_texture (MetaCursorRenderer *renderer,
                                                     target_color_state,
                                                     cursor,
                                                     cursor_data,
-                                                    texture_width,
-                                                    texture_height,
+                                                    cursor_width,
+                                                    cursor_height,
                                                     cursor_stride,
                                                     cursor_renderer_gpu_data->drm_format);
 }

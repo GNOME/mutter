@@ -168,7 +168,7 @@ maybe_draw_cursor_sprite (MetaStreamSourceWindow *source_window,
   g_autofree uint8_t *cursor_data = NULL;
   g_autoptr (GError) error = NULL;
   int width, height;
-  int texture_width, texture_height;
+  int cursor_width, cursor_height;
   float scale, view_scale, cursor_scale;
   MtkMonitorTransform cursor_transform;
   const graphene_rect_t *src_rect;
@@ -184,7 +184,7 @@ maybe_draw_cursor_sprite (MetaStreamSourceWindow *source_window,
   if (!cursor)
     return;
 
-  cursor_texture = clutter_cursor_get_texture (cursor, &hotspot_x, &hotspot_y);
+  cursor_texture = clutter_cursor_get_texture (cursor);
   if (!cursor_texture)
     return;
 
@@ -202,8 +202,9 @@ maybe_draw_cursor_sprite (MetaStreamSourceWindow *source_window,
   cursor_transform = clutter_cursor_get_texture_transform (cursor);
   src_rect = clutter_cursor_get_viewport_src_rect (cursor);
 
-  texture_width = cogl_texture_get_width (cursor_texture);
-  texture_height = cogl_texture_get_height (cursor_texture);
+  clutter_cursor_get_geometry (cursor,
+                               &cursor_width, &cursor_height,
+                               &hotspot_x, &hotspot_y);
 
   if (clutter_cursor_get_viewport_dst_size (cursor,
                                             &width,
@@ -221,20 +222,20 @@ maybe_draw_cursor_sprite (MetaStreamSourceWindow *source_window,
     {
       if (mtk_monitor_transform_is_rotated (cursor_transform))
         {
-          width = (int) ceilf (texture_height * scale);
-          height = (int) ceilf (texture_width * scale);
+          width = (int) ceilf (cursor_height * scale);
+          height = (int) ceilf (cursor_width * scale);
         }
       else
         {
-          width = (int) ceilf (texture_width * scale);
-          height = (int) ceilf (texture_height * scale);
+          width = (int) ceilf (cursor_width * scale);
+          height = (int) ceilf (cursor_height * scale);
         }
     }
 
   graphene_matrix_init_identity (&matrix);
   mtk_compute_viewport_matrix (&matrix,
-                               texture_width,
-                               texture_height,
+                               cursor_width,
+                               cursor_height,
                                cursor_scale,
                                cursor_transform,
                                src_rect);
@@ -303,7 +304,7 @@ maybe_blit_cursor_sprite (MetaStreamSourceWindow *source_window,
   if (!cursor)
     return;
 
-  cursor_texture = clutter_cursor_get_texture (cursor, &hotspot_x, &hotspot_y);
+  cursor_texture = clutter_cursor_get_texture (cursor);
   if (!cursor_texture)
     return;
 
@@ -321,10 +322,11 @@ maybe_blit_cursor_sprite (MetaStreamSourceWindow *source_window,
   cursor_transform = clutter_cursor_get_texture_transform (cursor);
   src_rect = clutter_cursor_get_viewport_src_rect (cursor);
 
+  clutter_cursor_get_geometry (cursor,
+                               &width, &height,
+                               &hotspot_x, &hotspot_y);
   x = (relative_cursor_position.x - hotspot_x) * scale;
   y = (relative_cursor_position.y - hotspot_y) * scale;
-  width = cogl_texture_get_width (cursor_texture);
-  height = cogl_texture_get_height (cursor_texture);
 
   pipeline = cogl_pipeline_new (cogl_context);
   cogl_pipeline_set_layer_texture (pipeline, 0, cursor_texture);

@@ -38,9 +38,13 @@ struct _ClutterCursorClass
 {
   GObjectClass parent_class;
 
-  CoglTexture * (* get_texture) (ClutterCursor *cursor,
-                                 int           *hot_x,
-                                 int           *hot_y);
+  void (* get_geometry) (ClutterCursor *cursor,
+                         int           *width,
+                         int           *height,
+                         int           *hot_x,
+                         int           *hot_y);
+
+  CoglTexture * (* get_texture) (ClutterCursor *cursor);
 
   void (* invalidate) (ClutterCursor *cursor);
 

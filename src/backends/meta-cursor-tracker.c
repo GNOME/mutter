@@ -330,7 +330,7 @@ meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
   if (!cursor)
     return NULL;
 
-  return clutter_cursor_get_texture (cursor, NULL, NULL);
+  return clutter_cursor_get_texture (cursor);
 }
 
 /**
@@ -375,8 +375,9 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
 
   if (cursor)
     {
-      G_GNUC_UNUSED CoglTexture *texture = NULL;
-      clutter_cursor_get_texture (cursor, x, y);
+      clutter_cursor_get_geometry (cursor,
+                                   NULL, NULL,
+                                   x, y);
     }
   else
     {
