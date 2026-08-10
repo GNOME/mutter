@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-28 15:06+0000\n"
-"PO-Revision-Date: 2026-03-06 09:15+0100\n"
+"POT-Creation-Date: 2026-08-05 14:52+0000\n"
+"PO-Revision-Date: 2026-08-10 20:18+0200\n"
 "Last-Translator: Fran Dieguez <fran.dieguez@gnome.org>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -30,7 +30,7 @@ msgstr ""
 "X-DL-Module: mutter\n"
 "X-DL-State: None\n"
 "X-DL-Team: gl\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -261,13 +261,38 @@ msgstr "Maximizar xanela verticalmente"
 msgid "Maximize window horizontally"
 msgstr "Maximizar xanela horizontalmente"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "Dividir vista á esquerda"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "Dividir vista á dereita"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "Asignar sempre búfers de exploración con modificadores explícitos"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"Cando é verdadeiro, mutter sempre asignará os búfers de exploración con "
+"modificadores explícitos, se o soporta o controlador. Esta opción require un "
+"reinicio."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "Pecha automaticamente Xwayland despois de que o último cliente se vaia"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"Cando é verdadeiro, mutter finalizará automaticamente Xwayland despois de que "
+"o último cliente relevante desapareza. Esta opción require un reinicio."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -278,13 +303,13 @@ msgstr ""
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
-"key” on PC hardware. It’s expected that this binding either the default or "
-"set to the empty string."
+"key” on PC hardware. It’s expected that this binding either the default or set "
+"to the empty string."
 msgstr ""
 "Esta tecla iniciará o «overlay», que é unha combinación da vista previa da "
-"xanela e o sistema de inicialización de aplicación. O valor predeterminado "
-"nun PC é a «Tecla Windows». Espérase que este enlace sexa configurado ao "
-"valor predeterminado ou á cadea baleira."
+"xanela e o sistema de inicialización de aplicación. O valor predeterminado nun "
+"PC é a «Tecla Windows». Espérase que este enlace sexa configurado ao valor "
+"predeterminado ou á cadea baleira."
 
 #: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
@@ -293,8 +318,8 @@ msgstr "Anexar os diálogos modais"
 #: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
-"attached to the titlebar of the parent window and are moved together with "
-"the parent window."
+"attached to the titlebar of the parent window and are moved together with the "
+"parent window."
 msgstr ""
 "Cando é verdadeiro, no lugar de ter barras de título independentes, os "
 "diálogos modais aparecerán anexados á barra de título da xanela pai e "
@@ -307,13 +332,13 @@ msgstr "Activar o mosaico nos bordos ao arrastrar xanelas aos bordos da xanela"
 #: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
-"vertically and resizes them horizontally to cover half of the available "
-"area. Dropping windows on the top screen edge maximizes them completely."
+"vertically and resizes them horizontally to cover half of the available area. "
+"Dropping windows on the top screen edge maximizes them completely."
 msgstr ""
 "Se está activada, arrastrar xanelas aos bordos verticais da pantalla "
-"maximízaas verticalmente e redimensiónaas horizontalmente para cubrir a "
-"metade da área dispoñíbel. Arrastrar xanelas ao bordo superior da pantalla "
-"maximízaas por completo."
+"maximízaas verticalmente e redimensiónaas horizontalmente para cubrir a metade "
+"da área dispoñíbel. Arrastrar xanelas ao bordo superior da pantalla maximízaas "
+"por completo."
 
 #: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
@@ -326,8 +351,8 @@ msgid ""
 "org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Determina se os espazos de traballo se xestionan dinamicamente ou se hai un "
-"número estático de áreas de traballo (determinado pola chave «num-"
-"workspaces» en «org.gnome.desktop.wm.preferences»)."
+"número estático de áreas de traballo (determinado pola chave «num-workspaces» "
+"en «org.gnome.desktop.wm.preferences»)."
 
 #: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
@@ -352,8 +377,8 @@ msgid ""
 "the pointer stops moving."
 msgstr ""
 "Se está estabelecido a verdadeiro e o modo de enfoque é «sloopy» ou «mouse» "
-"entón o enfoque non se cambiará de forma inmediata ao entrar nunha xanela, "
-"só cando o punteiro se deteña sobre ela."
+"entón o enfoque non se cambiará de forma inmediata ao entrar nunha xanela, só "
+"cando o punteiro se deteña sobre ela."
 
 #: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
@@ -361,24 +386,23 @@ msgstr "Anchura arrastrábel do bordo"
 
 #: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
-"The amount of total draggable borders. If the theme’s visible borders are "
-"not enough, invisible borders will be added to meet this value."
+"The amount of total draggable borders. If the theme’s visible borders are not "
+"enough, invisible borders will be added to meet this value."
 msgstr ""
-"A cantidade total de bordo arrastrábel. Se os bordos visíbeis do tema non "
-"son suficientes, engadiranse bordos invisíbeis para satisfacer este valor."
+"A cantidade total de bordo arrastrábel. Se os bordos visíbeis do tema non son "
+"suficientes, engadiranse bordos invisíbeis para satisfacer este valor."
 
 #: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
-msgstr ""
-"Maximizar automaticamente as xanelas que case teñan o tamaño da pantalla"
+msgstr "Maximizar automaticamente as xanelas que case teñan o tamaño da pantalla"
 
 #: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr ""
-"Se está activada, as xanelas novas que inicialmente teñan o tamaño da "
-"pantalla maximizaranse automaticamente."
+"Se está activada, as xanelas novas que inicialmente teñan o tamaño da pantalla "
+"maximizaranse automaticamente."
 
 #: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
@@ -389,47 +413,22 @@ msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
-"Cando está verdadeiro, as novas xanelas sempre se porán no centro da "
-"pantalla activa."
+"Cando está verdadeiro, as novas xanelas sempre se porán no centro da pantalla "
+"activa."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "Activar as características experimentais"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr ""
-"Para activar as características experimentais, engada a palabra chave da "
-"característica á lista. Depende da característica que se deba reiniciar ou "
-"non o compositor. Calquera característica experimental pode non estar "
-"dispoñíbel ou ser configurábel. Non agarde que o que se engada neste "
-"escenario sirva como proba futura. As palabras chave actualmente dispoñíbeis "
-"son: • «kms-modifiers» — asegúrase que mutter reserva os búferes de "
-"«scanout» con modificadores explícitos, se está admitido polo controlador. "
-"Require reiniciar. • «autoclose-xwayland» — Remata XWayland automaticamente "
-"se se pecharon os clientes X11 relevantes. Require reiniciar."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificador a usar para localizar o punteiro"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Esta tecla iniciará a acción «localizar punteiro»."
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "Tempo de espera para  comprobación de ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -439,11 +438,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "Configuración de luminancia por saída"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -451,19 +450,19 @@ msgid ""
 "(%). The default when not specified is 100%."
 msgstr ""
 "Configuración de luminancia do modo de cor por saída. Cada entrada consiste "
-"nunha tupla con conector, vendedor, produto, serie e un modo de cor, así "
-"como un valor de punto flotante asociado que representa a dominancia de "
-"saída en por cento (%). O predeterminado cando non se especifica é do 100%."
+"nunha tupla con conector, vendedor, produto, serie e un modo de cor, así como "
+"un valor de punto flotante asociado que representa a dominancia de saída en "
+"por cento (%). O predeterminado cando non se especifica é do 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "Cambiar preferencias do monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota a configuración do monitor embebido"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "Cancelar calquera sesión de captura de entrada activa"
 
@@ -521,31 +520,30 @@ msgstr "Reactivar os atallos"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
-msgstr ""
-"Permitir os capturadores de X11 bloquear o foco do teclado con Xwayland"
+msgstr "Permitir os capturadores de X11 bloquear o foco do teclado con Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
-"Allow all keyboard events to be routed to X11 “override redirect” windows "
-"with a grab when running in Xwayland. This option is to support X11 clients "
-"which map an “override redirect” window (which do not receive keyboard "
-"focus) and issue a keyboard grab to force all keyboard events to that "
-"window. This option is seldom used and has no effect on regular X11 windows "
-"which can receive keyboard focus under normal circumstances. For a X11 grab "
-"to be taken into account under Wayland, the client must also either send a "
-"specific X11 ClientMessage to the root window or be among the applications "
-"allowed in key “xwayland-grab-access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows with "
+"a grab when running in Xwayland. This option is to support X11 clients which "
+"map an “override redirect” window (which do not receive keyboard focus) and "
+"issue a keyboard grab to force all keyboard events to that window. This option "
+"is seldom used and has no effect on regular X11 windows which can receive "
+"keyboard focus under normal circumstances. For a X11 grab to be taken into "
+"account under Wayland, the client must also either send a specific X11 "
+"ClientMessage to the root window or be among the applications allowed in key "
+"“xwayland-grab-access-rules”."
 msgstr ""
-"Permite que todos os eventos de teclado se redirixan a xanelas X11 "
-"«invalidar redirección» con un capturador ao executarse en Xwayland. Esta "
-"opción é para darlle compatibilidade a clientes X11 que asignan unha xanela "
-"de «invalidación de redirección» (que non recibe o foco do teclado) e facer "
-"unha captura do teclado para forzar que todos os eventos de teclado vaia a "
-"esta xanela. Esta opción é rara vez usada e non ten efecto en xanelas X11 "
-"normais que poden recibir o foco do teclado baixo circunstancias normais. "
-"Para que a captura de X11 se leve a cabo baixo Wayland, o cliente debe "
-"enviar un ClientMessage de X11 específico á xanela pai ou estar na lista "
-"branca de aplicacións na chave «xwayland-grab-access-rules»."
+"Permite que todos os eventos de teclado se redirixan a xanelas X11 «invalidar "
+"redirección» con un capturador ao executarse en Xwayland. Esta opción é para "
+"darlle compatibilidade a clientes X11 que asignan unha xanela de «invalidación "
+"de redirección» (que non recibe o foco do teclado) e facer unha captura do "
+"teclado para forzar que todos os eventos de teclado vaia a esta xanela. Esta "
+"opción é rara vez usada e non ten efecto en xanelas X11 normais que poden "
+"recibir o foco do teclado baixo circunstancias normais. Para que a captura de "
+"X11 se leve a cabo baixo Wayland, o cliente debe enviar un ClientMessage de "
+"X11 específico á xanela pai ou estar na lista branca de aplicacións na chave "
+"«xwayland-grab-access-rules»."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -553,13 +551,13 @@ msgstr "Aplicacións de Xwayland que poden capturar o teclado"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
-"List the resource names or resource class of X11 windows either allowed or "
-"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
-"resource class of a given X11 window can be obtained using the command "
-"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are denied, which has precedence over the list of "
-"values allowed, to revoke applications from the default system list. The "
-"default system list includes the following applications: "
+"List the resource names or resource class of X11 windows either allowed or not "
+"allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command “xprop "
+"WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. Values "
+"starting with “!” are denied, which has precedence over the list of values "
+"allowed, to revoke applications from the default system list. The default "
+"system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -567,11 +565,11 @@ msgstr ""
 "Lista de nomes de recursos ou clases de recursos para as xanelas X11 tanto "
 "permitidas como non permitidas para a captura do teclado en X11 baixo "
 "Xwayland. O nome do recurso ou a clase do recurso da xanela X11 dada pode "
-"obterse usando a orde «xprop WM_CLASS». Admítense os comodíns «*» e os "
-"jokers \"?\" nos valores. Os valores comezando con «!» incluiranse na lista "
-"negra, que ten precedencia sobre a lista branca, para revogar aplicacións "
-"desde a lista por omisión do sistema. A lista por omisión do sistema inclúe "
-"as seguintes aplicacións: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Os usuarios "
+"obterse usando a orde «xprop WM_CLASS». Admítense os comodíns «*» e os jokers "
+"\"?\" nos valores. Os valores comezando con «!» incluiranse na lista negra, "
+"que ten precedencia sobre a lista branca, para revogar aplicacións desde a "
+"lista por omisión do sistema. A lista por omisión do sistema inclúe as "
+"seguintes aplicacións: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Os usuarios "
 "poden romper unha captura existente usando un atallo de teclado específico "
 "definido na chave de atallo «restore-shortcuts»."
 
@@ -583,13 +581,13 @@ msgstr "Desactivar as extensións de X seleccionadas en Xwayland"
 msgid ""
 "This option disables the selected X extensions in Xwayland if Xwayland was "
 "built with support for those X extensions. This option has no effect if "
-"Xwayland was built without support for the selected extensions. Xwayland "
-"needs to be restarted for this setting to take effect."
+"Xwayland was built without support for the selected extensions. Xwayland needs "
+"to be restarted for this setting to take effect."
 msgstr ""
-"Esta opción desactiva as extensións de X seleccionadas en Xwayland se "
-"Xwayland ten a compatibilidade para ditas extensións. Esta opción non se "
-"aplica se Xwayland foi construído sen compatibilidade para estas extensións. "
-"Xwayland precisa reiniciarse para que isto teña efecto."
+"Esta opción desactiva as extensións de X seleccionadas en Xwayland se Xwayland "
+"ten a compatibilidade para ditas extensións. Esta opción non se aplica se "
+"Xwayland foi construído sen compatibilidade para estas extensións. Xwayland "
+"precisa reiniciarse para que isto teña efecto."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
@@ -602,22 +600,20 @@ msgid ""
 "Xwayland. The X server byte-swapping code is a huge attack surface, much of "
 "that code in Xwayland is prone to security issues. The use-case of byte-"
 "swapped clients is very niche, and disabled by default in Xwayland. Enable "
-"this option to instruct Xwayland to accept connections from X11 clients with "
-"a different endianness. This option has no effect if Xwayland does not "
-"support the command line option +byteswappedclients/-byteswappedclients to "
-"control that setting. Xwayland needs to be restarted for this setting to "
-"take effect."
+"this option to instruct Xwayland to accept connections from X11 clients with a "
+"different endianness. This option has no effect if Xwayland does not support "
+"the command line option +byteswappedclients/-byteswappedclients to control "
+"that setting. Xwayland needs to be restarted for this setting to take effect."
 msgstr ""
 "Permitir as conexións de clientes con un endianness diferente a aquel de "
 "Xwayland. O código de troco de byte do servidor X é un vector de ataque moi "
 "grande, a maior parte do código de Xwayland é vulnerábel a ataques de "
 "seguranza. O caso de uso dos clientes de byte trocado é moi nicho e "
-"desactívase por omisión en Xwayland. Active esta opción se quere indicarlle "
-"a Xwayland a aceptar conexións desde clientes X11 con un endianness "
-"diferente. Esta opción non ten efecto se Xwayland non admite as opcións de "
-"liña de ordes +byteswappedclients/-byteswappedclients para controlar esta "
-"configuración. Xwayland precisa reinicarse para que se aplique esta "
-"configuración."
+"desactívase por omisión en Xwayland. Active esta opción se quere indicarlle a "
+"Xwayland a aceptar conexións desde clientes X11 con un endianness diferente. "
+"Esta opción non ten efecto se Xwayland non admite as opcións de liña de ordes "
+"+byteswappedclients/-byteswappedclients para controlar esta configuración. "
+"Xwayland precisa reinicarse para que se aplique esta configuración."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:154
 msgid "Configure the Xwayland scaling factor"
@@ -625,17 +621,17 @@ msgstr "Configurar o factor de escala de Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:155
 msgid ""
-"Scale the Xwayland coordinate space according to this factor. This will "
-"affect what scale HiDPI capable X11 clients will present themselves as, and "
-"how the compositor scales X11 client windows. Setting the scale to 0 means "
-"the scale will be automatically calculated. The scale will as of now be "
-"rounded to the closest integer."
+"Scale the Xwayland coordinate space according to this factor. This will affect "
+"what scale HiDPI capable X11 clients will present themselves as, and how the "
+"compositor scales X11 client windows. Setting the scale to 0 means the scale "
+"will be automatically calculated. The scale will as of now be rounded to the "
+"closest integer."
 msgstr ""
-"Escala o espazo de coordenadas de Xwayland segundo este factor. Isto "
-"afectará á escala na que se presentarán os clientes X11 compatibles con "
-"HiDPI e a como o compositor escala as xanelas dos clientes X11. Se se "
-"establece a escala en 0, a escala calcularase automaticamente. A escala, a "
-"partir de agora, arredondarase ao número enteiro máis próximo."
+"Escala o espazo de coordenadas de Xwayland segundo este factor. Isto afectará "
+"á escala na que se presentarán os clientes X11 compatibles con HiDPI e a como "
+"o compositor escala as xanelas dos clientes X11. Se se establece a escala en "
+"0, a escala calcularase automaticamente. A escala, a partir de agora, "
+"arredondarase ao número enteiro máis próximo."
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
@@ -721,7 +717,7 @@ msgstr "_Editar iniciadores"
 msgid "_About Mutter Development Kit"
 msgstr "_Sobre o Kit de Desenvolvemento de Mutter"
 
-#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Kit de Desenvolvemento de Mutter"
 
@@ -729,42 +725,46 @@ msgstr "Kit de Desenvolvemento de Mutter"
 msgid "Main Menu"
 msgstr "Menú principal"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "O equipo de Mutter"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "O Kit de Desenvolvemento de Mutter"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "Sobre o Kit de Desenvolvemento de Mutter"
 
-#: mdk/mdk-monitor.c:557
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "Opcións de Devkit"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "Produciuse un fallo ao crear o monitor"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "Pantalla embebida"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "Descoñecido"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "Pantalla descoñecida"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -776,53 +776,56 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Evento de campá"
 
-#: src/core/display.c:608
+#: src/core/display.c:603
 msgid "Privacy Screen Enabled"
 msgstr "Privacidade de pantalla activada"
 
-#: src/core/display.c:609
+#: src/core/display.c:604
 msgid "Privacy Screen Disabled"
 msgstr "Privacidade de pantalla desactivada"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "Executar como compositor de wayland"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar o compositor de wayland sen iniciar Xwayland"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "Especifique o nome de pantalla Wayland a usar"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "Executar como un servidor de pantalla completo, fronte a un aniñado"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "Executar como un servidor de pantalla sen interface"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Engadir un monitor virtual persistente (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "Executar o kit de desenvolvemento"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "Executar o kit de desenvolvemento"
+
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "Perfilar o rendemento usando a instrumentación de trace"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "Activar a interface de control de depuración D-Bus"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
-#.
 #: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
@@ -830,7 +833,6 @@ msgstr "Modo conmutador (Grupo %d)"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
-#.
 #: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
@@ -838,7 +840,6 @@ msgstr "Modo conmutador"
 
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
-#.
 #: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
@@ -860,12 +861,12 @@ msgstr "Imprimir versión"
 msgid "Mutter plugin to use"
 msgstr "Engadido de mutter que usar"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1865
 #, c-format
 msgid "Workspace %d"
 msgstr "Espazo de traballo %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter foi compilado sen compatibilidade para o modo detallado"
 
@@ -878,24 +879,24 @@ msgstr "Espazo de traballo cambiado"
 msgid "Mode Switch: Mode %d"
 msgstr "Modo conmutador: Modo %d"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "A pantalla «%s» xa ten un xestor de xanelas"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Produciuse un erro ao abrir a visualización do X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A pantalla %d na visualización «%s» non é válida"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -912,6 +913,31 @@ msgstr "O formato %s non se admite"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (en %s)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "Activar as características experimentais"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the given "
+#~ "feature. Any experimental feature is not required to still be available, or "
+#~ "configurable. Don’t expect adding anything in this setting to be future "
+#~ "proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+#~ "allocate scanout buffers with explicit modifiers, if supported by the "
+#~ "driver. Requires a restart. • “autoclose-xwayland” — automatically "
+#~ "terminates Xwayland if all relevant X11 clients are gone. Requires a "
+#~ "restart."
+#~ msgstr ""
+#~ "Para activar as características experimentais, engada a palabra chave da "
+#~ "característica á lista. Depende da característica que se deba reiniciar ou "
+#~ "non o compositor. Calquera característica experimental pode non estar "
+#~ "dispoñíbel ou ser configurábel. Non agarde que o que se engada neste "
+#~ "escenario sirva como proba futura. As palabras chave actualmente "
+#~ "dispoñíbeis son: • «kms-modifiers» — asegúrase que mutter reserva os "
+#~ "búferes de «scanout» con modificadores explícitos, se está admitido polo "
+#~ "controlador. Require reiniciar. • «autoclose-xwayland» — Remata XWayland "
+#~ "automaticamente se se pecharon os clientes X11 relevantes. Require "
+#~ "reiniciar."
 
 #~ msgid "_Resizable"
 #~ msgstr "_Redimensionábel"
@@ -936,8 +962,8 @@ msgstr "%s (en %s)"
 #~ "Display “%s” already has a window manager; try using the --replace option "
 #~ "to replace the current window manager."
 #~ msgstr ""
-#~ "A pantalla «%s» ten xa un xestor de xanelas, tente usar a opción --"
-#~ "replace para substituír o xestor de xanelas."
+#~ "A pantalla «%s» ten xa un xestor de xanelas, tente usar a opción --replace "
+#~ "para substituír o xestor de xanelas."
 
 #~ msgid "Disable connection to session manager"
 #~ msgstr "Desactivar a conexión ao xestor de sesión"
