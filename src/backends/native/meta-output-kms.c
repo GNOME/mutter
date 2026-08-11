@@ -44,7 +44,7 @@
 #include "backends/native/meta-kms-utils.h"
 
 #define SYNC_TOLERANCE_HZ 0.001f
-#define REFRESH_MATCH_TOLERANCE_HZ 0.1f
+#define REFRESH_MATCH_TOLERANCE_HZ 0.5f
 
 struct _MetaOutputKms
 {
