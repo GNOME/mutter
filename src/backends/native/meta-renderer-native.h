@@ -81,3 +81,5 @@ gboolean meta_renderer_native_choose_gbm_format (MetaKmsPlane     *kms_plane,
                                                  const char       *purpose,
                                                  EGLConfig        *out_config,
                                                  GError          **error);
+
+CoglContext * meta_renderer_native_get_cogl_context (MetaRendererNative *renderer_native);
