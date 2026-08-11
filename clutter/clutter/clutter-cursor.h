@@ -44,8 +44,6 @@ struct _ClutterCursorClass
 
   void (* invalidate) (ClutterCursor *cursor);
 
-  gboolean (* realize_texture) (ClutterCursor *cursor);
-
   gboolean (* is_animated) (ClutterCursor *cursor);
 
   void (* tick_frame) (ClutterCursor *cursor);

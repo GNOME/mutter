@@ -213,9 +213,6 @@ static gboolean
 meta_cursor_renderer_real_update_cursor (MetaCursorRenderer *renderer,
                                          ClutterCursor      *cursor)
 {
-  if (cursor)
-    clutter_cursor_realize_texture (cursor);
-
   return TRUE;
 }
 
@@ -356,7 +353,6 @@ calculate_sprite_geometry (MetaCursorRenderer *renderer,
   int tex_width, tex_height;
   int dst_width, dst_height;
 
-  clutter_cursor_realize_texture (cursor);
   texture = clutter_cursor_get_texture (cursor, &hot_x, &hot_y);
   if (!texture)
     return FALSE;

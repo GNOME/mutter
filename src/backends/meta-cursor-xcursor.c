@@ -322,7 +322,7 @@ meta_cursor_xcursor_get_current_frame_time (ClutterCursor *cursor)
   return xcursor_images->images[cursor_xcursor->current_frame]->delay;
 }
 
-static gboolean
+static void
 load_cursor_from_theme (MetaCursorXcursor *cursor_xcursor)
 {
   XcursorImages *xcursor_images = NULL;
@@ -358,27 +358,23 @@ load_cursor_from_theme (MetaCursorXcursor *cursor_xcursor)
     }
 
   if (cursor_xcursor->xcursor_images == xcursor_images)
-    return FALSE;
+    return;
 
   cursor_xcursor->xcursor_images = xcursor_images;
   cursor_xcursor->current_frame = 0;
   load_from_current_xcursor_image (cursor_xcursor);
-  return TRUE;
 }
 
-static gboolean
-meta_cursor_xcursor_realize_texture (ClutterCursor *cursor)
+static void
+meta_cursor_xcursor_realize (ClutterCursor *cursor)
 {
   MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
-  gboolean retval = cursor_xcursor->invalidated;
 
   if (!cursor_xcursor->invalidated)
-    return FALSE;
+    return;
 
-  retval = load_cursor_from_theme (cursor_xcursor);
+  load_cursor_from_theme (cursor_xcursor);
   cursor_xcursor->invalidated = FALSE;
-
-  return retval;
 }
 
 static void
@@ -409,7 +405,7 @@ meta_cursor_xcursor_prepare_at (ClutterCursor *cursor,
           meta_cursor_xcursor_set_theme_scale (cursor_xcursor,
                                                (int) ceiled_scale);
 
-          clutter_cursor_realize_texture (cursor);
+          meta_cursor_xcursor_realize (cursor);
           meta_cursor_xcursor_get_scaled_image_size (cursor_xcursor,
                                                      &cursor_width,
                                                      &cursor_height);
@@ -445,6 +441,8 @@ meta_cursor_xcursor_get_texture (ClutterCursor *cursor,
                                  int           *hot_y)
 {
   MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
+
+  meta_cursor_xcursor_realize (cursor);
 
   if (hot_x)
     *hot_x = cursor_xcursor->hot_x;
@@ -490,7 +488,6 @@ meta_cursor_xcursor_class_init (MetaCursorXcursorClass *klass)
 
   object_class->finalize = meta_cursor_xcursor_finalize;
 
-  cursor_class->realize_texture = meta_cursor_xcursor_realize_texture;
   cursor_class->invalidate = meta_cursor_xcursor_invalidate;
   cursor_class->is_animated = meta_cursor_xcursor_is_animated;
   cursor_class->tick_frame = meta_cursor_xcursor_tick_frame;

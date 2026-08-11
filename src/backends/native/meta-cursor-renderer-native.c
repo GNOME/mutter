@@ -417,8 +417,6 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
         }
       else if (cursor && !meta_backend_is_hw_cursors_inhibited (backend))
         {
-          clutter_cursor_realize_texture (cursor);
-
           if (cursor_changed ||
               !cursor_stage_view->is_hw_cursor_valid)
             {
@@ -1251,7 +1249,6 @@ realize_cursor_sprite_from_texture (MetaCursorRenderer *renderer,
   uint64_t cursor_stride, cursor_size;
   g_autofree uint8_t *cursor_data = NULL;
 
-  clutter_cursor_realize_texture (cursor);
   texture = clutter_cursor_get_texture (cursor, NULL, NULL);
   if (!texture)
     return FALSE;

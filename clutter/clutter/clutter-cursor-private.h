@@ -31,9 +31,6 @@ CLUTTER_EXPORT
 void clutter_cursor_invalidate (ClutterCursor *cursor);
 
 CLUTTER_EXPORT
-gboolean clutter_cursor_realize_texture (ClutterCursor *cursor);
-
-CLUTTER_EXPORT
 void clutter_cursor_set_texture_scale (ClutterCursor *cursor,
                                        float          scale);
 

@@ -330,7 +330,6 @@ meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
   if (!cursor)
     return NULL;
 
-  clutter_cursor_realize_texture (cursor);
   return clutter_cursor_get_texture (cursor, NULL, NULL);
 }
 

@@ -250,12 +250,6 @@ clutter_cursor_prepare_at (ClutterCursor   *cursor,
     cursor_class->prepare_at (cursor, best_scale, x, y);
 }
 
-gboolean
-clutter_cursor_realize_texture (ClutterCursor *cursor)
-{
-  return CLUTTER_CURSOR_GET_CLASS (cursor)->realize_texture (cursor);
-}
-
 void
 clutter_cursor_invalidate (ClutterCursor *cursor)
 {

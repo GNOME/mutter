@@ -37,7 +37,6 @@ struct _MetaCursorWayland
   CoglTexture *texture;
   int hot_x;
   int hot_y;
-  gboolean invalidated;
 };
 
 G_DEFINE_TYPE (MetaCursorWayland,
@@ -45,34 +44,9 @@ G_DEFINE_TYPE (MetaCursorWayland,
                CLUTTER_TYPE_CURSOR)
 
 static gboolean
-meta_cursor_wayland_realize_texture (ClutterCursor *cursor)
-{
-  MetaCursorWayland *cursor_wayland;
-
-  cursor_wayland = META_CURSOR_WAYLAND (cursor);
-
-  if (cursor_wayland->invalidated)
-    {
-      cursor_wayland->invalidated = FALSE;
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-static gboolean
 meta_cursor_wayland_is_animated (ClutterCursor *cursor)
 {
   return FALSE;
-}
-
-static void
-meta_cursor_wayland_invalidate (ClutterCursor *cursor)
-{
-  MetaCursorWayland *cursor_wayland;
-
-  cursor_wayland = META_CURSOR_WAYLAND (cursor);
-  cursor_wayland->invalidated = TRUE;
 }
 
 static void
@@ -260,8 +234,6 @@ meta_cursor_wayland_class_init (MetaCursorWaylandClass *klass)
 
   object_class->finalize = meta_cursor_wayland_finalize;
 
-  cursor_class->realize_texture = meta_cursor_wayland_realize_texture;
-  cursor_class->invalidate = meta_cursor_wayland_invalidate;
   cursor_class->is_animated = meta_cursor_wayland_is_animated;
   cursor_class->prepare_at = meta_cursor_wayland_prepare_at;
   cursor_class->get_texture = meta_cursor_wayland_get_texture;
