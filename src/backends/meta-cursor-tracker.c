@@ -86,8 +86,8 @@ meta_cursor_tracker_notify_cursor_changed (MetaCursorTracker *tracker)
 }
 
 static void
-cursor_texture_updated (ClutterCursor     *cursor,
-                        MetaCursorTracker *tracker)
+cursor_image_changed (ClutterCursor     *cursor,
+                      MetaCursorTracker *tracker)
 {
   meta_cursor_tracker_notify_cursor_changed (tracker);
 }
@@ -105,7 +105,7 @@ update_current_cursor (MetaCursorTracker *tracker,
   if (priv->current_cursor)
     {
       g_signal_handlers_disconnect_by_func (priv->current_cursor,
-                                            cursor_texture_updated,
+                                            cursor_image_changed,
                                             tracker);
     }
 
@@ -114,8 +114,8 @@ update_current_cursor (MetaCursorTracker *tracker,
   if (cursor)
     {
       clutter_cursor_invalidate (cursor);
-      g_signal_connect (cursor, "texture-changed",
-                        G_CALLBACK (cursor_texture_updated), tracker);
+      g_signal_connect (cursor, "image-changed",
+                        G_CALLBACK (cursor_image_changed), tracker);
     }
 
   meta_cursor_tracker_notify_cursor_changed (tracker);

@@ -275,5 +275,5 @@ meta_cursor_wayland_set_texture (MetaCursorWayland *cursor_wayland,
   cursor_wayland->hot_y = hot_y;
   g_set_object (&cursor_wayland->texture, texture);
 
-  clutter_cursor_emit_texture_changed (CLUTTER_CURSOR (cursor_wayland));
+  clutter_cursor_emit_image_changed (CLUTTER_CURSOR (cursor_wayland));
 }

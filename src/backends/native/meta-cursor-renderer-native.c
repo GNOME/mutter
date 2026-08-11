@@ -296,8 +296,8 @@ maybe_schedule_cursor_sprite_animation_frame (MetaCursorRendererNative *native,
 }
 
 static void
-on_cursor_sprite_texture_changed (ClutterCursor      *cursor,
-                                  MetaCursorRenderer *cursor_renderer)
+on_cursor_image_changed (ClutterCursor      *cursor,
+                         MetaCursorRenderer *cursor_renderer)
 {
   MetaCursorRendererNative *native =
     META_CURSOR_RENDERER_NATIVE (cursor_renderer);
@@ -475,8 +475,8 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
       if (priv->current_cursor)
         {
           priv->texture_changed_handler_id =
-            g_signal_connect (cursor, "texture-changed",
-                              G_CALLBACK (on_cursor_sprite_texture_changed),
+            g_signal_connect (cursor, "image-changed",
+                              G_CALLBACK (on_cursor_image_changed),
                               cursor_renderer);
         }
     }

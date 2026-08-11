@@ -382,7 +382,7 @@ meta_cursor_xcursor_invalidate (ClutterCursor *cursor)
 
   cursor_xcursor->invalidated = TRUE;
   cursor_xcursor->texture_invalidated = TRUE;
-  clutter_cursor_emit_texture_changed (CLUTTER_CURSOR (cursor_xcursor));
+  clutter_cursor_emit_image_changed (CLUTTER_CURSOR (cursor_xcursor));
 }
 
 static void

@@ -155,7 +155,7 @@ meta_test_hotplug_multi_view_invalidation (void)
   MetaVirtualMonitor *virtual_monitor;
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   ClutterCursor *cursor;
-  gboolean texture_changed;
+  gboolean image_changed;
   gulong texture_changed_handler_id;
   g_autoptr (GError) error = NULL;
   GList *views;
@@ -185,20 +185,20 @@ meta_test_hotplug_multi_view_invalidation (void)
   cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
   g_assert_nonnull (cursor);
   texture_changed_handler_id =
-    g_signal_connect_swapped (cursor, "texture-changed",
-                              G_CALLBACK (set_true_cb), &texture_changed);
+    g_signal_connect_swapped (cursor, "image-changed",
+                              G_CALLBACK (set_true_cb), &image_changed);
 
   /* Trigger a cursor scale change, that causes invalidation on a non-first
    * KMS CRTC based cursor renderer view auxiliary object.
    */
-  texture_changed = FALSE;
+  image_changed = FALSE;
   meta_set_custom_monitor_config_full (backend, "kms-cursor-scale.xml",
                                        META_MONITORS_CONFIG_FLAG_NONE);
   meta_monitor_manager_reload (monitor_manager);
   views = meta_renderer_get_views (renderer);
   g_assert_true (META_IS_CRTC_KMS (meta_renderer_view_get_crtc (views->data)));
   g_assert_true (META_IS_CRTC_VIRTUAL (meta_renderer_view_get_crtc (views->next->data)));
-  g_assert_true (texture_changed);
+  g_assert_true (image_changed);
 
   g_signal_handler_disconnect (cursor, texture_changed_handler_id);
   g_clear_object (&virtual_monitor);

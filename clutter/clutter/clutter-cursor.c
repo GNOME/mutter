@@ -37,7 +37,7 @@ static GParamSpec *obj_props[N_PROPS] = { 0, };
 
 enum
 {
-  TEXTURE_CHANGED,
+  IMAGE_CHANGED,
   N_SIGNALS,
 };
 
@@ -347,8 +347,8 @@ clutter_cursor_class_init (ClutterCursorClass *klass)
 
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
-  signals[TEXTURE_CHANGED] =
-    g_signal_new ("texture-changed",
+  signals[IMAGE_CHANGED] =
+    g_signal_new ("image-changed",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
@@ -365,9 +365,9 @@ clutter_cursor_get_color_state (ClutterCursor *cursor)
 }
 
 void
-clutter_cursor_emit_texture_changed (ClutterCursor *cursor)
+clutter_cursor_emit_image_changed (ClutterCursor *cursor)
 {
-  g_signal_emit (cursor, signals[TEXTURE_CHANGED], 0);
+  g_signal_emit (cursor, signals[IMAGE_CHANGED], 0);
 }
 
 ClutterCursorType
