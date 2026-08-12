@@ -393,7 +393,7 @@ meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
 {
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  MetaPointerConstraintImpl *constraint_impl = NULL;
+  g_autoptr (MetaPointerConstraintImpl) constraint_impl = NULL;
   MtkRegion *region;
 
   if (constraint)
