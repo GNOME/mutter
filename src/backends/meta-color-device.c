@@ -750,7 +750,7 @@ update_color_state (MetaColorDevice *color_device)
   MetaDebugControl *debug_control = meta_context_get_debug_control (context);
   ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
   g_autoptr (ClutterColorState) color_state = NULL;
-  ClutterColorimetry colorimetry;
+  g_auto (ClutterColorimetry) colorimetry = { 0 };
   ClutterEOTF eotf;
   ClutterLuminance luminance;
   UpdateResult result = 0;
