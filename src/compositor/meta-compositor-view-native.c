@@ -162,6 +162,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
   MetaWaylandSurface *surface;
+  CoglOnscreen *onscreen;
 
   if (meta_get_debug_paint_flags () & META_DEBUG_PAINT_DISABLE_DIRECT_SCANOUT)
     return FALSE;
@@ -223,6 +224,15 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
     {
       meta_topic (META_DEBUG_RENDER,
                   "No direct scanout candidate: no onscreen framebuffer");
+      return FALSE;
+    }
+
+  onscreen = COGL_ONSCREEN (framebuffer);
+  if (!meta_onscreen_native_supports_direct_scanout (onscreen))
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: "
+                  "onscreen framebuffer doesn't support direct scanout");
       return FALSE;
     }
 
@@ -344,7 +354,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
     }
 
   *crtc_out = crtc;
-  *onscreen_out = COGL_ONSCREEN (framebuffer);
+  *onscreen_out = onscreen;
   *surface_out = surface;
 
   return TRUE;
