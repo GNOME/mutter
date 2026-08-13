@@ -1,0 +1,68 @@
+set_pref center-new-windows true
+
+remove_monitor default
+wait
+
+new_client w wayland
+create w/1 csd
+resize w/1 200 200
+show w/1 async
+wait_reconfigure w/1
+assert_stacking_showing
+
+add_monitor default 800 600
+# Need to wait for the move/resize idle callback from the monitors-changed
+# emission
+wait
+
+wait_reconfigure w/1
+assert_stacking_showing w/1
+assert_size w/1 200 200
+assert_position w/1 300 200
+
+destroy w/1
+wait
+
+remove_monitor default
+wait
+
+new_client x x11
+create x/1 csd
+resize x/1 200 200
+show x/1 async
+wait_reconfigure x/1
+# In X11 windows are mapped as showing
+assert_stacking_showing x/1
+
+add_monitor default 800 600
+# Need to wait for the move/resize idle callback from the monitors-changed
+# emission
+wait
+
+wait_reconfigure x/1
+assert_stacking_showing x/1
+assert_size x/1 200 200
+assert_position x/1 300 200
+
+destroy x/1
+wait
+
+create x/2
+resize x/2 200 200
+show x/2 async
+# In X11 windows are mapped as showing, and for SSD we explicitly wait until
+# focused to await the decoration to complete.
+wait_focused x/2
+assert_stacking_showing x/2
+
+add_monitor default 800 600
+# Need to wait for the move/resize idle callback from the monitors-changed
+# emission
+wait
+
+wait_reconfigure x/2
+assert_stacking_showing x/2
+assert_position x/2 300 200
+
+destroy x/2
+wait

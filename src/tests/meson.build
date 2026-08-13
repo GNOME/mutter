@@ -1410,6 +1410,7 @@ stacking_tests = [
   'move-maximized-to-monitor',
   'barrier-race',
   'unmaximize-headless',
+  'map-after-headless',
 ]
 
 foreach stacking_test: stacking_tests
