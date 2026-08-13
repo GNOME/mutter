@@ -131,7 +131,10 @@ struct _MetaOnscreenNative
 
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
 
-  ClutterFrame *presented_frame;
+  /* Keep the KMS framebuffer of the last presented buffer alive, to avoid
+   * drmModeRmFB implicitly disabling the KMS plane it's assigned to
+   */
+  MetaDrmBuffer *presented_buffer;
   ClutterFrame *posted_frame;
   ClutterFrame *next_frame;
   GSource *next_frame_ready_source;
@@ -375,13 +378,10 @@ meta_onscreen_native_frame_presented (ClutterFrame *frame)
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
+  MetaDrmBuffer *buffer = meta_frame_native_get_buffer (frame_native);
 
-  if (meta_frame_native_get_buffer (frame_native))
-    {
-      g_clear_pointer (&onscreen_native->presented_frame, clutter_frame_unref);
-      onscreen_native->presented_frame = clutter_frame_ref (frame);
-      clutter_frame_notify_presented (onscreen_native->presented_frame);
-    }
+  if (buffer)
+    g_set_object (&onscreen_native->presented_buffer, buffer);
 
   meta_onscreen_native_clear_posted_fb (onscreen);
 }
@@ -3320,7 +3320,7 @@ meta_onscreen_native_dispose (GObject *object)
 
   meta_onscreen_native_discard_pending_swaps (onscreen);
   g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
-  g_clear_pointer (&onscreen_native->presented_frame, clutter_frame_unref);
+  g_clear_object (&onscreen_native->presented_buffer);
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
