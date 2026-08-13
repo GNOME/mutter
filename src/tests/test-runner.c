@@ -2566,9 +2566,6 @@ test_case_do (TestCase    *test,
     }
   else if (strcmp (argv[0], "add_monitor") == 0)
     {
-      MetaBackend *backend = meta_context_get_backend (test->context);
-      MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
       MetaVirtualMonitor *monitor;
       int width, height;
 
@@ -2579,7 +2576,6 @@ test_case_do (TestCase    *test,
       height = atoi (argv[3]);
 
       monitor = meta_create_test_monitor (test->context, width, height, 60.0);
-      meta_monitor_manager_reload (monitor_manager);
 
       g_hash_table_insert (test->virtual_monitors, g_strdup (argv[1]), monitor);
     }
