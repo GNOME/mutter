@@ -108,12 +108,6 @@ clutter_frame_take_cogl_frame_info (ClutterFrame  *frame,
   frame->cogl_frame_info = frame_info;
 }
 
-void
-clutter_frame_notify_presented (ClutterFrame *frame)
-{
-  g_clear_object (&frame->cogl_frame_info);
-}
-
 ClutterFrameResult
 clutter_frame_get_result (ClutterFrame *frame)
 {

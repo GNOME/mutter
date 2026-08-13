@@ -63,9 +63,6 @@ void clutter_frame_take_cogl_frame_info (ClutterFrame  *frame,
                                          CoglFrameInfo *frame_info);
 
 CLUTTER_EXPORT
-void clutter_frame_notify_presented (ClutterFrame *frame);
-
-CLUTTER_EXPORT
 void clutter_frame_set_result (ClutterFrame       *frame,
                                ClutterFrameResult  result);
 
