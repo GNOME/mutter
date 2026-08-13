@@ -1558,7 +1558,8 @@ static void
 swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
                              gpointer               user_data)
 {
-  CoglFrameInfo *frame_info = user_data;
+  ClutterFrame *frame = user_data;
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   const GError *error = NULL;
 
@@ -1941,8 +1942,8 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   meta_kms_update_add_result_listener (kms_update,
                                        listener,
                                        NULL,
-                                       g_object_ref (frame_info),
-                                       g_object_unref);
+                                       clutter_frame_ref (frame),
+                                       (GDestroyNotify) clutter_frame_unref);
 
   ensure_crtc_modes (onscreen, kms_update);
   if (!meta_onscreen_native_flip_crtc (onscreen,
@@ -2082,7 +2083,8 @@ static void
 scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
                          gpointer               user_data)
 {
-  CoglFrameInfo *frame_info = user_data;
+  ClutterFrame *frame = user_data;
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   const GError *error = NULL;
@@ -2104,11 +2106,8 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
                         G_IO_ERROR_PERMISSION_DENIED))
     {
       ClutterStageView *view = CLUTTER_STAGE_VIEW (onscreen_native->view);
-      ClutterFrame *posted_frame = onscreen_native->posted_frame;
-      MetaFrameNative *posted_frame_native =
-        meta_frame_native_from_frame (posted_frame);
-      CoglScanout *scanout =
-        meta_frame_native_get_scanout (posted_frame_native);
+      MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
+      CoglScanout *scanout = meta_frame_native_get_scanout (frame_native);
 
       g_warning ("Direct scanout page flip failed: %s", error->message);
 
@@ -2309,7 +2308,8 @@ static void
 finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
                               gpointer               user_data)
 {
-  CoglFrameInfo *frame_info = user_data;
+  ClutterFrame *frame = user_data;
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   const GError *error = NULL;
 
@@ -2423,16 +2423,14 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
-  CoglFrameInfo *frame_info;
 
   add_cogl_frame_info (crtc, frame);
-  frame_info = clutter_frame_get_cogl_frame_info (frame);
 
   meta_kms_update_add_result_listener (kms_update,
                                        &finish_frame_result_listener_vtable,
                                        NULL,
-                                       g_object_ref (frame_info),
-                                       g_object_unref);
+                                       clutter_frame_ref (frame),
+                                       (GDestroyNotify) clutter_frame_unref);
 
   meta_kms_update_add_page_flip_listener (kms_update,
                                           kms_crtc,
