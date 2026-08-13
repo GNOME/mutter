@@ -441,11 +441,12 @@ notify_frame_info_complete (CoglFrameInfo *info)
 
 static void
 notify_crtc_presented (MetaKmsCrtc      *kms_crtc,
-                       CoglFrameInfo    *frame_info,
+                       ClutterFrame     *frame,
                        int64_t           time_us,
                        CoglFrameInfoFlag flags,
                        unsigned int      sequence)
 {
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaCrtc *crtc;
@@ -477,7 +478,6 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
                             gpointer      user_data)
 {
   ClutterFrame *frame = user_data;
-  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   struct timeval page_flip_time;
   MetaKmsDevice *kms_device;
   int64_t presentation_time_us;
@@ -504,7 +504,7 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
     }
 
   notify_crtc_presented (kms_crtc,
-                         frame_info,
+                         frame,
                          presentation_time_us,
                          flags,
                          sequence);
@@ -530,7 +530,6 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
   ClutterFrame *frame = user_data;
-  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   int64_t now_us;
 
   /*
@@ -541,7 +540,7 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
   now_us = g_get_monotonic_time ();
 
   notify_crtc_presented (kms_crtc,
-                         frame_info,
+                         frame,
                          now_us,
                          COGL_FRAME_INFO_FLAG_NONE,
                          0);
