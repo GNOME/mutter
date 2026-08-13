@@ -4788,15 +4788,15 @@ meta_window_idle_move_resize (MetaWindow *window)
   if (meta_monitor_manager_is_headless (monitor_manager))
     return;
 
-  if (!meta_window_is_showable (window))
-    return;
-
   if (priv->pending_config)
     {
       meta_window_process_config (window, priv->pending_config);
       g_clear_object (&priv->pending_config);
       return;
     }
+
+  if (!meta_window_is_showable (window))
+    return;
 
   if (priv->auto_maximize.is_queued)
     {
