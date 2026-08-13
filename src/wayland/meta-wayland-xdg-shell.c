@@ -991,7 +991,6 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
       meta_window_apply_config (window, window_config,
                                 META_WINDOW_APPLY_FLAG_ALWAYS_MOVE_RESIZE);
-      g_warn_if_fail (xdg_surface_priv->configure_sent);
     }
 }
 
