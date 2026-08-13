@@ -476,7 +476,8 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
                             unsigned int  tv_usec,
                             gpointer      user_data)
 {
-  CoglFrameInfo *frame_info = user_data;
+  ClutterFrame *frame = user_data;
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   struct timeval page_flip_time;
   MetaKmsDevice *kms_device;
   int64_t presentation_time_us;
@@ -513,7 +514,8 @@ static void
 page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
                           gpointer     user_data)
 {
-  CoglFrameInfo *frame_info = user_data;
+  ClutterFrame *frame = user_data;
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
@@ -527,7 +529,8 @@ static void
 page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
-  CoglFrameInfo *frame_info = user_data;
+  ClutterFrame *frame = user_data;
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   int64_t now_us;
 
   /*
@@ -549,7 +552,8 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
                               gpointer      user_data,
                               const GError *error)
 {
-  CoglFrameInfo *frame_info = user_data;
+  ClutterFrame *frame = user_data;
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   int64_t frame_counter;
@@ -720,7 +724,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaFrameNative *frame_native;
-  CoglFrameInfo *frame_info;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
@@ -791,13 +794,12 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
       break;
     }
 
-  frame_info = clutter_frame_get_cogl_frame_info (frame);
   meta_kms_update_add_page_flip_listener (kms_update,
                                           kms_crtc,
                                           &page_flip_listener_vtable,
                                           NULL,
-                                          g_object_ref (frame_info),
-                                          g_object_unref);
+                                          clutter_frame_ref (frame),
+                                          (GDestroyNotify) clutter_frame_unref);
   return TRUE;
 }
 
@@ -2436,8 +2438,8 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
                                           kms_crtc,
                                           &page_flip_listener_vtable,
                                           NULL,
-                                          g_object_ref (frame_info),
-                                          g_object_unref);
+                                          clutter_frame_ref (frame),
+                                          (GDestroyNotify) clutter_frame_unref);
 
   meta_topic (META_DEBUG_KMS,
               "Posting non-primary plane update for CRTC %u (%s)",
