@@ -165,6 +165,9 @@ static void
 maybe_post_next_frame (CoglOnscreen *onscreen);
 
 static void
+meta_onscreen_native_clear_posted_fb (CoglOnscreen *onscreen);
+
+static void
 post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
                               ClutterFrame       *frame,
                               MetaKmsUpdate      *kms_update);
@@ -366,28 +369,21 @@ maybe_init_render_source (MetaOnscreenNative *onscreen_native)
 }
 
 static void
-meta_onscreen_native_promote_posted_frame (CoglOnscreen *onscreen)
+meta_onscreen_native_frame_presented (ClutterFrame *frame)
 {
+  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  MetaFrameNative *frame_native;
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
 
-  if (!onscreen_native->posted_frame)
-    return;
-
-  frame_native = meta_frame_native_from_frame (onscreen_native->posted_frame);
-  if (!meta_frame_native_get_buffer (frame_native))
-    {
-      g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
-    }
-  else
+  if (meta_frame_native_get_buffer (frame_native))
     {
       g_clear_pointer (&onscreen_native->presented_frame, clutter_frame_unref);
-      onscreen_native->presented_frame =
-        g_steal_pointer (&onscreen_native->posted_frame);
+      onscreen_native->presented_frame = clutter_frame_ref (frame);
       clutter_frame_notify_presented (onscreen_native->presented_frame);
     }
 
-  maybe_post_next_frame_if_renderer_finished (onscreen);
+  meta_onscreen_native_clear_posted_fb (onscreen);
 }
 
 static void
@@ -467,7 +463,7 @@ notify_crtc_presented (MetaKmsCrtc      *kms_crtc,
 
   notify_frame_info_complete (frame_info);
 
-  meta_onscreen_native_promote_posted_frame (onscreen);
+  meta_onscreen_native_frame_presented (frame);
 }
 
 static void
@@ -516,13 +512,12 @@ page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
 {
   ClutterFrame *frame = user_data;
   CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
-  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   notify_frame_info_complete (frame_info);
 
-  meta_onscreen_native_promote_posted_frame (onscreen);
+  meta_onscreen_native_frame_presented (frame);
 }
 
 static void
