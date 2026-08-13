@@ -4783,6 +4783,8 @@ meta_window_idle_move_resize (MetaWindow *window)
     meta_backend_get_monitor_manager (backend);
   MetaMoveResizeFlags flags;
 
+  meta_window_unqueue (window, META_QUEUE_MOVE_RESIZE);
+
   if (meta_monitor_manager_is_headless (monitor_manager))
     return;
 
