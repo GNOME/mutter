@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-08-01 08:02+0000\n"
-"PO-Revision-Date: 2026-08-03 09:15+0800\n"
+"POT-Creation-Date: 2026-08-12 20:19+0000\n"
+"PO-Revision-Date: 2026-08-15 17:14+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -247,11 +247,11 @@ msgstr "如果窗口被其他窗口遮盖，则提升它，否则降低它"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
-msgstr "将窗口提升到其它窗口之上"
+msgstr "将窗口提升到其他窗口之上"
 
 #: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
-msgstr "将窗口降低到其它窗口之下"
+msgstr "将窗口降低到其他窗口之下"
 
 #: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
@@ -628,7 +628,7 @@ msgstr "类型"
 msgid "Add"
 msgstr "添加"
 
-#: mdk/mdk-launcher-entry.c:198
+#: mdk/mdk-launcher-entry.c:204
 msgid "Run"
 msgstr "运行"
 
@@ -747,11 +747,11 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "响铃事件"
 
-#: src/core/display.c:612
+#: src/core/display.c:603
 msgid "Privacy Screen Enabled"
 msgstr "隐私屏幕已启用"
 
-#: src/core/display.c:613
+#: src/core/display.c:604
 msgid "Privacy Screen Disabled"
 msgstr "隐私屏幕已禁用"
 
@@ -823,7 +823,7 @@ msgid "Show on-screen help"
 msgstr "显示在屏帮助"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:303
 msgid "Compositor"
 msgstr "合成器"
 
@@ -835,7 +835,7 @@ msgstr "打印版本"
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 插件"
 
-#: src/core/prefs.c:1865
+#: src/core/prefs.c:1866
 #, c-format
 msgid "Workspace %d"
 msgstr "工作区 %d"
