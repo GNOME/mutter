@@ -32,4 +32,6 @@ G_DECLARE_FINAL_TYPE (MetaBacklightSysfs,
 META_EXPORT_TEST
 MetaBacklightSysfs * meta_backlight_sysfs_new (MetaBackend           *backend,
                                                const MetaOutputInfo  *output_info,
+                                               int                    content_adaptive_min,
+                                               int                    content_adaptive_max,
                                                GError               **error);

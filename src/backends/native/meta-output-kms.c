@@ -394,6 +394,51 @@ meta_kms_connector_type_from_drm (uint32_t drm_connector_type)
   return (MetaConnectorType) drm_connector_type;
 }
 
+static int
+get_content_adaptive_max_from_connector (MetaKmsConnector *connector)
+{
+  const MetaKmsConnectorState *state =
+    meta_kms_connector_get_current_state (connector);
+  int max = 0;
+  int i;
+
+  if (!state)
+    return 0;
+
+  /* The "sysfs" value of the ABM property is not a level, it hands the
+   * property back to the driver's sysfs interface, so it is not part of the
+   * range.
+   */
+  for (i = META_KMS_CONNECTOR_ABM_OFF; i < META_KMS_CONNECTOR_ABM_N_PROPS; i++)
+    {
+      if (state->abm.supported & (1 << i))
+        max = i - META_KMS_CONNECTOR_ABM_OFF;
+    }
+
+  return max;
+}
+
+static void
+sync_content_adaptive_level_from_connector (MetaBacklight    *backlight,
+                                            MetaKmsConnector *connector)
+{
+  const MetaKmsConnectorState *state =
+    meta_kms_connector_get_current_state (connector);
+
+  /* Only adopt values that are levels on this panel; for anything else,
+   * including "sysfs", the backlight keeps its own level.
+   */
+  if (!state ||
+      state->abm.value < META_KMS_CONNECTOR_ABM_OFF ||
+      state->abm.value >= META_KMS_CONNECTOR_ABM_N_PROPS ||
+      !(state->abm.supported & (1 << state->abm.value)))
+    return;
+
+  meta_backlight_set_content_adaptive_level (backlight,
+                                             state->abm.value -
+                                             META_KMS_CONNECTOR_ABM_OFF);
+}
+
 static MetaBacklight *
 meta_output_kms_create_backlight (MetaOutput  *output,
                                   GError     **error)
@@ -405,10 +450,17 @@ meta_output_kms_create_backlight (MetaOutput  *output,
     meta_color_manager_get_color_device (color_manager, monitor);
   const MetaOutputInfo *output_info = meta_output_get_info (output);
   MetaColorMode color_mode = meta_output_get_color_mode (output);
+  MetaKmsConnector *kms_connector =
+    meta_output_kms_get_kms_connector (META_OUTPUT_KMS (output));
+  int content_adaptive_max;
   g_autoptr (MetaBacklightSysfs) backlight_sysfs = NULL;
+  g_autoptr (MetaBacklight) backlight = NULL;
   g_autoptr (GError) local_error = NULL;
 
   meta_color_device_set_reference_luminance_factor (color_device, 1.0);
+
+  content_adaptive_max =
+    get_content_adaptive_max_from_connector (kms_connector);
 
   /* Unfortunately we don't know if a sysfs backlight actually works in
    * HDR modes. Ideally a new KMS backlight API would allow us to get this
@@ -419,13 +471,16 @@ meta_output_kms_create_backlight (MetaOutput  *output,
     {
       g_autoptr (MetaBacklightRefWhite) backlight_ref_white = NULL;
 
-      backlight_ref_white = meta_backlight_ref_white_new (backend, monitor);
+      backlight_ref_white =
+        meta_backlight_ref_white_new (backend, monitor,
+                                      0, content_adaptive_max);
 
       /* Even more unfortunately, this also means we have to reset the sysfs
        * based backlight to 100% because in case it actually does work, we could
        * never reach 100% with the ref-white alone.
        */
-      backlight_sysfs = meta_backlight_sysfs_new (backend, output_info, NULL);
+      backlight_sysfs = meta_backlight_sysfs_new (backend, output_info,
+                                                  0, 0, NULL);
       if (backlight_sysfs)
         {
           MetaBacklight *bl = META_BACKLIGHT (backlight_sysfs);
@@ -441,20 +496,27 @@ meta_output_kms_create_backlight (MetaOutput  *output,
                                   g_object_unref);
         }
 
-      return META_BACKLIGHT (g_steal_pointer (&backlight_ref_white));
+      backlight = META_BACKLIGHT (g_steal_pointer (&backlight_ref_white));
     }
-
-  backlight_sysfs = meta_backlight_sysfs_new (backend,
-                                              output_info,
-                                              &local_error);
-
-  if (!backlight_sysfs)
+  else
     {
-      g_propagate_error (error, g_steal_pointer (&local_error));
-      return NULL;
+      backlight_sysfs = meta_backlight_sysfs_new (backend,
+                                                  output_info,
+                                                  0, content_adaptive_max,
+                                                  &local_error);
+
+      if (!backlight_sysfs)
+        {
+          g_propagate_error (error, g_steal_pointer (&local_error));
+          return NULL;
+        }
+
+      backlight = META_BACKLIGHT (g_steal_pointer (&backlight_sysfs));
     }
 
-  return META_BACKLIGHT (g_steal_pointer (&backlight_sysfs));
+  sync_content_adaptive_level_from_connector (backlight, kms_connector);
+
+  return g_steal_pointer (&backlight);
 }
 
 MetaOutputKms *

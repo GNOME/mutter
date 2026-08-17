@@ -167,7 +167,9 @@ meta_backlight_ref_white_init (MetaBacklightRefWhite *backlight)
 
 MetaBacklightRefWhite *
 meta_backlight_ref_white_new (MetaBackend *backend,
-                              MetaMonitor *monitor)
+                              MetaMonitor *monitor,
+                              int          content_adaptive_min,
+                              int          content_adaptive_max)
 {
   g_autoptr (MetaBacklightRefWhite) backlight = NULL;
 
@@ -176,6 +178,8 @@ meta_backlight_ref_white_new (MetaBackend *backend,
                             "name", meta_monitor_get_connector (monitor),
                             "brightness-min", 10,
                             "brightness-max", 210,
+                            "content-adaptive-min", content_adaptive_min,
+                            "content-adaptive-max", content_adaptive_max,
                             NULL);
   backlight->monitor = monitor;
 

@@ -300,6 +300,8 @@ get_session_proxy (MetaBackend *backend)
 MetaBacklightSysfs *
 meta_backlight_sysfs_new (MetaBackend           *backend,
                           const MetaOutputInfo  *output_info,
+                          int                    content_adaptive_min,
+                          int                    content_adaptive_max,
                           GError               **error)
 {
   static GOnce proxy_once = G_ONCE_INIT;
@@ -350,6 +352,8 @@ meta_backlight_sysfs_new (MetaBackend           *backend,
                             "name", output_info->name,
                             "brightness-min", min,
                             "brightness-max", max,
+                            "content-adaptive-min", content_adaptive_min,
+                            "content-adaptive-max", content_adaptive_max,
                             NULL);
   backlight->device = g_steal_pointer (&backlight_device);
   backlight->session_proxy = session_proxy;

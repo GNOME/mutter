@@ -32,4 +32,6 @@ G_DECLARE_FINAL_TYPE (MetaBacklightRefWhite,
 
 META_EXPORT_TEST
 MetaBacklightRefWhite * meta_backlight_ref_white_new (MetaBackend *backend,
-                                                      MetaMonitor *monitor);
+                                                      MetaMonitor *monitor,
+                                                      int          content_adaptive_min,
+                                                      int          content_adaptive_max);
