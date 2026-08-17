@@ -515,12 +515,13 @@ page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
 {
   ClutterFrame *frame = user_data;
   CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
+  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   notify_frame_info_complete (frame_info);
 
-  meta_onscreen_native_frame_presented (frame);
+  meta_onscreen_native_clear_posted_fb (onscreen);
 }
 
 static void
