@@ -171,9 +171,6 @@ static void
 maybe_post_next_frame (CoglOnscreen *onscreen);
 
 static void
-meta_onscreen_native_clear_posted_fb (CoglOnscreen *onscreen);
-
-static void
 post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
                               ClutterFrame       *frame,
                               MetaKmsUpdate      *kms_update);
@@ -375,21 +372,6 @@ maybe_init_render_source (MetaOnscreenNative *onscreen_native)
 }
 
 static void
-meta_onscreen_native_frame_presented (ClutterFrame *frame)
-{
-  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
-  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
-  MetaDrmBuffer *buffer = meta_frame_native_get_buffer (frame_native);
-
-  if (buffer)
-    g_set_object (&onscreen_native->presented_buffer, buffer);
-
-  meta_onscreen_native_clear_posted_fb (onscreen);
-}
-
-static void
 meta_onscreen_native_clear_posted_fb (CoglOnscreen *onscreen)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
@@ -448,6 +430,8 @@ notify_crtc_presented (MetaKmsCrtc      *kms_crtc,
   CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
+  MetaDrmBuffer *buffer = meta_frame_native_get_buffer (frame_native);
   MetaCrtc *crtc;
   int64_t frame_counter;
 
@@ -466,7 +450,10 @@ notify_crtc_presented (MetaKmsCrtc      *kms_crtc,
 
   notify_frame_info_complete (frame_info);
 
-  meta_onscreen_native_frame_presented (frame);
+  if (buffer)
+    g_set_object (&onscreen_native->presented_buffer, buffer);
+
+  meta_onscreen_native_clear_posted_fb (onscreen);
 }
 
 static void
