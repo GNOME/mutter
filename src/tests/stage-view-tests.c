@@ -1366,7 +1366,8 @@ meta_test_stage_views_fractional_position (void)
     .n_crtcs = 2
   };
   MetaMonitorTestSetup *test_setup;
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterContext *clutter_context = clutter_actor_get_context (stage);
+  ClutterBackend *clutter_backend = clutter_context_get_backend (clutter_context);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   GList *stage_views;

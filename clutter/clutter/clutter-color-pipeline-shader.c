@@ -114,10 +114,8 @@ build_snippet_cache_key (ClutterColorPipeline *color_pipeline)
 }
 
 static GHashTable *
-get_snippet_cache (void)
+get_snippet_cache (CoglContext *context)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
-  ClutterContext *context = backend->context;
   GHashTable *cache;
 
   cache = g_object_get_data (G_OBJECT (context),
@@ -387,7 +385,7 @@ update_3d_lut_state (ClutterColorOp *op,
 
   layer_id = op_id + PIPELINE_LAYER_OFFSET;
   clutter_color_op_3d_lut_get_data (op, &size, &data);
-  cogl_context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  cogl_context = cogl_pipeline_get_context (pipeline);
 
   n_pixels = (size_t) size * size * size;
   texture_data = g_new (float, n_pixels * 4);
@@ -528,7 +526,7 @@ update_curve_1d_state (ClutterColorOp *op,
 
   layer_id = op_id + PIPELINE_LAYER_OFFSET;
   clutter_color_op_curve_1d_get_data (op, &size, &r, &g, &b, &a);
-  context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  context = cogl_pipeline_get_context (pipeline);
 
   texture_data = g_malloc0 (size * 4 * sizeof (float));
   for (size_t i = 0; i < size; i++)
@@ -898,7 +896,7 @@ clutter_color_pipeline_shader_add_transform (ClutterColorPipeline *color_pipelin
   if (clutter_color_pipeline_is_empty (color_pipeline))
     return;
 
-  snippet_cache = get_snippet_cache ();
+  snippet_cache = get_snippet_cache (cogl_pipeline_get_context (cogl_pipeline));
   key = build_snippet_cache_key (color_pipeline);
   snippet = g_hash_table_lookup (snippet_cache, key);
 
