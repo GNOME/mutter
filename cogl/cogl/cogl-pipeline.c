@@ -2865,3 +2865,9 @@ cogl_pipeline_get_name (CoglPipeline *pipeline)
 {
   return pipeline->name;
 }
+
+CoglContext *
+cogl_pipeline_get_context (CoglPipeline *pipeline)
+{
+  return pipeline->context;
+}

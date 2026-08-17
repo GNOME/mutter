@@ -170,4 +170,13 @@ cogl_pipeline_set_static_name  (CoglPipeline *pipeline,
 COGL_EXPORT const char *
 cogl_pipeline_get_name (CoglPipeline *pipeline);
 
+/**
+ * cogl_pipeline_get_context:
+ * @pipeline: a #CoglPipeline
+ *
+ * Returns: (transfer none): the Cogl context
+ */
+COGL_EXPORT CoglContext *
+cogl_pipeline_get_context (CoglPipeline *pipeline);
+
 G_END_DECLS
