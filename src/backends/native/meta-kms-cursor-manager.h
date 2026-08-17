@@ -56,6 +56,8 @@ void meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manag
                                             MetaKmsCrtc            *crtc,
                                             MetaDrmBuffer          *buffer,
                                             MtkMonitorTransform     transform,
+                                            unsigned int            sprite_width,
+                                            unsigned int            sprite_height,
                                             const graphene_point_t *hotspot);
 
 META_EXPORT_TEST

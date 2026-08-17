@@ -455,6 +455,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
                                                      kms_crtc,
                                                      NULL,
                                                      MTK_MONITOR_TRANSFORM_NORMAL,
+                                                     0, 0,
                                                      NULL);
             }
         }
@@ -809,6 +810,8 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
                                          kms_crtc,
                                          buffer,
                                          transform,
+                                         width,
+                                         height,
                                          hotspot);
   return TRUE;
 }
@@ -1226,6 +1229,7 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
                                              kms_crtc,
                                              META_DRM_BUFFER (buffer_gbm),
                                              MTK_MONITOR_TRANSFORM_NORMAL,
+                                             width, height,
                                              &GRAPHENE_POINT_INIT (hot_x, hot_y));
 
       return TRUE;

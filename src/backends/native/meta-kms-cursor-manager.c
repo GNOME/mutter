@@ -49,6 +49,7 @@ typedef struct _CrtcStateImpl
   float scale;
   MtkMonitorTransform transform;
   MetaDrmBuffer *buffer;
+  unsigned int sprite_width, sprite_height;
   graphene_point_t hotspot;
 
   gboolean cursor_invalidated;
@@ -253,16 +254,18 @@ get_current_cursor_position (MetaKmsCursorManagerImpl *cursor_manager_impl,
 }
 
 static gboolean
-calculate_cursor_rect (CrtcStateImpl          *crtc_state_impl,
-                       MetaDrmBuffer          *buffer,
-                       const graphene_point_t *hotspot,
-                       float                   x,
-                       float                   y,
-                       graphene_rect_t        *out_cursor_rect)
+calculate_cursor_buffer_rect (CrtcStateImpl          *crtc_state_impl,
+                              MetaDrmBuffer          *buffer,
+                              const graphene_point_t *hotspot,
+                              float                   x,
+                              float                   y,
+                              unsigned int            sprite_width,
+                              unsigned int            sprite_height,
+                              graphene_rect_t        *out_cursor_buffer_rect)
 {
   int crtc_x, crtc_y, crtc_width, crtc_height;
   int buffer_width, buffer_height;
-  graphene_rect_t cursor_rect;
+  graphene_rect_t sprite_rect;
 
   crtc_x = (int) ((x - crtc_state_impl->layout.origin.x) * crtc_state_impl->scale);
   crtc_y = (int) ((y - crtc_state_impl->layout.origin.y) * crtc_state_impl->scale);
@@ -278,23 +281,39 @@ calculate_cursor_rect (CrtcStateImpl          *crtc_state_impl,
   buffer_width = meta_drm_buffer_get_width (buffer);
   buffer_height = meta_drm_buffer_get_height (buffer);
 
-  cursor_rect = (graphene_rect_t) {
+  sprite_rect = (graphene_rect_t) {
     .origin = {
       .x = crtc_x - hotspot->x,
       .y = crtc_y - hotspot->y,
     },
     .size = {
-      .width = buffer_width,
-      .height = buffer_height,
+      .width = sprite_width,
+      .height = sprite_height,
     },
   };
-  if (cursor_rect.origin.x + cursor_rect.size.width > 0.0 &&
-      cursor_rect.origin.y + cursor_rect.size.height > 0.0 &&
-      cursor_rect.origin.x < crtc_width &&
-      cursor_rect.origin.y < crtc_height)
+
+  /* Visibility is calculated based on the sprite size, the out rectangle needs
+   * to be based on the buffer size though
+   */
+  if (sprite_rect.origin.x + sprite_rect.size.width > 0.0 &&
+      sprite_rect.origin.y + sprite_rect.size.height > 0.0 &&
+      sprite_rect.origin.x < crtc_width &&
+      sprite_rect.origin.y < crtc_height)
     {
-      if (out_cursor_rect)
-        *out_cursor_rect = cursor_rect;
+      if (out_cursor_buffer_rect)
+        {
+          *out_cursor_buffer_rect = (graphene_rect_t) {
+            .origin = {
+              .x = crtc_x - hotspot->x,
+              .y = crtc_y - hotspot->y,
+            },
+            .size = {
+              .width = buffer_width,
+              .height = buffer_height,
+            },
+          };
+        }
+
       return TRUE;
     }
   else
@@ -314,11 +333,12 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
   MetaKmsDevice *device;
   CrtcStateImpl *crtc_state_impl;
   float x, y;
+  unsigned int sprite_width, sprite_height;
   MetaDrmBuffer *buffer;
   const graphene_point_t *hotspot;
   gboolean should_have_cursor;
   gboolean did_have_cursor;
-  graphene_rect_t cursor_rect;
+  graphene_rect_t cursor_buffer_rect;
   MetaKmsPlane *cursor_plane;
 
   g_assert (old_buffer && !*old_buffer);
@@ -338,15 +358,19 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
 
   device = meta_kms_crtc_get_device (crtc_state_impl->crtc);
   buffer = crtc_state_impl->buffer;
+  sprite_width = crtc_state_impl->sprite_width;
+  sprite_height = crtc_state_impl->sprite_height;
   hotspot = &crtc_state_impl->hotspot;
 
   if (buffer)
     {
-      should_have_cursor = calculate_cursor_rect (crtc_state_impl,
-                                                  buffer,
-                                                  hotspot,
-                                                  x, y,
-                                                  &cursor_rect);
+      should_have_cursor = calculate_cursor_buffer_rect (crtc_state_impl,
+                                                         buffer,
+                                                         hotspot,
+                                                         x, y,
+                                                         sprite_width,
+                                                         sprite_height,
+                                                         &cursor_buffer_rect);
     }
   else
     {
@@ -397,10 +421,10 @@ maybe_update_cursor_plane (MetaKmsCursorManagerImpl  *cursor_manager_impl,
         .height = meta_fixed_16_from_int (height),
       };
       dst_rect = (MtkRectangle) {
-        .x = (int) round (cursor_rect.origin.x),
-        .y = (int) round (cursor_rect.origin.y),
-        .width = (int) round (cursor_rect.size.width),
-        .height = (int) round (cursor_rect.size.height),
+        .x = (int) round (cursor_buffer_rect.origin.x),
+        .y = (int) round (cursor_buffer_rect.origin.y),
+        .width = (int) round (cursor_buffer_rect.size.width),
+        .height = (int) round (cursor_buffer_rect.size.height),
       };
 
       plane_assignment = meta_kms_update_assign_plane (update,
@@ -686,21 +710,26 @@ position_changed_in_impl (MetaThreadImpl  *thread_impl,
     {
       CrtcStateImpl *crtc_state_impl = g_ptr_array_index (crtc_states, i);
       MetaDrmBuffer *buffer;
+      unsigned int sprite_width, sprite_height;
       const graphene_point_t *hotspot;
       gboolean did_have_cursor;
       gboolean should_have_cursor;
 
       buffer = crtc_state_impl->buffer;
+      sprite_width = crtc_state_impl->sprite_width;
+      sprite_height = crtc_state_impl->sprite_height;
       hotspot = &crtc_state_impl->hotspot;
 
       if (buffer)
         {
-          should_have_cursor = calculate_cursor_rect (crtc_state_impl,
-                                                      buffer,
-                                                      hotspot,
-                                                      position->x,
-                                                      position->y,
-                                                      NULL);
+          should_have_cursor = calculate_cursor_buffer_rect (crtc_state_impl,
+                                                             buffer,
+                                                             hotspot,
+                                                             position->x,
+                                                             position->y,
+                                                             sprite_width,
+                                                             sprite_height,
+                                                             NULL);
         }
       else
         {
@@ -749,6 +778,7 @@ typedef struct
   MetaKmsCrtc *crtc;
   MetaDrmBuffer *buffer;
   MtkMonitorTransform transform;
+  unsigned int sprite_width, sprite_height;
   graphene_point_t hotspot;
 } UpdateSpriteData;
 
@@ -773,6 +803,8 @@ update_sprite_in_impl (MetaThreadImpl  *thread_impl,
   old_buffer = g_steal_pointer (&crtc_state_impl->buffer);
   crtc_state_impl->buffer = g_steal_pointer (&data->buffer);
   crtc_state_impl->transform = data->transform;
+  crtc_state_impl->sprite_width = data->sprite_width;
+  crtc_state_impl->sprite_height = data->sprite_height;
   crtc_state_impl->hotspot = data->hotspot;
   crtc_state_impl->cursor_invalidated = TRUE;
 
@@ -796,6 +828,8 @@ meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manager,
                                        MetaKmsCrtc            *crtc,
                                        MetaDrmBuffer          *buffer,
                                        MtkMonitorTransform     transform,
+                                       unsigned int            sprite_width,
+                                       unsigned int            sprite_height,
                                        const graphene_point_t *hotspot)
 {
   UpdateSpriteData *data;
@@ -804,6 +838,8 @@ meta_kms_cursor_manager_update_sprite (MetaKmsCursorManager   *cursor_manager,
   data->crtc = crtc;
   data->buffer = buffer ? g_object_ref (buffer) : NULL;
   data->transform = transform;
+  data->sprite_width = sprite_width;
+  data->sprite_height = sprite_height;
   if (hotspot)
     data->hotspot = *hotspot;
 
