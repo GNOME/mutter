@@ -875,8 +875,8 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer     *buffer,
 }
 
 static void
-scanout_destroyed (gpointer  data,
-                   GObject  *where_the_object_was)
+scanout_buffer_disposed (gpointer  data,
+                         GObject  *where_the_object_was)
 {
   MetaWaylandBuffer *buffer = data;
 
@@ -892,6 +892,7 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
                                          const MtkRectangle    *dst_rect)
 {
   CoglScanout *scanout = NULL;
+  CoglScanoutBuffer *scanout_buffer;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandBufferTryScanout,
                            "Meta::WaylandBuffer::try_acquire_scanout()");
@@ -944,7 +945,11 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
 
   g_object_ref (buffer);
   meta_wayland_buffer_inc_use_count (buffer);
-  g_object_weak_ref (G_OBJECT (scanout), scanout_destroyed, buffer);
+
+  scanout_buffer = cogl_scanout_get_buffer (scanout);
+  g_object_weak_ref (G_OBJECT (scanout_buffer),
+                     scanout_buffer_disposed,
+                     buffer);
 
   return scanout;
 }
