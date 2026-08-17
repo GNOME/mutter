@@ -33,6 +33,9 @@ enum
   PROP_BRIGHTNESS_MIN,
   PROP_BRIGHTNESS_MAX,
   PROP_BRIGHTNESS,
+  PROP_CONTENT_ADAPTIVE_MIN,
+  PROP_CONTENT_ADAPTIVE_MAX,
+  PROP_CONTENT_ADAPTIVE_LEVEL,
 
   PROP_LAST,
 };
@@ -52,6 +55,10 @@ typedef struct _MetaBacklightPrivate
   gboolean pending;
 
   GQueue pending_values;
+
+  int content_adaptive_min;
+  int content_adaptive_max;
+  int content_adaptive_level;
 } MetaBacklightPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaBacklight,
@@ -266,6 +273,84 @@ meta_backlight_get_brightness_info (MetaBacklight *backlight,
     *brightness_max_out = priv->brightness_max;
 }
 
+/**
+ * meta_backlight_get_content_adaptive_info:
+ * @backlight: A #MetaBacklight object
+ * @content_adaptive_min_out: (out caller-allocates): minimum level
+ * @content_adaptive_max_out: (out caller-allocates): maximum level
+ *
+ * Returns the range of content-adaptive levels the panel supports, where the
+ * minimum is always "feature off". A panel that cannot do this, or that only
+ * supports turning the feature off, reports a range of zero to zero.
+ * Levels in between are assumed to be contiguous.
+ */
+void
+meta_backlight_get_content_adaptive_info (MetaBacklight *backlight,
+                                          int           *content_adaptive_min_out,
+                                          int           *content_adaptive_max_out)
+{
+  MetaBacklightPrivate *priv;
+
+  g_return_if_fail (META_IS_BACKLIGHT (backlight));
+
+  priv = meta_backlight_get_instance_private (backlight);
+
+  if (content_adaptive_min_out)
+    *content_adaptive_min_out = priv->content_adaptive_min;
+  if (content_adaptive_max_out)
+    *content_adaptive_max_out = priv->content_adaptive_max;
+}
+
+/**
+ * meta_backlight_set_content_adaptive_level:
+ * @backlight: A #MetaBacklight object
+ * @content_adaptive_level: The requested level
+ *
+ * Requests a content-adaptive level from the panel, where higher levels trade
+ * more color accuracy for battery life. This is a hint: it is recorded even
+ * when the panel cannot honor it, and it may take effect only on the next
+ * frame.
+ */
+void
+meta_backlight_set_content_adaptive_level (MetaBacklight *backlight,
+                                           int            content_adaptive_level)
+{
+  MetaBacklightPrivate *priv;
+
+  g_return_if_fail (META_IS_BACKLIGHT (backlight));
+  g_return_if_fail (content_adaptive_level >= 0);
+
+  priv = meta_backlight_get_instance_private (backlight);
+
+  if (priv->content_adaptive_level == content_adaptive_level)
+    return;
+
+  priv->content_adaptive_level = content_adaptive_level;
+  g_object_notify_by_pspec (G_OBJECT (backlight),
+                            obj_props[PROP_CONTENT_ADAPTIVE_LEVEL]);
+}
+
+/**
+ * meta_backlight_get_content_adaptive_level:
+ * @backlight: A #MetaBacklight object
+ *
+ * Returns the requested level, which is not necessarily what the panel is
+ * doing.
+ *
+ * Returns: The requested level.
+ */
+int
+meta_backlight_get_content_adaptive_level (MetaBacklight *backlight)
+{
+  MetaBacklightPrivate *priv;
+
+  g_return_val_if_fail (META_IS_BACKLIGHT (backlight), 0);
+
+  priv = meta_backlight_get_instance_private (backlight);
+
+  return priv->content_adaptive_level;
+}
+
 static void
 meta_backlight_set_property (GObject      *object,
                              guint         prop_id,
@@ -291,6 +376,15 @@ meta_backlight_set_property (GObject      *object,
       break;
     case PROP_BRIGHTNESS:
       meta_backlight_set_brightness (backlight, g_value_get_int (value));
+      break;
+    case PROP_CONTENT_ADAPTIVE_MIN:
+      priv->content_adaptive_min = g_value_get_int (value);
+      break;
+    case PROP_CONTENT_ADAPTIVE_MAX:
+      priv->content_adaptive_max = g_value_get_int (value);
+      break;
+    case PROP_CONTENT_ADAPTIVE_LEVEL:
+      meta_backlight_set_content_adaptive_level (backlight, g_value_get_int (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -322,6 +416,15 @@ meta_backlight_get_property (GObject    *object,
       break;
     case PROP_BRIGHTNESS:
       g_value_set_int (value, priv->brightness_target);
+      break;
+    case PROP_CONTENT_ADAPTIVE_MIN:
+      g_value_set_int (value, priv->content_adaptive_min);
+      break;
+    case PROP_CONTENT_ADAPTIVE_MAX:
+      g_value_set_int (value, priv->content_adaptive_max);
+      break;
+    case PROP_CONTENT_ADAPTIVE_LEVEL:
+      g_value_set_int (value, priv->content_adaptive_level);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -408,6 +511,24 @@ meta_backlight_class_init (MetaBacklightClass *klass)
                       G_PARAM_STATIC_STRINGS);
   obj_props[PROP_BRIGHTNESS] =
     g_param_spec_int ("brightness", NULL, NULL,
+                      0, G_MAXINT, 0,
+                      G_PARAM_READWRITE |
+                      G_PARAM_EXPLICIT_NOTIFY |
+                      G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_CONTENT_ADAPTIVE_MIN] =
+    g_param_spec_int ("content-adaptive-min", NULL, NULL,
+                      0, G_MAXINT, 0,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_CONTENT_ADAPTIVE_MAX] =
+    g_param_spec_int ("content-adaptive-max", NULL, NULL,
+                      0, G_MAXINT, 0,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_CONTENT_ADAPTIVE_LEVEL] =
+    g_param_spec_int ("content-adaptive-level", NULL, NULL,
                       0, G_MAXINT, 0,
                       G_PARAM_READWRITE |
                       G_PARAM_EXPLICIT_NOTIFY |

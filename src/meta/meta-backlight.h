@@ -40,3 +40,15 @@ int meta_backlight_get_brightness (MetaBacklight *backlight);
 META_EXPORT
 void meta_backlight_set_brightness (MetaBacklight *backlight,
                                     int            brightness);
+
+META_EXPORT
+void meta_backlight_get_content_adaptive_info (MetaBacklight *backlight,
+                                               int           *content_adaptive_min_out,
+                                               int           *content_adaptive_max_out);
+
+META_EXPORT
+int meta_backlight_get_content_adaptive_level (MetaBacklight *backlight);
+
+META_EXPORT
+void meta_backlight_set_content_adaptive_level (MetaBacklight *backlight,
+                                                int            content_adaptive_level);

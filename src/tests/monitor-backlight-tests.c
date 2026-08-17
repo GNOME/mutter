@@ -185,6 +185,91 @@ meta_test_backlight_sanity (void)
 }
 
 static void
+on_content_adaptive_level_notified (GObject    *object,
+                                    GParamSpec *pspec,
+                                    gpointer    user_data)
+{
+  int *n_notifications = user_data;
+
+  (*n_notifications)++;
+}
+
+static void
+meta_test_backlight_content_adaptive (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  GList *monitors;
+  MetaMonitor *first_monitor;
+  MetaBacklight *backlight;
+  int n_notifications = 0;
+  int min, max;
+
+  emulate_hotplug (&initial_test_case_setup);
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  first_monitor = g_list_nth_data (monitors, 0);
+  backlight = meta_monitor_get_backlight (first_monitor);
+  g_assert_nonnull (backlight);
+
+  /* Nothing is driving a panel behind this backlight, so it advertises a
+   * range of zero to zero and defaults to the feature being off.
+   */
+  meta_backlight_get_content_adaptive_info (backlight, &min, &max);
+  g_assert_cmpint (min, ==, 0);
+  g_assert_cmpint (max, ==, 0);
+  g_assert_cmpint (meta_backlight_get_content_adaptive_level (backlight), ==, 0);
+
+  g_signal_connect (backlight, "notify::content-adaptive-level",
+                    G_CALLBACK (on_content_adaptive_level_notified),
+                    &n_notifications);
+
+  meta_backlight_set_content_adaptive_level (backlight, 0);
+  g_assert_cmpint (meta_backlight_get_content_adaptive_level (backlight), ==, 0);
+  g_assert_cmpint (n_notifications, ==, 0);
+
+  /* The hint is never rejected, not even a level outside the advertised
+   * range: what the panel does with it is decided elsewhere.
+   */
+  meta_backlight_set_content_adaptive_level (backlight, 4);
+  g_assert_cmpint (meta_backlight_get_content_adaptive_level (backlight), ==, 4);
+  g_assert_cmpint (n_notifications, ==, 1);
+
+  meta_backlight_set_content_adaptive_level (backlight, 4);
+  g_assert_cmpint (n_notifications, ==, 1);
+
+  meta_backlight_set_content_adaptive_level (backlight, 2);
+  g_assert_cmpint (meta_backlight_get_content_adaptive_level (backlight), ==, 2);
+  g_assert_cmpint (n_notifications, ==, 2);
+
+  meta_backlight_set_content_adaptive_level (backlight, 0);
+  g_assert_cmpint (meta_backlight_get_content_adaptive_level (backlight), ==, 0);
+  g_assert_cmpint (n_notifications, ==, 3);
+}
+
+static void
+meta_test_backlight_content_adaptive_range (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  g_autoptr (MetaBacklight) backlight = NULL;
+  int min, max;
+
+  backlight = g_object_new (META_TYPE_BACKLIGHT_TEST,
+                            "backend", backend,
+                            "name", "content-adaptive-range",
+                            "brightness-min", 10,
+                            "brightness-max", 150,
+                            "content-adaptive-min", 0,
+                            "content-adaptive-max", 4,
+                            NULL);
+
+  meta_backlight_get_content_adaptive_info (backlight, &min, &max);
+  g_assert_cmpint (min, ==, 0);
+  g_assert_cmpint (max, ==, 4);
+}
+
+static void
 meta_test_backlight_sysfs_sanity (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -515,6 +600,10 @@ main (int   argc,
   meta_init_monitor_test_setup (create_test_setup);
   g_test_add_func ("/backends/backlight/sanity",
                    meta_test_backlight_sanity);
+  g_test_add_func ("/backends/backlight/content-adaptive",
+                   meta_test_backlight_content_adaptive);
+  g_test_add_func ("/backends/backlight/content-adaptive-range",
+                   meta_test_backlight_content_adaptive_range);
   g_test_add_func ("/backends/backlight/ref-white/sanity",
                    meta_test_backlight_ref_white_sanity);
   g_test_add_func ("/backends/backlight/ref-white/set",
