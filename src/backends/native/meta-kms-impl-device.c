@@ -1864,6 +1864,10 @@ is_using_deadline_timer (MetaKmsImplDevice *impl_device)
     {
       MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
       MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
+      MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
+
+      if (meta_thread_get_thread_type (thread) != META_THREAD_TYPE_KERNEL)
+        return FALSE;
 
       switch (meta_thread_impl_get_scheduling_priority (thread_impl))
         {
