@@ -32,6 +32,7 @@
 #include <glib/gstdio.h>
 #include <drm_fourcc.h>
 
+#include "backends/meta-backlight-private.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
@@ -58,6 +59,7 @@
 #include "cogl/cogl-frame-info-private.h"
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
+#include "meta/meta-monitor.h"
 #include "mtk/mtk.h"
 
 /*
@@ -116,6 +118,7 @@ struct _MetaOnscreenNative
   MetaGpuKms *render_gpu;
   MetaOutput *output;
   MetaCrtc *crtc;
+  MetaBacklight *backlight;
 
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
 
@@ -156,8 +159,9 @@ struct _MetaOnscreenNative
       KmsProperty ctm;
       KmsProperty privacy_screen;
       KmsProperty vrr;
+      KmsProperty content_adaptive_level;
     } property;
-    KmsProperty properties[4];
+    KmsProperty properties[5];
   };
 };
 
@@ -2228,6 +2232,17 @@ meta_onscreen_native_before_redraw (CoglOnscreen *onscreen,
     }
 }
 
+static MetaKmsConnectorAbm
+content_adaptive_level_to_kms_abm (int content_adaptive_level)
+{
+  int abm = content_adaptive_level + META_KMS_CONNECTOR_ABM_OFF;
+
+  if (abm < META_KMS_CONNECTOR_ABM_OFF || abm >= META_KMS_CONNECTOR_ABM_N_PROPS)
+    return META_KMS_CONNECTOR_ABM_UNKNOWN;
+
+  return (MetaKmsConnectorAbm) abm;
+}
+
 void
 meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
                                     ClutterFrame *frame)
@@ -2299,6 +2314,42 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
       onscreen_native->property.vrr.invalidated = FALSE;
       onscreen_native->property.vrr.target_frame_counter =
         target_frame_counter;
+    }
+
+  if (onscreen_native->property.content_adaptive_level.invalidated &&
+      onscreen_native->backlight)
+    {
+      MetaKmsConnector *kms_connector =
+        meta_output_kms_get_kms_connector (output_kms);
+      const MetaKmsConnectorState *connector_state =
+        meta_kms_connector_get_current_state (kms_connector);
+      int content_adaptive_level;
+      MetaKmsConnectorAbm abm;
+
+      onscreen_native->property.content_adaptive_level.invalidated = FALSE;
+
+      content_adaptive_level =
+        meta_backlight_get_content_adaptive_level (onscreen_native->backlight);
+      abm = content_adaptive_level_to_kms_abm (content_adaptive_level);
+
+      if (abm == META_KMS_CONNECTOR_ABM_UNKNOWN ||
+          !(connector_state->abm.supported & (1 << abm)))
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "Dropping unsupported content-adaptive level %d on %s",
+                      content_adaptive_level,
+                      meta_output_get_name (onscreen_native->output));
+        }
+      else
+        {
+          MetaKmsUpdate *kms_update;
+
+          kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                            kms_device);
+          meta_kms_update_set_abm (kms_update, kms_connector, abm);
+          onscreen_native->property.content_adaptive_level.target_frame_counter =
+            target_frame_counter;
+        }
     }
 }
 
@@ -3571,6 +3622,8 @@ meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native)
     onscreen_native->property.privacy_screen.invalidated = TRUE;
   if (output_info->supports_vrr)
     onscreen_native->property.vrr.invalidated = TRUE;
+  if (onscreen_native->backlight)
+    onscreen_native->property.content_adaptive_level.invalidated = TRUE;
 }
 
 static void
@@ -3605,6 +3658,17 @@ on_privacy_screen_enabled_changed (MetaOutput         *output,
 }
 
 static void
+on_content_adaptive_level_changed (MetaBacklight      *backlight,
+                                   GParamSpec         *pspec,
+                                   MetaOnscreenNative *onscreen_native)
+{
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+
+  onscreen_native->property.content_adaptive_level.invalidated = TRUE;
+  clutter_stage_view_schedule_update (stage_view);
+}
+
+static void
 clear_invalidation_handlers (MetaOnscreenNative *onscreen_native)
 {
   g_clear_signal_handler (&onscreen_native->property.gamma_lut.signal_handler_id,
@@ -3615,6 +3679,14 @@ clear_invalidation_handlers (MetaOnscreenNative *onscreen_native)
                           onscreen_native->output);
   g_clear_signal_handler (&onscreen_native->property.vrr.signal_handler_id,
                           onscreen_native->view);
+
+  /* Monitors dispose their backlight when replacing or dropping it, which
+   * may already have destroyed this handler, so a stored id could be stale.
+   */
+  if (onscreen_native->backlight)
+    g_signal_handlers_disconnect_by_func (onscreen_native->backlight,
+                                          on_content_adaptive_level_changed,
+                                          onscreen_native);
 }
 
 void
@@ -3624,6 +3696,11 @@ meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   const MetaOutputInfo *output_info =
     meta_output_get_info (onscreen_native->output);
+  MetaOutputKms *output_kms = META_OUTPUT_KMS (onscreen_native->output);
+  MetaKmsConnector *kms_connector =
+    meta_output_kms_get_kms_connector (output_kms);
+  const MetaKmsConnectorState *connector_state =
+    meta_kms_connector_get_current_state (kms_connector);
 
   meta_onscreen_native_detach (onscreen_native);
 
@@ -3664,6 +3741,21 @@ meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
         g_signal_connect (view, "notify::is-vrr-allowed",
                           G_CALLBACK (on_vrr_allowed_changed),
                           onscreen_native);
+    }
+
+  if (connector_state && connector_state->abm.supported)
+    {
+      MetaMonitor *monitor = meta_output_get_monitor (onscreen_native->output);
+      MetaBacklight *backlight = meta_monitor_get_backlight (monitor);
+
+      if (backlight)
+        {
+          g_set_object (&onscreen_native->backlight, backlight);
+          onscreen_native->property.content_adaptive_level.invalidated = TRUE;
+          g_signal_connect (backlight, "notify::content-adaptive-level",
+                            G_CALLBACK (on_content_adaptive_level_changed),
+                            onscreen_native);
+        }
     }
 }
 
@@ -3735,6 +3827,7 @@ meta_onscreen_native_dispose (GObject *object)
 
   g_clear_object (&onscreen_native->output);
   g_clear_object (&onscreen_native->crtc);
+  g_clear_object (&onscreen_native->backlight);
 }
 
 static void
