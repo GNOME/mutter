@@ -474,6 +474,20 @@ meta_kms_update_set_broadcast_rgb (MetaKmsUpdate      *update,
   connector_update->broadcast_rgb.value = rgb_range;
 }
 
+void
+meta_kms_update_set_abm (MetaKmsUpdate       *update,
+                         MetaKmsConnector    *connector,
+                         MetaKmsConnectorAbm  abm)
+{
+  MetaKmsConnectorUpdate *connector_update;
+
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
+
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->abm.has_update = TRUE;
+  connector_update->abm.value = abm;
+}
+
 static MetaKmsCrtcUpdate *
 ensure_crtc_update (MetaKmsUpdate *update,
                     MetaKmsCrtc   *crtc)

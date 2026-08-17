@@ -136,6 +136,11 @@ typedef struct _MetaKmsConnectorUpdate
     gboolean has_update;
     MetaOutputRGBRange value;
   } broadcast_rgb;
+
+  struct {
+    gboolean has_update;
+    MetaKmsConnectorAbm value;
+  } abm;
 } MetaKmsConnectorUpdate;
 
 typedef struct _MetaKmsCrtcUpdate

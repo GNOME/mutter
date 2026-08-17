@@ -311,6 +311,24 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
         return FALSE;
     }
 
+  if (connector_update->abm.has_update)
+    {
+      MetaKmsConnectorAbm abm = connector_update->abm.value;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting ABM to %u on connector %u (%s)",
+                  abm,
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device));
+
+      if (!add_connector_property (impl_device,
+                                   connector, req,
+                                   META_KMS_CONNECTOR_PROP_ABM,
+                                   abm,
+                                   error))
+        return FALSE;
+    }
+
   return TRUE;
 }
 

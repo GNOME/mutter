@@ -1206,6 +1206,24 @@ meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
   return changes;
 }
 
+static MetaKmsResourceChanges
+meta_kms_impl_device_run_probes (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
+  GList *l;
+
+  for (l = priv->connectors; l; l = l->next)
+    {
+      MetaKmsConnector *connector = l->data;
+
+      changes |= meta_kms_connector_run_probes_in_impl (connector);
+    }
+
+  return changes;
+}
+
 void
 meta_kms_impl_device_notify_modes_set (MetaKmsImplDevice *impl_device)
 {
@@ -1656,7 +1674,13 @@ do_process (MetaKmsImplDevice *impl_device,
     }
 
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
-    changes = meta_kms_impl_device_predict_states (impl_device, update);
+    {
+      changes = meta_kms_impl_device_predict_states (impl_device, update);
+
+      if (meta_kms_feedback_did_pass (feedback) &&
+          meta_kms_update_get_mode_sets (update))
+        changes |= meta_kms_impl_device_run_probes (impl_device);
+    }
 
   queue_result_feedback (impl_device, update, feedback);
 

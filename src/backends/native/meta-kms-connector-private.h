@@ -144,6 +144,8 @@ void meta_kms_connector_disable_in_impl (MetaKmsConnector *connector);
 MetaKmsResourceChanges meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
                                                                MetaKmsUpdate    *update);
 
+MetaKmsResourceChanges meta_kms_connector_run_probes_in_impl (MetaKmsConnector *connector);
+
 MetaKmsConnector * meta_kms_connector_new (MetaKmsImplDevice *impl_device,
                                            drmModeConnector  *drm_connector,
                                            drmModeRes        *drm_resources);

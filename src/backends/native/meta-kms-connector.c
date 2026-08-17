@@ -26,6 +26,7 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl.h"
+#include "backends/native/meta-kms-impl-device-atomic.h"
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-private.h"
@@ -64,6 +65,13 @@ typedef struct _MetaKmsConnectorPropTable
   MetaKmsEnum abm_enum[META_KMS_CONNECTOR_ABM_N_PROPS];
 } MetaKmsConnectorPropTable;
 
+typedef enum _MetaKmsConnectorAbmProbe
+{
+  META_KMS_CONNECTOR_ABM_PROBE_UNKNOWN,
+  META_KMS_CONNECTOR_ABM_PROBE_PASSED,
+  META_KMS_CONNECTOR_ABM_PROBE_FAILED,
+} MetaKmsConnectorAbmProbe;
+
 struct _MetaKmsConnector
 {
   GObject parent;
@@ -84,6 +92,8 @@ struct _MetaKmsConnector
   MetaKmsConnectorPropTable prop_table;
 
   gboolean fd_held;
+
+  MetaKmsConnectorAbmProbe abm_probe;
 };
 
 G_DEFINE_TYPE (MetaKmsConnector, meta_kms_connector, G_TYPE_OBJECT)
@@ -455,10 +465,7 @@ state_set_properties (MetaKmsConnectorState *state,
 
   prop = &props[META_KMS_CONNECTOR_PROP_ABM];
   if (prop->prop_id)
-    {
-      state->abm.value = prop->value;
-      state->abm.supported = prop->supported_variants;
-    }
+    state->abm.value = prop->value;
 }
 
 static MetaSubpixelOrder
@@ -1219,6 +1226,80 @@ ensure_connection_change_timeout (MetaKmsConnector *connector)
   connector->connection_change_timeout = g_steal_pointer (&timeout);
 }
 
+static MetaKmsConnectorAbm
+choose_abm_probe_level (uint64_t            supported,
+                        MetaKmsConnectorAbm current)
+{
+  int abm;
+
+  for (abm = META_KMS_CONNECTOR_ABM_MAX; abm > META_KMS_CONNECTOR_ABM_OFF; abm--)
+    {
+      if (abm != current && supported & (1 << abm))
+        return abm;
+    }
+
+  return META_KMS_CONNECTOR_ABM_UNKNOWN;
+}
+
+static void
+probe_abm (MetaKmsConnector      *connector,
+           MetaKmsImplDevice     *impl_device,
+           MetaKmsConnectorState *state)
+{
+  MetaKmsProp *prop = &connector->prop_table.props[META_KMS_CONNECTOR_PROP_ABM];
+  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
+  MetaKmsUpdate *update;
+  g_autoptr (MetaKmsFeedback) feedback = NULL;
+  const GError *error;
+  MetaKmsConnectorAbm abm;
+
+  if (connector->abm_probe != META_KMS_CONNECTOR_ABM_PROBE_UNKNOWN)
+    return;
+
+  /* Without a CRTC the driver may not check the change at all. */
+  if (!prop->prop_id || !state->current_crtc_id)
+    return;
+
+  if (!META_IS_KMS_IMPL_DEVICE_ATOMIC (impl_device))
+    {
+      connector->abm_probe = META_KMS_CONNECTOR_ABM_PROBE_FAILED;
+      return;
+    }
+
+  /* Probe with a level that is neither the current one nor "off", as
+   * either may leave the panel unchanged, and the driver may not check a
+   * change that does nothing.
+   */
+  abm = choose_abm_probe_level (prop->supported_variants, state->abm.value);
+  if (abm == META_KMS_CONNECTOR_ABM_UNKNOWN)
+    {
+      connector->abm_probe = META_KMS_CONNECTOR_ABM_PROBE_FAILED;
+      return;
+    }
+
+  update = meta_kms_update_new (device);
+  meta_kms_update_set_abm (update, connector, abm);
+  feedback = meta_kms_impl_device_process_update (impl_device, update,
+                                                  META_KMS_UPDATE_FLAG_TEST_ONLY);
+
+  if (meta_kms_feedback_did_pass (feedback))
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "Connector %u (%s) can change ABM without a modeset",
+                  connector->id, connector->name);
+      connector->abm_probe = META_KMS_CONNECTOR_ABM_PROBE_PASSED;
+      return;
+    }
+
+  error = meta_kms_feedback_get_error (feedback);
+  meta_topic (META_DEBUG_KMS,
+              "ABM test commit on connector %u (%s) failed: %s",
+              connector->id, connector->name,
+              error->message);
+
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT))
+    connector->abm_probe = META_KMS_CONNECTOR_ABM_PROBE_FAILED;
+}
 
 static MetaKmsResourceChanges
 meta_kms_connector_read_state (MetaKmsConnector  *connector,
@@ -1307,6 +1388,16 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   state_set_modes (state, impl_device, drm_connector);
 
   state_set_crtc_state (state, drm_connector, impl_device, drm_resources);
+
+  probe_abm (connector, impl_device, state);
+
+  if (connector->abm_probe == META_KMS_CONNECTOR_ABM_PROBE_PASSED)
+    {
+      MetaKmsProp *prop =
+        &connector->prop_table.props[META_KMS_CONNECTOR_PROP_ABM];
+
+      state->abm.supported = prop->supported_variants;
+    }
 
   if (drm_connector->connection != connector->connection)
     {
@@ -1469,11 +1560,41 @@ meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
                           (1 << connector_update->broadcast_rgb.value));
           current_state->broadcast_rgb.value = connector_update->broadcast_rgb.value;
         }
+
+      if (connector_update->abm.has_update)
+        {
+          g_warn_if_fail (current_state->abm.supported &
+                          (1 << connector_update->abm.value));
+          current_state->abm.value = connector_update->abm.value;
+        }
     }
 
   sync_fd_held (connector, connector->impl_device);
 
   return changes;
+}
+
+MetaKmsResourceChanges
+meta_kms_connector_run_probes_in_impl (MetaKmsConnector *connector)
+{
+  MetaKmsConnectorState *current_state = connector->current_state;
+  MetaKmsProp *prop = &connector->prop_table.props[META_KMS_CONNECTOR_PROP_ABM];
+  uint64_t supported = 0;
+
+  if (!current_state)
+    return META_KMS_RESOURCE_CHANGE_NONE;
+
+  probe_abm (connector, connector->impl_device, current_state);
+
+  if (connector->abm_probe == META_KMS_CONNECTOR_ABM_PROBE_PASSED)
+    supported = prop->supported_variants;
+
+  if (current_state->abm.supported == supported)
+    return META_KMS_RESOURCE_CHANGE_NONE;
+
+  current_state->abm.supported = supported;
+
+  return META_KMS_RESOURCE_CHANGE_FULL;
 }
 
 static void

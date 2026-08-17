@@ -24,6 +24,7 @@
 
 #include "backends/meta-output.h"
 #include "backends/native/meta-drm-buffer.h"
+#include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-types.h"
 #include "meta/boxes.h"
 #include "mtk/mtk.h"
@@ -132,6 +133,10 @@ void meta_kms_update_set_hdr_metadata (MetaKmsUpdate         *update,
 void meta_kms_update_set_broadcast_rgb (MetaKmsUpdate      *update,
                                         MetaKmsConnector   *connector,
                                         MetaOutputRGBRange  rgb_range);
+
+void meta_kms_update_set_abm (MetaKmsUpdate       *update,
+                              MetaKmsConnector    *connector,
+                              MetaKmsConnectorAbm  abm);
 
 META_EXPORT_TEST
 void meta_kms_update_mode_set (MetaKmsUpdate *update,
