@@ -29,6 +29,18 @@ META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaKmsConnector, meta_kms_connector,
                       META, KMS_CONNECTOR, GObject)
 
+typedef enum _MetaKmsConnectorAbm
+{
+  META_KMS_CONNECTOR_ABM_SYSFS = 0,
+  META_KMS_CONNECTOR_ABM_OFF,
+  META_KMS_CONNECTOR_ABM_MIN,
+  META_KMS_CONNECTOR_ABM_BIAS_MIN,
+  META_KMS_CONNECTOR_ABM_BIAS_MAX,
+  META_KMS_CONNECTOR_ABM_MAX,
+  META_KMS_CONNECTOR_ABM_N_PROPS,
+  META_KMS_CONNECTOR_ABM_UNKNOWN,
+} MetaKmsConnectorAbm;
+
 typedef struct _MetaKmsConnectorState
 {
   uint32_t current_crtc_id;
@@ -85,6 +97,11 @@ typedef struct _MetaKmsConnectorState
   } underscan;
 
   gboolean vrr_capable;
+
+  struct {
+    MetaKmsConnectorAbm value;
+    uint64_t supported;
+  } abm;
 } MetaKmsConnectorState;
 
 META_EXPORT_TEST

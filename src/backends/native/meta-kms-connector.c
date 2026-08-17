@@ -61,6 +61,7 @@ typedef struct _MetaKmsConnectorPropTable
   MetaKmsEnum panel_orientation_enum[META_KMS_CONNECTOR_PANEL_ORIENTATION_N_PROPS];
   MetaKmsEnum colorspace_enum[META_KMS_CONNECTOR_COLORSPACE_N_PROPS];
   MetaKmsEnum broadcast_rgb_enum[META_KMS_CONNECTOR_BROADCAST_RGB_N_PROPS];
+  MetaKmsEnum abm_enum[META_KMS_CONNECTOR_ABM_N_PROPS];
 } MetaKmsConnectorPropTable;
 
 struct _MetaKmsConnector
@@ -451,6 +452,13 @@ state_set_properties (MetaKmsConnectorState *state,
   prop = &props[META_KMS_CONNECTOR_PROP_VRR_CAPABLE];
   if (prop->prop_id)
     state->vrr_capable = !!prop->value;
+
+  prop = &props[META_KMS_CONNECTOR_PROP_ABM];
+  if (prop->prop_id)
+    {
+      state->abm.value = prop->value;
+      state->abm.supported = prop->supported_variants;
+    }
 }
 
 static MetaSubpixelOrder
@@ -884,6 +892,7 @@ meta_kms_connector_state_new (void)
   state->suggested_x = -1;
   state->suggested_y = -1;
   state->vrr_capable = FALSE;
+  state->abm.value = META_KMS_CONNECTOR_ABM_UNKNOWN;
 
   return state;
 }
@@ -1077,6 +1086,12 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
   if (state->vrr_capable != new_state->vrr_capable)
     {
       meta_topic (META_DEBUG_KMS, "vrr_capable changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
+
+  if (state->abm.supported != new_state->abm.supported)
+    {
+      meta_topic (META_DEBUG_KMS, "ABM support changed");
       return META_KMS_RESOURCE_CHANGE_FULL;
     }
 
@@ -1593,6 +1608,14 @@ init_properties (MetaKmsConnector  *connector,
           .name = "vrr_capable",
           .type = DRM_MODE_PROP_RANGE,
         },
+      [META_KMS_CONNECTOR_PROP_ABM] =
+        {
+          .name = "adaptive backlight modulation",
+          .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->abm_enum,
+          .num_enum_values = META_KMS_CONNECTOR_ABM_N_PROPS,
+          .default_value = META_KMS_CONNECTOR_ABM_UNKNOWN,
+        },
     },
     .dpms_enum = {
       [META_KMS_CONNECTOR_DPMS_ON] =
@@ -1777,6 +1800,32 @@ init_properties (MetaKmsConnector  *connector,
         {
           .name = "Limited 16:235",
         }
+    },
+    .abm_enum = {
+      [META_KMS_CONNECTOR_ABM_SYSFS] =
+        {
+          .name = "sysfs",
+        },
+      [META_KMS_CONNECTOR_ABM_OFF] =
+        {
+          .name = "off",
+        },
+      [META_KMS_CONNECTOR_ABM_MIN] =
+        {
+          .name = "min",
+        },
+      [META_KMS_CONNECTOR_ABM_BIAS_MIN] =
+        {
+          .name = "bias min",
+        },
+      [META_KMS_CONNECTOR_ABM_BIAS_MAX] =
+        {
+          .name = "bias max",
+        },
+      [META_KMS_CONNECTOR_ABM_MAX] =
+        {
+          .name = "max",
+        },
     },
   };
 }
