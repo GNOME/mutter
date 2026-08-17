@@ -134,51 +134,55 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
-  CoglTexture *texture = NULL;
-  graphene_rect_t dst_rect = GRAPHENE_RECT_INIT_ZERO;
-  graphene_matrix_t matrix;
 
   g_set_object (&priv->overlay_cursor, cursor);
 
   if (!priv->stage_overlay)
     priv->stage_overlay = meta_stage_create_cursor_overlay (META_STAGE (stage));
 
-  graphene_matrix_init_identity (&matrix);
-  if (cursor)
+  if (priv->needs_overlay)
     {
-      dst_rect = meta_cursor_renderer_calculate_rect (renderer, cursor);
-      align_cursor_position (renderer, &dst_rect);
+      CoglTexture *texture = NULL;
+      graphene_rect_t dst_rect = GRAPHENE_RECT_INIT_ZERO;
+      graphene_matrix_t matrix;
 
-      texture = clutter_cursor_get_texture (cursor);
-      if (texture)
+      graphene_matrix_init_identity (&matrix);
+      if (cursor)
         {
-          int cursor_width, cursor_height;
-          float cursor_scale;
-          MtkMonitorTransform cursor_transform;
-          const graphene_rect_t *src_rect;
+          dst_rect = meta_cursor_renderer_calculate_rect (renderer, cursor);
+          align_cursor_position (renderer, &dst_rect);
 
-          clutter_cursor_get_geometry (cursor,
-                                       &cursor_width, &cursor_height,
-                                       NULL, NULL);
-          cursor_scale = clutter_cursor_get_texture_scale (cursor);
-          cursor_transform =
-            clutter_cursor_get_texture_transform (cursor);
-          src_rect = clutter_cursor_get_viewport_src_rect (cursor);
-          mtk_compute_viewport_matrix (&matrix,
-                                       cursor_width,
-                                       cursor_height,
-                                       cursor_scale,
-                                       cursor_transform,
-                                       src_rect);
+          texture = clutter_cursor_get_texture (cursor);
+          if (texture)
+            {
+              int cursor_width, cursor_height;
+              float cursor_scale;
+              MtkMonitorTransform cursor_transform;
+              const graphene_rect_t *src_rect;
+
+              clutter_cursor_get_geometry (cursor,
+                                           &cursor_width, &cursor_height,
+                                           NULL, NULL);
+              cursor_scale = clutter_cursor_get_texture_scale (cursor);
+              cursor_transform = clutter_cursor_get_texture_transform (cursor);
+              src_rect = clutter_cursor_get_viewport_src_rect (cursor);
+              mtk_compute_viewport_matrix (&matrix,
+                                           cursor_width,
+                                           cursor_height,
+                                           cursor_scale,
+                                           cursor_transform,
+                                           src_rect);
+            }
         }
+
+      meta_stage_update_cursor_overlay (META_STAGE (stage),
+                                        priv->stage_overlay,
+                                        texture,
+                                        &matrix,
+                                        &dst_rect);
     }
 
   meta_overlay_set_visible (priv->stage_overlay, priv->needs_overlay);
-  meta_stage_update_cursor_overlay (META_STAGE (stage),
-                                    priv->stage_overlay,
-                                    texture,
-                                    &matrix,
-                                    &dst_rect);
 }
 
 static void
