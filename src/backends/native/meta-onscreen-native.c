@@ -131,8 +131,11 @@ struct _MetaOnscreenNative
 
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
 
-  /* Keep the KMS framebuffer of the last presented buffer alive, to avoid
-   * drmModeRmFB implicitly disabling the KMS plane it's assigned to
+  /* Keep the last presented MetaDrmBuffer alive while it's being scannout out,
+   * for two purposes:
+   * - Prevent a direct scanout buffer from being released to the client for
+   *   re-use prematurely
+   * - Avoid drmModeRmFB implicitly disabling the KMS plane it's assigned to
    */
   MetaDrmBuffer *presented_buffer;
   ClutterFrame *posted_frame;
