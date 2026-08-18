@@ -1083,6 +1083,7 @@ should_update_now (ClutterFrameClock *frame_clock,
 
 static void
 calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+                               gboolean           throttle,
                                int64_t           *out_next_update_time_us,
                                int64_t           *out_next_presentation_time_us,
                                gboolean          *out_is_target_presentation_time,
@@ -1190,7 +1191,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                                                  now_us),
                                             refresh_interval_us);
 
-  if (should_update_now (frame_clock,
+  if (!throttle &&
+      should_update_now (frame_clock,
                          next_presentation_time_us,
                          next_smooth_presentation_time_us))
     {
@@ -1208,7 +1210,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
         {
           int64_t min_update_time_estimate_us;
 
-          if (clutter_frame_clock_estimate_min_update_time_us (frame_clock,
+          if (!throttle &&
+              clutter_frame_clock_estimate_min_update_time_us (frame_clock,
                                                                &min_update_time_estimate_us))
             {
               next_update_time_us =
@@ -1455,8 +1458,9 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
     }
 }
 
-void
-clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
+static void
+schedule_update (ClutterFrameClock *frame_clock,
+                 gboolean           throttle)
 {
   int64_t next_update_time_us = -1;
 
@@ -1512,6 +1516,7 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
     {
     case CLUTTER_FRAME_CLOCK_MODE_FIXED:
       calculate_next_update_time_us (frame_clock,
+                                     throttle,
                                      &next_update_time_us,
                                      &frame_clock->next_presentation_time_us,
                                      &frame_clock->is_target_presentation_time,
@@ -1541,6 +1546,30 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
 
   frame_clock->next_update_time_us = next_update_time_us;
   g_source_set_ready_time (frame_clock->source, next_update_time_us);
+}
+
+void
+clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
+{
+  schedule_update (frame_clock, FALSE);
+}
+
+/**
+ * clutter_frame_clock_schedule_update_throttled:
+ * @frame_clock: A #ClutterFrameClock
+ *
+ * This is a variant of clutter_frame_clock_schedule_update which doesn't allow
+ * starting dispatch ASAP to try and hit the earliest possible next presentation
+ * time.
+ *
+ * It should only be used in cases where starting dispatch ASAP could result
+ * in pathological behaviour such as dispatch running over and over multiple
+ * times in the same display refresh cycle.
+ */
+void
+clutter_frame_clock_schedule_update_throttled (ClutterFrameClock *frame_clock)
+{
+  schedule_update (frame_clock, TRUE);
 }
 
 static void
@@ -1603,6 +1632,7 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
     {
     case CLUTTER_FRAME_CLOCK_MODE_FIXED:
       calculate_next_update_time_us (frame_clock,
+                                     FALSE,
                                      &next_update_time_us,
                                      &next_presentation_time_us,
                                      NULL,
