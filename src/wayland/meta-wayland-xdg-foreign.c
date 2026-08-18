@@ -272,6 +272,7 @@ static void
 imported_parent_of_unmapped (MetaWaylandSurface     *surface,
                              MetaWaylandXdgImported *imported)
 {
+  g_clear_signal_handler (&imported->parent_of_unmapped_handler_id, surface);
   imported->parent_of = NULL;
 }
 
