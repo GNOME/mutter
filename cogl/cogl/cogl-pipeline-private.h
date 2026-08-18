@@ -370,40 +370,6 @@ struct _CoglPipeline
   const char *name;
 };
 
-typedef struct _CoglPipelineFragend
-{
-  void (*pipeline_pre_change_notify) (CoglPipeline *pipeline,
-                                      CoglPipelineState change,
-                                      const CoglColor *new_color);
-  void (*layer_pre_change_notify) (CoglPipeline *owner,
-                                   CoglPipelineLayer *layer,
-                                   CoglPipelineLayerState change);
-} CoglPipelineFragend;
-
-typedef struct _CoglPipelineVertend
-{
-  void (*pipeline_pre_change_notify) (CoglPipeline *pipeline,
-                                      CoglPipelineState change,
-                                      const CoglColor *new_color);
-  void (*layer_pre_change_notify) (CoglPipeline *owner,
-                                   CoglPipelineLayer *layer,
-                                   CoglPipelineLayerState change);
-} CoglPipelineVertend;
-
-typedef struct
-{
-  void (*pipeline_pre_change_notify) (CoglPipeline *pipeline,
-                                      CoglPipelineState change,
-                                      const CoglColor *new_color);
-  void (*layer_pre_change_notify) (CoglPipeline *owner,
-                                   CoglPipelineLayer *layer,
-                                   CoglPipelineLayerState change);
-} CoglPipelineProgend;
-
-extern const CoglPipelineFragend *_cogl_pipeline_fragend;
-extern const CoglPipelineVertend *_cogl_pipeline_vertend;
-extern const CoglPipelineProgend *_cogl_pipeline_progend;
-
 void
 _cogl_pipeline_init_default_pipeline (CoglContext *ctx);
 

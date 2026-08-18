@@ -102,6 +102,16 @@ struct _CoglDriverClass
   void (* set_uniform) (CoglDriver           *driver,
                         GLint                 location,
                         const CoglBoxedValue *value);
+
+  void (* pipeline_pre_change_notify) (CoglDriver        *driver,
+                                       CoglPipeline      *pipeline,
+                                       CoglPipelineState  change,
+                                       const CoglColor   *new_color);
+
+  void (* pipeline_layer_pre_change_notify) (CoglDriver             *driver,
+                                             CoglPipeline           *owner,
+                                             CoglPipelineLayer      *layer,
+                                             CoglPipelineLayerState  change);
 };
 
 

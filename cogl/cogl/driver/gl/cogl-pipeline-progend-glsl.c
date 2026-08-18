@@ -82,8 +82,6 @@ static BuiltinUniformData builtin_uniforms[] =
       COGL_PIPELINE_STATE_ALPHA_FUNC_REFERENCE },
   };
 
-const CoglPipelineProgend _cogl_pipeline_glsl_progend;
-
 typedef struct _UnitState
 {
   unsigned int dirty_combine_constant:1;
@@ -877,10 +875,10 @@ cogl_pipeline_progend_glsl_end (CoglPipeline  *pipeline,
   program_state->last_used_for_pipeline = pipeline;
 }
 
-static void
-_cogl_pipeline_progend_glsl_pre_change_notify (CoglPipeline *pipeline,
-                                               CoglPipelineState change,
-                                               const CoglColor *new_color)
+void
+cogl_pipeline_progend_glsl_pre_change_notify (CoglPipeline      *pipeline,
+                                              CoglPipelineState  change,
+                                              const CoglColor   *new_color)
 {
   CoglContext *ctx = pipeline->context;
 
@@ -913,11 +911,10 @@ _cogl_pipeline_progend_glsl_pre_change_notify (CoglPipeline *pipeline,
  * XXX: Don't forget this is *pre* change, we can't read the new value
  * yet!
  */
-static void
-_cogl_pipeline_progend_glsl_layer_pre_change_notify (
-                                                CoglPipeline *owner,
-                                                CoglPipelineLayer *layer,
-                                                CoglPipelineLayerState change)
+void
+cogl_pipeline_progend_glsl_layer_pre_change_notify (CoglPipeline           *owner,
+                                                    CoglPipelineLayer      *layer,
+                                                    CoglPipelineLayerState  change)
 {
   CoglTextureUnit *unit;
   CoglContext *ctx = owner->context;
@@ -1101,9 +1098,3 @@ update_float_uniform (CoglPipeline *pipeline,
   value = float_getter_func (pipeline);
   GE (driver, glUniform1f (uniform_location, value));
 }
-
-const CoglPipelineProgend _cogl_pipeline_glsl_progend =
-  {
-    _cogl_pipeline_progend_glsl_pre_change_notify,
-    _cogl_pipeline_progend_glsl_layer_pre_change_notify
-  };

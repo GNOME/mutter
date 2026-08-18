@@ -36,13 +36,12 @@
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture-private.h"
+#include "cogl/cogl-driver-private.h"
 
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-pipeline-layer-private.h"
 #include "cogl/cogl-pipeline-layer-state-private.h"
 #include "cogl/cogl-pipeline-layer-state.h"
-#include "cogl/cogl-context-private.h"
-#include "cogl/cogl-texture-private.h"
 
 #include <string.h>
 
@@ -436,16 +435,11 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
    * backend that needs to be notified of the layer change...
    */
     {
-      const CoglPipelineProgend *progend = _cogl_pipeline_progend;
-      const CoglPipelineFragend *fragend = _cogl_pipeline_fragend;
-      const CoglPipelineVertend *vertend = _cogl_pipeline_vertend;
+      CoglDriver *driver = cogl_context_get_driver (required_owner->context);
+      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
 
-      if (fragend->layer_pre_change_notify)
-        fragend->layer_pre_change_notify (required_owner, layer, change);
-      if (vertend->layer_pre_change_notify)
-        vertend->layer_pre_change_notify (required_owner, layer, change);
-      if (progend->layer_pre_change_notify)
-        progend->layer_pre_change_notify (required_owner, layer, change);
+      if (driver_klass->pipeline_layer_pre_change_notify)
+        driver_klass->pipeline_layer_pre_change_notify (driver, required_owner, layer, change);
     }
 
 init_layer_state:

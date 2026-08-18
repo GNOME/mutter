@@ -37,6 +37,9 @@
 #include "cogl/driver/gl/cogl-gl-framebuffer-back.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-fragend-glsl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 
 /* This is a relatively new extension */
 #ifndef GL_PURGED_CONTEXT_RESET_NV
@@ -431,6 +434,28 @@ cogl_driver_gl_set_uniform (CoglDriver           *driver,
 }
 
 static void
+cogl_driver_gl_pipeline_pre_change_notify (CoglDriver        *driver,
+                                           CoglPipeline      *pipeline,
+                                           CoglPipelineState  change,
+                                           const CoglColor   *new_color)
+{
+  cogl_pipeline_vertend_glsl_pre_change_notify (pipeline, change, new_color);
+  cogl_pipeline_fragend_glsl_pre_change_notify (pipeline, change, new_color);
+  cogl_pipeline_progend_glsl_pre_change_notify (pipeline, change, new_color);
+}
+
+static void
+cogl_driver_gl_pipeline_layer_pre_change_notify (CoglDriver             *driver,
+                                                 CoglPipeline           *owner,
+                                                 CoglPipelineLayer      *layer,
+                                                 CoglPipelineLayerState  change)
+{
+  cogl_pipeline_fragend_glsl_layer_pre_change_notify (owner, layer, change);
+  cogl_pipeline_vertend_glsl_layer_pre_change_notify (owner, layer, change);
+  cogl_pipeline_progend_glsl_layer_pre_change_notify (owner, layer, change);
+}
+
+static void
 cogl_driver_gl_class_init (CoglDriverGLClass *klass)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
@@ -449,6 +474,8 @@ cogl_driver_gl_class_init (CoglDriverGLClass *klass)
   driver_klass->sampler_init = cogl_driver_gl_sampler_init_init;
   driver_klass->sampler_free = cogl_driver_gl_sampler_free;
   driver_klass->set_uniform = cogl_driver_gl_set_uniform; /* XXX name is weird... */
+  driver_klass->pipeline_pre_change_notify = cogl_driver_gl_pipeline_pre_change_notify;
+  driver_klass->pipeline_layer_pre_change_notify = cogl_driver_gl_pipeline_layer_pre_change_notify;
 }
 
 static void

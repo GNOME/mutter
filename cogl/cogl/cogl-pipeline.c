@@ -46,6 +46,7 @@
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-depth-state-private.h"
 #include "cogl/cogl-snippet-private.h"
+#include "cogl/cogl-driver-private.h"
 
 #include <glib.h>
 #include <glib/gprintf.h>
@@ -55,14 +56,6 @@ typedef gboolean (*CoglPipelineChildCallback) (CoglPipeline *child, void *user_d
 
 static void recursively_free_layer_caches (CoglPipeline *pipeline);
 static gboolean _cogl_pipeline_is_weak (CoglPipeline *pipeline);
-
-const CoglPipelineFragend *_cogl_pipeline_fragend;
-const CoglPipelineVertend *_cogl_pipeline_vertend;
-const CoglPipelineProgend *_cogl_pipeline_progend;
-
-#include "cogl/driver/gl/cogl-pipeline-fragend-glsl-private.h"
-#include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
-#include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 
 G_DEFINE_FINAL_TYPE (CoglPipeline, cogl_pipeline, G_TYPE_OBJECT)
 
@@ -279,11 +272,6 @@ _cogl_pipeline_init_default_pipeline (CoglContext *context)
 #endif
 
   cogl_context_set_default_pipeline (context, pipeline);
-
-  /* Take this opportunity to setup the backends... */
-  _cogl_pipeline_fragend = &_cogl_pipeline_glsl_fragend;
-  _cogl_pipeline_progend = &_cogl_pipeline_glsl_progend;
-  _cogl_pipeline_vertend = &_cogl_pipeline_glsl_vertend;
 }
 
 
@@ -1123,21 +1111,11 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
    */
   if (!from_layer_change)
     {
-      const CoglPipelineProgend *progend = _cogl_pipeline_progend;
-      const CoglPipelineVertend *vertend = _cogl_pipeline_vertend;
-      const CoglPipelineFragend *fragend = _cogl_pipeline_fragend;
+      CoglDriver *driver = cogl_context_get_driver (pipeline->context);
+      CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
 
-      if (vertend->pipeline_pre_change_notify)
-        vertend->pipeline_pre_change_notify (pipeline, change, new_color);
-
-      /* TODO: make the vertend and fragend implementation details
-       * of the progend */
-
-      if (fragend->pipeline_pre_change_notify)
-        fragend->pipeline_pre_change_notify (pipeline, change, new_color);
-
-      if (progend->pipeline_pre_change_notify)
-        progend->pipeline_pre_change_notify (pipeline, change, new_color);
+      if (klass->pipeline_pre_change_notify)
+        klass->pipeline_pre_change_notify (driver, pipeline, change, new_color);
     }
 
   /* There may be an arbitrary tree of descendants of this pipeline;

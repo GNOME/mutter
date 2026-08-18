@@ -35,7 +35,15 @@
 
 #include "cogl/cogl-pipeline-private.h"
 
-extern const CoglPipelineFragend _cogl_pipeline_glsl_fragend;
+void
+cogl_pipeline_fragend_glsl_pre_change_notify (CoglPipeline      *pipeline,
+                                              CoglPipelineState  change,
+                                              const CoglColor   *new_color);
+
+void
+cogl_pipeline_fragend_glsl_layer_pre_change_notify (CoglPipeline           *owner,
+                                                    CoglPipelineLayer      *layer,
+                                                    CoglPipelineLayerState  change);
 
 void
 cogl_pipeline_fragend_glsl_start (CoglPipeline  *pipeline,

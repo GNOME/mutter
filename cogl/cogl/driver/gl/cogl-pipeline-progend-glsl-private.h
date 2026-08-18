@@ -34,9 +34,16 @@
 #pragma once
 
 #include "cogl/cogl-pipeline-private.h"
-#include "cogl/cogl-attribute-private.h"
 
-extern const CoglPipelineProgend _cogl_pipeline_glsl_progend;
+void
+cogl_pipeline_progend_glsl_pre_change_notify (CoglPipeline      *pipeline,
+                                              CoglPipelineState  change,
+                                              const CoglColor   *new_color);
+
+void
+cogl_pipeline_progend_glsl_layer_pre_change_notify (CoglPipeline           *owner,
+                                                    CoglPipelineLayer      *layer,
+                                                    CoglPipelineLayerState  change);
 
 gboolean
 cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline);

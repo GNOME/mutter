@@ -61,8 +61,6 @@
 #define GL_TEXTURE_3D                           0x806F
 #endif
 
-const CoglPipelineFragend _cogl_pipeline_glsl_backend;
-
 typedef struct _UnitState
 {
   unsigned int sampled:1;
@@ -1074,10 +1072,10 @@ cogl_pipeline_fragend_glsl_end (CoglPipeline  *pipeline,
   return TRUE;
 }
 
-static void
-_cogl_pipeline_fragend_glsl_pre_change_notify (CoglPipeline *pipeline,
-                                               CoglPipelineState change,
-                                               const CoglColor *new_color)
+void
+cogl_pipeline_fragend_glsl_pre_change_notify (CoglPipeline      *pipeline,
+                                              CoglPipelineState  change,
+                                              const CoglColor   *new_color)
 {
   CoglContext *ctx = pipeline->context;
 
@@ -1093,11 +1091,10 @@ _cogl_pipeline_fragend_glsl_pre_change_notify (CoglPipeline *pipeline,
  * XXX: Don't forget this is *pre* change, we can't read the new value
  * yet!
  */
-static void
-_cogl_pipeline_fragend_glsl_layer_pre_change_notify (
-                                                CoglPipeline *owner,
-                                                CoglPipelineLayer *layer,
-                                                CoglPipelineLayerState change)
+void
+cogl_pipeline_fragend_glsl_layer_pre_change_notify (CoglPipeline           *owner,
+                                                    CoglPipelineLayer      *layer,
+                                                    CoglPipelineLayerState  change)
 {
   CoglContext *ctx = owner->context;
 
@@ -1111,9 +1108,3 @@ _cogl_pipeline_fragend_glsl_layer_pre_change_notify (
    * with each layer and then when a layer changes we would just free
    * the snippet. */
 }
-
-const CoglPipelineFragend _cogl_pipeline_glsl_fragend =
-{
-  _cogl_pipeline_fragend_glsl_pre_change_notify,
-  _cogl_pipeline_fragend_glsl_layer_pre_change_notify
-};

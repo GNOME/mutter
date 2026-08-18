@@ -37,7 +37,15 @@
 
 typedef struct _CoglPipelineVertendShaderState CoglPipelineVertendShaderState;
 
-extern const CoglPipelineVertend _cogl_pipeline_glsl_vertend;
+void
+cogl_pipeline_vertend_glsl_pre_change_notify (CoglPipeline      *pipeline,
+                                              CoglPipelineState  change,
+                                              const CoglColor   *new_color);
+
+void
+cogl_pipeline_vertend_glsl_layer_pre_change_notify (CoglPipeline           *owner,
+                                                    CoglPipelineLayer      *layer,
+                                                    CoglPipelineLayerState  change);
 
 void
 cogl_pipeline_vertend_glsl_start (CoglPipeline  *pipeline,
