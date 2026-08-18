@@ -159,6 +159,7 @@ struct _ClutterFrameClock
 
   gboolean pending_reschedule;
   gboolean pending_reschedule_now;
+  gboolean throttle_timelines;
 
   int inhibit_count;
 
@@ -437,6 +438,7 @@ update_timelines_playing (ClutterFrameClock *frame_clock)
         continue;
 
       frame_clock->timelines_playing = TRUE;
+      frame_clock->throttle_timelines = FALSE;
       return;
     }
 }
@@ -473,17 +475,23 @@ maybe_reschedule_update (ClutterFrameClock *frame_clock)
   if (frame_clock->pending_reschedule ||
       frame_clock->timelines)
     {
-      frame_clock->pending_reschedule = FALSE;
-
       if (frame_clock->pending_reschedule_now)
         {
           frame_clock->pending_reschedule_now = FALSE;
           clutter_frame_clock_schedule_update_now (frame_clock);
         }
-      else
+      else if (frame_clock->pending_reschedule ||
+               !frame_clock->throttle_timelines)
         {
+          frame_clock->throttle_timelines = TRUE;
           clutter_frame_clock_schedule_update (frame_clock);
         }
+      else
+        {
+          clutter_frame_clock_schedule_update_throttled (frame_clock);
+        }
+
+      frame_clock->pending_reschedule = FALSE;
       return;
     }
 
