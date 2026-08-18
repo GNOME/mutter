@@ -39,6 +39,21 @@ typedef struct _CoglPipelineVertendShaderState CoglPipelineVertendShaderState;
 
 extern const CoglPipelineVertend _cogl_pipeline_glsl_vertend;
 
+void
+cogl_pipeline_vertend_glsl_start (CoglPipeline  *pipeline,
+                                  int            n_layers,
+                                  unsigned long  pipelines_difference);
+
+gboolean
+cogl_pipeline_vertend_glsl_add_layer (CoglPipeline      *pipeline,
+                                      CoglPipelineLayer *layer,
+                                      unsigned long      layers_difference,
+                                      CoglFramebuffer   *framebuffer);
+
+gboolean
+cogl_pipeline_vertend_glsl_end (CoglPipeline  *pipeline,
+                                unsigned long  pipelines_difference);
+
 GLuint
 _cogl_pipeline_vertend_glsl_get_shader (CoglPipeline *pipeline);
 

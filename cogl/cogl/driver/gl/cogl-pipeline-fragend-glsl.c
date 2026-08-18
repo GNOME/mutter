@@ -291,10 +291,10 @@ add_global_declarations (CoglPipeline *pipeline,
                                                 snippets);
 }
 
-static void
-_cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
-                                   int n_layers,
-                                   unsigned long pipelines_difference)
+void
+cogl_pipeline_fragend_glsl_start (CoglPipeline  *pipeline,
+                                  int            n_layers,
+                                  unsigned long  pipelines_difference)
 {
   CoglPipelineFragendShaderState *shader_state;
   CoglPipeline *authority;
@@ -881,10 +881,10 @@ ensure_layer_generated (CoglPipeline *pipeline,
   g_free (layer_data);
 }
 
-static gboolean
-_cogl_pipeline_fragend_glsl_add_layer (CoglPipeline *pipeline,
-                                        CoglPipelineLayer *layer,
-                                        unsigned long layers_difference)
+gboolean
+cogl_pipeline_fragend_glsl_add_layer (CoglPipeline      *pipeline,
+                                      CoglPipelineLayer *layer,
+                                      unsigned long      layers_difference)
 {
   CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
   LayerData *layer_data;
@@ -972,9 +972,9 @@ add_alpha_test_snippet (CoglPipeline *pipeline,
                    " _cogl_alpha_test_ref)\n    discard;\n");
 }
 
-static gboolean
-_cogl_pipeline_fragend_glsl_end (CoglPipeline *pipeline,
-                                 unsigned long pipelines_difference)
+gboolean
+cogl_pipeline_fragend_glsl_end (CoglPipeline  *pipeline,
+                                unsigned long  pipelines_difference)
 {
   CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
   CoglContext *ctx = pipeline->context;
@@ -1114,9 +1114,6 @@ _cogl_pipeline_fragend_glsl_layer_pre_change_notify (
 
 const CoglPipelineFragend _cogl_pipeline_glsl_fragend =
 {
-  _cogl_pipeline_fragend_glsl_start,
-  _cogl_pipeline_fragend_glsl_add_layer,
-  _cogl_pipeline_fragend_glsl_end,
   _cogl_pipeline_fragend_glsl_pre_change_notify,
   _cogl_pipeline_fragend_glsl_layer_pre_change_notify
 };

@@ -44,6 +44,8 @@
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 
+#include "cogl/driver/gl/cogl-pipeline-fragend-glsl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 
@@ -663,8 +665,6 @@ compare_layer_differences_cb (CoglPipelineLayer *layer, void *user_data)
 typedef struct
 {
   CoglFramebuffer *framebuffer;
-  const CoglPipelineVertend *vertend;
-  const CoglPipelineFragend *fragend;
   CoglPipeline *pipeline;
   unsigned long *layer_differences;
   gboolean error_adding_layer;
@@ -675,16 +675,15 @@ vertend_add_layer_cb (CoglPipelineLayer *layer,
                       void *user_data)
 {
   CoglPipelineAddLayerState *state = user_data;
-  const CoglPipelineVertend *vertend = state->vertend;
   CoglPipeline *pipeline = state->pipeline;
   int unit_index = _cogl_pipeline_layer_get_unit_index (layer);
 
   /* Either generate per layer code snippets or setup the
    * fixed function glTexEnv for each layer... */
-  if (!G_LIKELY (vertend->add_layer (pipeline,
-                                     layer,
-                                     state->layer_differences[unit_index],
-                                     state->framebuffer)))
+  if (!G_LIKELY (cogl_pipeline_vertend_glsl_add_layer (pipeline,
+                                                       layer,
+                                                       state->layer_differences[unit_index],
+                                                       state->framebuffer)))
     {
       state->error_adding_layer = TRUE;
       return FALSE;
@@ -698,15 +697,14 @@ fragend_add_layer_cb (CoglPipelineLayer *layer,
                       void *user_data)
 {
   CoglPipelineAddLayerState *state = user_data;
-  const CoglPipelineFragend *fragend = state->fragend;
   CoglPipeline *pipeline = state->pipeline;
   int unit_index = _cogl_pipeline_layer_get_unit_index (layer);
 
   /* Either generate per layer code snippets or setup the
    * fixed function glTexEnv for each layer... */
-  if (!G_LIKELY (fragend->add_layer (pipeline,
-                                     layer,
-                                     state->layer_differences[unit_index])))
+  if (!G_LIKELY (cogl_pipeline_fragend_glsl_add_layer (pipeline,
+                                                       layer,
+                                                       state->layer_differences[unit_index])))
     {
       state->error_adding_layer = TRUE;
       return FALSE;
@@ -778,7 +776,6 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
   int n_layers;
   unsigned long *layer_differences;
   CoglTextureUnit *unit1;
-  const CoglPipelineProgend *progend;
 
   COGL_STATIC_TIMER (pipeline_flush_timer,
                      "Mainloop", /* parent */
@@ -894,11 +891,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
 
   do
     {
-      const CoglPipelineVertend *vertend;
-      const CoglPipelineFragend *fragend;
       CoglPipelineAddLayerState state;
-
-      progend = _cogl_pipeline_progend;
 
       if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SHOW_SOURCE)))
         {
@@ -909,17 +902,14 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
                      pipeline->name ? pipeline->name : "N\\A");
         }
 
-      if (G_UNLIKELY (!progend->start (pipeline)))
+      if (G_UNLIKELY (!cogl_pipeline_progend_glsl_start (pipeline)))
         continue;
 
-      vertend = _cogl_pipeline_vertend;
-
-      vertend->start (pipeline,
-                      n_layers,
-                      pipelines_difference);
+      cogl_pipeline_vertend_glsl_start (pipeline,
+                                        n_layers,
+                                        pipelines_difference);
 
       state.framebuffer = framebuffer;
-      state.vertend = vertend;
       state.pipeline = pipeline;
       state.layer_differences = layer_differences;
       state.error_adding_layer = FALSE;
@@ -931,7 +921,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
       if (G_UNLIKELY (state.error_adding_layer))
         continue;
 
-      if (G_UNLIKELY (!vertend->end (pipeline, pipelines_difference)))
+      if (G_UNLIKELY (!cogl_pipeline_vertend_glsl_end (pipeline, pipelines_difference)))
         continue;
 
       /* Now prepare the fragment processing state (fragend)
@@ -941,12 +931,9 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
        * ctx->codegen_source_buffer as a scratch buffer.
        */
 
-      fragend = _cogl_pipeline_fragend;
-      state.fragend = fragend;
-
-      fragend->start (pipeline,
-                      n_layers,
-                      pipelines_difference);
+      cogl_pipeline_fragend_glsl_start (pipeline,
+                                        n_layers,
+                                        pipelines_difference);
 
       _cogl_pipeline_foreach_layer_internal (pipeline,
                                              fragend_add_layer_cb,
@@ -955,11 +942,10 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
       if (G_UNLIKELY (state.error_adding_layer))
         continue;
 
-      if (G_UNLIKELY (!fragend->end (pipeline, pipelines_difference)))
+      if (G_UNLIKELY (!cogl_pipeline_fragend_glsl_end (pipeline, pipelines_difference)))
         continue;
 
-      if (progend->end)
-        progend->end (pipeline, pipelines_difference);
+      cogl_pipeline_progend_glsl_end (pipeline, pipelines_difference);
       break;
     }
   while (0);
@@ -979,8 +965,6 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
   cogl_context_set_current_pipeline_age (ctx, pipeline->age);
 
 done:
-
-  progend = _cogl_pipeline_progend;
 
   /* We can't assume the color will be retained between flushes when
    * using the glsl progend because the generic attribute values are
@@ -1007,8 +991,7 @@ done:
   /* Give the progend a chance to update any uniforms that might not
    * depend on the pipeline state. This is used on GLES2 to update the
    * matrices */
-  if (progend->pre_paint)
-    progend->pre_paint (pipeline, framebuffer);
+  cogl_pipeline_progend_glsl_pre_paint (pipeline, framebuffer);
 
   /* Handle the fact that OpenGL associates texture filter and wrap
    * modes with the texture objects not the texture units... */

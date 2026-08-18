@@ -703,15 +703,15 @@ _cogl_pipeline_progend_glsl_flush_uniforms (CoglPipeline *pipeline,
     _cogl_bitmask_clear_all (&uniforms_state->changed_mask);
 }
 
-static gboolean
-_cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
+gboolean
+cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
 {
   return TRUE;
 }
 
-static void
-_cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
-                                 unsigned long pipelines_difference)
+void
+cogl_pipeline_progend_glsl_end (CoglPipeline  *pipeline,
+                                unsigned long  pipelines_difference)
 {
   CoglPipelineProgramState *program_state;
   GLuint gl_program;
@@ -956,9 +956,9 @@ _cogl_pipeline_progend_glsl_layer_pre_change_notify (
     unit->layer_changes_since_flush |= change;
 }
 
-static void
-_cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
-                                       CoglFramebuffer *framebuffer)
+void
+cogl_pipeline_progend_glsl_pre_paint (CoglPipeline    *pipeline,
+                                      CoglFramebuffer *framebuffer)
 {
   gboolean needs_flip;
   CoglMatrixEntry *projection_entry;
@@ -1104,9 +1104,6 @@ update_float_uniform (CoglPipeline *pipeline,
 
 const CoglPipelineProgend _cogl_pipeline_glsl_progend =
   {
-    _cogl_pipeline_progend_glsl_start,
-    _cogl_pipeline_progend_glsl_end,
     _cogl_pipeline_progend_glsl_pre_change_notify,
-    _cogl_pipeline_progend_glsl_layer_pre_change_notify,
-    _cogl_pipeline_progend_glsl_pre_paint
+    _cogl_pipeline_progend_glsl_layer_pre_change_notify
   };

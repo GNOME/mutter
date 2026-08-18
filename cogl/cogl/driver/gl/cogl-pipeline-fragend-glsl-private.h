@@ -37,5 +37,19 @@
 
 extern const CoglPipelineFragend _cogl_pipeline_glsl_fragend;
 
+void
+cogl_pipeline_fragend_glsl_start (CoglPipeline  *pipeline,
+                                  int            n_layers,
+                                  unsigned long  pipelines_difference);
+
+gboolean
+cogl_pipeline_fragend_glsl_add_layer (CoglPipeline      *pipeline,
+                                      CoglPipelineLayer *layer,
+                                      unsigned long      layers_difference);
+
+gboolean
+cogl_pipeline_fragend_glsl_end (CoglPipeline  *pipeline,
+                                unsigned long  pipelines_difference);
+
 GLuint
 _cogl_pipeline_fragend_glsl_get_shader (CoglPipeline *pipeline);

@@ -38,6 +38,17 @@
 
 extern const CoglPipelineProgend _cogl_pipeline_glsl_progend;
 
+gboolean
+cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline);
+
+void
+cogl_pipeline_progend_glsl_end (CoglPipeline  *pipeline,
+                                unsigned long  pipelines_difference);
+
+void
+cogl_pipeline_progend_glsl_pre_paint (CoglPipeline    *pipeline,
+                                      CoglFramebuffer *framebuffer);
+
 int
 _cogl_pipeline_progend_glsl_get_attrib_location (CoglPipeline *pipeline,
                                                  int name_index);

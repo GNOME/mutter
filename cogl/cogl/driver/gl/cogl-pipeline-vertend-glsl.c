@@ -413,10 +413,10 @@ add_global_declarations (CoglPipeline *pipeline,
                                                 snippets);
 }
 
-static void
-_cogl_pipeline_vertend_glsl_start (CoglPipeline *pipeline,
-                                   int n_layers,
-                                   unsigned long pipelines_difference)
+void
+cogl_pipeline_vertend_glsl_start (CoglPipeline  *pipeline,
+                                  int            n_layers,
+                                  unsigned long  pipelines_difference)
 {
   CoglPipelineVertendShaderState *shader_state;
   CoglPipelineCacheEntry *cache_entry = NULL;
@@ -520,11 +520,11 @@ _cogl_pipeline_vertend_glsl_start (CoglPipeline *pipeline,
     }
 }
 
-static gboolean
-_cogl_pipeline_vertend_glsl_add_layer (CoglPipeline *pipeline,
-                                       CoglPipelineLayer *layer,
-                                       unsigned long layers_difference,
-                                       CoglFramebuffer *framebuffer)
+gboolean
+cogl_pipeline_vertend_glsl_add_layer (CoglPipeline      *pipeline,
+                                      CoglPipelineLayer *layer,
+                                      unsigned long      layers_difference,
+                                      CoglFramebuffer   *framebuffer)
 {
   CoglPipelineVertendShaderState *shader_state;
   CoglPipelineSnippetData snippet_data;
@@ -591,9 +591,9 @@ _cogl_pipeline_vertend_glsl_add_layer (CoglPipeline *pipeline,
   return TRUE;
 }
 
-static gboolean
-_cogl_pipeline_vertend_glsl_end (CoglPipeline *pipeline,
-                                 unsigned long pipelines_difference)
+gboolean
+cogl_pipeline_vertend_glsl_end (CoglPipeline  *pipeline,
+                                unsigned long  pipelines_difference)
 {
   CoglPipelineVertendShaderState *shader_state;
   CoglContext *ctx = pipeline->context;
@@ -782,9 +782,6 @@ _cogl_pipeline_vertend_glsl_layer_pre_change_notify (
 
 const CoglPipelineVertend _cogl_pipeline_glsl_vertend =
   {
-    _cogl_pipeline_vertend_glsl_start,
-    _cogl_pipeline_vertend_glsl_add_layer,
-    _cogl_pipeline_vertend_glsl_end,
     _cogl_pipeline_vertend_glsl_pre_change_notify,
     _cogl_pipeline_vertend_glsl_layer_pre_change_notify
   };

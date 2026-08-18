@@ -372,15 +372,6 @@ struct _CoglPipeline
 
 typedef struct _CoglPipelineFragend
 {
-  void (*start) (CoglPipeline *pipeline,
-                 int n_layers,
-                 unsigned long pipelines_difference);
-  gboolean (*add_layer) (CoglPipeline *pipeline,
-                         CoglPipelineLayer *layer,
-                         unsigned long layers_difference);
-  gboolean (*end) (CoglPipeline *pipeline,
-                   unsigned long pipelines_difference);
-
   void (*pipeline_pre_change_notify) (CoglPipeline *pipeline,
                                       CoglPipelineState change,
                                       const CoglColor *new_color);
@@ -391,16 +382,6 @@ typedef struct _CoglPipelineFragend
 
 typedef struct _CoglPipelineVertend
 {
-  void (*start) (CoglPipeline *pipeline,
-                 int n_layers,
-                 unsigned long pipelines_difference);
-  gboolean (*add_layer) (CoglPipeline *pipeline,
-                         CoglPipelineLayer *layer,
-                         unsigned long layers_difference,
-                         CoglFramebuffer *framebuffer);
-  gboolean (*end) (CoglPipeline *pipeline,
-                   unsigned long pipelines_difference);
-
   void (*pipeline_pre_change_notify) (CoglPipeline *pipeline,
                                       CoglPipelineState change,
                                       const CoglColor *new_color);
@@ -411,19 +392,12 @@ typedef struct _CoglPipelineVertend
 
 typedef struct
 {
-  gboolean (*start) (CoglPipeline *pipeline);
-  void (*end) (CoglPipeline *pipeline,
-               unsigned long pipelines_difference);
   void (*pipeline_pre_change_notify) (CoglPipeline *pipeline,
                                       CoglPipelineState change,
                                       const CoglColor *new_color);
   void (*layer_pre_change_notify) (CoglPipeline *owner,
                                    CoglPipelineLayer *layer,
                                    CoglPipelineLayerState change);
-  /* This is called after all of the other functions whenever the
-     pipeline is flushed, even if the pipeline hasn't changed since
-     the last flush */
-  void (* pre_paint) (CoglPipeline *pipeline, CoglFramebuffer *framebuffer);
 } CoglPipelineProgend;
 
 extern const CoglPipelineFragend *_cogl_pipeline_fragend;
