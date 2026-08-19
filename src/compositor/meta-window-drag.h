@@ -73,3 +73,5 @@ void meta_window_drag_calculate_window_size (MetaWindowDrag *window_drag,
                                              int            *out_height);
 
 void meta_window_drag_destroy (MetaWindowDrag *window_drag);
+
+gboolean meta_window_drag_is_ending (MetaWindowDrag *window_drag);
