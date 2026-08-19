@@ -3385,7 +3385,7 @@ create_secondary_gpu_buffer (CoglOnscreen        *onscreen,
   MetaKmsDeviceFlag kms_device_flags;
   MetaDrmBufferFlags drm_buffer_flags;
   struct gbm_bo *gbm_bo;
-  MetaDrmBufferGbm *buffer_gbm;
+  g_autoptr (MetaDrmBufferGbm) buffer_gbm = NULL;
   g_autoptr (GArray) modifiers = NULL;
 
   kms_modifiers_debug_env = g_getenv ("MUTTER_DEBUG_USE_KMS_MODIFIERS");
@@ -3434,9 +3434,17 @@ create_secondary_gpu_buffer (CoglOnscreen        *onscreen,
       gbm_bo_destroy (gbm_bo);
       g_prefix_error (error,
                       "meta_drm_buffer_gbm_new_take failed for secondary GPU: ");
+      return NULL;
     }
 
-  return buffer_gbm;
+  if (!meta_drm_buffer_ensure_fb_id (META_DRM_BUFFER (buffer_gbm), error))
+    {
+      g_prefix_error (error,
+                      "meta_drm_buffer_ensure_fb_id failed for secondary GPU: ");
+      return NULL;
+    }
+
+  return g_steal_pointer (&buffer_gbm);
 }
 
 static gboolean
