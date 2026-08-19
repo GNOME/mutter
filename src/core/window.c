@@ -4257,6 +4257,16 @@ out:
   g_assert (!window->monitor ||
             g_list_find (meta_monitor_manager_get_logical_monitors (monitor_manager),
                          window->monitor));
+
+  /* Logical monitor objects are reused across configuration changes, so
+   * window->monitor may still point at the same object even though its
+   * "is primary" state changed. With workspaces-only-on-primary the sticky
+   * state derives from that state, and it is otherwise only re-derived when
+   * window->monitor changes identity, so re-evaluate it unconditionally
+   * here, once the new configuration is fully in place. This is a no-op if
+   * the derived state didn't actually change.
+   */
+  meta_window_on_all_workspaces_changed (window);
 }
 
 void
