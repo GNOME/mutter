@@ -768,6 +768,67 @@ toplevel_show_states (void)
 }
 
 static void
+toplevel_resize_state (void)
+{
+  g_autoptr (GSettings) settings = NULL;
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window;
+  MtkRectangle rect;
+
+  settings = g_settings_new ("org.gnome.mutter");
+  g_assert_true (g_settings_set_boolean (settings, "center-new-windows", TRUE));
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+  virtual_keyboard = clutter_seat_create_virtual_device (seat,
+                                                         CLUTTER_KEYBOARD_DEVICE);
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "resize-state");
+
+  while (!(window = meta_find_window_from_title (test_context, "resize-state")))
+    g_main_context_iteration (NULL, TRUE);
+
+  meta_wait_for_window_shown (window);
+  meta_wait_for_effects (window);
+
+  meta_window_get_frame_rect (window, &rect);
+
+  /* Trigger an interactive resize. */
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       CLUTTER_CURRENT_TIME,
+                                                       rect.x + 20,
+                                                       rect.y + rect.height - 2);
+  clutter_virtual_input_device_notify_keyval (virtual_keyboard,
+                                              g_get_monotonic_time (),
+                                              CLUTTER_KEY_Super_L,
+                                              CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_button (virtual_pointer,
+                                              g_get_monotonic_time (),
+                                              CLUTTER_BUTTON_MIDDLE,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       CLUTTER_CURRENT_TIME,
+                                                       rect.x + 20,
+                                                       rect.y + rect.height + 100);
+  clutter_virtual_input_device_notify_button (virtual_pointer,
+                                              g_get_monotonic_time (),
+                                              CLUTTER_BUTTON_MIDDLE,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  clutter_virtual_input_device_notify_keyval (virtual_keyboard,
+                                              g_get_monotonic_time (),
+                                              CLUTTER_KEY_Super_L,
+                                              CLUTTER_KEY_STATE_RELEASED);
+
+  /* Wait for the client to see the resize come and go. */
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/invalid-xdg-shell-actions",
@@ -792,6 +853,8 @@ init_tests (void)
                    toplevel_begin_interactive_resize);
   g_test_add_func ("/wayland/toplevel/show-states",
                    toplevel_show_states);
+  g_test_add_func ("/wayland/toplevel/reize-state",
+                   toplevel_resize_state);
 #ifdef MUTTER_PRIVILEGED_TEST
   (void)(toplevel_bounds_struts);
   (void)(toplevel_bounds_monitors);

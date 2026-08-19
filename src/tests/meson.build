@@ -1055,6 +1055,7 @@ wayland_test_cases = [
       test_client_executables.get('xdg-toplevel-bounds'),
       test_client_executables.get('toplevel-reuse-surface'),
       test_client_executables.get('toplevel-show-states'),
+      test_client_executables.get('resize-state'),
     ],
   },
   {
