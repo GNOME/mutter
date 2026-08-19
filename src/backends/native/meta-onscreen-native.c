@@ -2007,8 +2007,11 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
 
           if (!meta_drm_buffer_ensure_fb_id (buffer, &error))
             {
+              MetaDeviceFile *device_file =
+                meta_drm_buffer_get_device_file (buffer);
+
               g_warning ("Failed to ensure KMS FB ID on %s: %s",
-                         meta_device_file_get_path (render_device_file),
+                         meta_device_file_get_path (device_file),
                          error->message);
               goto post_failed;
             }
