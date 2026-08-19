@@ -183,6 +183,9 @@ wayland_test_clients = [
   {
     'name': 'touch-dnd-same-surface',
   },
+  {
+    'name': 'resize-state',
+  },
 ]
 
 test_client_executables = {}
