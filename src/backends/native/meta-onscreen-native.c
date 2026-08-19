@@ -3028,6 +3028,15 @@ create_bos_gbm (CoglOnscreen  *onscreen,
           if (!onscreen_native->gbm.bos[i].buffer_gbm)
             break;
 
+          if (!onscreen_native->secondary_gpu_state)
+            {
+              MetaDrmBuffer *buffer =
+                META_DRM_BUFFER (onscreen_native->gbm.bos[i].buffer_gbm);
+
+              if (!meta_drm_buffer_ensure_fb_id (buffer, error))
+                break;
+            }
+
           egl_image =
             meta_egl_ensure_gbm_bo_egl_image (COGL_RENDERER_EGL (cogl_renderer),
                                               g_steal_pointer (&onscreen_native->gbm.bos[i].gbm),
