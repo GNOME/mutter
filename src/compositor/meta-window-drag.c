@@ -55,6 +55,7 @@ struct _MetaWindowDrag {
   MetaWindow *effective_grab_window;
   MetaGrabOp grab_op;
   ClutterGrab *grab;
+  gboolean is_ending;
 
   graphene_point_t pos_hint;
 
@@ -383,6 +384,8 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
               "Ending grab op %u", grab_op);
 
   g_assert (grab_window != NULL);
+
+  window_drag->is_ending = TRUE;
 
   /* Clear out the edge cache */
   meta_window_drag_update_edges (window_drag);
@@ -2133,4 +2136,10 @@ meta_window_drag_destroy (MetaWindowDrag *window_drag)
 {
   g_object_run_dispose (G_OBJECT (window_drag));
   g_object_unref (window_drag);
+}
+
+gboolean
+meta_window_drag_is_ending (MetaWindowDrag *window_drag)
+{
+  return window_drag->is_ending;
 }
