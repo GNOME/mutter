@@ -1371,6 +1371,14 @@ on_started (MetaContext        *context,
 }
 
 static void
+on_backlights_changed (MetaUdev           *udev,
+                       gpointer            device,
+                       MetaMonitorManager *manager)
+{
+  meta_monitor_manager_notify_monitors_changed (manager);
+}
+
+static void
 meta_monitor_manager_constructed (GObject *object)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
@@ -1425,6 +1433,15 @@ meta_monitor_manager_constructed (GObject *object)
   g_signal_connect (backend, "prepare-shutdown",
                     G_CALLBACK (prepare_shutdown),
                     manager);
+
+  g_signal_connect_object (meta_backend_get_udev (backend),
+                           "backlight-added",
+                           G_CALLBACK (on_backlights_changed),
+                           manager, G_CONNECT_DEFAULT);
+  g_signal_connect_object (meta_backend_get_udev (backend),
+                           "backlight-removed",
+                           G_CALLBACK (on_backlights_changed),
+                           manager, G_CONNECT_DEFAULT);
 
   manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
 

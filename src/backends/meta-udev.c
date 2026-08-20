@@ -35,6 +35,8 @@ enum
 
   /* backlight */
   BACKLIGHT_CHANGED,
+  BACKLIGHT_ADDED,
+  BACKLIGHT_REMOVED,
 
   N_SIGNALS
 };
@@ -362,7 +364,11 @@ on_backlight_uevent (GUdevClient *client,
 {
   MetaUdev *udev = META_UDEV (user_data);
 
-  if (g_str_equal (action, "change"))
+  if (g_str_equal (action, "add"))
+    g_signal_emit (udev, signals[BACKLIGHT_ADDED], 0, device);
+  else if (g_str_equal (action, "remove"))
+    g_signal_emit (udev, signals[BACKLIGHT_REMOVED], 0, device);
+  else if (g_str_equal (action, "change"))
     g_signal_emit (udev, signals[BACKLIGHT_CHANGED], 0, device);
 }
 
@@ -461,6 +467,20 @@ meta_udev_class_init (MetaUdevClass *klass)
                   G_UDEV_TYPE_DEVICE);
   signals[BACKLIGHT_CHANGED] =
     g_signal_new ("backlight-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_UDEV_TYPE_DEVICE);
+  signals[BACKLIGHT_ADDED] =
+    g_signal_new ("backlight-added",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_UDEV_TYPE_DEVICE);
+  signals[BACKLIGHT_REMOVED] =
+    g_signal_new ("backlight-removed",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
