@@ -296,12 +296,27 @@ meta_udev_backlight_find_for_connector (GList      *devices,
   GList *l;
   g_autofree char *connector_suffix = g_strdup_printf ("-%s", connector_name);
 
+  /* Prefer a backlight whose connector is enabled, but accept a disabled
+   * one over falling through to the raw fallback.
+   */
+
   for (l = devices; l; l = l->next)
     {
       GUdevDevice *device = G_UDEV_DEVICE (l->data);
 
       if (!meta_udev_backlight_matches_connector (device, connector_suffix,
                                                   TRUE))
+        continue;
+
+      return g_object_ref (device);
+    }
+
+  for (l = devices; l; l = l->next)
+    {
+      GUdevDevice *device = G_UDEV_DEVICE (l->data);
+
+      if (!meta_udev_backlight_matches_connector (device, connector_suffix,
+                                                  FALSE))
         continue;
 
       return g_object_ref (device);
