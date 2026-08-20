@@ -907,6 +907,7 @@ enum
   TRANSITION_REMOVED,
   STAGE_VIEWS_CHANGED,
   RESOURCE_SCALE_CHANGED,
+  REAL_RESOURCE_SCALE_CHANGED,
   CHILD_ADDED,
   CHILD_REMOVED,
   CLONED,
@@ -7520,6 +7521,26 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterActorClass, resource_scale_changed),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  /**
+   * ClutterActor::real-resource-scale-changed:
+   * @actor: a #ClutterActor
+   *
+   * The signal is emitted when the unceiled resource scale of the actor
+   * changes.
+   *
+   * Unlike [signal@Clutter.Actor::resource-scale-changed], this is emitted for
+   * every change of the scale, not only for those that change its ceiling. It
+   * is meant for internal users that care about the unceiled value, such as
+   * effects caching rendered contents.
+   */
+  actor_signals[REAL_RESOURCE_SCALE_CHANGED] =
+    g_signal_new (I_("real-resource-scale-changed"),
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
@@ -15026,6 +15047,8 @@ update_resource_scale (ClutterActor *self,
    */
   if (old_resource_scale == -1.f)
     return;
+
+  g_signal_emit (self, actor_signals[REAL_RESOURCE_SCALE_CHANGED], 0);
 
   if (ceilf (old_resource_scale) != ceilf (priv->resource_scale))
     g_signal_emit (self, actor_signals[RESOURCE_SCALE_CHANGED], 0);

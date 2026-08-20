@@ -121,11 +121,22 @@ typedef struct _ClutterOffscreenEffectPrivate
      regenerate the fbo */
   int target_width;
   int target_height;
+
+  gulong resource_scale_changed_id;
 } ClutterOffscreenEffectPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterOffscreenEffect,
                                      clutter_offscreen_effect,
                                      CLUTTER_TYPE_EFFECT)
+
+static void
+real_resource_scale_changed (ClutterOffscreenEffect *self)
+{
+  ClutterOffscreenEffectPrivate *priv =
+    clutter_offscreen_effect_get_instance_private (self);
+
+  g_clear_object (&priv->offscreen);
+}
 
 static void
 clutter_offscreen_effect_set_actor (ClutterActorMeta *meta,
@@ -140,10 +151,19 @@ clutter_offscreen_effect_set_actor (ClutterActorMeta *meta,
   meta_class->set_actor (meta, actor);
 
   /* clear out the previous state */
+  g_clear_signal_handler (&priv->resource_scale_changed_id, priv->actor);
   g_clear_object (&priv->offscreen);
 
   /* we keep a back pointer here, to avoid going through the ActorMeta */
   priv->actor = clutter_actor_meta_get_actor (meta);
+
+  if (priv->actor)
+    {
+      priv->resource_scale_changed_id =
+        g_signal_connect_object (priv->actor, "real-resource-scale-changed",
+                                 G_CALLBACK (real_resource_scale_changed),
+                                 self, G_CONNECT_SWAPPED);
+    }
 }
 
 static CoglTexture*
