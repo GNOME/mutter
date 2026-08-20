@@ -250,6 +250,45 @@ meta_udev_backlight_find_type (GList      *devices,
   return NULL;
 }
 
+static gboolean
+meta_udev_backlight_matches_connector (GUdevDevice *device,
+                                       const char  *connector_suffix,
+                                       gboolean     enabled_only)
+{
+  g_autoptr (GUdevDevice) parent = NULL;
+  const char *prop;
+
+  /* Only look for raw backlight interfaces */
+  prop = g_udev_device_get_sysfs_attr (device, "type");
+  if (g_strcmp0 (prop, "raw") != 0)
+    return FALSE;
+
+  /* Raw backlight interfaces registered by the drm driver will have the
+   * drm-connector as their parent.
+   */
+  parent = g_udev_device_get_parent_with_subsystem (device, "drm", "drm_connector");
+  if (!parent)
+    return FALSE;
+
+  /* The drm-connector name is in the form `card[n]-[connector-name]`, so
+   * let's check that the suffix of it matches the connector name to make
+   * sure this backlight belongs to the connector.
+   */
+  prop = g_udev_device_get_name (parent);
+  if (!prop || !g_str_has_suffix (prop, connector_suffix))
+    return FALSE;
+
+  if (enabled_only)
+    {
+      /* Also make sure the connector is actually enabled */
+      prop = g_udev_device_get_sysfs_attr (parent, "enabled");
+      if (g_strcmp0 (prop, "enabled") != 0)
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static GUdevDevice *
 meta_udev_backlight_find_for_connector (GList      *devices,
                                         const char *connector_name)
@@ -260,32 +299,9 @@ meta_udev_backlight_find_for_connector (GList      *devices,
   for (l = devices; l; l = l->next)
     {
       GUdevDevice *device = G_UDEV_DEVICE (l->data);
-      g_autoptr (GUdevDevice) parent = NULL;
-      const char *prop;
 
-      /* Only look for raw backlight interfaces */
-      prop = g_udev_device_get_sysfs_attr (device, "type");
-      if (g_strcmp0 (prop, "raw") != 0)
-        continue;
-
-      /* Raw backlight interfaces registered by the drm driver will have the
-       * drm-connector as their parent.
-       */
-      parent = g_udev_device_get_parent_with_subsystem (device, "drm", "drm_connector");
-      if (!parent)
-        continue;
-
-      /* The drm-connector name is in the form `card[n]-[connector-name]`, so
-       * let's check that the suffix of it matches the connector name to make
-       * sure this backlight belongs to the connector.
-       */
-      prop = g_udev_device_get_name (parent);
-      if (!prop || !g_str_has_suffix (prop, connector_suffix))
-        continue;
-
-      /* Also make sure the connector is actually enabled */
-      prop = g_udev_device_get_sysfs_attr (parent, "enabled");
-      if (g_strcmp0 (prop, "enabled") != 0)
+      if (!meta_udev_backlight_matches_connector (device, connector_suffix,
+                                                  TRUE))
         continue;
 
       return g_object_ref (device);
