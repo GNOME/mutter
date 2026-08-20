@@ -376,7 +376,8 @@ static void
 do_update_pointer_accel_profile (MetaInputSettings          *input_settings,
                                  GSettings                  *settings,
                                  ClutterInputDevice         *device,
-                                 GDesktopPointerAccelProfile profile)
+                                 GDesktopPointerAccelProfile profile,
+                                 MetaCustomAccelConfig      *accel_config)
 {
   MetaInputSettingsPrivate *priv =
     meta_input_settings_get_instance_private (input_settings);
@@ -386,19 +387,23 @@ do_update_pointer_accel_profile (MetaInputSettings          *input_settings,
   if (settings == priv->mouse_settings)
     input_settings_class->set_mouse_accel_profile (input_settings,
                                                    device,
-                                                   profile);
+                                                   profile,
+                                                   accel_config);
   else if (settings == priv->touchpad_settings)
     input_settings_class->set_touchpad_accel_profile (input_settings,
                                                       device,
-                                                      profile);
+                                                      profile,
+                                                      accel_config);
   else if (settings == priv->trackball_settings)
     input_settings_class->set_trackball_accel_profile (input_settings,
                                                        device,
-                                                       profile);
+                                                       profile,
+                                                       accel_config);
   else if (settings == priv->pointing_stick_settings)
     input_settings_class->set_pointing_stick_accel_profile (input_settings,
                                                             device,
-                                                            profile);
+                                                            profile,
+                                                            accel_config);
 }
 
 static void
@@ -407,13 +412,72 @@ update_pointer_accel_profile (MetaInputSettings  *input_settings,
                               ClutterInputDevice *device)
 {
   GDesktopPointerAccelProfile profile;
+  MetaCustomAccelConfig pointer_accel_config = { 0 };
+  g_autoptr (GVariant) custom_accel_config = NULL;
+  g_autoptr (GVariant) step_variant = NULL;
+  g_autoptr (GVariant) speeds_variant = NULL;
+  double default_points[] = { 0.0, 1.0 };
+  MetaCustomAccelConfig fallback_accel_config = {
+    .step = 1.0,
+    .points = default_points,
+    .points_len = G_N_ELEMENTS (default_points)
+  };
+  gboolean use_fallback = FALSE;
 
   profile = g_settings_get_enum (settings, "accel-profile");
+  custom_accel_config = g_settings_get_value (settings, "custom-accel-config");
+
+  step_variant = g_variant_lookup_value (custom_accel_config, "pointer-step",
+                                         G_VARIANT_TYPE ("d"));
+  speeds_variant = g_variant_lookup_value (custom_accel_config, "pointer-speeds",
+                                           G_VARIANT_TYPE ("ad"));
+
+  if (!step_variant || !speeds_variant)
+    {
+      g_warning ("Failed to find entries for either pointer-step of type d, "
+                 "or pointer-speeds of type ad.");
+      g_warning ("They could exist, but their types might not be right; make "
+                 "sure all numbers have decimals. If pointer-step doesn't have "
+                 "a decimal, it won't be recognized, and if any numbers in "
+                 "pointer-speeds are missing a decimal, it also might not work "
+                 "correctly. pointer-speeds also needs to be an array. Make "
+                 "sure your variants are set up properly!");
+      use_fallback = TRUE;
+    }
+  else
+    {
+      pointer_accel_config.step = g_variant_get_double (step_variant);
+      pointer_accel_config.points =
+        g_variant_get_fixed_array (speeds_variant,
+                                   &pointer_accel_config.points_len,
+                                   sizeof(double));
+
+      if (pointer_accel_config.step <= 0.0)
+        {
+          g_warning ("Invalid step set for custom pointer acceleration, "
+                     "the step needs to be higher than 0.");
+          use_fallback = TRUE;
+        }
+      if (pointer_accel_config.points_len < 2)
+        {
+          g_warning ("Failed to find required minimum of 2 custom pointer acceleration points.");
+          use_fallback = TRUE;
+        }
+    }
+
+  if (use_fallback)
+    {
+      g_warning ("Falling back to default step of 1.0 and speeds [0.0, 1.0]");
+      pointer_accel_config = fallback_accel_config;
+    }
 
   if (device)
     {
-      do_update_pointer_accel_profile (input_settings, settings,
-                                       device, profile);
+      do_update_pointer_accel_profile (input_settings,
+                                       settings,
+                                       device,
+                                       profile,
+                                       &pointer_accel_config);
     }
   else
     {
@@ -425,8 +489,11 @@ update_pointer_accel_profile (MetaInputSettings  *input_settings,
         {
           device = l->data;
 
-          do_update_pointer_accel_profile (input_settings, settings,
-                                           device, profile);
+          do_update_pointer_accel_profile (input_settings,
+                                           settings,
+                                           device,
+                                           profile,
+                                           &pointer_accel_config);
         }
     }
 }
@@ -1237,7 +1304,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_device_speed (input_settings, NULL);
       else if (strcmp (key, "natural-scroll") == 0)
         update_device_natural_scroll (input_settings, NULL);
-      else if (strcmp (key, "accel-profile") == 0)
+      else if (strcmp (key, "accel-profile") == 0 ||
+               strcmp (key, "custom-accel-config") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);
       else if (strcmp (key, "middle-click-emulation") == 0)
         update_middle_click_emulation (input_settings, settings, NULL);
@@ -1253,7 +1321,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_device_speed (input_settings, NULL);
       else if (strcmp (key, "natural-scroll") == 0)
         update_device_natural_scroll (input_settings, NULL);
-      else if (strcmp (key, "accel-profile") == 0)
+      else if (strcmp (key, "accel-profile") == 0 ||
+               strcmp (key, "custom-accel-config") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);
       else if (strcmp (key, "tap-to-click") == 0)
         update_touchpad_tap_enabled (input_settings, NULL);
@@ -1282,7 +1351,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
       if (strcmp (key, "scroll-wheel-emulation-button") == 0 ||
           strcmp (key, "scroll-wheel-emulation-button-lock") == 0)
         update_trackball_scroll_button (input_settings, NULL);
-      else if (strcmp (key, "accel-profile") == 0)
+      else if (strcmp (key, "accel-profile") == 0 ||
+               strcmp (key, "custom-accel-config") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);
       else if (strcmp (key, "middle-click-emulation") == 0)
         update_middle_click_emulation (input_settings, settings, NULL);
@@ -1291,7 +1361,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
     {
       if (strcmp (key, "speed") == 0)
         update_device_speed (input_settings, NULL);
-      else if (strcmp (key, "accel-profile") == 0)
+      else if (strcmp (key, "accel-profile") == 0 ||
+               strcmp (key, "custom-accel-config") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);
       else if (strcmp (key, "scroll-method") == 0)
         update_pointing_stick_scroll_method (input_settings, settings, NULL);

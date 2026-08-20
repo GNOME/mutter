@@ -53,6 +53,13 @@ typedef struct _MetaKbdA11ySettings
   int mousekeys_accel_time;
 } MetaKbdA11ySettings;
 
+typedef struct _MetaCustomAccelConfig
+{
+  double step;
+  const double *points;
+  size_t points_len;
+} MetaCustomAccelConfig;
+
 struct _MetaInputSettingsClass
 {
   GObjectClass parent_class;
@@ -123,18 +130,22 @@ struct _MetaInputSettingsClass
                                       gdouble                 padding_top,
                                       gdouble                 padding_bottom);
 
-  void (* set_mouse_accel_profile) (MetaInputSettings          *settings,
-                                    ClutterInputDevice         *device,
-                                    GDesktopPointerAccelProfile profile);
+  void (* set_mouse_accel_profile) (MetaInputSettings           *settings,
+                                    ClutterInputDevice          *device,
+                                    GDesktopPointerAccelProfile  profile,
+                                    MetaCustomAccelConfig       *accel_config);
   void (* set_touchpad_accel_profile) (MetaInputSettings           *settings,
                                        ClutterInputDevice          *device,
-                                       GDesktopPointerAccelProfile  profile);
-  void (* set_trackball_accel_profile) (MetaInputSettings          *settings,
-                                        ClutterInputDevice         *device,
-                                        GDesktopPointerAccelProfile profile);
+                                       GDesktopPointerAccelProfile  profile,
+                                       MetaCustomAccelConfig       *accel_config);
+  void (* set_trackball_accel_profile) (MetaInputSettings           *settings,
+                                        ClutterInputDevice          *device,
+                                        GDesktopPointerAccelProfile  profile,
+                                        MetaCustomAccelConfig       *accel_config);
   void (* set_pointing_stick_accel_profile) (MetaInputSettings           *settings,
                                              ClutterInputDevice          *device,
-                                             GDesktopPointerAccelProfile  profile);
+                                             GDesktopPointerAccelProfile  profile,
+                                             MetaCustomAccelConfig       *accel_config);
   void (* set_pointing_stick_scroll_method) (MetaInputSettings                 *settings,
                                              ClutterInputDevice                *device,
                                              GDesktopPointingStickScrollMethod  profile);
