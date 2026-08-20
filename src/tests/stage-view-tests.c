@@ -1503,6 +1503,146 @@ meta_test_stage_views_fractional_position (void)
 }
 
 static void
+meta_test_stage_views_offscreen_effect_resource_scale (void)
+{
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (test_backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  ClutterActor *stage = meta_backend_get_stage (test_backend);
+  MonitorTestCaseSetup scale_test_case_setup = {
+    .modes = {
+      {
+        .width = 1024,
+        .height = 767,
+        .refresh_rate = 60.000495910644531
+      },
+      {
+        .width = 1200,
+        .height = 900,
+        .refresh_rate = 60.000495910644531
+      }
+    },
+    .n_modes = 2,
+    .outputs = {
+      {
+        .crtc = 0,
+        .modes = { 0 },
+        .n_modes = 1,
+        .preferred_mode = 0,
+        .possible_crtcs = { 0 },
+        .n_possible_crtcs = 1,
+        .width_mm = 222,
+        .height_mm = 125,
+        .serial = "0x123456a",
+      },
+      {
+        .crtc = 1,
+        .modes = { 1 },
+        .n_modes = 1,
+        .preferred_mode = 1,
+        .possible_crtcs = { 1 },
+        .n_possible_crtcs = 1,
+        .width_mm = 220,
+        .height_mm = 124,
+        .serial = "0x123456b",
+      }
+    },
+    .n_outputs = 2,
+    .crtcs = {
+      {
+        .current_mode = 0
+      },
+      {
+        .current_mode = 1
+      }
+    },
+    .n_crtcs = 2
+  };
+  MetaMonitorTestSetup *test_setup;
+  GList *stage_views;
+  ClutterStageView *unscaled_view;
+  ClutterStageView *scaled_view;
+  CoglFramebuffer *framebuffer;
+  ClutterActor *base_actor;
+  ClutterActor *container;
+  ClutterActor *redirected_actor;
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &scale_test_case_setup,
+                                               MONITOR_TEST_FLAG_NONE);
+  meta_set_custom_monitor_config (test_context,
+                                  "stage-views-fractional-position.xml");
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 2);
+  unscaled_view = stage_views->data;
+  scaled_view = stage_views->next->data;
+  g_assert_cmpfloat (clutter_stage_view_get_scale (unscaled_view), ==, 1.0f);
+  g_assert_cmpfloat (clutter_stage_view_get_scale (scaled_view), ==, 1.5f);
+
+  /* Green backdrop covering the unscaled monitor. */
+  base_actor = clutter_actor_new ();
+  clutter_actor_set_background_color (base_actor,
+                                      &COGL_COLOR_INIT (0, 255, 0, 255));
+  clutter_actor_set_position (base_actor, 0, 0);
+  clutter_actor_set_size (base_actor, 1024, 767);
+  clutter_actor_add_child (stage, base_actor);
+
+  /* A white actor cached into an offscreen, starting out on the 1.5 scaled
+   * view, so its fbo gets rendered at the ceiled resource scale 2. It is moved
+   * around by its container rather than directly: that way its own allocation
+   * never changes and it never becomes dirty, which is what lets the effect
+   * take its cached texture path across the resource scale change.
+   */
+  container = clutter_actor_new ();
+  clutter_actor_set_position (container, 0, 867);
+  clutter_actor_set_size (container, 100, 100);
+  clutter_actor_add_child (stage, container);
+
+  redirected_actor = clutter_actor_new ();
+  clutter_actor_set_background_color (redirected_actor,
+                                      &COGL_COLOR_INIT (255, 255, 255, 255));
+  clutter_actor_set_offscreen_redirect (redirected_actor,
+                                        CLUTTER_OFFSCREEN_REDIRECT_ALWAYS);
+  clutter_actor_set_position (redirected_actor, 0, 0);
+  clutter_actor_set_size (redirected_actor, 100, 100);
+  clutter_actor_add_child (container, redirected_actor);
+
+  clutter_actor_queue_redraw (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
+  g_assert_cmpfloat (clutter_actor_get_resource_scale (redirected_actor), ==, 2.0f);
+
+  /* Move the container over to the unscaled view. */
+  clutter_actor_set_position (container, 0, 100);
+  clutter_actor_queue_redraw (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
+
+  clutter_actor_queue_redraw (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
+  g_assert_cmpfloat (clutter_actor_get_resource_scale (redirected_actor), ==, 1.0f);
+
+  framebuffer = clutter_stage_view_get_framebuffer (unscaled_view);
+
+  /* The actor is 100x100 logical pixels on a 1:1 view, so it has to cover
+   * exactly 100x100 device pixels. Reusing the texture rendered at the ceiled
+   * scale 2 without rescaling paints it at twice that size instead.
+   */
+  assert_view_pixel (framebuffer, 50, 150, 0xffffffff);
+  assert_view_pixel (framebuffer, 150, 150, 0x00ff00ff);
+  assert_view_pixel (framebuffer, 50, 250, 0x00ff00ff);
+
+  clutter_actor_destroy (container);
+  clutter_actor_destroy (base_actor);
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &initial_test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+}
+
+static void
 on_before_tests (MetaContext *context)
 {
   test_backend = meta_context_get_backend (context);
@@ -1541,6 +1681,8 @@ init_tests (void)
                    meta_test_timeline_actor_destroyed);
   g_test_add_func ("/stage-views/timeline/tree-clear",
                    meta_test_timeline_actor_tree_clear);
+  g_test_add_func ("/stage-views/offscreen-effect-resource-scale",
+                   meta_test_stage_views_offscreen_effect_resource_scale);
   g_test_add_func ("/stage-views/fractional-position",
                    meta_test_stage_views_fractional_position);
 }
