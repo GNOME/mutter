@@ -445,6 +445,55 @@ build-mutter@x86_64:
     - job: build-fedora-container@x86_64
       artifacts: false
 
+build-intermediate-commits@x86_64:
+  extends:
+    - .build-mutter
+    - .mutter.fedora@x86_64
+  needs:
+    - job: build-fedora-container@x86_64
+      artifacts: false
+  # Auto-retry in case of infra failures
+  retry:
+    max: 1
+    when:
+      - 'runner_system_failure'
+      - 'stuck_or_timeout_failure'
+      - 'scheduler_failure'
+      - 'api_failure'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - git config --global --add safe.directory $PWD;
+      git remote add target ${CI_MERGE_REQUEST_PROJECT_URL}.git;
+      git fetch --no-tags --depth 100 target
+        ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}:remotes/target/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME};
+      git fetch --no-tags --depth 100 origin ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME};
+      MERGE_BASE=$(git merge-base target/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} ${CI_COMMIT_SHA} || exit 0);
+      if [ "$MERGE_BASE" = "" ]; then
+        echo "No merge base found";
+        exit 0;
+      fi;
+      INTERMEDIATE=$(git rev-list ${MERGE_BASE}..${CI_COMMIT_SHA} |
+                     (grep -v ${CI_COMMIT_SHA} || exit 0));
+      if [ "$INTERMEDIATE" = "" ]; then
+        echo "No intermediate commits found";
+        exit 0;
+      fi;
+      meson setup . build
+        --prefix /usr
+        --werror
+        --fatal-meson-warnings
+        --warnlevel 2
+        --wrap-mode nofallback
+        -Dbuildtype=debugoptimized
+        -Db_sanitize='["address"]'
+        $BASE_MESON_OPTIONS
+        $EXTRA_MESON_OPTIONS;
+      if ! git rebase --exec "ninja --quiet -C build" $MERGE_BASE ${CI_COMMIT_SHA}^; then
+        echo commit $(git rev-parse HEAD) failed to build;
+        exit 1;
+      fi
+
 build-release@x86_64:
   extends:
     - build-mutter@x86_64
