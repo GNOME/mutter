@@ -58,10 +58,46 @@ xdg_foreign_set_parent_of (void)
 }
 
 static void
+xdg_foreign_imported_parent_of_destroyed (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *parent;
+  MetaWindow *child;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context,
+                                  "xdg-foreign-parent-of-destroyed");
+
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, 0);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
+
+  parent = meta_find_client_window (test_context, "xdg-foreign-parent");
+  child = meta_find_client_window (test_context, "xdg-foreign-child");
+
+  g_assert_true (meta_window_get_transient_for (child) == parent);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, 1);
+
+  g_assert_null (meta_find_client_window (test_context, "xdg-foreign-child"));
+  g_assert_true (meta_find_client_window (test_context,
+                                          "xdg-foreign-parent") == parent);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 1);
+
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/xdg-foreign/set-parent-of",
                    xdg_foreign_set_parent_of);
+  g_test_add_func ("/wayland/xdg-foreign/imported-parent-of-destroyed",
+                   xdg_foreign_imported_parent_of_destroyed);
 }
 
 int
