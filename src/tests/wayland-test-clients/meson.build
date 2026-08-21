@@ -123,6 +123,9 @@ wayland_test_clients = [
     'name': 'xdg-foreign',
   },
   {
+    'name': 'xdg-foreign-parent-of-destroyed',
+  },
+  {
     'name': 'xdg-session-management',
   },
   {

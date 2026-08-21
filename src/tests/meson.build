@@ -1101,6 +1101,7 @@ wayland_test_cases = [
     ],
     'depends': [
       test_client_executables.get('xdg-foreign'),
+      test_client_executables.get('xdg-foreign-parent-of-destroyed'),
     ],
   },
   {
