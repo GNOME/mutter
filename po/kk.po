@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-07-07 13:52+0000\n"
-"PO-Revision-Date: 2026-07-30 11:48+0500\n"
+"POT-Creation-Date: 2026-08-12 20:19+0000\n"
+"PO-Revision-Date: 2026-08-21 22:01+0500\n"
 "Last-Translator: Baurzhan Muftakhidinov <baurthefirst@gmail.com>\n"
 "Language-Team: Kazakh <kk@li.org>\n"
 "Language: kk\n"
@@ -247,13 +247,37 @@ msgstr "Терезені вертикалды жазық қылу"
 msgid "Maximize window horizontally"
 msgstr "Терезені горизонталды жазық қылу"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "Көріністі сол жаққа бөлу"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "Көріністі оң жаққа бөлу"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "Шығару буферлерін әрқашан анық модификаторлармен бөлу"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"Мәні ақиқат болса, драйвер қолдау көрсетсе, mutter шығару буферлерін әрқашан "
+"анық модификаторлармен бөледі. Бұл опция қайта іске қосуды талап етеді."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "Соңғы клиент кеткеннен кейін Xwayland жұмысын автоматты түрде аяқтау"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"Мәні ақиқат болса, соңғы қатысты клиент кеткеннен кейін mutter Xwayland "
+"жұмысын автоматты түрде аяқтайды. Бұл опция қайта іске қосуды талап етеді."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -379,46 +403,19 @@ msgstr ""
 "Егер ақиқат болса, жаңа терезелер әрқашан монитордың белсенді экранының "
 "ортасына қойылады."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "Эксперименталды мүмкіндіктерді іске қосу"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. Whether "
-"the feature requires restarting the compositor depends on the given feature. "
-"Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future proof. "
-"Currently possible keywords: • “kms-modifiers” — makes mutter always allocate "
-"scanout buffers with explicit modifiers, if supported by the driver. Requires "
-"a restart. • “autoclose-xwayland” — automatically terminates Xwayland if all "
-"relevant X11 clients are gone. Requires a restart."
-msgstr ""
-"Сынақ сатысындағы мүмкіндіктерді қосу үшін мүмкіндіктің кілт сөзін тізімге "
-"қосыңыз. Мүмкіндікті іске қосу үшін композиторды қайта жүктеу қажеттілігі "
-"таңдалған мүмкіндікке байланысты. Кез келген эксперименталды мүмкіндіктің "
-"болашақта қолжетімді болуы немесе баптауға келуі міндетті емес. Бұл параметрге "
-"кез келген нәрсені қосудың болашақта өзгеріссіз қалатынына сенбеңіз. Қазіргі "
-"уақытта қолжетімді кілт сөздер: • “kms-modifiers” — егер драйвер қолдайтын "
-"болса, mutter терезе менеджеріне сканерлеу буферлерін (scanout buffers) "
-"әрқашан нақты модификаторлармен бөлуге мәжбүрлейді. Жүйені қайта жүктеуді "
-"қажет етеді. • “autoclose-xwayland” — егер барлық тиісті X11 клиенттері "
-"жабылса, Xwayland жұмысын автоматты түрде тоқтатады. Жүйені қайта жүктеуді "
-"қажет етеді."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "Курсорды табу үшін қолданылатын модификатор"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Бұл перне «курсорды табу» әрекетін іске қосады."
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "Тірі екенін тексеру (ping) үшін күту уақыты"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -429,11 +426,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "Әр шығыс үшін жарықтық параметрлері"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -445,15 +442,15 @@ msgstr ""
 "пайызбен (%) берілген шығыс жарықтығын білдіретін жылжымалы нүктелі мәннен "
 "тұрады. Көрсетілмеген жағдайда әдепкі мән - 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "Монитор баптауларын ауыстыру"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "Кірістірілген монитор конфигурациясын бұрады"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "Кез келген белсенді енгізуді қармау сессиясынан бас тарту"
 
@@ -648,7 +645,7 @@ msgstr "Түрі"
 msgid "Add"
 msgstr "Қосу"
 
-#: mdk/mdk-launcher-entry.c:198
+#: mdk/mdk-launcher-entry.c:204
 msgid "Run"
 msgstr "Орындау"
 
@@ -767,11 +764,11 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Қоңырау оқиғасы"
 
-#: src/core/display.c:612
+#: src/core/display.c:603
 msgid "Privacy Screen Enabled"
 msgstr "Жекелік экраны іске қосылған"
 
-#: src/core/display.c:613
+#: src/core/display.c:604
 msgid "Privacy Screen Disabled"
 msgstr "Жекелік экраны сөндірілген"
 
@@ -840,7 +837,7 @@ msgid "Show on-screen help"
 msgstr "Экрандағы көмекті көрсету"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:303
 msgid "Compositor"
 msgstr "Композитор"
 
@@ -852,7 +849,7 @@ msgstr "Нұсқа ақпаратын шығару"
 msgid "Mutter plugin to use"
 msgstr "Қолданылатын Mutter плагині"
 
-#: src/core/prefs.c:1865
+#: src/core/prefs.c:1866
 #, c-format
 msgid "Workspace %d"
 msgstr "Жұмыс орны %d"
@@ -902,6 +899,32 @@ msgstr "%s пішіміне қолдау жоқ"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s жерінде)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "Эксперименталды мүмкіндіктерді іске қосу"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the given "
+#~ "feature. Any experimental feature is not required to still be available, or "
+#~ "configurable. Don’t expect adding anything in this setting to be future "
+#~ "proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+#~ "allocate scanout buffers with explicit modifiers, if supported by the "
+#~ "driver. Requires a restart. • “autoclose-xwayland” — automatically "
+#~ "terminates Xwayland if all relevant X11 clients are gone. Requires a "
+#~ "restart."
+#~ msgstr ""
+#~ "Сынақ сатысындағы мүмкіндіктерді қосу үшін мүмкіндіктің кілт сөзін тізімге "
+#~ "қосыңыз. Мүмкіндікті іске қосу үшін композиторды қайта жүктеу қажеттілігі "
+#~ "таңдалған мүмкіндікке байланысты. Кез келген эксперименталды мүмкіндіктің "
+#~ "болашақта қолжетімді болуы немесе баптауға келуі міндетті емес. Бұл "
+#~ "параметрге кез келген нәрсені қосудың болашақта өзгеріссіз қалатынына "
+#~ "сенбеңіз. Қазіргі уақытта қолжетімді кілт сөздер: • “kms-modifiers” — егер "
+#~ "драйвер қолдайтын болса, mutter терезе менеджеріне сканерлеу буферлерін "
+#~ "(scanout buffers) әрқашан нақты модификаторлармен бөлуге мәжбүрлейді. "
+#~ "Жүйені қайта жүктеуді қажет етеді. • “autoclose-xwayland” — егер барлық "
+#~ "тиісті X11 клиенттері жабылса, Xwayland жұмысын автоматты түрде тоқтатады. "
+#~ "Жүйені қайта жүктеуді қажет етеді."
 
 #~ msgid "_Resizable"
 #~ msgstr "Ө_лшемі өзгерілетін"
