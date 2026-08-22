@@ -33,8 +33,17 @@
 
 #pragma once
 
+#include "config.h"
+
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/cogl-framebuffer-driver.h"
+
+#if defined(HAVE_GL)
+#include <GL/gl.h>
+#elif defined(HAVE_GLES2)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
 
 #define COGL_TYPE_GL_FRAMEBUFFER (cogl_gl_framebuffer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,

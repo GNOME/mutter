@@ -459,7 +459,7 @@ _cogl_boxed_value_destroy (CoglBoxedValue *bv)
 
 void
 _cogl_boxed_value_set_uniform (CoglContext *ctx,
-                               GLint location,
+                               int location,
                                const CoglBoxedValue *value)
 {
   CoglDriver *driver = cogl_context_get_driver (ctx);

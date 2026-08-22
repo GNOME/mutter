@@ -38,6 +38,13 @@
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-driver-private.h"
 
+#if defined(HAVE_GL)
+#include <GL/gl.h>
+#elif defined(HAVE_GLES2)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
+
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-pipeline-layer-private.h"
 #include "cogl/cogl-pipeline-layer-state-private.h"
@@ -333,7 +340,7 @@ _cogl_pipeline_layer_init_multi_property_sparse_state (
         int i;
         CoglPipelineLayerBigState *src_big_state = authority->big_state;
         CoglPipelineLayerBigState *dest_big_state = layer->big_state;
-        GLint func = src_big_state->texture_combine_rgb_func;
+        int func = src_big_state->texture_combine_rgb_func;
 
         dest_big_state->texture_combine_rgb_func = func;
         n_args = _cogl_get_n_args_for_combine_func (func);

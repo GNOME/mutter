@@ -527,7 +527,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer,
 
       sampler_state = _cogl_pipeline_layer_get_sampler_state (layer);
 
-      GE (driver, glBindSampler (unit_index, sampler_state->sampler_object));
+      GE (driver, glBindSampler (unit_index, (GLuint) sampler_state->sampler_object));
     }
 
   g_object_ref (layer);
@@ -571,7 +571,7 @@ _cogl_pipeline_layer_forward_wrap_modes (CoglPipelineLayer *layer,
                                          CoglTexture *texture)
 {
   CoglSamplerCacheWrapMode wrap_mode_s, wrap_mode_t;
-  GLenum gl_wrap_mode_s, gl_wrap_mode_t;
+  CoglSamplerCacheWrapMode gl_wrap_mode_s, gl_wrap_mode_t;
 
   if (texture == NULL)
     return;
@@ -592,12 +592,12 @@ _cogl_pipeline_layer_forward_wrap_modes (CoglPipelineLayer *layer,
      different layers using the same texture. */
 
   if (wrap_mode_s == COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC)
-    gl_wrap_mode_s = GL_CLAMP_TO_EDGE;
+    gl_wrap_mode_s = COGL_SAMPLER_CACHE_WRAP_MODE_CLAMP_TO_EDGE;
   else
     gl_wrap_mode_s = wrap_mode_s;
 
   if (wrap_mode_t == COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC)
-    gl_wrap_mode_t = GL_CLAMP_TO_EDGE;
+    gl_wrap_mode_t = COGL_SAMPLER_CACHE_WRAP_MODE_CLAMP_TO_EDGE;
   else
     gl_wrap_mode_t = wrap_mode_t;
 

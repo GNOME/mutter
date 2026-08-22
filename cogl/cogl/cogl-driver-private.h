@@ -100,7 +100,7 @@ struct _CoglDriverClass
                         CoglSamplerCacheEntry *entry);
 
   void (* set_uniform) (CoglDriver           *driver,
-                        GLint                 location,
+                        int                   location,
                         const CoglBoxedValue *value);
 
   void (* pipeline_pre_change_notify) (CoglDriver        *driver,

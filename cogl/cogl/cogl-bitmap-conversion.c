@@ -46,21 +46,21 @@ typedef enum
   MEDIUM_TYPE_FLOAT,
 } MediumType;
 
-G_STATIC_ASSERT (sizeof (uint32_t) == sizeof (GLfloat));
+G_STATIC_ASSERT (sizeof (uint32_t) == sizeof (float));
 
 inline static uint32_t
-pack_flt (GLfloat b)
+pack_flt (float b)
 {
   uint32_t ret;
   memcpy (&ret, &b, sizeof (uint32_t));
   return ret;
 }
 
-inline static GLfloat
+inline static float
 unpack_flt (uint32_t b)
 {
-  GLfloat ret;
-  memcpy (&ret, &b, sizeof (GLfloat));
+  float ret;
+  memcpy (&ret, &b, sizeof (float));
   return ret;
 }
 

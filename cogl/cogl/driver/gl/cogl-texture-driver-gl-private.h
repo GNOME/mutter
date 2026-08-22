@@ -28,7 +28,16 @@
 
 #pragma once
 
+#include "config.h"
+
 #include "cogl/cogl-texture-driver.h"
+
+#if defined(HAVE_GL)
+#include <GL/gl.h>
+#elif defined(HAVE_GLES2)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
 
 G_DECLARE_DERIVABLE_TYPE (CoglTextureDriverGL,
                           cogl_texture_driver_gl,

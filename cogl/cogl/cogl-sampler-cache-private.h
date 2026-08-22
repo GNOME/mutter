@@ -35,43 +35,28 @@
 #endif
 
 #include "cogl/cogl-context.h"
+#include "cogl/cogl-pipeline-layer-state.h"
 
-#if defined(HAVE_GL)
-#include <GL/gl.h>
-#elif defined(HAVE_GLES2)
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#endif
-
-/* These aren't defined in the GLES headers */
-#ifndef GL_CLAMP_TO_BORDER
-#define GL_CLAMP_TO_BORDER 0x812d
-#endif
-#ifndef GL_MIRRORED_REPEAT
-#define GL_MIRRORED_REPEAT 0x8370
-#endif
-
-/* GL_ALWAYS is just used here as a value that is known not to clash
- * with any valid GL wrap modes.
- *
- * XXX: keep the values in sync with the CoglPipelineWrapMode enum
+/* XXX: keep the values in sync with the CoglPipelineWrapMode enum
  * so no conversion is actually needed.
  */
 typedef enum _CoglSamplerCacheWrapMode
 {
-  COGL_SAMPLER_CACHE_WRAP_MODE_CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
-  COGL_SAMPLER_CACHE_WRAP_MODE_CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER,
-  COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC = GL_ALWAYS
+  COGL_SAMPLER_CACHE_WRAP_MODE_REPEAT = 0x2901,
+  COGL_SAMPLER_CACHE_WRAP_MODE_MIRRORED_REPEAT = 0x8370,
+  COGL_SAMPLER_CACHE_WRAP_MODE_CLAMP_TO_EDGE = 0x812F,
+  COGL_SAMPLER_CACHE_WRAP_MODE_CLAMP_TO_BORDER = 0x812D,
+  COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC = 0x0207
 } CoglSamplerCacheWrapMode;
 
 typedef struct _CoglSamplerCache CoglSamplerCache;
 
 typedef struct _CoglSamplerCacheEntry
 {
-  GLuint sampler_object;
+  unsigned int sampler_object;
 
-  GLenum min_filter;
-  GLenum mag_filter;
+  CoglPipelineFilter min_filter;
+  CoglPipelineFilter mag_filter;
 
   CoglSamplerCacheWrapMode wrap_mode_s;
   CoglSamplerCacheWrapMode wrap_mode_t;
@@ -90,10 +75,10 @@ _cogl_sampler_cache_update_wrap_modes (CoglSamplerCache *cache,
                                        CoglSamplerCacheWrapMode wrap_mode_t);
 
 const CoglSamplerCacheEntry *
-_cogl_sampler_cache_update_filters (CoglSamplerCache *cache,
+_cogl_sampler_cache_update_filters (CoglSamplerCache            *cache,
                                     const CoglSamplerCacheEntry *old_entry,
-                                    GLenum min_filter,
-                                    GLenum mag_filter);
+                                    CoglPipelineFilter           min_filter,
+                                    CoglPipelineFilter           mag_filter);
 
 void
 _cogl_sampler_cache_free (CoglSamplerCache *cache);
