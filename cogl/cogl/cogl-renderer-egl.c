@@ -192,8 +192,13 @@ cogl_renderer_egl_dispose (GObject *object)
   CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_instance_private (renderer_egl);
 
-  if (priv->libgl_module)
-    g_module_close (priv->libgl_module);
+  if (priv->edisplay != EGL_NO_DISPLAY)
+    {
+      cogl_renderer_egl_terminate (renderer_egl, priv->edisplay, NULL);
+      priv->edisplay = EGL_NO_DISPLAY;
+    }
+
+  g_clear_pointer (&priv->libgl_module, g_module_close);
 
   G_OBJECT_CLASS (cogl_renderer_egl_parent_class)->dispose (object);
 }
