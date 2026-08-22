@@ -100,7 +100,7 @@ hash_wrap_mode_gl (unsigned int hash,
   /* We want to hash the actual GLenum that will be used so that if
      two different wrap_modes actually use the same GL state we'll
      still use the same sampler object */
-  GLenum real_wrap_mode = get_real_wrap_mode (wrap_mode);
+  CoglSamplerCacheWrapMode real_wrap_mode = get_real_wrap_mode (wrap_mode);
 
   return _cogl_util_one_at_a_time_hash (hash,
                                         &real_wrap_mode,
@@ -229,8 +229,8 @@ _cogl_sampler_cache_get_default_entry (CoglSamplerCache *cache)
   key.wrap_mode_s = COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC;
   key.wrap_mode_t = COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC;
 
-  key.min_filter = GL_LINEAR;
-  key.mag_filter = GL_LINEAR;
+  key.min_filter = COGL_PIPELINE_FILTER_LINEAR;
+  key.mag_filter = COGL_PIPELINE_FILTER_LINEAR;
 
   return _cogl_sampler_cache_get_entry_cogl (cache, &key);
 }
@@ -250,10 +250,10 @@ _cogl_sampler_cache_update_wrap_modes (CoglSamplerCache *cache,
 }
 
 const CoglSamplerCacheEntry *
-_cogl_sampler_cache_update_filters (CoglSamplerCache *cache,
+_cogl_sampler_cache_update_filters (CoglSamplerCache            *cache,
                                     const CoglSamplerCacheEntry *old_entry,
-                                    GLenum min_filter,
-                                    GLenum mag_filter)
+                                    CoglPipelineFilter           min_filter,
+                                    CoglPipelineFilter           mag_filter)
 {
   CoglSamplerCacheEntry key = *old_entry;
 

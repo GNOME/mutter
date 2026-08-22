@@ -706,7 +706,7 @@ _cogl_pipeline_layer_texture_data_equal (CoglPipelineLayer *authority0,
     return FALSE;
   else
     {
-      GLuint gl_handle0, gl_handle1;
+      unsigned int gl_handle0, gl_handle1;
 
       cogl_texture_get_gl_texture (authority0->texture, &gl_handle0, NULL);
       cogl_texture_get_gl_texture (authority1->texture, &gl_handle1, NULL);
@@ -1335,7 +1335,7 @@ _cogl_pipeline_layer_hash_texture_data_state (CoglPipelineLayer *authority,
                                               CoglPipelineLayer **authorities,
                                               CoglPipelineHashState *state)
 {
-  GLuint gl_handle;
+  unsigned int gl_handle;
 
   cogl_texture_get_gl_texture (authority->texture, &gl_handle, NULL);
 

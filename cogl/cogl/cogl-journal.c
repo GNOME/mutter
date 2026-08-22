@@ -107,7 +107,7 @@ typedef struct _CoglJournalFlushState
 
   size_t stride;
   size_t array_offset;
-  GLuint current_vertex;
+  unsigned int current_vertex;
 
   CoglIndices *indices;
 
@@ -1561,7 +1561,7 @@ _cogl_journal_log_quad (CoglJournal  *journal,
     {
       /* XXX: See definition of GET_JOURNAL_ARRAY_STRIDE_FOR_N_LAYERS
        * for details about how we pack our vertex data */
-      GLfloat *t = v + 2 + i * 2;
+      float *t = v + 2 + i * 2;
 
       memcpy (t, tex_coords + i * 4, sizeof (float) * 2);
       memcpy (t + stride, tex_coords + i * 4 + 2, sizeof (float) * 2);

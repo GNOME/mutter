@@ -286,19 +286,22 @@ cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
   if (cogl_driver_has_feature (driver,
                                COGL_FEATURE_ID_SAMPLER_OBJECTS))
     {
-      GE (driver, glGenSamplers (1, &entry->sampler_object));
+      GLuint sampler_object;
 
-      GE (driver, glSamplerParameteri (entry->sampler_object,
+      GE (driver, glGenSamplers (1, &sampler_object));
+      entry->sampler_object = sampler_object;
+
+      GE (driver, glSamplerParameteri (sampler_object,
                                        GL_TEXTURE_MIN_FILTER,
                                        entry->min_filter));
-      GE (driver, glSamplerParameteri (entry->sampler_object,
+      GE (driver, glSamplerParameteri (sampler_object,
                                        GL_TEXTURE_MAG_FILTER,
                                        entry->mag_filter));
 
-      GE (driver, glSamplerParameteri (entry->sampler_object,
+      GE (driver, glSamplerParameteri (sampler_object,
                                        GL_TEXTURE_WRAP_S,
                                        entry->wrap_mode_s));
-      GE (driver, glSamplerParameteri (entry->sampler_object,
+      GE (driver, glSamplerParameteri (sampler_object,
                                        GL_TEXTURE_WRAP_T,
                                        entry->wrap_mode_t));
 
@@ -308,12 +311,12 @@ cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
        */
       if (cogl_driver_has_feature (driver,
                                    COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
-          entry->min_filter != GL_NEAREST &&
-          entry->min_filter != GL_LINEAR)
+          entry->min_filter != COGL_PIPELINE_FILTER_NEAREST &&
+          entry->min_filter != COGL_PIPELINE_FILTER_LINEAR)
         {
           GLfloat bias = _cogl_texture_min_filter_get_lod_bias (entry->min_filter);
 
-          GE (driver, glSamplerParameterf (entry->sampler_object,
+          GE (driver, glSamplerParameterf (sampler_object,
                                            GL_TEXTURE_LOD_BIAS,
                                            bias));
         }
@@ -337,7 +340,10 @@ cogl_driver_gl_sampler_free (CoglDriver            *driver,
 {
   if (cogl_driver_has_feature (driver,
                                COGL_FEATURE_ID_SAMPLER_OBJECTS))
-    GE (driver, glDeleteSamplers (1, &entry->sampler_object));
+    {
+      GLuint sampler_object = entry->sampler_object;
+      GE (driver, glDeleteSamplers (1, &sampler_object));
+    }
 }
 
 static void
