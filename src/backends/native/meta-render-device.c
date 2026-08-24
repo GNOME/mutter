@@ -24,6 +24,7 @@
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-renderer-egl.h"
+#include "backends/native/meta-renderer-native-private.h"
 #include "cogl/cogl-context-private.h"
 
 enum
@@ -45,6 +46,8 @@ typedef struct _MetaRenderDevicePrivate
   MetaDeviceFile *device_file;
 
   CoglRenderer *renderer;
+
+  MetaRendererNativeGpuData gpu_data;
 
   gboolean is_hardware_rendering;
 } MetaRenderDevicePrivate;
@@ -380,4 +383,13 @@ meta_render_device_allocate_dumb_buf (MetaRenderDevice  *render_device,
     return NULL;
 
   return META_DRM_BUFFER (buffer_dumb);
+}
+
+MetaRendererNativeGpuData *
+meta_render_device_get_gpu_data (MetaRenderDevice *render_device)
+{
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+
+  return &priv->gpu_data;
 }
