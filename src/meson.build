@@ -753,8 +753,6 @@ mutter_sources += [
   'backends/native/meta-render-device-surfaceless.h',
   'backends/native/meta-render-device.c',
   'backends/native/meta-render-device.h',
-  'backends/native/meta-renderer-display-egl.c',
-  'backends/native/meta-renderer-display-egl-private.h',
   'backends/native/meta-renderer-native-gles3.c',
   'backends/native/meta-renderer-native-gles3.h',
   'backends/native/meta-renderer-native-private.h',
