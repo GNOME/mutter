@@ -31,7 +31,6 @@
 #include "cogl/cogl-display-egl.h"
 #include "cogl/cogl-display-egl-private.h"
 #include "cogl/cogl-renderer-egl.h"
-#include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-renderer-private.h"
 
 typedef struct _CoglDisplayEGLPrivate
@@ -46,6 +45,84 @@ typedef struct _CoglDisplayEGLPrivate
 } CoglDisplayEGLPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglDisplayEGL, cogl_display_egl, COGL_TYPE_DISPLAY)
+
+static EGLSurface
+create_dummy_pbuffer_surface (CoglRendererEGL  *renderer_egl,
+                              GError          **error)
+{
+  EGLConfig pbuffer_config;
+  static const EGLint pbuffer_config_attribs[] = {
+    EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+    EGL_RED_SIZE, 1,
+    EGL_GREEN_SIZE, 1,
+    EGL_BLUE_SIZE, 1,
+    EGL_ALPHA_SIZE, 0,
+    EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+    EGL_NONE
+  };
+  static const EGLint pbuffer_attribs[] = {
+    EGL_WIDTH, 16,
+    EGL_HEIGHT, 16,
+    EGL_NONE
+  };
+
+  if (!cogl_renderer_egl_choose_first_config (renderer_egl,
+                                              pbuffer_config_attribs,
+                                              &pbuffer_config, error))
+    return EGL_NO_SURFACE;
+
+  return cogl_renderer_egl_create_pbuffer_surface (renderer_egl,
+                                                   pbuffer_config,
+                                                   pbuffer_attribs,
+                                                   error);
+}
+
+static gboolean
+cogl_display_egl_context_created_default (CoglDisplayEGL  *cogl_display_egl,
+                                          GError         **error)
+{
+  CoglRenderer *cogl_renderer =
+    cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
+
+  if (!cogl_renderer_egl_has_feature (renderer_egl,
+                                      COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT))
+    {
+      cogl_display_egl_set_dummy_surface (cogl_display_egl,
+                                          create_dummy_pbuffer_surface (renderer_egl,
+                                                                        error));
+      if (cogl_display_egl_get_dummy_surface (cogl_display_egl) == EGL_NO_SURFACE)
+        return FALSE;
+    }
+
+  if (!cogl_display_egl_make_current (cogl_display_egl,
+                                      cogl_display_egl_get_dummy_surface (cogl_display_egl),
+                                      cogl_display_egl_get_dummy_surface (cogl_display_egl),
+                                      cogl_display_egl_get_egl_context (cogl_display_egl)))
+    {
+      g_set_error (error, COGL_WINSYS_ERROR,
+                   COGL_WINSYS_ERROR_CREATE_CONTEXT,
+                   "Failed to make context current");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static void
+cogl_display_egl_cleanup_context_default (CoglDisplayEGL *cogl_display_egl)
+{
+  CoglRenderer *cogl_renderer =
+    cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
+
+  if (cogl_display_egl_get_dummy_surface (cogl_display_egl) != EGL_NO_SURFACE)
+    {
+      cogl_renderer_egl_destroy_surface (COGL_RENDERER_EGL (cogl_renderer),
+                                         cogl_display_egl_get_dummy_surface (cogl_display_egl),
+                                         NULL);
+      cogl_display_egl_set_dummy_surface (cogl_display_egl, EGL_NO_SURFACE);
+    }
+}
 
 static void
 cleanup_context (CoglDisplay *display)
@@ -234,6 +311,9 @@ cogl_display_egl_class_init (CoglDisplayEGLClass *class)
 
   display_class->setup = cogl_display_egl_setup;
   display_class->destroy = cogl_display_egl_destroy;
+
+  class->context_created = cogl_display_egl_context_created_default;
+  class->cleanup_context = cogl_display_egl_cleanup_context_default;
 }
 
 static void
