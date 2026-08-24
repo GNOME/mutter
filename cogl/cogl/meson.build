@@ -297,6 +297,7 @@ endif
 cogl_enum_headers = [
   'cogl-buffer.h',
   'cogl-pixel-format.h',
+  'cogl-render-device.h',
   'cogl-types.h',
 ]
 

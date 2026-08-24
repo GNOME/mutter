@@ -47,8 +47,6 @@ typedef struct _MetaRenderDevicePrivate
 
   CoglRenderer *renderer;
 
-  MetaRendererNativeMode mode;
-
   MetaRendererNativeSecondaryGpuData secondary_gpu_data;
 
   MetaGpuKms *gpu_kms;
@@ -251,11 +249,11 @@ meta_render_device_is_dma_buf_supported_impl (CoglRenderDevice *cogl_render_devi
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
 
-  switch (priv->mode)
+  switch (cogl_render_device_get_mode (cogl_render_device))
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       return cogl_renderer_is_hardware_accelerated (priv->renderer);
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       return FALSE;
     }
 
@@ -288,9 +286,9 @@ meta_render_device_create_dma_buf_impl (CoglRenderDevice  *cogl_render_device,
   MetaRendererNative *renderer_native =
     META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
 
-  switch (priv->mode)
+  switch (cogl_render_device_get_mode (cogl_render_device))
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       {
         MetaDrmBufferFlags flags;
         g_autoptr (MetaDrmBuffer) buffer = NULL;
@@ -387,7 +385,7 @@ meta_render_device_create_dma_buf_impl (CoglRenderDevice  *cogl_render_device,
         return dmabuf_handle;
       }
       break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       break;
     }
 
@@ -486,24 +484,6 @@ meta_render_device_is_hardware_accelerated (MetaRenderDevice *render_device)
   return cogl_renderer_is_hardware_accelerated (priv->renderer);
 }
 
-MetaRendererNativeMode
-meta_render_device_get_mode (MetaRenderDevice *render_device)
-{
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
-
-  return priv->mode;
-}
-
-void
-meta_render_device_set_mode (MetaRenderDevice       *render_device,
-                             MetaRendererNativeMode  mode)
-{
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
-
-  priv->mode = mode;
-}
 
 const char *
 meta_render_device_get_name (MetaRenderDevice *render_device)

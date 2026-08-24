@@ -41,13 +41,13 @@ meta_renderer_display_egl_add_config_attributes (CoglDisplayEGL *cogl_display_eg
     META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
   int i = 0;
 
-  switch (meta_render_device_get_mode (render_device))
+  switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       attributes[i++] = EGL_SURFACE_TYPE;
       attributes[i++] = EGL_WINDOW_BIT;
       break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       attributes[i++] = EGL_SURFACE_TYPE;
       attributes[i++] = EGL_PBUFFER_BIT;
       break;
@@ -67,9 +67,9 @@ meta_renderer_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
   MetaRenderDevice *render_device =
     META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
 
-  switch (meta_render_device_get_mode (render_device))
+  switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       {
         static const uint32_t formats[] = {
           GBM_FORMAT_XRGB8888,
@@ -85,7 +85,7 @@ meta_renderer_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
                                                        out_config,
                                                        error);
       }
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       *out_config = EGL_NO_CONFIG_KHR;
       return TRUE;
     }

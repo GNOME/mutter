@@ -37,6 +37,12 @@
 
 G_BEGIN_DECLS
 
+typedef enum _CoglRenderDeviceMode
+{
+  COGL_RENDER_DEVICE_MODE_GBM,
+  COGL_RENDER_DEVICE_MODE_SURFACELESS,
+} CoglRenderDeviceMode;
+
 #define COGL_TYPE_RENDER_DEVICE (cogl_render_device_get_type ())
 
 COGL_EXPORT
@@ -67,6 +73,9 @@ struct _CoglRenderDeviceClass
                                          int                height,
                                          GError           **error);
 };
+
+COGL_EXPORT CoglRenderDeviceMode
+cogl_render_device_get_mode (CoglRenderDevice *render_device);
 
 /**
  * cogl_render_device_query_drm_modifiers: (skip)

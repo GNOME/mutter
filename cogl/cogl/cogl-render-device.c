@@ -26,18 +26,98 @@
 
 #include <gio/gio.h>
 
+#include "cogl/cogl-enum-types.h"
 #include "cogl/cogl-render-device.h"
 
-G_DEFINE_ABSTRACT_TYPE (CoglRenderDevice, cogl_render_device, G_TYPE_OBJECT)
+typedef struct _CoglRenderDevicePrivate
+{
+  CoglRenderDeviceMode mode;
+} CoglRenderDevicePrivate;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglRenderDevice, cogl_render_device, G_TYPE_OBJECT)
+
+enum
+{
+  PROP_0,
+  PROP_MODE,
+  N_PROPS
+};
+
+static GParamSpec *props[N_PROPS] = { NULL };
+
+static void
+cogl_render_device_get_property (GObject      *object,
+                                 unsigned int  prop_id,
+                                 GValue       *value,
+                                 GParamSpec   *pspec)
+{
+  CoglRenderDevice *render_device = COGL_RENDER_DEVICE (object);
+  CoglRenderDevicePrivate *priv =
+    cogl_render_device_get_instance_private (render_device);
+
+  switch (prop_id)
+    {
+    case PROP_MODE:
+      g_value_set_enum (value, priv->mode);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+cogl_render_device_set_property (GObject      *object,
+                                 unsigned int  prop_id,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
+{
+  CoglRenderDevice *render_device = COGL_RENDER_DEVICE (object);
+  CoglRenderDevicePrivate *priv =
+    cogl_render_device_get_instance_private (render_device);
+
+  switch (prop_id)
+    {
+    case PROP_MODE:
+      priv->mode = g_value_get_enum (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
 
 static void
 cogl_render_device_class_init (CoglRenderDeviceClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->get_property = cogl_render_device_get_property;
+  object_class->set_property = cogl_render_device_set_property;
+
+  props[PROP_MODE] =
+    g_param_spec_enum ("mode", NULL, NULL,
+                       COGL_TYPE_RENDER_DEVICE_MODE,
+                       COGL_RENDER_DEVICE_MODE_SURFACELESS,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
 cogl_render_device_init (CoglRenderDevice *render_device)
 {
+}
+
+CoglRenderDeviceMode
+cogl_render_device_get_mode (CoglRenderDevice *render_device)
+{
+  CoglRenderDevicePrivate *priv =
+    cogl_render_device_get_instance_private (render_device);
+
+  return priv->mode;
 }
 
 GArray *

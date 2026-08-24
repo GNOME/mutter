@@ -328,6 +328,7 @@ meta_render_device_gbm_new (MetaBackend     *backend,
                          NULL, error,
                          "backend", backend,
                          "device-file", device_file,
+                         "mode", COGL_RENDER_DEVICE_MODE_GBM,
                          NULL);
 }
 
