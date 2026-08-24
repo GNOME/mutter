@@ -47,9 +47,13 @@ typedef struct _MetaRenderDevicePrivate
 
   CoglRenderer *renderer;
 
-  MetaRendererNativeGpuData gpu_data;
-
   MetaRendererNativeMode mode;
+
+  MetaRendererNativeSecondaryGpuData secondary_gpu_data;
+
+  MetaGpuKms *gpu_kms;
+
+  gulong crtc_needs_flush_handler_id;
 
   gboolean is_hardware_rendering;
 } MetaRenderDevicePrivate;
@@ -406,11 +410,39 @@ meta_render_device_allocate_dumb_buf (MetaRenderDevice  *render_device,
   return META_DRM_BUFFER (buffer_dumb);
 }
 
-MetaRendererNativeGpuData *
-meta_render_device_get_gpu_data (MetaRenderDevice *render_device)
+MetaRendererNativeSecondaryGpuData *
+meta_render_device_get_secondary_gpu_data (MetaRenderDevice *render_device)
 {
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
 
-  return &priv->gpu_data;
+  return &priv->secondary_gpu_data;
+}
+
+MetaGpuKms *
+meta_render_device_get_gpu_kms (MetaRenderDevice *render_device)
+{
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+
+  return priv->gpu_kms;
+}
+
+void
+meta_render_device_set_gpu_kms (MetaRenderDevice *render_device,
+                                MetaGpuKms       *gpu_kms)
+{
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+
+  priv->gpu_kms = gpu_kms;
+}
+
+gulong *
+meta_render_device_get_crtc_needs_flush_handler_id (MetaRenderDevice *render_device)
+{
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+
+  return &priv->crtc_needs_flush_handler_id;
 }

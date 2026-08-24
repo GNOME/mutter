@@ -51,9 +51,16 @@ struct _MetaRenderDeviceClass
                                     GError                **error);
 };
 
-MetaRendererNativeGpuData * meta_render_device_get_gpu_data (MetaRenderDevice *render_device);
-
 MetaRendererNativeMode meta_render_device_get_mode (MetaRenderDevice *render_device);
 
 void meta_render_device_set_mode (MetaRenderDevice       *render_device,
                                   MetaRendererNativeMode  mode);
+
+MetaRendererNativeSecondaryGpuData * meta_render_device_get_secondary_gpu_data (MetaRenderDevice *render_device);
+
+MetaGpuKms * meta_render_device_get_gpu_kms (MetaRenderDevice *render_device);
+
+void meta_render_device_set_gpu_kms (MetaRenderDevice *render_device,
+                                     MetaGpuKms       *gpu_kms);
+
+gulong * meta_render_device_get_crtc_needs_flush_handler_id (MetaRenderDevice *render_device);

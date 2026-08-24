@@ -121,11 +121,13 @@ meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
 static void
 free_render_device_gpu_data (MetaRenderDevice *render_device)
 {
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_render_device_get_gpu_data (render_device);
-  MetaGpuKms *gpu_kms = renderer_gpu_data->gpu_kms;
+  MetaRendererNativeSecondaryGpuData *secondary_gpu_data =
+    meta_render_device_get_secondary_gpu_data (render_device);
+  MetaGpuKms *gpu_kms = meta_render_device_get_gpu_kms (render_device);
+  gulong *crtc_needs_flush_handler_id =
+    meta_render_device_get_crtc_needs_flush_handler_id (render_device);
 
-  if (renderer_gpu_data->secondary.egl_context != EGL_NO_CONTEXT)
+  if (secondary_gpu_data->egl_context != EGL_NO_CONTEXT)
     {
       MetaBackend *backend = meta_render_device_get_backend (render_device);
       ClutterBackend *clutter_backend =
@@ -140,17 +142,17 @@ free_render_device_gpu_data (MetaRenderDevice *render_device)
           CoglDriver *driver = cogl_context_get_driver (cogl_context);
 
           meta_renderer_native_gles3_forget_context (driver,
-                                                     renderer_gpu_data->secondary.egl_context);
+                                                     secondary_gpu_data->egl_context);
         }
 
       cogl_renderer_egl_destroy_context (renderer_egl,
-                                         renderer_gpu_data->secondary.egl_context,
+                                         secondary_gpu_data->egl_context,
                                          NULL);
     }
 
-  if (renderer_gpu_data->crtc_needs_flush_handler_id)
+  if (*crtc_needs_flush_handler_id)
     {
-      g_clear_signal_handler (&renderer_gpu_data->crtc_needs_flush_handler_id,
+      g_clear_signal_handler (crtc_needs_flush_handler_id,
                               meta_gpu_kms_get_kms_device (gpu_kms));
     }
 
@@ -1195,12 +1197,12 @@ maybe_restore_cogl_egl_api (MetaRendererNative *renderer_native)
 }
 
 static void
-set_copy_mode (MetaRendererNativeGpuData     *gpu_data,
-               MetaSharedFramebufferCopyMode  default_copy_mode)
+set_copy_mode (MetaRendererNativeSecondaryGpuData *secondary_gpu_data,
+               MetaSharedFramebufferCopyMode       default_copy_mode)
 {
   const char *copy_mode;
 
-  gpu_data->secondary.copy_mode = default_copy_mode;
+  secondary_gpu_data->copy_mode = default_copy_mode;
 
   copy_mode = getenv ("MUTTER_DEBUG_MULTI_GPU_FORCE_COPY_MODE");
   if (!copy_mode || *copy_mode == '\0')
@@ -1208,25 +1210,26 @@ set_copy_mode (MetaRendererNativeGpuData     *gpu_data,
 
   if (strcmp (copy_mode, "primary-gpu-gpu") == 0)
     {
-      gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+      secondary_gpu_data->copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
     }
   else if (strcmp (copy_mode, "primary-gpu-cpu") == 0)
     {
-      gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
-      gpu_data->secondary.copy_mode_primary_force_cpu = TRUE;
+      secondary_gpu_data->copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+      secondary_gpu_data->copy_mode_primary_force_cpu = TRUE;
     }
   else if (strcmp (copy_mode, "zero-copy") == 0)
     {
-      gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO;
+      secondary_gpu_data->copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO;
     }
 }
 
 static gboolean
-init_secondary_gpu_data_gpu (MetaRendererNative        *renderer_native,
-                             MetaRendererNativeGpuData *renderer_gpu_data,
-                             MetaRenderDevice          *render_device,
-                             GError                   **error)
+init_secondary_gpu_data_gpu (MetaRendererNative  *renderer_native,
+                             MetaRenderDevice    *render_device,
+                             GError             **error)
 {
+  MetaRendererNativeSecondaryGpuData *secondary_gpu_data =
+    meta_render_device_get_secondary_gpu_data (render_device);
   CoglRendererEGL *renderer_egl =
     COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
   gboolean ret = FALSE;
@@ -1289,19 +1292,19 @@ init_secondary_gpu_data_gpu (MetaRendererNative        *renderer_native,
         }
     }
 
-  renderer_gpu_data->secondary.egl_context = egl_context;
+  secondary_gpu_data->egl_context = egl_context;
 
-  set_copy_mode (renderer_gpu_data,
+  set_copy_mode (secondary_gpu_data,
                  META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU);
 
-  renderer_gpu_data->secondary.has_EGL_EXT_image_dma_buf_import_modifiers =
+  secondary_gpu_data->has_EGL_EXT_image_dma_buf_import_modifiers =
     cogl_renderer_egl_has_extensions (renderer_egl, NULL,
                                       "EGL_EXT_image_dma_buf_import_modifiers",
                                       NULL);
 
   egl_vendor = cogl_renderer_egl_query_string (renderer_egl, EGL_VENDOR);
   if (!g_strcmp0 (egl_vendor, "NVIDIA"))
-    renderer_gpu_data->secondary.is_nvidia = TRUE;
+    secondary_gpu_data->is_nvidia = TRUE;
 
   ret = TRUE;
 out:
@@ -1317,20 +1320,19 @@ out:
 }
 
 static void
-init_secondary_gpu_data (MetaRendererNative        *renderer_native,
-                         MetaRendererNativeGpuData *renderer_gpu_data,
-                         MetaRenderDevice          *render_device)
+init_secondary_gpu_data (MetaRendererNative *renderer_native,
+                         MetaRenderDevice   *render_device)
 {
   g_autoptr (GError) error = NULL;
 
-  if (init_secondary_gpu_data_gpu (renderer_native, renderer_gpu_data, render_device, &error))
+  if (init_secondary_gpu_data_gpu (renderer_native, render_device, &error))
     return;
 
   g_message ("Failed to initialize accelerated iGPU/dGPU framebuffer sharing: %s",
              error->message);
 
   /* First try ZERO, it automatically falls back to PRIMARY as needed */
-  set_copy_mode (renderer_gpu_data,
+  set_copy_mode (meta_render_device_get_secondary_gpu_data (render_device),
                  META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO);
 }
 
@@ -1350,13 +1352,10 @@ create_renderer_gpu_data_gbm (MetaRendererNative *renderer_native,
                               MetaRenderDevice   *render_device,
                               MetaGpuKms         *gpu_kms)
 {
-  MetaRendererNativeGpuData *renderer_gpu_data;
-
-  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_GBM);
-  renderer_gpu_data->gpu_kms = gpu_kms;
+  meta_render_device_set_gpu_kms (render_device, gpu_kms);
 
-  init_secondary_gpu_data (renderer_native, renderer_gpu_data, render_device);
+  init_secondary_gpu_data (renderer_native, render_device);
 }
 
 static MetaRenderDevice *
@@ -1407,7 +1406,6 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   const char *device_path;
   MetaRenderDevice *render_device;
-  MetaRendererNativeGpuData *renderer_gpu_data;
 
   if (!gpu_kms)
     return create_renderer_gpu_data_surfaceless (renderer_native, error);
@@ -1431,8 +1429,7 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
       return NULL;
     }
 
-  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
-  renderer_gpu_data->crtc_needs_flush_handler_id =
+  *meta_render_device_get_crtc_needs_flush_handler_id (render_device) =
     g_signal_connect (meta_gpu_kms_get_kms_device (gpu_kms),
                       "crtc-needs-flush",
                       G_CALLBACK (on_crtc_needs_flush),
