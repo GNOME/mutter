@@ -1719,3 +1719,50 @@ cogl_renderer_egl_device_has_extensions (CoglRendererEGL  *renderer_egl,
 
   return num_missing == 0;
 }
+
+gboolean
+cogl_renderer_egl_choose_config_from_gbm_format (CoglRendererEGL  *renderer_egl,
+                                                 const EGLint     *attributes,
+                                                 uint32_t          gbm_format,
+                                                 EGLConfig        *out_config,
+                                                 GError          **error)
+{
+  EGLConfig *egl_configs;
+  EGLint n_configs;
+  EGLint i;
+
+  egl_configs = cogl_renderer_egl_choose_all_configs (renderer_egl,
+                                                      attributes,
+                                                      &n_configs,
+                                                      error);
+  if (!egl_configs)
+    return FALSE;
+
+  for (i = 0; i < n_configs; i++)
+    {
+      EGLint visual_id;
+
+      if (!cogl_renderer_egl_get_config_attrib (renderer_egl,
+                                                egl_configs[i],
+                                                EGL_NATIVE_VISUAL_ID,
+                                                &visual_id,
+                                                error))
+        {
+          g_free (egl_configs);
+          return FALSE;
+        }
+
+      if ((uint32_t) visual_id == gbm_format)
+        {
+          *out_config = egl_configs[i];
+          g_free (egl_configs);
+          return TRUE;
+        }
+    }
+
+  g_free (egl_configs);
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+               "No EGL config matching supported GBM format found");
+  return FALSE;
+}
+

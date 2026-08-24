@@ -32,43 +32,6 @@ struct _MetaRendererDisplayEgl
 G_DEFINE_FINAL_TYPE (MetaRendererDisplayEgl, meta_renderer_display_egl, COGL_TYPE_DISPLAY_EGL)
 
 static gboolean
-meta_renderer_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
-                                         EGLint          *attributes,
-                                         EGLConfig       *out_config,
-                                         GError         **error)
-{
-  CoglRenderer *cogl_renderer =
-    cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
-  MetaRenderDevice *render_device =
-    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
-
-  switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
-    {
-    case COGL_RENDER_DEVICE_MODE_GBM:
-      {
-        static const uint32_t formats[] = {
-          GBM_FORMAT_XRGB8888,
-          GBM_FORMAT_ARGB8888,
-        };
-
-        return meta_renderer_native_choose_gbm_format (NULL,
-                                                       COGL_RENDERER_EGL (cogl_renderer),
-                                                       attributes,
-                                                       formats,
-                                                       G_N_ELEMENTS (formats),
-                                                       "fallback",
-                                                       out_config,
-                                                       error);
-      }
-    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
-      *out_config = EGL_NO_CONFIG_KHR;
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-static gboolean
 meta_renderer_display_egl_setup (CoglDisplay  *cogl_display,
                                  GError      **error)
 {
@@ -101,10 +64,7 @@ meta_renderer_display_egl_init (MetaRendererDisplayEgl *display_egl)
 static void
 meta_renderer_display_egl_class_init (MetaRendererDisplayEglClass *class)
 {
-  CoglDisplayEGLClass *egl_class = COGL_DISPLAY_EGL_CLASS (class);
   CoglDisplayClass *display_class = COGL_DISPLAY_CLASS (class);
-
-  egl_class->choose_config = meta_renderer_display_egl_choose_config;
 
   display_class->setup = meta_renderer_display_egl_setup;
 }
