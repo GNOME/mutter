@@ -69,8 +69,9 @@ typedef struct _MetaRendererNativeGpuData
   gulong crtc_needs_flush_handler_id;
 } MetaRendererNativeGpuData;
 
-MetaRendererNativeGpuData * meta_renderer_native_get_gpu_data (MetaRendererNative *renderer_native,
-                                                               MetaGpuKms         *gpu_kms);
+MetaRenderDevice * meta_renderer_native_get_render_device (MetaRendererNative *renderer_native,
+                                                           MetaGpuKms         *gpu_kms);
+
 
 META_EXPORT_TEST
 gboolean meta_renderer_native_has_pending_mode_sets (MetaRendererNative *renderer_native);

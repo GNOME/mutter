@@ -156,18 +156,13 @@ free_render_device_gpu_data (MetaRenderDevice *render_device)
   g_object_unref (render_device);
 }
 
-MetaRendererNativeGpuData *
-meta_renderer_native_get_gpu_data (MetaRendererNative *renderer_native,
-                                   MetaGpuKms         *gpu_kms)
+MetaRenderDevice *
+meta_renderer_native_get_render_device (MetaRendererNative *renderer_native,
+                                        MetaGpuKms         *gpu_kms)
 {
-  MetaRenderDevice *render_device;
-
-  render_device = g_hash_table_lookup (renderer_native->gpu_datas, gpu_kms);
-  if (!render_device)
-    return NULL;
-
-  return meta_render_device_get_gpu_data (render_device);
+  return g_hash_table_lookup (renderer_native->gpu_datas, gpu_kms);
 }
+
 
 static MetaRendererNative *
 meta_renderer_native_from_gpu (MetaGpuKms *gpu_kms)
@@ -181,22 +176,17 @@ struct gbm_device *
 meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms)
 {
   MetaRendererNative *renderer_native = meta_renderer_native_from_gpu (gpu_kms);
-  MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRenderDevice *render_device;
-  MetaRenderDeviceGbm *render_device_gbm;
 
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         gpu_kms);
-  if (!renderer_gpu_data)
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          gpu_kms);
+  if (!render_device)
     return NULL;
-
-  render_device = renderer_gpu_data->render_device;
 
   if (!META_IS_RENDER_DEVICE_GBM (render_device))
     return NULL;
 
-  render_device_gbm = META_RENDER_DEVICE_GBM (render_device);
-  return meta_render_device_gbm_get_gbm_device (render_device_gbm);
+  return meta_render_device_gbm_get_gbm_device (META_RENDER_DEVICE_GBM (render_device));
 }
 
 MetaGpuKms *
@@ -208,13 +198,10 @@ meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native)
 MetaDeviceFile *
 meta_renderer_native_get_primary_device_file (MetaRendererNative *renderer_native)
 {
-  MetaGpuKms *gpu_kms = renderer_native->primary_gpu_kms;
-  MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRenderDevice *render_device;
 
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         gpu_kms);
-  render_device = renderer_gpu_data->render_device;
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          renderer_native->primary_gpu_kms);
   return meta_render_device_get_device_file (render_device);
 }
 
@@ -769,17 +756,15 @@ static CoglRenderer *
 meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  MetaGpuKms *primary_gpu_kms;
-  MetaRendererNativeGpuData *renderer_gpu_data;
+  MetaRenderDevice *render_device;
   CoglRenderer *cogl_renderer;
 
-  primary_gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         primary_gpu_kms);
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          meta_renderer_native_get_primary_gpu (renderer_native));
 
-  cogl_renderer = meta_render_device_get_renderer (renderer_gpu_data->render_device);
+  cogl_renderer = meta_render_device_get_renderer (render_device);
   meta_renderer_egl_set_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer),
-                                           renderer_gpu_data);
+                                           meta_render_device_get_gpu_data (render_device));
 
   return cogl_renderer;
 }
@@ -1352,10 +1337,11 @@ static gboolean
 gpu_kms_is_hardware_rendering (MetaRendererNative *renderer_native,
                                MetaGpuKms         *gpu_kms)
 {
-  MetaRendererNativeGpuData *data;
+  MetaRenderDevice *render_device;
 
-  data = meta_renderer_native_get_gpu_data (renderer_native, gpu_kms);
-  return meta_render_device_is_hardware_accelerated (data->render_device);
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          gpu_kms);
+  return meta_render_device_is_hardware_accelerated (render_device);
 }
 
 static void
@@ -1696,13 +1682,11 @@ choose_primary_gpu (MetaBackend         *backend,
                     GError             **error)
 {
   MetaGpuKms *gpu_kms;
-  MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRenderDevice *render_device;
 
   gpu_kms = choose_primary_gpu_unchecked (backend, renderer_native);
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         gpu_kms);
-  render_device = renderer_gpu_data->render_device;
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          gpu_kms);
   if (meta_render_device_get_egl_display (render_device) == EGL_NO_DISPLAY)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,

@@ -1381,7 +1381,7 @@ maybe_init_hw_cursor_support_for_gpu (MetaCursorRendererNative *native,
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
 
-  if (!meta_renderer_native_get_gpu_data (renderer_native, gpu_kms))
+  if (!meta_renderer_native_get_render_device (renderer_native, gpu_kms))
     return FALSE;
 
   init_hw_cursor_support_for_gpu (native, gpu_kms);
@@ -1490,7 +1490,7 @@ init_hw_cursor_support_for_gpu (MetaCursorRendererNative *native,
   if (meta_backend_is_headless (backend))
     return;
 
-  if (!meta_renderer_native_get_gpu_data (renderer_native, gpu_kms))
+  if (!meta_renderer_native_get_render_device (renderer_native, gpu_kms))
     {
       g_hash_table_insert (priv->deferred_hw_cursor_init, gpu_kms, NULL);
       return;

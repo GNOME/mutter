@@ -45,8 +45,8 @@
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-output-kms.h"
+#include "backends/native/meta-render-device-private.h"
 #include "backends/native/meta-render-device-gbm.h"
-#include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native-private.h"
@@ -743,6 +743,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaRenderDevice *render_device;
   MetaRendererNativeGpuData *renderer_gpu_data;
 #ifndef G_DISABLE_ASSERT
   MetaGpuKms *gpu_kms;
@@ -762,8 +763,9 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   g_assert (meta_gpu_kms_is_crtc_active (gpu_kms, crtc));
 #endif
 
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         render_gpu);
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          render_gpu);
+  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
@@ -1279,6 +1281,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *primary_gpu;
+  MetaRenderDevice *primary_render_device;
   MetaRendererNativeGpuData *primary_gpu_data;
   MetaDrmBufferDumb *buffer_dumb;
   MetaDrmBuffer *buffer;
@@ -1303,8 +1306,9 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
     return NULL;
 
   primary_gpu = meta_renderer_native_get_primary_gpu (renderer_native);
-  primary_gpu_data =
-    meta_renderer_native_get_gpu_data (renderer_native, primary_gpu);
+  primary_render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                                  primary_gpu);
+  primary_gpu_data = meta_render_device_get_gpu_data (primary_render_device);
   if (!primary_gpu_data->secondary.has_EGL_EXT_image_dma_buf_import_modifiers)
     return NULL;
 
@@ -1514,6 +1518,7 @@ acquire_front_buffer (CoglOnscreen     *onscreen,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
+  MetaRenderDevice *render_device;
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaDrmBuffer *imported_fb;
 
@@ -1524,9 +1529,9 @@ acquire_front_buffer (CoglOnscreen     *onscreen,
   if (!secondary_gpu_state)
     return g_object_ref (primary_gpu_fb);
 
-  renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (renderer_native,
-                                       secondary_gpu_state->gpu_kms);
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          secondary_gpu_state->gpu_kms);
+  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   switch (renderer_gpu_data->secondary.copy_mode)
     {
     case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
@@ -2256,11 +2261,13 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+  MetaRenderDevice *render_device;
   ClutterFrame *frame = user_data;
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
 
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         render_gpu);
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          render_gpu);
+  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
 
   g_warn_if_fail (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_GBM);
 
@@ -2730,15 +2737,13 @@ get_supported_egl_modifiers (CoglOnscreen *onscreen,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpu *gpu;
-  MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRenderDevice *render_device;
   GArray *modifiers;
   g_autoptr (GError) error = NULL;
 
   gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         META_GPU_KMS (gpu));
-  render_device = renderer_gpu_data->render_device;
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          META_GPU_KMS (gpu));
 
   modifiers = meta_render_device_query_drm_modifiers (render_device, format,
                                                       COGL_DRM_MODIFIER_FILTER_NONE,
@@ -2923,8 +2928,6 @@ create_bos_gbm (CoglOnscreen  *onscreen,
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaKmsPlane *kms_plane = NULL;
   uint32_t gbm_flags = GBM_BO_USE_RENDERING;
@@ -2966,10 +2969,8 @@ create_bos_gbm (CoglOnscreen  *onscreen,
     }
 
   format_info = meta_format_info_from_drm_format (gbm_format);
-  renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (renderer_native,
-                                       onscreen_native->render_gpu);
-  render_device = renderer_gpu_data->render_device;
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          onscreen_native->render_gpu);
   device_file = meta_render_device_get_device_file (render_device);
   render_device_gbm = META_RENDER_DEVICE_GBM (render_device);
   gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
@@ -3103,8 +3104,6 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   CoglRendererEGL *cogl_renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   MetaRenderDeviceGbm *render_device_gbm;
   struct gbm_device *gbm_device;
   struct gbm_surface *new_gbm_surface = NULL;
@@ -3114,10 +3113,9 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   EGLConfig egl_config;
   uint32_t format;
 
-  renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (renderer_native,
-                                       onscreen_native->render_gpu);
-  render_device_gbm = META_RENDER_DEVICE_GBM (renderer_gpu_data->render_device);
+  render_device_gbm =
+    META_RENDER_DEVICE_GBM (meta_renderer_native_get_render_device (renderer_native,
+                                                                    onscreen_native->render_gpu));
   gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
 
   should_be_sharable = should_surface_be_sharable (onscreen);
@@ -3271,6 +3269,7 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
+  MetaRenderDevice *render_device;
   MetaRendererNativeGpuData *renderer_gpu_data;
   struct gbm_surface *gbm_surface;
   EGLSurface egl_surface;
@@ -3289,9 +3288,9 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
 
-  renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
-                                       onscreen_native->render_gpu);
+  render_device = meta_renderer_native_get_render_device (onscreen_native->renderer_native,
+                                                          onscreen_native->render_gpu);
+  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   switch (renderer_gpu_data->mode)
     {
       gboolean create_surfaces;
@@ -3694,11 +3693,13 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaGpu *gpu = meta_crtc_get_gpu (onscreen_native->crtc);
+  MetaRenderDevice *render_device;
   MetaRendererNativeGpuData *renderer_gpu_data;
   g_autoptr (GError) local_error = NULL;
 
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         META_GPU_KMS (gpu));
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          META_GPU_KMS (gpu));
+  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
 
   switch (renderer_gpu_data->secondary.copy_mode)
     {
@@ -3835,6 +3836,7 @@ meta_onscreen_native_dispose (GObject *object)
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaRenderDevice *render_device;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
   g_clear_pointer (&onscreen_native->next_frame_ready_source, g_source_destroy);
@@ -3845,9 +3847,9 @@ meta_onscreen_native_dispose (GObject *object)
   g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
   g_clear_object (&onscreen_native->presented_buffer);
 
-  renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (renderer_native,
-                                       onscreen_native->render_gpu);
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          onscreen_native->render_gpu);
+  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
