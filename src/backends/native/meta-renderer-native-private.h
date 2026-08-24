@@ -48,7 +48,6 @@ typedef struct _MetaRendererNativeGpuData
 {
   MetaRendererNative *renderer_native;
 
-  MetaRenderDevice *render_device;
   MetaGpuKms *gpu_kms;
 
   /*
