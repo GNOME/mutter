@@ -23,7 +23,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
-#include "backends/native/meta-renderer-egl.h"
+#include "common/meta-cogl-drm-formats.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "cogl/cogl-context-private.h"
 
@@ -77,7 +77,9 @@ init_egl (MetaRenderDevice *render_device)
   CoglRenderer *renderer;
   EGLDisplay egl_display;
 
-  renderer = COGL_RENDERER (meta_renderer_egl_new (render_device));
+  renderer = g_object_new (COGL_TYPE_RENDERER_EGL,
+                           "render-device", render_device,
+                           NULL);
   priv->renderer = renderer;
 
   egl_display = klass->create_egl_display (render_device, &error);
@@ -205,10 +207,211 @@ meta_render_device_constructed (GObject *object)
   G_OBJECT_CLASS (meta_render_device_parent_class)->constructed (object);
 }
 
+static GArray *
+meta_render_device_query_drm_modifiers_impl (CoglRenderDevice       *cogl_render_device,
+                                             CoglPixelFormat         format,
+                                             CoglDrmModifierFilter   filter,
+                                             GError                **error)
+{
+  MetaRenderDevice *render_device = META_RENDER_DEVICE (cogl_render_device);
+  MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
+  const MetaFormatInfo *format_info;
+
+  format_info = meta_format_info_from_cogl_format (format);
+  if (!format_info)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "Format %s not supported",
+                   cogl_pixel_format_to_string (format));
+      return NULL;
+    }
+
+  if (klass->query_drm_modifiers)
+    return klass->query_drm_modifiers (render_device,
+                                       format_info->drm_format,
+                                       filter, error);
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+               "Render device '%s' doesn't support querying DRM modifiers",
+               meta_render_device_get_name (render_device));
+
+  return NULL;
+}
+
+static uint64_t
+meta_render_device_get_implicit_drm_modifier_impl (CoglRenderDevice *cogl_render_device)
+{
+  return DRM_FORMAT_MOD_INVALID;
+}
+
+static gboolean
+meta_render_device_is_dma_buf_supported_impl (CoglRenderDevice *cogl_render_device)
+{
+  MetaRenderDevice *render_device = META_RENDER_DEVICE (cogl_render_device);
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+
+  switch (priv->mode)
+    {
+    case META_RENDERER_NATIVE_MODE_GBM:
+      return cogl_renderer_is_hardware_accelerated (priv->renderer);
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      return FALSE;
+    }
+
+  g_assert_not_reached ();
+}
+
+static void
+close_fds (int *fds,
+           int  n_fds)
+{
+  int i;
+
+  for (i = 0; i < n_fds; i++)
+    close (fds[i]);
+}
+
+static CoglDmaBufHandle *
+meta_render_device_create_dma_buf_impl (CoglRenderDevice  *cogl_render_device,
+                                        CoglPixelFormat    format,
+                                        uint64_t          *modifiers,
+                                        int                n_modifiers,
+                                        int                width,
+                                        int                height,
+                                        GError           **error)
+{
+  MetaRenderDevice *render_device = META_RENDER_DEVICE (cogl_render_device);
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+  MetaBackend *backend = priv->backend;
+  MetaRendererNative *renderer_native =
+    META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
+
+  switch (priv->mode)
+    {
+    case META_RENDERER_NATIVE_MODE_GBM:
+      {
+        MetaDrmBufferFlags flags;
+        g_autoptr (MetaDrmBuffer) buffer = NULL;
+        uint64_t buffer_modifier;
+        int n_planes;
+        int *fds;
+        uint32_t *offsets;
+        uint32_t *strides;
+        uint64_t *plane_modifiers = NULL;
+        uint32_t bpp;
+        uint32_t drm_format;
+        int i;
+        g_autoptr (CoglFramebuffer) dmabuf_fb = NULL;
+        CoglDmaBufHandle *dmabuf_handle;
+        const MetaFormatInfo *format_info;
+
+        format_info = meta_format_info_from_cogl_format (format);
+        if (!format_info)
+          {
+            g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                         "Native renderer doesn't support creating DMA buffer with format %s",
+                         cogl_pixel_format_to_string (format));
+            return NULL;
+          }
+
+        drm_format = format_info->drm_format;
+        flags = META_DRM_BUFFER_FLAG_NONE;
+        buffer = meta_render_device_allocate_dma_buf (render_device,
+                                                      width, height,
+                                                      drm_format,
+                                                      modifiers, n_modifiers,
+                                                      flags,
+                                                      error);
+        if (!buffer)
+          return NULL;
+
+        buffer_modifier = meta_drm_buffer_get_modifier (buffer);
+        bpp = meta_drm_buffer_get_bpp (buffer);
+
+        n_planes = meta_drm_buffer_get_n_planes (buffer);
+        fds = g_newa (int, n_planes);
+        offsets = g_newa (uint32_t, n_planes);
+        strides = g_newa (uint32_t, n_planes);
+
+        if (n_modifiers > 0)
+          plane_modifiers = g_newa (uint64_t, n_planes);
+
+        for (i = 0; i < n_planes; i++)
+          {
+            fds[i] = meta_drm_buffer_export_fd_for_plane (buffer, i, error);
+            if (fds[i] == -1)
+              {
+                close_fds (fds, i);
+                return NULL;
+              }
+
+            offsets[i] = meta_drm_buffer_get_offset_for_plane (buffer, i);
+            strides[i] = meta_drm_buffer_get_stride_for_plane (buffer, i);
+            if (n_modifiers > 0)
+              plane_modifiers[i] = buffer_modifier;
+          }
+
+        dmabuf_fb =
+          cogl_renderer_create_dma_buf_framebuffer (priv->renderer,
+                                                    meta_renderer_native_get_cogl_context (renderer_native),
+                                                    width,
+                                                    height,
+                                                    drm_format,
+                                                    format,
+                                                    n_planes,
+                                                    fds,
+                                                    strides,
+                                                    offsets,
+                                                    plane_modifiers,
+                                                    error);
+        if (!dmabuf_fb)
+          {
+            close_fds (fds, n_planes);
+            return NULL;
+          }
+
+        dmabuf_handle =
+          cogl_dma_buf_handle_new (dmabuf_fb,
+                                   width, height,
+                                   format,
+                                   buffer_modifier,
+                                   n_planes,
+                                   fds,
+                                   strides,
+                                   offsets,
+                                   bpp,
+                                   g_steal_pointer (&buffer),
+                                   g_object_unref);
+        return dmabuf_handle;
+      }
+      break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      break;
+    }
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_UNKNOWN,
+               "Current mode does not support exporting DMA buffers");
+
+  return NULL;
+}
+
 static void
 meta_render_device_class_init (MetaRenderDeviceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  CoglRenderDeviceClass *render_device_class =
+    COGL_RENDER_DEVICE_CLASS (klass);
+
+  render_device_class->query_drm_modifiers =
+    meta_render_device_query_drm_modifiers_impl;
+  render_device_class->get_implicit_drm_modifier =
+    meta_render_device_get_implicit_drm_modifier_impl;
+  render_device_class->is_dma_buf_supported =
+    meta_render_device_is_dma_buf_supported_impl;
+  render_device_class->create_dma_buf =
+    meta_render_device_create_dma_buf_impl;
 
   object_class->get_property = meta_render_device_get_property;
   object_class->set_property = meta_render_device_set_property;

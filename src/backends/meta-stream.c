@@ -349,7 +349,8 @@ meta_stream_get_preferred_modifier (MetaStream      *stream,
   const MetaFormatInfo *format_info;
   gboolean use_implicit_modifier;
 
-  g_assert (cogl_renderer_is_dma_buf_supported (cogl_renderer));
+  g_assert (cogl_render_device_is_dma_buf_supported (
+              COGL_RENDER_DEVICE (render_device)));
 
   format_info = meta_format_info_from_cogl_format (format);
   g_assert (format_info);
@@ -451,19 +452,21 @@ meta_stream_query_modifiers (MetaStream      *stream,
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer =
     cogl_context_get_renderer (cogl_context);
+  CoglRenderDevice *render_device =
+    cogl_renderer_get_render_device (cogl_renderer);
   g_autoptr (GError) error = NULL;
   GArray *modifiers;
   uint64_t modifier;
 
-  if (!cogl_renderer_is_dma_buf_supported (cogl_renderer))
+  if (!cogl_render_device_is_dma_buf_supported (render_device))
     return g_array_new (FALSE, FALSE, sizeof (uint64_t));
 
   modifiers =
-    cogl_renderer_query_drm_modifiers (cogl_renderer,
-                                       format,
-                                       COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE |
-                                       COGL_DRM_MODIFIER_FILTER_NOT_EXTERNAL_ONLY,
-                                       &error);
+    cogl_render_device_query_drm_modifiers (render_device,
+                                            format,
+                                            COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE |
+                                            COGL_DRM_MODIFIER_FILTER_NOT_EXTERNAL_ONLY,
+                                            &error);
   if (!modifiers)
     {
       meta_topic (META_DEBUG_SCREEN_CAST,
@@ -471,7 +474,7 @@ meta_stream_query_modifiers (MetaStream      *stream,
       modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
     }
 
-  modifier = cogl_renderer_get_implicit_drm_modifier (cogl_renderer);
+  modifier = cogl_render_device_get_implicit_drm_modifier (render_device);
   g_array_append_val (modifiers, modifier);
 
   return modifiers;
@@ -490,21 +493,23 @@ meta_stream_create_dma_buf_handle (MetaStream      *stream,
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  CoglRenderDevice *render_device =
+    cogl_renderer_get_render_device (cogl_renderer);
   g_autoptr (GError) error = NULL;
   CoglDmaBufHandle *dmabuf_handle;
   int n_modifiers;
 
-  g_return_val_if_fail (cogl_renderer_is_dma_buf_supported (cogl_renderer), NULL);
+  g_return_val_if_fail (cogl_render_device_is_dma_buf_supported (render_device), NULL);
 
-  if (cogl_renderer_is_implicit_drm_modifier (cogl_renderer, modifier))
+  if (modifier == cogl_render_device_get_implicit_drm_modifier (render_device))
     n_modifiers = 0;
   else
     n_modifiers = 1;
 
-  dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
-                                                format,
-                                                &modifier, n_modifiers,
-                                                width, height,
-                                                &error);
+  dmabuf_handle = cogl_render_device_create_dma_buf (render_device,
+                                                     format,
+                                                     &modifier, n_modifiers,
+                                                     width, height,
+                                                     &error);
   return dmabuf_handle;
 }

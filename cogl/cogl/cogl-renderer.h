@@ -108,23 +108,6 @@ struct _CoglRendererClass
   gboolean (* connect) (CoglRenderer  *renderer,
                         GError       **error);
 
-  GArray * (* query_drm_modifiers) (CoglRenderer           *renderer,
-                                    CoglPixelFormat         format,
-                                    CoglDrmModifierFilter   filter,
-                                    GError                **error);
-
-  uint64_t (* get_implicit_drm_modifier) (CoglRenderer *renderer);
-
-  CoglDmaBufHandle * (* create_dma_buf) (CoglRenderer     *renderer,
-                                         CoglPixelFormat   format,
-                                         uint64_t         *modifiers,
-                                         int               n_modifiers,
-                                         int               width,
-                                         int               height,
-                                         GError          **error);
-
-  gboolean (* is_dma_buf_supported) (CoglRenderer *renderer);
-
   CoglFramebuffer * (* create_dma_buf_framebuffer) (CoglRenderer     *renderer,
                                                     CoglContext      *context,
                                                     uint32_t          width,
@@ -181,64 +164,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error);
 COGL_EXPORT CoglDriverId
 cogl_renderer_get_driver_id (CoglRenderer *renderer);
 
-
-/**
- * cogl_renderer_query_drm_modifiers: (skip)
- * @renderer: A #CoglRenderer
- * @format: The #CoglPixelFormat
- * @error: (nullable): return location for a #GError
- */
-COGL_EXPORT GArray *
-cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
-                                   CoglPixelFormat         format,
-                                   CoglDrmModifierFilter   filter,
-                                   GError                **error);
-
-COGL_EXPORT uint64_t
-cogl_renderer_get_implicit_drm_modifier (CoglRenderer *renderer);
-
-COGL_EXPORT gboolean
-cogl_renderer_is_implicit_drm_modifier (CoglRenderer *renderer,
-                                        uint64_t      modifier);
-
-/**
- * cogl_renderer_create_dma_buf: (skip)
- * @renderer: A #CoglRenderer
- * @format: A #CoglPixelFormat
- * @modifiers: array of DRM format modifiers
- * @n_modifiers: length of modifiers array
- * @width: width of the new
- * @height: height of the new
- * @error: (nullable): return location for a #GError
- *
- * Creates a new #CoglFramebuffer with @width x @height, with pixel
- * format @format, and exports the new framebuffer's DMA buffer
- * handle.
- *
- * Passing an empty modifier array (passing a 0 n_modifiers) means implicit
- * modifiers will be used.
- *
- * Returns: (nullable)(transfer full): a #CoglDmaBufHandle. The
- * return result must be released with cogl_dma_buf_handle_free()
- * after use.
- */
-COGL_EXPORT CoglDmaBufHandle *
-cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
-                              CoglPixelFormat   format,
-                              uint64_t         *modifiers,
-                              int               n_modifiers,
-                              int               width,
-                              int               height,
-                              GError          **error);
-
-/**
- * cogl_renderer_is_dma_buf_supported:
- * @renderer: A #CoglRenderer
- *
- * Returns: %TRUE if DMA buffers can be allocated
- */
-COGL_EXPORT gboolean
-cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer);
 
 /**
  * cogl_renderer_create_dma_buf_framebuffer: (skip)

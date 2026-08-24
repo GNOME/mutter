@@ -31,6 +31,9 @@
 #include <glib-object.h>
 
 #include "cogl/cogl-macros.h"
+#include "cogl/cogl-pixel-format.h"
+#include "cogl/cogl-types.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 G_BEGIN_DECLS
 
@@ -46,6 +49,56 @@ G_DECLARE_DERIVABLE_TYPE (CoglRenderDevice,
 struct _CoglRenderDeviceClass
 {
   GObjectClass parent_class;
+
+  GArray * (* query_drm_modifiers) (CoglRenderDevice       *render_device,
+                                    CoglPixelFormat         format,
+                                    CoglDrmModifierFilter   filter,
+                                    GError                **error);
+
+  uint64_t (* get_implicit_drm_modifier) (CoglRenderDevice *render_device);
+
+  gboolean (* is_dma_buf_supported) (CoglRenderDevice *render_device);
+
+  CoglDmaBufHandle * (* create_dma_buf) (CoglRenderDevice  *render_device,
+                                         CoglPixelFormat    format,
+                                         uint64_t          *modifiers,
+                                         int                n_modifiers,
+                                         int                width,
+                                         int                height,
+                                         GError           **error);
 };
+
+/**
+ * cogl_render_device_query_drm_modifiers: (skip)
+ */
+COGL_EXPORT GArray *
+cogl_render_device_query_drm_modifiers (CoglRenderDevice       *render_device,
+                                        CoglPixelFormat         format,
+                                        CoglDrmModifierFilter   filter,
+                                        GError                **error);
+
+/**
+ * cogl_render_device_get_implicit_drm_modifier: (skip)
+ */
+COGL_EXPORT uint64_t
+cogl_render_device_get_implicit_drm_modifier (CoglRenderDevice *render_device);
+
+/**
+ * cogl_render_device_is_dma_buf_supported: (skip)
+ */
+COGL_EXPORT gboolean
+cogl_render_device_is_dma_buf_supported (CoglRenderDevice *render_device);
+
+/**
+ * cogl_render_device_create_dma_buf: (skip)
+ */
+COGL_EXPORT CoglDmaBufHandle *
+cogl_render_device_create_dma_buf (CoglRenderDevice  *render_device,
+                                   CoglPixelFormat    format,
+                                   uint64_t          *modifiers,
+                                   int                n_modifiers,
+                                   int                width,
+                                   int                height,
+                                   GError           **error);
 
 G_END_DECLS
