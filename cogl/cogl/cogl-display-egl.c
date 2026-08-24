@@ -28,6 +28,8 @@
 
 #include "config.h"
 
+#include <drm_fourcc.h>
+
 #include "cogl/cogl-display-egl.h"
 #include "cogl/cogl-display-egl-private.h"
 #include "cogl/cogl-render-device.h"
@@ -46,6 +48,69 @@ typedef struct _CoglDisplayEGLPrivate
 } CoglDisplayEGLPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglDisplayEGL, cogl_display_egl, COGL_TYPE_DISPLAY)
+
+static gboolean
+choose_gbm_format (CoglRendererEGL  *renderer_egl,
+                   EGLint           *attributes,
+                   const uint32_t   *formats,
+                   size_t            num_formats,
+                   EGLConfig        *out_config,
+                   GError          **error)
+{
+  size_t i;
+
+  for (i = 0; i < num_formats; i++)
+    {
+      g_autoptr (GError) local_error = NULL;
+
+      if (cogl_renderer_egl_choose_config_from_gbm_format (renderer_egl,
+                                                           attributes,
+                                                           formats[i],
+                                                           out_config,
+                                                           &local_error))
+        return TRUE;
+
+      g_clear_error (error);
+      g_propagate_error (error, g_steal_pointer (&local_error));
+    }
+
+  return FALSE;
+}
+
+static gboolean
+cogl_display_egl_choose_config_default (CoglDisplayEGL  *cogl_display_egl,
+                                        EGLint          *attributes,
+                                        EGLConfig       *out_config,
+                                        GError         **error)
+{
+  CoglRenderer *cogl_renderer =
+    cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
+  CoglRenderDevice *render_device =
+    cogl_renderer_get_render_device (cogl_renderer);
+
+  switch (cogl_render_device_get_mode (render_device))
+    {
+    case COGL_RENDER_DEVICE_MODE_GBM:
+      {
+        static const uint32_t formats[] = {
+          DRM_FORMAT_XRGB8888,
+          DRM_FORMAT_ARGB8888,
+        };
+
+        return choose_gbm_format (COGL_RENDERER_EGL (cogl_renderer),
+                                  attributes,
+                                  formats,
+                                  G_N_ELEMENTS (formats),
+                                  out_config,
+                                  error);
+      }
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
+      *out_config = EGL_NO_CONFIG_KHR;
+      return TRUE;
+    }
+
+  return FALSE;
+}
 
 static int
 cogl_display_egl_add_config_attributes_default (CoglDisplayEGL *cogl_display_egl,
@@ -339,6 +404,7 @@ cogl_display_egl_class_init (CoglDisplayEGLClass *class)
   display_class->destroy = cogl_display_egl_destroy;
 
   class->add_config_attributes = cogl_display_egl_add_config_attributes_default;
+  class->choose_config = cogl_display_egl_choose_config_default;
   class->context_created = cogl_display_egl_context_created_default;
   class->cleanup_context = cogl_display_egl_cleanup_context_default;
 }

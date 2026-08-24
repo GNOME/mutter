@@ -433,4 +433,14 @@ gboolean cogl_renderer_egl_device_has_extensions (CoglRendererEGL   *renderer_eg
                                                   const char        *first_extension,
                                                   ...);
 
+/**
+ * cogl_renderer_egl_choose_config_from_gbm_format: (skip)
+ */
+COGL_EXPORT
+gboolean cogl_renderer_egl_choose_config_from_gbm_format (CoglRendererEGL  *renderer_egl,
+                                                          const EGLint     *attributes,
+                                                          uint32_t          gbm_format,
+                                                          EGLConfig        *out_config,
+                                                          GError          **error);
+
 G_END_DECLS

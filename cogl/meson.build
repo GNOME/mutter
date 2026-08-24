@@ -14,6 +14,7 @@ cogl_pkg_deps = [
 
 cogl_pkg_private_deps = [
   gmodule_no_export_dep,
+  libdrm_dep,
   libmutter_mtk_dep,
 ]
 
