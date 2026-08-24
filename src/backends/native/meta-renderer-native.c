@@ -65,7 +65,6 @@
 #include "backends/native/meta-render-device-private.h"
 #include "backends/native/meta-render-device-gbm.h"
 #include "backends/native/meta-render-device-surfaceless.h"
-#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-renderer-view-native.h"
@@ -763,8 +762,6 @@ meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
                                                           meta_renderer_native_get_primary_gpu (renderer_native));
 
   cogl_renderer = meta_render_device_get_renderer (render_device);
-  meta_renderer_egl_set_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer),
-                                           meta_render_device_get_gpu_data (render_device));
 
   return cogl_renderer;
 }

@@ -19,7 +19,7 @@
 
 #include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-drm-buffer.h"
-#include "backends/native/meta-render-device.h"
+#include "backends/native/meta-render-device-private.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-cogl-drm-formats.h"
@@ -29,7 +29,6 @@ struct _MetaRendererEgl
   CoglRendererEGL parent_instance;
 
   MetaRenderDevice *render_device;
-  MetaRendererNativeGpuData *renderer_gpu_data;
 };
 
 G_DEFINE_FINAL_TYPE (MetaRendererEgl, meta_renderer_egl, COGL_TYPE_RENDERER_EGL)
@@ -132,8 +131,9 @@ meta_renderer_egl_create_dma_buf (CoglRenderer     *cogl_renderer,
                                   GError          **error)
 {
   MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
+  MetaRenderDevice *render_device = renderer_egl->render_device;
   MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (renderer_egl);
+    meta_render_device_get_gpu_data (render_device);
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
 
   switch (renderer_gpu_data->mode)
@@ -249,8 +249,9 @@ static gboolean
 meta_renderer_egl_is_dma_buf_supported (CoglRenderer *cogl_renderer)
 {
   MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
+  MetaRenderDevice *render_device = renderer_egl->render_device;
   MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (renderer_egl);
+    meta_render_device_get_gpu_data (render_device);
 
   switch (renderer_gpu_data->mode)
     {
@@ -301,19 +302,10 @@ meta_renderer_egl_new (MetaRenderDevice *render_device)
                        NULL);
 }
 
-void
-meta_renderer_egl_set_renderer_gpu_data (MetaRendererEgl           *renderer_egl,
-                                         MetaRendererNativeGpuData *renderer_gpu_data)
-{
-  g_return_if_fail (META_IS_RENDERER_EGL (renderer_egl));
-
-  renderer_egl->renderer_gpu_data = renderer_gpu_data;
-}
-
-MetaRendererNativeGpuData *
-meta_renderer_egl_get_renderer_gpu_data (MetaRendererEgl *renderer_egl)
+MetaRenderDevice *
+meta_renderer_egl_get_render_device (MetaRendererEgl *renderer_egl)
 {
   g_return_val_if_fail (META_IS_RENDERER_EGL (renderer_egl), NULL);
 
-  return renderer_egl->renderer_gpu_data;
+  return renderer_egl->render_device;
 }

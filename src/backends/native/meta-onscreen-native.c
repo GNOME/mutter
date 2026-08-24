@@ -47,7 +47,6 @@
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-render-device-private.h"
 #include "backends/native/meta-render-device-gbm.h"
-#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-egl-gbm.h"
@@ -1571,16 +1570,18 @@ ensure_crtc_modes (CoglOnscreen  *onscreen,
                    MetaKmsUpdate *kms_update)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaRenderDevice *render_device;
+  MetaRendererNativeGpuData *renderer_gpu_data;
 
-  if (meta_renderer_native_pop_pending_mode_set (renderer_native,
-                                                 onscreen_native->view))
-    meta_onscreen_native_set_crtc_mode (onscreen, kms_update, renderer_gpu_data);
+  if (!meta_renderer_native_pop_pending_mode_set (renderer_native,
+                                                  onscreen_native->view))
+    return;
+
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          onscreen_native->render_gpu);
+  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
+  meta_onscreen_native_set_crtc_mode (onscreen, kms_update, renderer_gpu_data);
 }
 
 static void
@@ -1721,21 +1722,18 @@ lock_front_buffer (MetaOnscreenNative  *onscreen_native,
 {
   if (onscreen_native->gbm.surface)
     {
-      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
-      CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-      CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-      CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-      MetaRendererNativeGpuData *renderer_gpu_data =
-        meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-      MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+      MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+      MetaRenderDevice *render_device;
       MetaDrmBufferFlags buffer_flags = META_DRM_BUFFER_FLAG_NONE;
       MetaDeviceFile *render_device_file;
 
       if (!meta_renderer_native_use_modifiers (renderer_native))
         buffer_flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
 
+      render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                              onscreen_native->render_gpu);
       render_device_file =
-        meta_render_device_get_device_file (renderer_gpu_data->render_device);
+        meta_render_device_get_device_file (render_device);
       return meta_drm_buffer_gbm_new_lock_front (render_device_file,
                                                  onscreen_native->gbm.surface,
                                                  buffer_flags,
@@ -1884,20 +1882,17 @@ maybe_mark_next_frame_kms_ready (CoglOnscreen *onscreen)
 static void
 maybe_post_next_frame (CoglOnscreen *onscreen)
 {
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaOutputKms *output_kms = META_OUTPUT_KMS (onscreen_native->output);
   MetaKmsConnector *kms_connector =
     meta_output_kms_get_kms_connector (output_kms);
+  MetaRenderDevice *render_device;
+  MetaRendererNativeGpuData *renderer_gpu_data;
   MetaPowerSave power_save_mode;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
@@ -1948,6 +1943,10 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   is_direct_scanout = meta_frame_native_get_scanout (frame_native) != NULL;
   is_swap_buffers = region != NULL;
 
+  render_device = meta_renderer_native_get_render_device (renderer_native,
+                                                          onscreen_native->render_gpu);
+  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
+
   if (is_direct_scanout)
     {
       listener = &scanout_result_listener_vtable;
@@ -1962,7 +1961,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
       MetaDrmBufferGbm *buffer_gbm;
       MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
       MetaDeviceFile *render_device_file =
-        meta_render_device_get_device_file (renderer_gpu_data->render_device);
+        meta_render_device_get_device_file (render_device);
 
       listener = &swap_buffer_result_listener_vtable;
       flip_flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
@@ -2252,19 +2251,14 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                      GError        **error)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRenderDevice *render_device;
+  MetaRendererNativeGpuData *renderer_gpu_data;
   ClutterFrame *frame = user_data;
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
 
   render_device = meta_renderer_native_get_render_device (renderer_native,
-                                                          render_gpu);
+                                                          onscreen_native->render_gpu);
   renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
 
   g_warn_if_fail (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_GBM);

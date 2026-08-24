@@ -2120,7 +2120,6 @@ explicit_sync_supported (MetaStreamSource *source)
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer;
-  MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRenderDevice *render_device;
   MetaDeviceFile *device_file;
   int drm_fd;
@@ -2130,9 +2129,8 @@ explicit_sync_supported (MetaStreamSource *source)
     return FALSE;
 
   cogl_renderer = cogl_context_get_renderer (cogl_context);
-  renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  render_device = renderer_gpu_data->render_device;
+  render_device =
+    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
   device_file = meta_render_device_get_device_file (render_device);
   if (!device_file)
     return FALSE;
@@ -2595,9 +2593,8 @@ maybe_create_syncobj (MetaStreamSource  *source,
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  MetaRenderDevice *render_device = renderer_gpu_data->render_device;
+  MetaRenderDevice *render_device =
+    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
   MetaDeviceFile *device_file =
     meta_render_device_get_device_file (render_device);
   int drm_fd = meta_device_file_get_fd (device_file);
@@ -3095,11 +3092,9 @@ get_render_device (MetaStreamSource *source)
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  MetaRenderDevice *render_device;
+  MetaRenderDevice *render_device =
+    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
 
-  render_device = renderer_gpu_data->render_device;
   if (meta_render_device_is_hardware_accelerated (render_device))
     return render_device;
   else
