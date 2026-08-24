@@ -1352,7 +1352,6 @@ create_renderer_gpu_data_gbm (MetaRendererNative *renderer_native,
                               MetaRenderDevice   *render_device,
                               MetaGpuKms         *gpu_kms)
 {
-  meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_GBM);
   meta_render_device_set_gpu_kms (render_device, gpu_kms);
 
   init_secondary_gpu_data (renderer_native, render_device);
@@ -1365,17 +1364,13 @@ create_renderer_gpu_data_surfaceless (MetaRendererNative  *renderer_native,
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaRenderDeviceSurfaceless *render_device_surfaceless;
-  MetaRenderDevice *render_device;
 
   render_device_surfaceless = meta_render_device_surfaceless_new (backend,
                                                                   error);
   if (!render_device_surfaceless)
     return NULL;
 
-  render_device = META_RENDER_DEVICE (render_device_surfaceless);
-  meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_SURFACELESS);
-
-  return render_device;
+  return META_RENDER_DEVICE (render_device_surfaceless);
 }
 
 static void
@@ -1438,13 +1433,13 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
 }
 
 static const char *
-renderer_data_mode_to_string (MetaRendererNativeMode mode)
+renderer_data_mode_to_string (CoglRenderDeviceMode mode)
 {
   switch (mode)
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       return "gbm";
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       return "surfaceless";
     }
 
@@ -1457,6 +1452,8 @@ create_renderer_gpu_data (MetaRendererNative  *renderer_native,
                           GError             **error)
 {
   MetaRenderDevice *render_device;
+  CoglRenderDeviceMode mode;
+
   render_device =
     meta_renderer_native_create_renderer_gpu_data (renderer_native,
                                                    gpu_kms,
@@ -1464,16 +1461,18 @@ create_renderer_gpu_data (MetaRendererNative  *renderer_native,
   if (!render_device)
     return FALSE;
 
+  mode = cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device));
+
   if (gpu_kms)
     {
       g_message ("Created %s renderer for '%s'",
-                 renderer_data_mode_to_string (meta_render_device_get_mode (render_device)),
+                 renderer_data_mode_to_string (mode),
                  meta_gpu_kms_get_file_path (gpu_kms));
     }
   else
     {
       g_message ("Created %s renderer without GPU",
-                 renderer_data_mode_to_string (meta_render_device_get_mode (render_device)));
+                 renderer_data_mode_to_string (mode));
     }
 
   g_hash_table_insert (renderer_native->gpu_datas,

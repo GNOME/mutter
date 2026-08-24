@@ -38,12 +38,6 @@ G_DECLARE_FINAL_TYPE (MetaRendererNative, meta_renderer_native,
                       META, RENDERER_NATIVE,
                       MetaRenderer)
 
-typedef enum _MetaRendererNativeMode
-{
-  META_RENDERER_NATIVE_MODE_GBM,
-  META_RENDERER_NATIVE_MODE_SURFACELESS,
-} MetaRendererNativeMode;
-
 MetaRendererNative * meta_renderer_native_new (MetaBackendNative  *backend_native,
                                                GError            **error);
 

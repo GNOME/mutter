@@ -763,9 +763,9 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
 
   render_device = meta_renderer_native_get_render_device (renderer_native,
                                                           render_gpu);
-  switch (meta_render_device_get_mode (render_device))
+  switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       frame_native = meta_frame_native_from_frame (frame);
       buffer = meta_frame_native_get_buffer (frame_native);
       if (!buffer)
@@ -804,7 +804,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
       if (region && !mtk_region_is_empty (region))
         meta_kms_plane_assignment_set_fb_damage (plane_assignment, region);
       break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
     }
@@ -944,11 +944,11 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen     *onscreen,
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeSetCrtcModes,
                            "Meta::OnscreenNative::set_crtc_mode()");
 
-  switch (meta_render_device_get_mode (render_device))
+  switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
     }
@@ -1965,9 +1965,9 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
             g_steal_pointer (&secondary_gpu_state->source_framebuffer);
         }
 
-      switch (meta_render_device_get_mode (render_device))
+      switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
         {
-        case META_RENDERER_NATIVE_MODE_GBM:
+        case COGL_RENDER_DEVICE_MODE_GBM:
           /* We might end up here with the wrong EGLSurface being current when
            * being notified about being presented, results in glitches in some
            * drivers. Strictly there shouldn't be a need for this, but make
@@ -2010,7 +2010,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
               goto post_failed;
             }
           break;
-        case META_RENDERER_NATIVE_MODE_SURFACELESS:
+        case COGL_RENDER_DEVICE_MODE_SURFACELESS:
           break;
         }
     }
@@ -2070,9 +2070,9 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   COGL_TRACE_BEGIN_ANCHORED (MetaRendererNativePostKmsUpdate,
                              "Meta::OnscreenNative::maybe_post_next_frame#post_pending_update()");
 
-  switch (meta_render_device_get_mode (render_device))
+  switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       if (meta_renderer_native_has_pending_mode_sets (renderer_native))
         {
           meta_topic (META_DEBUG_KMS,
@@ -2100,7 +2100,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
           return;
         }
       break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
     }
@@ -2251,7 +2251,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   render_device = meta_renderer_native_get_render_device (renderer_native,
                                                           onscreen_native->render_gpu);
 
-  g_warn_if_fail (meta_render_device_get_mode (render_device) == META_RENDERER_NATIVE_MODE_GBM);
+  g_warn_if_fail (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)) == COGL_RENDER_DEVICE_MODE_GBM);
 
   assign_next_frame (onscreen_native, frame);
 
@@ -3271,11 +3271,11 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
 
   render_device = meta_renderer_native_get_render_device (onscreen_native->renderer_native,
                                                           onscreen_native->render_gpu);
-  switch (meta_render_device_get_mode (render_device))
+  switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
     {
       gboolean create_surfaces;
 
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       create_surfaces = !should_try_fbos (onscreen);
       if (!create_surfaces)
         {
@@ -3304,7 +3304,7 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
           maybe_init_render_source (onscreen_native);
         }
       break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
     }
@@ -3825,12 +3825,12 @@ meta_onscreen_native_dispose (GObject *object)
 
   render_device = meta_renderer_native_get_render_device (renderer_native,
                                                           onscreen_native->render_gpu);
-  switch (meta_render_device_get_mode (render_device))
+  switch (cogl_render_device_get_mode (COGL_RENDER_DEVICE (render_device)))
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
+    case COGL_RENDER_DEVICE_MODE_GBM:
       dispose_bos_gbm (onscreen_native);
       break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       g_assert_not_reached ();
       break;
     }

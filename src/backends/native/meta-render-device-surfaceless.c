@@ -86,5 +86,6 @@ meta_render_device_surfaceless_new (MetaBackend  *backend,
   return g_initable_new (META_TYPE_RENDER_DEVICE_SURFACELESS,
                          NULL, error,
                          "backend", backend,
+                         "mode", COGL_RENDER_DEVICE_MODE_SURFACELESS,
                          NULL);
 }
