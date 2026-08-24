@@ -44,7 +44,7 @@ typedef struct _MetaRenderDevicePrivate
 
   MetaDeviceFile *device_file;
 
-  MetaRendererEgl *renderer_egl;
+  CoglRenderer *renderer;
 
   gboolean is_hardware_rendering;
 } MetaRenderDevicePrivate;
@@ -64,17 +64,17 @@ init_egl (MetaRenderDevice *render_device)
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
   g_autoptr (GError) error = NULL;
-  MetaRendererEgl *renderer_egl;
+  CoglRenderer *renderer;
 
-  renderer_egl = meta_renderer_egl_new (render_device);
-  priv->renderer_egl = renderer_egl;
+  renderer = COGL_RENDERER (meta_renderer_egl_new (render_device));
+  priv->renderer = renderer;
 
-  if (!cogl_renderer_connect (COGL_RENDERER (renderer_egl), &error))
+  if (!cogl_renderer_connect (renderer, &error))
     {
       meta_topic (META_DEBUG_RENDER, "Failed to connect renderer for %s: %s",
                   meta_device_file_get_path (priv->device_file),
                   error->message);
-      g_clear_object (&priv->renderer_egl);
+      g_clear_object (&priv->renderer);
       return;
     }
 }
@@ -152,7 +152,7 @@ meta_render_device_dispose (GObject *object)
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
 
-  g_clear_object (&priv->renderer_egl);
+  g_clear_object (&priv->renderer);
 
   G_OBJECT_CLASS (meta_render_device_parent_class)->dispose (object);
 }
@@ -236,19 +236,19 @@ meta_render_device_get_egl_display (MetaRenderDevice *render_device)
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
 
-  if (priv->renderer_egl)
-    return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (priv->renderer_egl));
+  if (priv->renderer && COGL_IS_RENDERER_EGL (priv->renderer))
+    return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (priv->renderer));
 
   return EGL_NO_DISPLAY;
 }
 
-MetaRendererEgl *
-meta_render_device_get_renderer_egl (MetaRenderDevice *render_device)
+CoglRenderer *
+meta_render_device_get_renderer (MetaRenderDevice *render_device)
 {
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
 
-  return priv->renderer_egl;
+  return priv->renderer;
 }
 
 gboolean
@@ -257,7 +257,7 @@ meta_render_device_is_hardware_accelerated (MetaRenderDevice *render_device)
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
 
-  return cogl_renderer_is_hardware_accelerated (COGL_RENDERER (priv->renderer_egl));
+  return cogl_renderer_is_hardware_accelerated (priv->renderer);
 }
 
 const char *

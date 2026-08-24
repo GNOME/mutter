@@ -1145,7 +1145,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
 
   render_device = renderer_gpu_data->render_device;
   renderer_egl =
-    COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
+    COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
 
   if (!cogl_renderer_egl_make_current (renderer_egl,
                                        EGL_NO_SURFACE,

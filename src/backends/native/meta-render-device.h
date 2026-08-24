@@ -20,6 +20,8 @@
 
 #include <glib-object.h>
 
+#include "cogl/cogl.h"
+
 #include "backends/meta-backend-types.h"
 #include "backends/native/meta-backend-native-types.h"
 
@@ -28,13 +30,11 @@ G_DECLARE_DERIVABLE_TYPE (MetaRenderDevice, meta_render_device,
                           META, RENDER_DEVICE,
                           GObject)
 
-typedef struct _MetaRendererEgl MetaRendererEgl;
-
 MetaBackend * meta_render_device_get_backend (MetaRenderDevice *render_device);
 
 EGLDisplay meta_render_device_get_egl_display (MetaRenderDevice *render_device);
 
-MetaRendererEgl * meta_render_device_get_renderer_egl (MetaRenderDevice *render_device);
+CoglRenderer * meta_render_device_get_renderer (MetaRenderDevice *render_device);
 
 const char * meta_render_device_get_name (MetaRenderDevice *render_device);
 

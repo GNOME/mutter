@@ -36,7 +36,7 @@ meta_render_device_surfaceless_create_egl_display (MetaRenderDevice  *render_dev
                                                    GError           **error)
 {
   CoglRendererEGL *renderer_egl =
-    COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
+    COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
   EGLDisplay egl_display;
 
   if (!cogl_renderer_egl_has_client_extensions (renderer_egl, NULL,

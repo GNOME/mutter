@@ -128,7 +128,7 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
       MetaRenderDevice *render_device = renderer_gpu_data->render_device;
       MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
       CoglRendererEGL *renderer_egl =
-        COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
+        COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
       CoglContext *cogl_context =
         meta_renderer_native_get_cogl_context (renderer_native);
 
@@ -777,16 +777,17 @@ meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaGpuKms *primary_gpu_kms;
   MetaRendererNativeGpuData *renderer_gpu_data;
-  MetaRendererEgl *renderer_egl;
+  CoglRenderer *cogl_renderer;
 
   primary_gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          primary_gpu_kms);
 
-  renderer_egl = meta_render_device_get_renderer_egl (renderer_gpu_data->render_device);
-  meta_renderer_egl_set_renderer_gpu_data (renderer_egl, renderer_gpu_data);
+  cogl_renderer = meta_render_device_get_renderer (renderer_gpu_data->render_device);
+  meta_renderer_egl_set_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer),
+                                           renderer_gpu_data);
 
-  return COGL_RENDERER (renderer_egl);
+  return cogl_renderer;
 }
 
 static MtkMonitorTransform
@@ -1249,7 +1250,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaRenderDevice *render_device = renderer_gpu_data->render_device;
   CoglRendererEGL *renderer_egl =
-    COGL_RENDERER_EGL (meta_render_device_get_renderer_egl (render_device));
+    COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
   gboolean ret = FALSE;
   EGLDisplay egl_display;
   EGLConfig egl_config;
