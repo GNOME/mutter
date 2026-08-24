@@ -24,6 +24,7 @@
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
+#include "backends/native/meta-renderer-native-private.h"
 
 struct _MetaRenderDeviceClass
 {
@@ -49,3 +50,5 @@ struct _MetaRenderDeviceClass
                                     CoglDrmModifierFilter   filter,
                                     GError                **error);
 };
+
+MetaRendererNativeGpuData * meta_render_device_get_gpu_data (MetaRenderDevice *render_device);
