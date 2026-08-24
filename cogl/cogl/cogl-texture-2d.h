@@ -193,12 +193,6 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
 COGL_EXPORT CoglTexture *
 cogl_texture_2d_new_from_bitmap (CoglBitmap *bitmap);
 
-#ifdef HAVE_EGL
-typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
-                                                        gpointer user_data,
-                                                        GError **error);
-#endif
-
 #if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
 /* NB: The reason we require the width, height and format to be passed
  * even though they may seem redundant is because GLES 1/2 don't
