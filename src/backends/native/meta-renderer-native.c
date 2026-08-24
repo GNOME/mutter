@@ -1349,8 +1349,8 @@ create_renderer_gpu_data_gbm (MetaRendererNative *renderer_native,
   MetaRendererNativeGpuData *renderer_gpu_data;
 
   renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
+  meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_GBM);
   renderer_gpu_data->renderer_native = renderer_native;
-  renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
   renderer_gpu_data->render_device = render_device;
   renderer_gpu_data->gpu_kms = gpu_kms;
 
@@ -1374,8 +1374,8 @@ create_renderer_gpu_data_surfaceless (MetaRendererNative  *renderer_native,
 
   render_device = META_RENDER_DEVICE (render_device_surfaceless);
   renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
+  meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_SURFACELESS);
   renderer_gpu_data->renderer_native = renderer_native;
-  renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_SURFACELESS;
   renderer_gpu_data->render_device = render_device;
 
   return render_device;
@@ -1462,8 +1462,6 @@ create_renderer_gpu_data (MetaRendererNative  *renderer_native,
                           GError             **error)
 {
   MetaRenderDevice *render_device;
-  MetaRendererNativeGpuData *renderer_gpu_data;
-
   render_device =
     meta_renderer_native_create_renderer_gpu_data (renderer_native,
                                                    gpu_kms,
@@ -1471,18 +1469,16 @@ create_renderer_gpu_data (MetaRendererNative  *renderer_native,
   if (!render_device)
     return FALSE;
 
-  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
-
   if (gpu_kms)
     {
       g_message ("Created %s renderer for '%s'",
-                 renderer_data_mode_to_string (renderer_gpu_data->mode),
+                 renderer_data_mode_to_string (meta_render_device_get_mode (render_device)),
                  meta_gpu_kms_get_file_path (gpu_kms));
     }
   else
     {
       g_message ("Created %s renderer without GPU",
-                 renderer_data_mode_to_string (renderer_gpu_data->mode));
+                 renderer_data_mode_to_string (meta_render_device_get_mode (render_device)));
     }
 
   g_hash_table_insert (renderer_native->gpu_datas,

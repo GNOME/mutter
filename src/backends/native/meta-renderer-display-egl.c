@@ -40,11 +40,9 @@ meta_renderer_display_egl_add_config_attributes (CoglDisplayEGL *cogl_display_eg
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   MetaRenderDevice *render_device =
     meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_render_device_get_gpu_data (render_device);
   int i = 0;
 
-  switch (renderer_gpu_data->mode)
+  switch (meta_render_device_get_mode (render_device))
     {
     case META_RENDERER_NATIVE_MODE_GBM:
       attributes[i++] = EGL_SURFACE_TYPE;
@@ -69,10 +67,8 @@ meta_renderer_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
     cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
   MetaRenderDevice *render_device =
     meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_render_device_get_gpu_data (render_device);
 
-  switch (renderer_gpu_data->mode)
+  switch (meta_render_device_get_mode (render_device))
     {
     case META_RENDERER_NATIVE_MODE_GBM:
       {
