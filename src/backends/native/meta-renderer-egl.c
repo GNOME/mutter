@@ -21,7 +21,6 @@
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device-private.h"
 #include "backends/native/meta-renderer-native.h"
-#include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-cogl-drm-formats.h"
 
 struct _MetaRendererEgl
@@ -132,9 +131,9 @@ meta_renderer_egl_create_dma_buf (CoglRenderer     *cogl_renderer,
 {
   MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
   MetaRenderDevice *render_device = renderer_egl->render_device;
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_render_device_get_gpu_data (render_device);
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+  MetaBackend *backend = meta_render_device_get_backend (render_device);
+  MetaRendererNative *renderer_native =
+    META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
 
   switch (meta_render_device_get_mode (render_device))
     {
