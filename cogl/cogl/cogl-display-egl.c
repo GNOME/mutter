@@ -30,6 +30,7 @@
 
 #include "cogl/cogl-display-egl.h"
 #include "cogl/cogl-display-egl-private.h"
+#include "cogl/cogl-render-device.h"
 #include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-renderer-private.h"
 
@@ -45,6 +46,31 @@ typedef struct _CoglDisplayEGLPrivate
 } CoglDisplayEGLPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglDisplayEGL, cogl_display_egl, COGL_TYPE_DISPLAY)
+
+static int
+cogl_display_egl_add_config_attributes_default (CoglDisplayEGL *cogl_display_egl,
+                                                EGLint         *attributes)
+{
+  CoglRenderer *cogl_renderer =
+    cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
+  CoglRenderDevice *render_device =
+    cogl_renderer_get_render_device (cogl_renderer);
+  int i = 0;
+
+  switch (cogl_render_device_get_mode (render_device))
+    {
+    case COGL_RENDER_DEVICE_MODE_GBM:
+      attributes[i++] = EGL_SURFACE_TYPE;
+      attributes[i++] = EGL_WINDOW_BIT;
+      break;
+    case COGL_RENDER_DEVICE_MODE_SURFACELESS:
+      attributes[i++] = EGL_SURFACE_TYPE;
+      attributes[i++] = EGL_PBUFFER_BIT;
+      break;
+    }
+
+  return i;
+}
 
 static EGLSurface
 create_dummy_pbuffer_surface (CoglRendererEGL  *renderer_egl,
@@ -312,6 +338,7 @@ cogl_display_egl_class_init (CoglDisplayEGLClass *class)
   display_class->setup = cogl_display_egl_setup;
   display_class->destroy = cogl_display_egl_destroy;
 
+  class->add_config_attributes = cogl_display_egl_add_config_attributes_default;
   class->context_created = cogl_display_egl_context_created_default;
   class->cleanup_context = cogl_display_egl_cleanup_context_default;
 }
