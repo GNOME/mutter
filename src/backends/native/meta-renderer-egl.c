@@ -19,7 +19,7 @@
 
 #include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-drm-buffer.h"
-#include "backends/native/meta-render-device-private.h"
+#include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-cogl-drm-formats.h"
@@ -79,29 +79,6 @@ meta_renderer_egl_set_property (GObject      *object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
-}
-
-static gboolean
-meta_renderer_egl_connect (CoglRenderer  *cogl_renderer,
-                           GError       **error)
-{
-  MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
-  MetaRenderDeviceClass *render_device_class =
-    META_RENDER_DEVICE_GET_CLASS (renderer_egl->render_device);
-  EGLDisplay egl_display;
-
-  egl_display = render_device_class->create_egl_display (renderer_egl->render_device,
-                                                         error);
-  if (egl_display == EGL_NO_DISPLAY)
-    return FALSE;
-
-  cogl_renderer_egl_set_edisplay (COGL_RENDERER_EGL (cogl_renderer),
-                                  egl_display);
-
-  if (!COGL_RENDERER_CLASS (meta_renderer_egl_parent_class)->connect (cogl_renderer, error))
-    return FALSE;
-
-  return TRUE;
 }
 
 static GArray *
@@ -296,7 +273,6 @@ meta_renderer_egl_class_init (MetaRendererEglClass *klass)
   object_class->get_property = meta_renderer_egl_get_property;
   object_class->set_property = meta_renderer_egl_set_property;
 
-  renderer_class->connect = meta_renderer_egl_connect;
   renderer_class->query_drm_modifiers = meta_renderer_egl_query_drm_modifiers;
   renderer_class->get_implicit_drm_modifier = meta_renderer_egl_get_implicit_drm_modifier;
   renderer_class->create_dma_buf = meta_renderer_egl_create_dma_buf;
