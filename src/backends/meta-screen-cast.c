@@ -35,6 +35,7 @@
 #include "backends/native/meta-renderer-native-private.h"
 
 #include "common/meta-cogl-drm-formats.h"
+#include "backends/native/meta-renderer-egl.h"
 
 #define META_SCREEN_CAST_DBUS_SERVICE "org.gnome.Mutter.ScreenCast"
 #define META_SCREEN_CAST_DBUS_PATH "/org/gnome/Mutter/ScreenCast"
@@ -69,10 +70,8 @@ get_render_device (MetaScreenCast *screen_cast)
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer =
     cogl_context_get_renderer (cogl_context);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
 
-  return renderer_gpu_data->render_device;
+  return meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
 }
 
 gboolean

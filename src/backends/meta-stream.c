@@ -341,10 +341,8 @@ meta_stream_get_preferred_modifier (MetaStream      *stream,
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer =
     cogl_context_get_renderer (cogl_context);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   MetaRenderDevice *render_device =
-    renderer_gpu_data->render_device;
+    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
   int dmabuf_fd;
   uint32_t stride;
   uint32_t offset;

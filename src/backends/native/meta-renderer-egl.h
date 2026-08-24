@@ -22,7 +22,6 @@
 #include "cogl/cogl.h"
 
 typedef struct _MetaRenderDevice MetaRenderDevice;
-typedef struct _MetaRendererNativeGpuData MetaRendererNativeGpuData;
 
 #define META_TYPE_RENDERER_EGL (meta_renderer_egl_get_type ())
 G_DECLARE_FINAL_TYPE (MetaRendererEgl,
@@ -32,7 +31,4 @@ G_DECLARE_FINAL_TYPE (MetaRendererEgl,
 
 MetaRendererEgl * meta_renderer_egl_new (MetaRenderDevice *render_device);
 
-void meta_renderer_egl_set_renderer_gpu_data (MetaRendererEgl          *renderer_egl,
-                                              MetaRendererNativeGpuData *renderer_gpu_data);
-
-MetaRendererNativeGpuData * meta_renderer_egl_get_renderer_gpu_data (MetaRendererEgl *renderer_egl);
+MetaRenderDevice * meta_renderer_egl_get_render_device (MetaRendererEgl *renderer_egl);
