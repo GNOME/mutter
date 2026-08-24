@@ -1117,6 +1117,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
                              MetaFrameNative                      *frame_native,
                              MetaOnscreenNativeSecondaryGpuState  *secondary_gpu_state,
                              MetaRendererNativeGpuData            *renderer_gpu_data,
+                             MetaRenderDevice                     *render_device,
                              MetaDrmBuffer                        *primary_gpu_fb,
                              const MtkRegion                      *region,
                              GError                              **error)
@@ -1125,7 +1126,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDriver *driver = cogl_context_get_driver (cogl_context);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  MetaRenderDevice *render_device;
   CoglRendererEGL *renderer_egl;
   MetaDrmBufferGbm *dst_buffer_gbm = NULL, *src_buffer_gbm;
   struct gbm_bo *dst_bo, *src_bo;
@@ -1142,7 +1142,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   if (renderer_gpu_data->secondary.is_nvidia)
     sync_fd = meta_frame_native_steal_sync_fd (frame_native);
 
-  render_device = renderer_gpu_data->render_device;
   renderer_egl =
     COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
 
@@ -1554,6 +1553,7 @@ acquire_front_buffer (CoglOnscreen     *onscreen,
                                           frame_native,
                                           secondary_gpu_state,
                                           renderer_gpu_data,
+                                          render_device,
                                           primary_gpu_fb,
                                           region,
                                           error);

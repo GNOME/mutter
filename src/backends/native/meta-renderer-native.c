@@ -1221,10 +1221,10 @@ set_copy_mode (MetaRendererNativeGpuData     *gpu_data,
 
 static gboolean
 init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
+                             MetaRenderDevice          *render_device,
                              GError                   **error)
 {
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  MetaRenderDevice *render_device = renderer_gpu_data->render_device;
   CoglRendererEGL *renderer_egl =
     COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
   gboolean ret = FALSE;
@@ -1315,11 +1315,12 @@ out:
 }
 
 static void
-init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data)
+init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data,
+                         MetaRenderDevice          *render_device)
 {
   g_autoptr (GError) error = NULL;
 
-  if (init_secondary_gpu_data_gpu (renderer_gpu_data, &error))
+  if (init_secondary_gpu_data_gpu (renderer_gpu_data, render_device, &error))
     return;
 
   g_message ("Failed to initialize accelerated iGPU/dGPU framebuffer sharing: %s",
@@ -1351,10 +1352,9 @@ create_renderer_gpu_data_gbm (MetaRendererNative *renderer_native,
   renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_GBM);
   renderer_gpu_data->renderer_native = renderer_native;
-  renderer_gpu_data->render_device = render_device;
   renderer_gpu_data->gpu_kms = gpu_kms;
 
-  init_secondary_gpu_data (renderer_gpu_data);
+  init_secondary_gpu_data (renderer_gpu_data, render_device);
 }
 
 static MetaRenderDevice *
@@ -1376,7 +1376,6 @@ create_renderer_gpu_data_surfaceless (MetaRendererNative  *renderer_native,
   renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_SURFACELESS);
   renderer_gpu_data->renderer_native = renderer_native;
-  renderer_gpu_data->render_device = render_device;
 
   return render_device;
 }
