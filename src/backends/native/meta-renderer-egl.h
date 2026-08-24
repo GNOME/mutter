@@ -30,5 +30,3 @@ G_DECLARE_FINAL_TYPE (MetaRendererEgl,
                       CoglRendererEGL)
 
 MetaRendererEgl * meta_renderer_egl_new (MetaRenderDevice *render_device);
-
-MetaRenderDevice * meta_renderer_egl_get_render_device (MetaRendererEgl *renderer_egl);

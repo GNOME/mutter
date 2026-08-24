@@ -21,7 +21,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-render-device-private.h"
-#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "cogl/cogl.h"
 
@@ -39,7 +38,7 @@ meta_renderer_display_egl_add_config_attributes (CoglDisplayEGL *cogl_display_eg
   CoglDisplay *cogl_display = COGL_DISPLAY (cogl_display_egl);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   MetaRenderDevice *render_device =
-    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
   int i = 0;
 
   switch (meta_render_device_get_mode (render_device))
@@ -66,7 +65,7 @@ meta_renderer_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
   CoglRenderer *cogl_renderer =
     cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
   MetaRenderDevice *render_device =
-    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
 
   switch (meta_render_device_get_mode (render_device))
     {
@@ -104,7 +103,7 @@ meta_renderer_display_egl_setup (CoglDisplay  *cogl_display,
 
   cogl_renderer = cogl_display_get_renderer (cogl_display);
   render_device =
-    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
   renderer_native =
     META_RENDERER_NATIVE (meta_backend_get_renderer (meta_render_device_get_backend (render_device)));
 

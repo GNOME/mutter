@@ -28,7 +28,7 @@
 
 struct _MetaRenderDeviceClass
 {
-  GObjectClass parent_class;
+  CoglRenderDeviceClass parent_class;
 
   EGLDisplay (* create_egl_display) (MetaRenderDevice  *render_device,
                                      GError           **error);

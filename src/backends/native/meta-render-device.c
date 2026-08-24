@@ -62,7 +62,7 @@ static void
 initable_iface_init (GInitableIface *initable_iface);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaRenderDevice, meta_render_device,
-                                  G_TYPE_OBJECT,
+                                  COGL_TYPE_RENDER_DEVICE,
                                   G_ADD_PRIVATE (MetaRenderDevice)
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          initable_iface_init))

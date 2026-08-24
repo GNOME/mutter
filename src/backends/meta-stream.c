@@ -25,7 +25,6 @@
 #include "backends/meta-eis.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
-#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-cogl-drm-formats.h"
 
@@ -342,7 +341,7 @@ meta_stream_get_preferred_modifier (MetaStream      *stream,
   CoglRenderer *cogl_renderer =
     cogl_context_get_renderer (cogl_context);
   MetaRenderDevice *render_device =
-    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
   int dmabuf_fd;
   uint32_t stride;
   uint32_t offset;

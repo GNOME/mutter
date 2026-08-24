@@ -40,6 +40,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-mutter.h"
 
+#include "cogl/cogl-render-device.h"
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-driver-private.h"
@@ -63,6 +64,7 @@ typedef struct _CoglRendererPrivate
 
   gboolean connected;
   CoglDriver *driver;
+  CoglRenderDevice *render_device;
 
   CoglDriverId driver_id;
 } CoglRendererPrivate;
@@ -73,6 +75,7 @@ enum
 {
   PROP_0,
   PROP_DRIVER,
+  PROP_RENDER_DEVICE,
   N_PROPS
 };
 
@@ -104,6 +107,9 @@ cogl_renderer_get_property (GObject      *object,
     case PROP_DRIVER:
       g_value_set_object (value, priv->driver);
       break;
+    case PROP_RENDER_DEVICE:
+      g_value_set_object (value, priv->render_device);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -123,6 +129,9 @@ cogl_renderer_set_property (GObject      *object,
     {
     case PROP_DRIVER:
       g_set_object (&priv->driver, g_value_get_object (value));
+      break;
+    case PROP_RENDER_DEVICE:
+      priv->render_device = g_value_get_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -151,6 +160,13 @@ cogl_renderer_class_init (CoglRendererClass *class)
   props[PROP_DRIVER] =
     g_param_spec_object ("driver", NULL, NULL,
                          COGL_TYPE_DRIVER,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+
+  props[PROP_RENDER_DEVICE] =
+    g_param_spec_object ("render-device", NULL, NULL,
+                         COGL_TYPE_RENDER_DEVICE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
@@ -444,4 +460,13 @@ cogl_renderer_get_latest_sync_fd (CoglRenderer *renderer)
     return -1;
 
   return class->get_sync_fd (renderer);
+}
+
+CoglRenderDevice *
+cogl_renderer_get_render_device (CoglRenderer *renderer)
+{
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return priv->render_device;
 }

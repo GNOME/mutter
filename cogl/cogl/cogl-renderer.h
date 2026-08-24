@@ -35,6 +35,7 @@
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-pixel-format.h"
 #include "cogl/cogl-driver.h"
+#include "cogl/cogl-render-device.h"
 #include "cogl/winsys/cogl-winsys.h"
 
 #include <glib-object.h>
@@ -304,5 +305,13 @@ cogl_renderer_get_proc_address (CoglRenderer *renderer,
  */
 COGL_EXPORT
 int cogl_renderer_get_latest_sync_fd (CoglRenderer *renderer);
+
+/**
+ * cogl_renderer_get_render_device: (skip)
+ *
+ * Returns: (transfer none): The #CoglRenderDevice
+ */
+COGL_EXPORT CoglRenderDevice *
+cogl_renderer_get_render_device (CoglRenderer *renderer);
 
 G_END_DECLS
