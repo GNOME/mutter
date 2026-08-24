@@ -755,8 +755,6 @@ mutter_sources += [
   'backends/native/meta-render-device.h',
   'backends/native/meta-renderer-display-egl.c',
   'backends/native/meta-renderer-display-egl-private.h',
-  'backends/native/meta-renderer-egl.c',
-  'backends/native/meta-renderer-egl.h',
   'backends/native/meta-renderer-native-gles3.c',
   'backends/native/meta-renderer-native-gles3.h',
   'backends/native/meta-renderer-native-private.h',
