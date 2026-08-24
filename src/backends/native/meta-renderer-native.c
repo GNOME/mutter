@@ -127,14 +127,16 @@ free_render_device_gpu_data (MetaRenderDevice *render_device)
 
   if (renderer_gpu_data->secondary.egl_context != EGL_NO_CONTEXT)
     {
-      MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+      MetaBackend *backend = meta_render_device_get_backend (render_device);
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
       CoglRendererEGL *renderer_egl =
         COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
-      CoglContext *cogl_context =
-        meta_renderer_native_get_cogl_context (renderer_native);
 
-      if (cogl_context)
+      if (clutter_backend)
         {
+          CoglContext *cogl_context =
+            clutter_backend_get_cogl_context (clutter_backend);
           CoglDriver *driver = cogl_context_get_driver (cogl_context);
 
           meta_renderer_native_gles3_forget_context (driver,
@@ -1220,11 +1222,11 @@ set_copy_mode (MetaRendererNativeGpuData     *gpu_data,
 }
 
 static gboolean
-init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
+init_secondary_gpu_data_gpu (MetaRendererNative        *renderer_native,
+                             MetaRendererNativeGpuData *renderer_gpu_data,
                              MetaRenderDevice          *render_device,
                              GError                   **error)
 {
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   CoglRendererEGL *renderer_egl =
     COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
   gboolean ret = FALSE;
@@ -1315,12 +1317,13 @@ out:
 }
 
 static void
-init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data,
+init_secondary_gpu_data (MetaRendererNative        *renderer_native,
+                         MetaRendererNativeGpuData *renderer_gpu_data,
                          MetaRenderDevice          *render_device)
 {
   g_autoptr (GError) error = NULL;
 
-  if (init_secondary_gpu_data_gpu (renderer_gpu_data, render_device, &error))
+  if (init_secondary_gpu_data_gpu (renderer_native, renderer_gpu_data, render_device, &error))
     return;
 
   g_message ("Failed to initialize accelerated iGPU/dGPU framebuffer sharing: %s",
@@ -1351,10 +1354,9 @@ create_renderer_gpu_data_gbm (MetaRendererNative *renderer_native,
 
   renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_GBM);
-  renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->gpu_kms = gpu_kms;
 
-  init_secondary_gpu_data (renderer_gpu_data, render_device);
+  init_secondary_gpu_data (renderer_native, renderer_gpu_data, render_device);
 }
 
 static MetaRenderDevice *
@@ -1365,7 +1367,6 @@ create_renderer_gpu_data_surfaceless (MetaRendererNative  *renderer_native,
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaRenderDeviceSurfaceless *render_device_surfaceless;
   MetaRenderDevice *render_device;
-  MetaRendererNativeGpuData *renderer_gpu_data;
 
   render_device_surfaceless = meta_render_device_surfaceless_new (backend,
                                                                   error);
@@ -1373,9 +1374,7 @@ create_renderer_gpu_data_surfaceless (MetaRendererNative  *renderer_native,
     return NULL;
 
   render_device = META_RENDER_DEVICE (render_device_surfaceless);
-  renderer_gpu_data = meta_render_device_get_gpu_data (render_device);
   meta_render_device_set_mode (render_device, META_RENDERER_NATIVE_MODE_SURFACELESS);
-  renderer_gpu_data->renderer_native = renderer_native;
 
   return render_device;
 }

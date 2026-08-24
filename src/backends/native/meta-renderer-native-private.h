@@ -46,8 +46,6 @@ typedef enum _MetaSharedFramebufferCopyMode
 
 typedef struct _MetaRendererNativeGpuData
 {
-  MetaRendererNative *renderer_native;
-
   MetaGpuKms *gpu_kms;
 
   /*
