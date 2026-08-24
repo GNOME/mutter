@@ -44,25 +44,16 @@ typedef enum _MetaSharedFramebufferCopyMode
   META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY
 } MetaSharedFramebufferCopyMode;
 
-typedef struct _MetaRendererNativeGpuData
+typedef struct
 {
-  MetaGpuKms *gpu_kms;
+  MetaSharedFramebufferCopyMode copy_mode;
+  gboolean copy_mode_primary_force_cpu;
+  gboolean has_EGL_EXT_image_dma_buf_import_modifiers;
+  gboolean is_nvidia;
 
-  /*
-   * Fields used for blitting iGPU framebuffer content onto dGPU framebuffers.
-   */
-  struct {
-    MetaSharedFramebufferCopyMode copy_mode;
-    gboolean copy_mode_primary_force_cpu;
-    gboolean has_EGL_EXT_image_dma_buf_import_modifiers;
-    gboolean is_nvidia;
-
-    /* For GPU blit mode */
-    EGLContext egl_context;
-  } secondary;
-
-  gulong crtc_needs_flush_handler_id;
-} MetaRendererNativeGpuData;
+  /* For GPU blit mode */
+  EGLContext egl_context;
+} MetaRendererNativeSecondaryGpuData;
 
 MetaRenderDevice * meta_renderer_native_get_render_device (MetaRendererNative *renderer_native,
                                                            MetaGpuKms         *gpu_kms);
