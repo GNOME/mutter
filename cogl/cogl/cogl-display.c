@@ -56,6 +56,14 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
+enum
+{
+  SETUP_COMPLETE,
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
 
 
@@ -145,6 +153,13 @@ cogl_display_class_init (CoglDisplayClass *class)
                          G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  signals[SETUP_COMPLETE] =
+    g_signal_new ("setup-complete",
+                  G_TYPE_FROM_CLASS (class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 CoglRenderer *
@@ -157,7 +172,7 @@ cogl_display_get_renderer (CoglDisplay *display)
 
 gboolean
 cogl_display_setup (CoglDisplay *display,
-                    GError **error)
+                    GError     **error)
 {
   CoglDisplayPrivate *priv = cogl_display_get_instance_private (display);
   CoglDisplayClass *class = COGL_DISPLAY_GET_CLASS (display);
@@ -169,6 +184,8 @@ cogl_display_setup (CoglDisplay *display,
     return FALSE;
 
   priv->setup = TRUE;
+
+  g_signal_emit (display, signals[SETUP_COMPLETE], 0);
 
   return TRUE;
 }

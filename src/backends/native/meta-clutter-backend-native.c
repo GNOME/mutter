@@ -44,7 +44,7 @@
 #include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-renderer.h"
 #include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-renderer-display-egl-private.h"
+#include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-sprite-native.h"
 #include "backends/native/meta-stage-native.h"
@@ -82,12 +82,36 @@ meta_clutter_backend_native_get_renderer (ClutterBackend  *clutter_backend,
   return meta_renderer_create_cogl_renderer (renderer);
 }
 
+static void
+on_display_setup_complete (CoglDisplay *cogl_display,
+                           gpointer     user_data)
+{
+  MetaClutterBackendNative *clutter_backend_native = user_data;
+  MetaBackend *backend = clutter_backend_native->backend;
+  MetaRendererNative *renderer_native =
+    META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
+
+  meta_renderer_native_queue_modes_reset (renderer_native);
+}
+
 static CoglDisplay *
 meta_clutter_backend_native_get_display (ClutterBackend  *clutter_backend,
                                          CoglRenderer    *cogl_renderer,
                                          GError         **error)
 {
-  return COGL_DISPLAY (meta_renderer_display_egl_new (cogl_renderer));
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  CoglDisplay *cogl_display;
+
+  cogl_display = g_object_new (COGL_TYPE_DISPLAY_EGL,
+                               "renderer", cogl_renderer,
+                               NULL);
+
+  g_signal_connect (cogl_display, "setup-complete",
+                    G_CALLBACK (on_display_setup_complete),
+                    clutter_backend_native);
+
+  return cogl_display;
 }
 
 static CoglContext *
