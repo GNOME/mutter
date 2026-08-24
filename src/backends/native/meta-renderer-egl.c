@@ -136,7 +136,7 @@ meta_renderer_egl_create_dma_buf (CoglRenderer     *cogl_renderer,
     meta_render_device_get_gpu_data (render_device);
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
 
-  switch (renderer_gpu_data->mode)
+  switch (meta_render_device_get_mode (render_device))
     {
     case META_RENDERER_NATIVE_MODE_GBM:
       {
@@ -250,10 +250,8 @@ meta_renderer_egl_is_dma_buf_supported (CoglRenderer *cogl_renderer)
 {
   MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
   MetaRenderDevice *render_device = renderer_egl->render_device;
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_render_device_get_gpu_data (render_device);
 
-  switch (renderer_gpu_data->mode)
+  switch (meta_render_device_get_mode (render_device))
     {
     case META_RENDERER_NATIVE_MODE_GBM:
       return meta_render_device_is_hardware_accelerated (renderer_egl->render_device);

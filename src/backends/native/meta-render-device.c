@@ -49,6 +49,8 @@ typedef struct _MetaRenderDevicePrivate
 
   MetaRendererNativeGpuData gpu_data;
 
+  MetaRendererNativeMode mode;
+
   gboolean is_hardware_rendering;
 } MetaRenderDevicePrivate;
 
@@ -275,6 +277,25 @@ meta_render_device_is_hardware_accelerated (MetaRenderDevice *render_device)
     meta_render_device_get_instance_private (render_device);
 
   return cogl_renderer_is_hardware_accelerated (priv->renderer);
+}
+
+MetaRendererNativeMode
+meta_render_device_get_mode (MetaRenderDevice *render_device)
+{
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+
+  return priv->mode;
+}
+
+void
+meta_render_device_set_mode (MetaRenderDevice       *render_device,
+                             MetaRendererNativeMode  mode)
+{
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+
+  priv->mode = mode;
 }
 
 const char *

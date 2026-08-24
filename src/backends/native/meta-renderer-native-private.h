@@ -51,8 +51,6 @@ typedef struct _MetaRendererNativeGpuData
   MetaRenderDevice *render_device;
   MetaGpuKms *gpu_kms;
 
-  MetaRendererNativeMode mode;
-
   /*
    * Fields used for blitting iGPU framebuffer content onto dGPU framebuffers.
    */
