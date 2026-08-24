@@ -63,11 +63,25 @@ init_egl (MetaRenderDevice *render_device)
 {
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
+  MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
   g_autoptr (GError) error = NULL;
   CoglRenderer *renderer;
+  EGLDisplay egl_display;
 
   renderer = COGL_RENDERER (meta_renderer_egl_new (render_device));
   priv->renderer = renderer;
+
+  egl_display = klass->create_egl_display (render_device, &error);
+  if (egl_display == EGL_NO_DISPLAY)
+    {
+      meta_topic (META_DEBUG_RENDER, "Failed to create EGL display for %s: %s",
+                  meta_device_file_get_path (priv->device_file),
+                  error->message);
+      g_clear_object (&priv->renderer);
+      return;
+    }
+
+  cogl_renderer_egl_set_edisplay (COGL_RENDERER_EGL (renderer), egl_display);
 
   if (!cogl_renderer_connect (renderer, &error))
     {
