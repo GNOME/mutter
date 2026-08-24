@@ -28,7 +28,7 @@
 #define META_TYPE_RENDER_DEVICE (meta_render_device_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaRenderDevice, meta_render_device,
                           META, RENDER_DEVICE,
-                          GObject)
+                          CoglRenderDevice)
 
 MetaBackend * meta_render_device_get_backend (MetaRenderDevice *render_device);
 

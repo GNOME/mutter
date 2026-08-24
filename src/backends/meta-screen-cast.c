@@ -31,11 +31,9 @@
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
-#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-private.h"
 
 #include "common/meta-cogl-drm-formats.h"
-#include "backends/native/meta-renderer-egl.h"
 
 #define META_SCREEN_CAST_DBUS_SERVICE "org.gnome.Mutter.ScreenCast"
 #define META_SCREEN_CAST_DBUS_PATH "/org/gnome/Mutter/ScreenCast"
@@ -71,7 +69,7 @@ get_render_device (MetaScreenCast *screen_cast)
   CoglRenderer *cogl_renderer =
     cogl_context_get_renderer (cogl_context);
 
-  return meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
+  return META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
 }
 
 gboolean

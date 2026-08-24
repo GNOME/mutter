@@ -47,7 +47,6 @@
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
-#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-drm-timeline.h"
 #include "mtk/mtk.h"
@@ -2130,7 +2129,7 @@ explicit_sync_supported (MetaStreamSource *source)
 
   cogl_renderer = cogl_context_get_renderer (cogl_context);
   render_device =
-    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
   device_file = meta_render_device_get_device_file (render_device);
   if (!device_file)
     return FALSE;
@@ -2594,7 +2593,7 @@ maybe_create_syncobj (MetaStreamSource  *source,
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
   MetaRenderDevice *render_device =
-    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
   MetaDeviceFile *device_file =
     meta_render_device_get_device_file (render_device);
   int drm_fd = meta_device_file_get_fd (device_file);
@@ -3093,7 +3092,7 @@ get_render_device (MetaStreamSource *source)
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
   MetaRenderDevice *render_device =
-    meta_renderer_egl_get_render_device (META_RENDERER_EGL (cogl_renderer));
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
 
   if (meta_render_device_is_hardware_accelerated (render_device))
     return render_device;

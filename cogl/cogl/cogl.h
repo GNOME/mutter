@@ -59,6 +59,7 @@
 #include "cogl/cogl-mutter.h"
 #endif
 
+#include "cogl/cogl-render-device.h"
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-display.h"

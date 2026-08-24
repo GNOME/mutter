@@ -26,58 +26,9 @@
 struct _MetaRendererEgl
 {
   CoglRendererEGL parent_instance;
-
-  MetaRenderDevice *render_device;
 };
 
 G_DEFINE_FINAL_TYPE (MetaRendererEgl, meta_renderer_egl, COGL_TYPE_RENDERER_EGL)
-
-enum
-{
-  PROP_0,
-  PROP_RENDER_DEVICE,
-  N_PROPS
-};
-
-static GParamSpec *props[N_PROPS] = { NULL };
-
-static void
-meta_renderer_egl_get_property (GObject      *object,
-                                unsigned int  prop_id,
-                                GValue       *value,
-                                GParamSpec   *pspec)
-{
-  MetaRendererEgl *renderer_egl = META_RENDERER_EGL (object);
-
-  switch (prop_id)
-    {
-    case PROP_RENDER_DEVICE:
-      g_value_set_object (value, renderer_egl->render_device);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-meta_renderer_egl_set_property (GObject      *object,
-                                unsigned int  prop_id,
-                                const GValue *value,
-                                GParamSpec   *pspec)
-{
-  MetaRendererEgl *renderer_egl = META_RENDERER_EGL (object);
-
-  switch (prop_id)
-    {
-    case PROP_RENDER_DEVICE:
-      renderer_egl->render_device = g_value_get_object (value);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
 
 static GArray *
 meta_renderer_egl_query_drm_modifiers (CoglRenderer           *cogl_renderer,
@@ -85,7 +36,8 @@ meta_renderer_egl_query_drm_modifiers (CoglRenderer           *cogl_renderer,
                                        CoglDrmModifierFilter   filter,
                                        GError                **error)
 {
-  MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
+  MetaRenderDevice *render_device =
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
   const MetaFormatInfo *format_info;
   uint32_t drm_format;
 
@@ -100,7 +52,7 @@ meta_renderer_egl_query_drm_modifiers (CoglRenderer           *cogl_renderer,
 
   drm_format = format_info->drm_format;
 
-  return meta_render_device_query_drm_modifiers (renderer_egl->render_device,
+  return meta_render_device_query_drm_modifiers (render_device,
                                                  drm_format, filter, error);
 }
 
@@ -129,8 +81,8 @@ meta_renderer_egl_create_dma_buf (CoglRenderer     *cogl_renderer,
                                   int               height,
                                   GError          **error)
 {
-  MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
-  MetaRenderDevice *render_device = renderer_egl->render_device;
+  MetaRenderDevice *render_device =
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
   MetaBackend *backend = meta_render_device_get_backend (render_device);
   MetaRendererNative *renderer_native =
     META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
@@ -165,7 +117,7 @@ meta_renderer_egl_create_dma_buf (CoglRenderer     *cogl_renderer,
 
         drm_format = format_info->drm_format;
         flags = META_DRM_BUFFER_FLAG_NONE;
-        buffer = meta_render_device_allocate_dma_buf (renderer_egl->render_device,
+        buffer = meta_render_device_allocate_dma_buf (render_device,
                                                       width, height,
                                                       drm_format,
                                                       modifiers, n_modifiers,
@@ -247,13 +199,13 @@ meta_renderer_egl_create_dma_buf (CoglRenderer     *cogl_renderer,
 static gboolean
 meta_renderer_egl_is_dma_buf_supported (CoglRenderer *cogl_renderer)
 {
-  MetaRendererEgl *renderer_egl = META_RENDERER_EGL (cogl_renderer);
-  MetaRenderDevice *render_device = renderer_egl->render_device;
+  MetaRenderDevice *render_device =
+    META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
 
   switch (meta_render_device_get_mode (render_device))
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      return meta_render_device_is_hardware_accelerated (renderer_egl->render_device);
+      return meta_render_device_is_hardware_accelerated (render_device);
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       return FALSE;
     }
@@ -264,26 +216,13 @@ meta_renderer_egl_is_dma_buf_supported (CoglRenderer *cogl_renderer)
 static void
 meta_renderer_egl_class_init (MetaRendererEglClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   CoglRendererClass *renderer_class =
-    COGL_RENDERER_CLASS (object_class);
-
-  object_class->get_property = meta_renderer_egl_get_property;
-  object_class->set_property = meta_renderer_egl_set_property;
+    COGL_RENDERER_CLASS (klass);
 
   renderer_class->query_drm_modifiers = meta_renderer_egl_query_drm_modifiers;
   renderer_class->get_implicit_drm_modifier = meta_renderer_egl_get_implicit_drm_modifier;
   renderer_class->create_dma_buf = meta_renderer_egl_create_dma_buf;
   renderer_class->is_dma_buf_supported = meta_renderer_egl_is_dma_buf_supported;
-
-  props[PROP_RENDER_DEVICE] =
-    g_param_spec_object ("render-device", NULL, NULL,
-                         META_TYPE_RENDER_DEVICE,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-
-  g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
@@ -299,10 +238,3 @@ meta_renderer_egl_new (MetaRenderDevice *render_device)
                        NULL);
 }
 
-MetaRenderDevice *
-meta_renderer_egl_get_render_device (MetaRendererEgl *renderer_egl)
-{
-  g_return_val_if_fail (META_IS_RENDERER_EGL (renderer_egl), NULL);
-
-  return renderer_egl->render_device;
-}
