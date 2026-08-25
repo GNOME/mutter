@@ -3094,7 +3094,7 @@ get_render_device (MetaStreamSource *source)
   MetaRenderDevice *render_device =
     META_RENDER_DEVICE (cogl_renderer_get_render_device (cogl_renderer));
 
-  if (meta_render_device_is_hardware_accelerated (render_device))
+  if (cogl_render_device_is_hardware_accelerated (COGL_RENDER_DEVICE (render_device)))
     return render_device;
   else
     return NULL;

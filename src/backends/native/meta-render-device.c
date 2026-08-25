@@ -45,15 +45,11 @@ typedef struct _MetaRenderDevicePrivate
 
   MetaDeviceFile *device_file;
 
-  CoglRenderer *renderer;
-
   MetaRendererNativeSecondaryGpuData secondary_gpu_data;
 
   MetaGpuKms *gpu_kms;
 
   gulong crtc_needs_flush_handler_id;
-
-  gboolean is_hardware_rendering;
 } MetaRenderDevicePrivate;
 
 static void
@@ -70,15 +66,15 @@ init_egl (MetaRenderDevice *render_device)
 {
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
+  CoglRenderDevice *cogl_render_device = COGL_RENDER_DEVICE (render_device);
   MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
   g_autoptr (GError) error = NULL;
-  CoglRenderer *renderer;
+  g_autoptr (CoglRenderer) renderer = NULL;
   EGLDisplay egl_display;
 
   renderer = g_object_new (COGL_TYPE_RENDERER_EGL,
                            "render-device", render_device,
                            NULL);
-  priv->renderer = renderer;
 
   egl_display = klass->create_egl_display (render_device, &error);
   if (egl_display == EGL_NO_DISPLAY)
@@ -86,7 +82,6 @@ init_egl (MetaRenderDevice *render_device)
       meta_topic (META_DEBUG_RENDER, "Failed to create EGL display for %s: %s",
                   meta_device_file_get_path (priv->device_file),
                   error->message);
-      g_clear_object (&priv->renderer);
       return;
     }
 
@@ -97,9 +92,10 @@ init_egl (MetaRenderDevice *render_device)
       meta_topic (META_DEBUG_RENDER, "Failed to connect renderer for %s: %s",
                   meta_device_file_get_path (priv->device_file),
                   error->message);
-      g_clear_object (&priv->renderer);
       return;
     }
+
+  cogl_render_device_set_renderer (cogl_render_device, renderer);
 }
 
 static gboolean
@@ -169,18 +165,6 @@ meta_render_device_set_property (GObject      *object,
 }
 
 static void
-meta_render_device_dispose (GObject *object)
-{
-  MetaRenderDevice *render_device = META_RENDER_DEVICE (object);
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
-
-  g_clear_object (&priv->renderer);
-
-  G_OBJECT_CLASS (meta_render_device_parent_class)->dispose (object);
-}
-
-static void
 meta_render_device_finalize (GObject *object)
 {
   MetaRenderDevice *render_device = META_RENDER_DEVICE (object);
@@ -245,14 +229,10 @@ meta_render_device_get_implicit_drm_modifier_impl (CoglRenderDevice *cogl_render
 static gboolean
 meta_render_device_is_dma_buf_supported_impl (CoglRenderDevice *cogl_render_device)
 {
-  MetaRenderDevice *render_device = META_RENDER_DEVICE (cogl_render_device);
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
-
   switch (cogl_render_device_get_mode (cogl_render_device))
     {
     case COGL_RENDER_DEVICE_MODE_GBM:
-      return cogl_renderer_is_hardware_accelerated (priv->renderer);
+      return cogl_render_device_is_hardware_accelerated (cogl_render_device);
     case COGL_RENDER_DEVICE_MODE_SURFACELESS:
       return FALSE;
     }
@@ -352,7 +332,7 @@ meta_render_device_create_dma_buf_impl (CoglRenderDevice  *cogl_render_device,
           }
 
         dmabuf_fb =
-          cogl_renderer_create_dma_buf_framebuffer (priv->renderer,
+          cogl_renderer_create_dma_buf_framebuffer (cogl_render_device_get_renderer (cogl_render_device),
                                                     meta_renderer_native_get_cogl_context (renderer_native),
                                                     width,
                                                     height,
@@ -414,7 +394,6 @@ meta_render_device_class_init (MetaRenderDeviceClass *klass)
   object_class->get_property = meta_render_device_get_property;
   object_class->set_property = meta_render_device_set_property;
   object_class->constructed = meta_render_device_constructed;
-  object_class->dispose = meta_render_device_dispose;
   object_class->finalize = meta_render_device_finalize;
 
   obj_props[PROP_BACKEND] =
@@ -457,32 +436,16 @@ meta_render_device_get_device_file (MetaRenderDevice *render_device)
 EGLDisplay
 meta_render_device_get_egl_display (MetaRenderDevice *render_device)
 {
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
+  CoglRenderer *renderer =
+    cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device));
 
-  if (priv->renderer && COGL_IS_RENDERER_EGL (priv->renderer))
-    return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (priv->renderer));
+  if (!renderer)
+    return EGL_NO_DISPLAY;
 
-  return EGL_NO_DISPLAY;
+  return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
 }
 
-CoglRenderer *
-meta_render_device_get_renderer (MetaRenderDevice *render_device)
-{
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
 
-  return priv->renderer;
-}
-
-gboolean
-meta_render_device_is_hardware_accelerated (MetaRenderDevice *render_device)
-{
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
-
-  return cogl_renderer_is_hardware_accelerated (priv->renderer);
-}
 
 
 const char *

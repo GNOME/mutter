@@ -34,11 +34,7 @@ MetaBackend * meta_render_device_get_backend (MetaRenderDevice *render_device);
 
 EGLDisplay meta_render_device_get_egl_display (MetaRenderDevice *render_device);
 
-CoglRenderer * meta_render_device_get_renderer (MetaRenderDevice *render_device);
-
 const char * meta_render_device_get_name (MetaRenderDevice *render_device);
-
-gboolean meta_render_device_is_hardware_accelerated (MetaRenderDevice *render_device);
 
 MetaDeviceFile * meta_render_device_get_device_file (MetaRenderDevice *render_device);
 

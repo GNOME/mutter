@@ -28,10 +28,12 @@
 
 #include "cogl/cogl-enum-types.h"
 #include "cogl/cogl-render-device.h"
+#include "cogl/cogl-renderer.h"
 
 typedef struct _CoglRenderDevicePrivate
 {
   CoglRenderDeviceMode mode;
+  CoglRenderer *renderer;
 } CoglRenderDevicePrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglRenderDevice, cogl_render_device, G_TYPE_OBJECT)
@@ -40,6 +42,7 @@ enum
 {
   PROP_0,
   PROP_MODE,
+  PROP_RENDERER,
   N_PROPS
 };
 
@@ -59,6 +62,9 @@ cogl_render_device_get_property (GObject      *object,
     {
     case PROP_MODE:
       g_value_set_enum (value, priv->mode);
+      break;
+    case PROP_RENDERER:
+      g_value_set_object (value, priv->renderer);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -81,6 +87,9 @@ cogl_render_device_set_property (GObject      *object,
     case PROP_MODE:
       priv->mode = g_value_get_enum (value);
       break;
+    case PROP_RENDERER:
+      g_set_object (&priv->renderer, g_value_get_object (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -88,10 +97,23 @@ cogl_render_device_set_property (GObject      *object,
 }
 
 static void
+cogl_render_device_dispose (GObject *object)
+{
+  CoglRenderDevice *render_device = COGL_RENDER_DEVICE (object);
+  CoglRenderDevicePrivate *priv =
+    cogl_render_device_get_instance_private (render_device);
+
+  g_clear_object (&priv->renderer);
+
+  G_OBJECT_CLASS (cogl_render_device_parent_class)->dispose (object);
+}
+
+static void
 cogl_render_device_class_init (CoglRenderDeviceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->dispose = cogl_render_device_dispose;
   object_class->get_property = cogl_render_device_get_property;
   object_class->set_property = cogl_render_device_set_property;
 
@@ -103,12 +125,39 @@ cogl_render_device_class_init (CoglRenderDeviceClass *klass)
                        G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
 
+  props[PROP_RENDERER] =
+    g_param_spec_object ("renderer", NULL, NULL,
+                         COGL_TYPE_RENDERER,
+                         G_PARAM_READWRITE |
+                         G_PARAM_EXPLICIT_NOTIFY |
+                         G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
 cogl_render_device_init (CoglRenderDevice *render_device)
 {
+}
+
+CoglRenderer *
+cogl_render_device_get_renderer (CoglRenderDevice *render_device)
+{
+  CoglRenderDevicePrivate *priv =
+    cogl_render_device_get_instance_private (render_device);
+
+  return priv->renderer;
+}
+
+void
+cogl_render_device_set_renderer (CoglRenderDevice *render_device,
+                                 CoglRenderer     *renderer)
+{
+  CoglRenderDevicePrivate *priv =
+    cogl_render_device_get_instance_private (render_device);
+
+  if (g_set_object (&priv->renderer, renderer))
+    g_object_notify_by_pspec (G_OBJECT (render_device), props[PROP_RENDERER]);
 }
 
 CoglRenderDeviceMode
@@ -118,6 +167,18 @@ cogl_render_device_get_mode (CoglRenderDevice *render_device)
     cogl_render_device_get_instance_private (render_device);
 
   return priv->mode;
+}
+
+gboolean
+cogl_render_device_is_hardware_accelerated (CoglRenderDevice *render_device)
+{
+  CoglRenderDevicePrivate *priv =
+    cogl_render_device_get_instance_private (render_device);
+
+  if (!priv->renderer)
+    return FALSE;
+
+  return cogl_renderer_is_hardware_accelerated (priv->renderer);
 }
 
 GArray *

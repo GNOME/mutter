@@ -1127,7 +1127,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   MetaRendererNativeSecondaryGpuData *secondary_gpu_data =
     meta_render_device_get_secondary_gpu_data (render_device);
-  CoglRendererEGL *renderer_egl;
+  CoglRenderer *renderer =
+    cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device));
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   MetaDrmBufferGbm *dst_buffer_gbm = NULL, *src_buffer_gbm;
   struct gbm_bo *dst_bo, *src_bo;
   EGLSync egl_sync = EGL_NO_SYNC;
@@ -1142,9 +1144,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
 
   if (secondary_gpu_data->is_nvidia)
     sync_fd = meta_frame_native_steal_sync_fd (frame_native);
-
-  renderer_egl =
-    COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
 
   if (!cogl_renderer_egl_make_current (renderer_egl,
                                        EGL_NO_SURFACE,

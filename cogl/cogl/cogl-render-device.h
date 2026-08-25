@@ -78,6 +78,19 @@ COGL_EXPORT CoglRenderDeviceMode
 cogl_render_device_get_mode (CoglRenderDevice *render_device);
 
 /**
+ * cogl_render_device_get_renderer: (skip)
+ */
+COGL_EXPORT CoglRenderer *
+cogl_render_device_get_renderer (CoglRenderDevice *render_device);
+
+COGL_EXPORT void
+cogl_render_device_set_renderer (CoglRenderDevice *render_device,
+                                 CoglRenderer     *renderer);
+
+COGL_EXPORT gboolean
+cogl_render_device_is_hardware_accelerated (CoglRenderDevice *render_device);
+
+/**
  * cogl_render_device_query_drm_modifiers: (skip)
  */
 COGL_EXPORT GArray *

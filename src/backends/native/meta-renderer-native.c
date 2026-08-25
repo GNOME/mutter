@@ -132,8 +132,9 @@ free_render_device_gpu_data (MetaRenderDevice *render_device)
       MetaBackend *backend = meta_render_device_get_backend (render_device);
       ClutterBackend *clutter_backend =
         meta_backend_get_clutter_backend (backend);
-      CoglRendererEGL *renderer_egl =
-        COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
+      CoglRenderer *renderer =
+        cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device));
+      CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
 
       if (clutter_backend)
         {
@@ -719,7 +720,7 @@ meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
   render_device = meta_renderer_native_get_render_device (renderer_native,
                                                           meta_renderer_native_get_primary_gpu (renderer_native));
 
-  cogl_renderer = meta_render_device_get_renderer (render_device);
+  cogl_renderer = cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device));
 
   return cogl_renderer;
 }
@@ -747,13 +748,14 @@ static gboolean
 should_force_shadow_fb (MetaRendererNative *renderer_native,
                         MetaGpuKms         *primary_gpu)
 {
-  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaRenderDevice *render_device =
+    meta_renderer_native_get_render_device (renderer_native, primary_gpu);
   CoglContext *cogl_context =
     meta_renderer_native_get_cogl_context (renderer_native);
   CoglDriver *cogl_driver = cogl_context_get_driver (cogl_context);
   MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
 
-  if (meta_renderer_is_hardware_accelerated (renderer))
+  if (cogl_render_device_is_hardware_accelerated (COGL_RENDER_DEVICE (render_device)))
     return FALSE;
 
   if (!cogl_driver_has_feature (cogl_driver, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
@@ -1184,8 +1186,9 @@ init_secondary_gpu_data_gpu (MetaRendererNative  *renderer_native,
 {
   MetaRendererNativeSecondaryGpuData *secondary_gpu_data =
     meta_render_device_get_secondary_gpu_data (render_device);
-  CoglRendererEGL *renderer_egl =
-    COGL_RENDERER_EGL (meta_render_device_get_renderer (render_device));
+  CoglRenderer *renderer =
+    cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device));
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   gboolean ret = FALSE;
   EGLDisplay egl_display;
   EGLConfig egl_config;
@@ -1193,7 +1196,7 @@ init_secondary_gpu_data_gpu (MetaRendererNative  *renderer_native,
   CoglContext *cogl_context;
   const char *egl_vendor;
 
-  egl_display = meta_render_device_get_egl_display (render_device);
+  egl_display = cogl_renderer_egl_get_edisplay (renderer_egl);
   if (egl_display == EGL_NO_DISPLAY)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -1201,7 +1204,7 @@ init_secondary_gpu_data_gpu (MetaRendererNative  *renderer_native,
       goto out;
     }
 
-  if (!meta_render_device_is_hardware_accelerated (render_device))
+  if (!cogl_render_device_is_hardware_accelerated (COGL_RENDER_DEVICE (render_device)))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Not hardware accelerated");
@@ -1298,7 +1301,7 @@ gpu_kms_is_hardware_rendering (MetaRendererNative *renderer_native,
 
   render_device = meta_renderer_native_get_render_device (renderer_native,
                                                           gpu_kms);
-  return meta_render_device_is_hardware_accelerated (render_device);
+  return cogl_render_device_is_hardware_accelerated (COGL_RENDER_DEVICE (render_device));
 }
 
 static void
