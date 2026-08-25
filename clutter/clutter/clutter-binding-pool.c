@@ -33,7 +33,9 @@
  * For a given key symbol and modifier mask combination there can be only one
  * action; for each action there can be only one callback. There can be
  * multiple actions with the same name, and the same callback can be used
- * to handle multiple key bindings.
+ * to handle multiple key bindings. Key symbols are case-insensitive; for any
+ * standard ASCII letter, both the lowercase and uppercase letter can activate
+ * the action.
  *
  * Actors requiring key bindings should create a new #ClutterBindingPool
  * inside their class initialization function and then install actions
@@ -155,7 +157,7 @@ binding_entry_hash (gconstpointer v)
   const ClutterBindingEntry *e = v;
   guint h;
 
-  h = e->key_val;
+  h = clutter_keyval_to_lower (e->key_val);
   h ^= e->modifiers;
 
   return h;
@@ -168,7 +170,8 @@ binding_entry_compare (gconstpointer v1,
   const ClutterBindingEntry *e1 = v1;
   const ClutterBindingEntry *e2 = v2;
 
-  return (e1->key_val == e2->key_val && e1->modifiers == e2->modifiers);
+  return (clutter_keyval_to_lower (e1->key_val) == clutter_keyval_to_lower (e2->key_val)) &&
+         (e1->modifiers == e2->modifiers);
 }
 
 static ClutterBindingEntry *
@@ -816,7 +819,7 @@ clutter_binding_pool_remove_action (ClutterBindingPool  *pool,
         {
           ClutterBindingEntry *e = l->data;
 
-          if (e->key_val == remove_entry.key_val &&
+          if (clutter_keyval_to_lower (e->key_val) == clutter_keyval_to_lower (remove_entry.key_val) &&
               e->modifiers == remove_entry.modifiers)
             {
               pool->entries = g_slist_remove_link (pool->entries, l);
