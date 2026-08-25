@@ -61,51 +61,26 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaRenderDevice, meta_render_device,
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          initable_iface_init))
 
-static void
-init_egl (MetaRenderDevice *render_device)
-{
-  MetaRenderDevicePrivate *priv =
-    meta_render_device_get_instance_private (render_device);
-  CoglRenderDevice *cogl_render_device = COGL_RENDER_DEVICE (render_device);
-  MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
-  g_autoptr (GError) error = NULL;
-  g_autoptr (CoglRenderer) renderer = NULL;
-  EGLDisplay egl_display;
-
-  renderer = g_object_new (COGL_TYPE_RENDERER_EGL,
-                           "render-device", render_device,
-                           NULL);
-
-  egl_display = klass->create_egl_display (render_device, &error);
-  if (egl_display == EGL_NO_DISPLAY)
-    {
-      meta_topic (META_DEBUG_RENDER, "Failed to create EGL display for %s: %s",
-                  meta_device_file_get_path (priv->device_file),
-                  error->message);
-      return;
-    }
-
-  cogl_renderer_egl_set_edisplay (COGL_RENDERER_EGL (renderer), egl_display);
-
-  if (!cogl_renderer_connect (renderer, &error))
-    {
-      meta_topic (META_DEBUG_RENDER, "Failed to connect renderer for %s: %s",
-                  meta_device_file_get_path (priv->device_file),
-                  error->message);
-      return;
-    }
-
-  cogl_render_device_set_renderer (cogl_render_device, renderer);
-}
-
 static gboolean
 meta_render_device_initable_init (GInitable     *initable,
                                   GCancellable  *cancellable,
                                   GError       **error)
 {
   MetaRenderDevice *render_device = META_RENDER_DEVICE (initable);
+  MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
+  g_autoptr (CoglRenderer) renderer = NULL;
 
-  init_egl (render_device);
+  renderer = klass->create_renderer (render_device, error);
+  if (!renderer)
+    {
+      meta_topic (META_DEBUG_RENDER, "Failed to create renderer for %s: %s",
+                  meta_render_device_get_name (render_device),
+                  (*error)->message);
+      return FALSE;
+    }
+
+  cogl_render_device_set_renderer (COGL_RENDER_DEVICE (render_device),
+                                    renderer);
 
   return TRUE;
 }

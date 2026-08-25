@@ -31,14 +31,18 @@ struct _MetaRenderDeviceSurfaceless
 G_DEFINE_TYPE (MetaRenderDeviceSurfaceless, meta_render_device_surfaceless,
                META_TYPE_RENDER_DEVICE)
 
-static EGLDisplay
-meta_render_device_surfaceless_create_egl_display (MetaRenderDevice  *render_device,
-                                                   GError           **error)
+static CoglRenderer *
+meta_render_device_surfaceless_create_renderer (MetaRenderDevice  *render_device,
+                                                GError           **error)
 {
-  CoglRenderer *renderer =
-    cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device));
-  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  g_autoptr (CoglRenderer) renderer = NULL;
+  CoglRendererEGL *renderer_egl;
   EGLDisplay egl_display;
+
+  renderer = g_object_new (COGL_TYPE_RENDERER_EGL,
+                           "render-device", render_device,
+                           NULL);
+  renderer_egl = COGL_RENDERER_EGL (renderer);
 
   if (!cogl_renderer_egl_has_client_extensions (renderer_egl, NULL,
                                                 "EGL_MESA_platform_surfaceless",
@@ -47,7 +51,7 @@ meta_render_device_surfaceless_create_egl_display (MetaRenderDevice  *render_dev
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Missing EGL platform required for surfaceless context: "
                    "EGL_MESA_platform_surfaceless");
-      return EGL_NO_DISPLAY;
+      return NULL;
     }
 
   egl_display = cogl_renderer_egl_get_platform_display (renderer_egl,
@@ -55,15 +59,20 @@ meta_render_device_surfaceless_create_egl_display (MetaRenderDevice  *render_dev
                                                         EGL_DEFAULT_DISPLAY,
                                                         NULL, error);
   if (egl_display == EGL_NO_DISPLAY)
-    return EGL_NO_DISPLAY;
+    return NULL;
 
   if (!cogl_renderer_egl_initialize (renderer_egl, egl_display, error))
     {
       cogl_renderer_egl_terminate (renderer_egl, egl_display, NULL);
-      return EGL_NO_DISPLAY;
+      return NULL;
     }
 
-  return egl_display;
+  cogl_renderer_egl_set_edisplay (renderer_egl, egl_display);
+
+  if (!cogl_renderer_connect (renderer, error))
+    return NULL;
+
+  return g_steal_pointer (&renderer);
 }
 
 static void
@@ -71,8 +80,8 @@ meta_render_device_surfaceless_class_init (MetaRenderDeviceSurfacelessClass *kla
 {
   MetaRenderDeviceClass *render_device_class = META_RENDER_DEVICE_CLASS (klass);
 
-  render_device_class->create_egl_display =
-    meta_render_device_surfaceless_create_egl_display;
+  render_device_class->create_renderer =
+    meta_render_device_surfaceless_create_renderer;
 }
 
 static void
