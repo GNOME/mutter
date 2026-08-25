@@ -50,6 +50,8 @@ typedef struct _MetaBacklightPrivate
   int brightness_max;
   int brightness_target;
   gboolean pending;
+
+  GQueue pending_values;
 } MetaBacklightPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaBacklight,
@@ -85,7 +87,26 @@ meta_backlight_update_brightness_target (MetaBacklight *backlight,
                                          int            brightness)
 {
   MetaBacklightPrivate *priv = meta_backlight_get_instance_private (backlight);
+  GList *match;
   int new_brightness;
+
+  /* Find the newest pending write with this value. The match stays in the
+   * queue: a change event can read a newer write's value, and that write's
+   * own event reads it again. */
+  for (match = priv->pending_values.tail; match; match = match->prev)
+    {
+      if (GPOINTER_TO_INT (match->data) == brightness)
+        break;
+    }
+
+  if (match)
+    {
+      while (priv->pending_values.head != match)
+        g_queue_pop_head (&priv->pending_values);
+      return;
+    }
+
+  g_queue_clear (&priv->pending_values);
 
   if (priv->brightness_target == brightness)
     return;
@@ -140,6 +161,8 @@ on_brightness_set (GObject      *source_object,
     {
       priv->pending = TRUE;
 
+      g_queue_push_tail (&priv->pending_values,
+                         GINT_TO_POINTER (priv->brightness_target));
       META_BACKLIGHT_GET_CLASS (backlight)->set_brightness (backlight,
                                                             priv->brightness_target,
                                                             priv->cancellable,
@@ -187,6 +210,8 @@ meta_backlight_set_brightness (MetaBacklight *backlight,
     {
       priv->pending = TRUE;
 
+      g_queue_push_tail (&priv->pending_values,
+                         GINT_TO_POINTER (priv->brightness_target));
       META_BACKLIGHT_GET_CLASS (backlight)->set_brightness (backlight,
                                                             priv->brightness_target,
                                                             priv->cancellable,
@@ -339,6 +364,7 @@ meta_backlight_dispose (GObject *object)
   MetaBacklightPrivate *priv = meta_backlight_get_instance_private (backlight);
 
   g_clear_pointer (&priv->name, g_free);
+  g_queue_clear (&priv->pending_values);
 
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
@@ -393,4 +419,7 @@ meta_backlight_class_init (MetaBacklightClass *klass)
 static void
 meta_backlight_init (MetaBacklight *backlight)
 {
+  MetaBacklightPrivate *priv = meta_backlight_get_instance_private (backlight);
+
+  g_queue_init (&priv->pending_values);
 }
