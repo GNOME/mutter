@@ -32,8 +32,6 @@ G_DECLARE_DERIVABLE_TYPE (MetaRenderDevice, meta_render_device,
 
 MetaBackend * meta_render_device_get_backend (MetaRenderDevice *render_device);
 
-EGLDisplay meta_render_device_get_egl_display (MetaRenderDevice *render_device);
-
 const char * meta_render_device_get_name (MetaRenderDevice *render_device);
 
 MetaDeviceFile * meta_render_device_get_device_file (MetaRenderDevice *render_device);
