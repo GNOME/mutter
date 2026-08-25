@@ -229,14 +229,6 @@ key_group_class_init (KeyGroupClass *klass)
                                        CLUTTER_KEY_Return, 0,
                                        G_CALLBACK (key_group_action_activate),
                                        NULL, NULL);
-  clutter_binding_pool_install_action (binding_pool, "activate",
-                                       CLUTTER_KEY_KP_Enter, 0,
-                                       G_CALLBACK (key_group_action_activate),
-                                       NULL, NULL);
-  clutter_binding_pool_install_action (binding_pool, "activate",
-                                       CLUTTER_KEY_ISO_Enter, 0,
-                                       G_CALLBACK (key_group_action_activate),
-                                       NULL, NULL);
 }
 
 static void

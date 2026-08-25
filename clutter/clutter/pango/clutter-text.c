@@ -4238,42 +4238,24 @@ clutter_text_class_init (ClutterTextClass *klass)
   clutter_text_add_move_binding (binding_pool, "move-left",
                                  CLUTTER_KEY_Left, CLUTTER_CONTROL_MASK,
                                  G_CALLBACK (clutter_text_real_move_left));
-  clutter_text_add_move_binding (binding_pool, "move-left",
-                                 CLUTTER_KEY_KP_Left, CLUTTER_CONTROL_MASK,
-                                 G_CALLBACK (clutter_text_real_move_left));
   clutter_text_add_move_binding (binding_pool, "move-right",
                                  CLUTTER_KEY_Right, CLUTTER_CONTROL_MASK,
-                                 G_CALLBACK (clutter_text_real_move_right));
-  clutter_text_add_move_binding (binding_pool, "move-right",
-                                 CLUTTER_KEY_KP_Right, CLUTTER_CONTROL_MASK,
                                  G_CALLBACK (clutter_text_real_move_right));
   clutter_text_add_move_binding (binding_pool, "move-up",
                                  CLUTTER_KEY_Up, 0,
                                  G_CALLBACK (clutter_text_real_move_up));
-  clutter_text_add_move_binding (binding_pool, "move-up",
-                                 CLUTTER_KEY_KP_Up, 0,
-                                 G_CALLBACK (clutter_text_real_move_up));
   clutter_text_add_move_binding (binding_pool, "move-down",
                                  CLUTTER_KEY_Down, 0,
-                                 G_CALLBACK (clutter_text_real_move_down));
-  clutter_text_add_move_binding (binding_pool, "move-down",
-                                 CLUTTER_KEY_KP_Down, 0,
                                  G_CALLBACK (clutter_text_real_move_down));
 
   clutter_text_add_move_binding (binding_pool, "line-start",
                                  CLUTTER_KEY_Home, 0,
                                  G_CALLBACK (clutter_text_real_line_start));
   clutter_text_add_move_binding (binding_pool, "line-start",
-                                 CLUTTER_KEY_KP_Home, 0,
-                                 G_CALLBACK (clutter_text_real_line_start));
-  clutter_text_add_move_binding (binding_pool, "line-start",
                                  CLUTTER_KEY_Begin, 0,
                                  G_CALLBACK (clutter_text_real_line_start));
   clutter_text_add_move_binding (binding_pool, "line-end",
                                  CLUTTER_KEY_End, 0,
-                                 G_CALLBACK (clutter_text_real_line_end));
-  clutter_text_add_move_binding (binding_pool, "line-end",
-                                 CLUTTER_KEY_KP_End, 0,
                                  G_CALLBACK (clutter_text_real_line_end));
 
   clutter_binding_pool_install_action (binding_pool, "select-all",
@@ -4293,14 +4275,6 @@ clutter_text_class_init (ClutterTextClass *klass)
                                        CLUTTER_KEY_Delete, CLUTTER_CONTROL_MASK,
                                        G_CALLBACK (clutter_text_real_del_word_next),
                                        NULL, NULL);
-  clutter_binding_pool_install_action (binding_pool, "delete-next",
-                                       CLUTTER_KEY_KP_Delete, 0,
-                                       G_CALLBACK (clutter_text_real_del_next),
-                                       NULL, NULL);
-  clutter_binding_pool_install_action (binding_pool, "delete-next",
-                                       CLUTTER_KEY_KP_Delete, CLUTTER_CONTROL_MASK,
-                                       G_CALLBACK (clutter_text_real_del_word_next),
-                                       NULL, NULL);
   clutter_binding_pool_install_action (binding_pool, "delete-prev",
                                        CLUTTER_KEY_BackSpace, 0,
                                        G_CALLBACK (clutter_text_real_del_prev),
@@ -4316,14 +4290,6 @@ clutter_text_class_init (ClutterTextClass *klass)
 
   clutter_binding_pool_install_action (binding_pool, "activate",
                                        CLUTTER_KEY_Return, 0,
-                                       G_CALLBACK (clutter_text_real_activate),
-                                       NULL, NULL);
-  clutter_binding_pool_install_action (binding_pool, "activate",
-                                       CLUTTER_KEY_KP_Enter, 0,
-                                       G_CALLBACK (clutter_text_real_activate),
-                                       NULL, NULL);
-  clutter_binding_pool_install_action (binding_pool, "activate",
-                                       CLUTTER_KEY_ISO_Enter, 0,
                                        G_CALLBACK (clutter_text_real_activate),
                                        NULL, NULL);
 }

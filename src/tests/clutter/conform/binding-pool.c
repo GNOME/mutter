@@ -22,6 +22,7 @@ struct _KeyGroup
 
   gint selected_index;
   gint serial;
+  gint activation_count;
 };
 
 struct _KeyGroupClass
@@ -238,14 +239,6 @@ key_group_class_init (KeyGroupClass *klass)
                                        CLUTTER_KEY_Return, 0,
                                        G_CALLBACK (key_group_action_activate),
                                        NULL, NULL);
-  clutter_binding_pool_install_action (binding_pool, "activate",
-                                       CLUTTER_KEY_KP_Enter, 0,
-                                       G_CALLBACK (key_group_action_activate),
-                                       NULL, NULL);
-  clutter_binding_pool_install_action (binding_pool, "activate",
-                                       CLUTTER_KEY_ISO_Enter, 0,
-                                       G_CALLBACK (key_group_action_activate),
-                                       NULL, NULL);
 }
 
 static void
@@ -282,6 +275,8 @@ on_activate (KeyGroup     *key_group,
   gint _index = GPOINTER_TO_INT (data);
 
   g_assert_cmpint (key_group->selected_index, ==, _index);
+
+  key_group->activation_count++;
 }
 
 static void
@@ -335,7 +330,13 @@ binding_pool (void)
                     "activate", G_CALLBACK (on_activate),
                     GINT_TO_POINTER (0));
 
+  g_assert_cmpint (key_group->activation_count, ==, 0);
+
   send_keyval (key_group, CLUTTER_KEY_Return);
+  g_assert_cmpint (key_group->activation_count, ==, 1);
+
+  send_keyval (key_group, CLUTTER_KEY_KP_Enter);
+  g_assert_cmpint (key_group->activation_count, ==, 2);
 
   clutter_actor_destroy (CLUTTER_ACTOR (key_group));
   g_object_unref (key_group);
