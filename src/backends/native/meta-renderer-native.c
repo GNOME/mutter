@@ -1631,10 +1631,10 @@ choose_primary_gpu (MetaBackend         *backend,
   gpu_kms = choose_primary_gpu_unchecked (backend, renderer_native);
   render_device = meta_renderer_native_get_render_device (renderer_native,
                                                           gpu_kms);
-  if (meta_render_device_get_egl_display (render_device) == EGL_NO_DISPLAY)
+  if (!cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device)))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "The GPU %s chosen as primary is not supported by EGL.",
+                   "The GPU %s chosen as primary has no renderer.",
                    meta_gpu_kms_get_file_path (gpu_kms));
       return NULL;
     }

@@ -408,21 +408,6 @@ meta_render_device_get_device_file (MetaRenderDevice *render_device)
   return priv->device_file;
 }
 
-EGLDisplay
-meta_render_device_get_egl_display (MetaRenderDevice *render_device)
-{
-  CoglRenderer *renderer =
-    cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device));
-
-  if (!renderer)
-    return EGL_NO_DISPLAY;
-
-  return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
-}
-
-
-
-
 const char *
 meta_render_device_get_name (MetaRenderDevice *render_device)
 {
