@@ -1639,15 +1639,20 @@ meta_backend_get_a11y_manager (MetaBackend *backend)
  * meta_backend_is_rendering_hardware_accelerated:
  * @backend: A #MetaBackend
  *
+ * Checks if the primary GPU is hardware accelerated.
+ *
  * Returns: %TRUE if the rendering is hardware accelerated, otherwise
  * %FALSE.
  */
 gboolean
 meta_backend_is_rendering_hardware_accelerated (MetaBackend *backend)
 {
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  CoglRenderDevice *render_device = cogl_renderer_get_render_device (cogl_renderer);
 
-  return meta_renderer_is_hardware_accelerated (renderer);
+  return cogl_render_device_is_hardware_accelerated (render_device);
 }
 
 /**
