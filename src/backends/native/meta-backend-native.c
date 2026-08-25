@@ -461,7 +461,7 @@ create_render_device (MetaBackendNative  *backend_native,
       MetaRenderDevice *render_device =
         META_RENDER_DEVICE (render_device_gbm);
 
-      if (meta_render_device_is_hardware_accelerated (render_device))
+      if (cogl_render_device_is_hardware_accelerated (COGL_RENDER_DEVICE (render_device)))
         return META_RENDER_DEVICE (g_steal_pointer (&render_device_gbm));
     }
 

@@ -329,7 +329,7 @@ meta_screen_cast_constructed (GObject *object)
   meta_dbus_screen_cast_set_version (skeleton, META_SCREEN_CAST_API_VERSION);
 
   render_device = get_render_device (screen_cast);
-  if (meta_render_device_is_hardware_accelerated (render_device))
+  if (cogl_render_device_is_hardware_accelerated (COGL_RENDER_DEVICE (render_device)))
     screen_cast->screen_cast_device = render_device;
 
   G_OBJECT_CLASS (meta_screen_cast_parent_class)->constructed (object);
