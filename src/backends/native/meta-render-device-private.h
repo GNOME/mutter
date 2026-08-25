@@ -30,8 +30,8 @@ struct _MetaRenderDeviceClass
 {
   CoglRenderDeviceClass parent_class;
 
-  EGLDisplay (* create_egl_display) (MetaRenderDevice  *render_device,
-                                     GError           **error);
+  CoglRenderer * (* create_renderer) (MetaRenderDevice  *render_device,
+                                      GError           **error);
 
   MetaDrmBuffer * (* allocate_dma_buf) (MetaRenderDevice    *render_device,
                                         int                  width,
