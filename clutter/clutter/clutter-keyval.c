@@ -213,3 +213,112 @@ clutter_keyval_name (unsigned int keyval)
 
   return NULL;
 }
+
+/* Note that this array must have a 0 at the beginning,
+ * at the end, and between any two sets of aliases
+ */
+static const unsigned int aliases[] = {
+  0,
+  CLUTTER_KEY_space, CLUTTER_KEY_KP_Space,
+  0,
+  CLUTTER_KEY_Tab, CLUTTER_KEY_ISO_Left_Tab, CLUTTER_KEY_KP_Tab,
+  0,
+  CLUTTER_KEY_Return, CLUTTER_KEY_ISO_Enter, CLUTTER_KEY_KP_Enter,
+  0,
+  CLUTTER_KEY_Home, CLUTTER_KEY_KP_Home,
+  0,
+  CLUTTER_KEY_End, CLUTTER_KEY_KP_End,
+  0,
+  CLUTTER_KEY_Left, CLUTTER_KEY_KP_Left,
+  0,
+  CLUTTER_KEY_Up, CLUTTER_KEY_KP_Up,
+  0,
+  CLUTTER_KEY_Right, CLUTTER_KEY_KP_Right,
+  0,
+  CLUTTER_KEY_Down, CLUTTER_KEY_KP_Down,
+  0,
+  CLUTTER_KEY_Page_Up, CLUTTER_KEY_KP_Page_Up,
+  0,
+  CLUTTER_KEY_Page_Down, CLUTTER_KEY_KP_Page_Down,
+  0,
+  CLUTTER_KEY_Prior, CLUTTER_KEY_KP_Prior,
+  0,
+  CLUTTER_KEY_Next, CLUTTER_KEY_KP_Next,
+  0,
+  CLUTTER_KEY_Insert, CLUTTER_KEY_KP_Insert,
+  0,
+  CLUTTER_KEY_Delete, CLUTTER_KEY_KP_Delete,
+  0,
+  CLUTTER_KEY_equal, CLUTTER_KEY_KP_Equal,
+  0,
+  CLUTTER_KEY_plus, CLUTTER_KEY_KP_Add,
+  0,
+  CLUTTER_KEY_minus, CLUTTER_KEY_KP_Subtract,
+  0,
+  CLUTTER_KEY_asterisk, CLUTTER_KEY_KP_Multiply,
+  0,
+  CLUTTER_KEY_slash, CLUTTER_KEY_KP_Divide,
+  0,
+  CLUTTER_KEY_Menu, CLUTTER_KEY_ContextMenu,
+  0,
+  CLUTTER_KEY_0, CLUTTER_KEY_KP_0,
+  0,
+  CLUTTER_KEY_1, CLUTTER_KEY_KP_1,
+  0,
+  CLUTTER_KEY_2, CLUTTER_KEY_KP_2,
+  0,
+  CLUTTER_KEY_3, CLUTTER_KEY_KP_3,
+  0,
+  CLUTTER_KEY_4, CLUTTER_KEY_KP_4,
+  0,
+  CLUTTER_KEY_5, CLUTTER_KEY_KP_5,
+  0,
+  CLUTTER_KEY_6, CLUTTER_KEY_KP_6,
+  0,
+  CLUTTER_KEY_7, CLUTTER_KEY_KP_7,
+  0,
+  CLUTTER_KEY_8, CLUTTER_KEY_KP_8,
+  0,
+  CLUTTER_KEY_9, CLUTTER_KEY_KP_9,
+  0,
+};
+
+/**
+ * clutter_keyval_get_aliases:
+ * @keyval: the keyval to get aliases for
+ * @n_aliases: (out): return location for the number of aliases
+ *
+ * Gets keyvals that are 'aliases' for @keyval.
+ *
+ * Aliases are meant to be functionally equivalent and
+ * should be treated the same with respect to keyboard
+ * shortcuts, etc. An example are keypad keys that are
+ * aliases for their normal counterpart, such as
+ * `CLUTTER_KEY_KP_Left` and `CLUTTER_KEY_Left`.
+ *
+ * Returns: (transfer none) (nullable) (array length=n_aliases):
+ *     an array of keyvals
+ */
+const unsigned int *
+clutter_keyval_get_aliases (unsigned int  keyval,
+                            unsigned int *n_aliases)
+{
+  unsigned int start = 1, end = 1;
+
+  for (unsigned int i = 0; i < G_N_ELEMENTS (aliases); i++)
+    {
+      if (aliases[i] == 0)
+        start = i + 1;
+
+      if (aliases[i] == keyval)
+        {
+          for (end = i + 1; aliases[end] != 0; end++);
+
+          *n_aliases = end - start;
+          return &aliases[start];
+        }
+    }
+
+  *n_aliases = 0;
+  return NULL;
+}
