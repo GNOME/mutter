@@ -69,8 +69,6 @@ MetaRendererView * meta_renderer_get_view_for_crtc (MetaRenderer *renderer,
 META_EXPORT_TEST
 GList * meta_renderer_get_views (MetaRenderer *renderer);
 
-gboolean meta_renderer_is_hardware_accelerated (MetaRenderer *renderer);
-
 void meta_renderer_pause (MetaRenderer *renderer);
 
 void meta_renderer_resume (MetaRenderer *renderer);

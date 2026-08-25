@@ -338,20 +338,6 @@ meta_renderer_resume (MetaRenderer *renderer)
     klass->resume (renderer);
 }
 
-gboolean
-meta_renderer_is_hardware_accelerated (MetaRenderer *renderer)
-{
-  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
-  MetaBackend *backend = priv->backend;
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
-  CoglRenderer *cogl_renderer =
-    cogl_context_get_renderer (cogl_context);
-
-  return cogl_renderer_is_hardware_accelerated (cogl_renderer);
-}
-
 static void
 meta_renderer_get_property (GObject    *object,
                             guint       prop_id,
