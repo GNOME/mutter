@@ -3194,8 +3194,7 @@ should_try_fbos (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  CoglRendererEGL *renderer_egl =
-    COGL_RENDERER_EGL (cogl_display_get_renderer (cogl_display));
+  CoglRenderer *renderer = cogl_display_get_renderer (cogl_display);
   gboolean is_nvidia, has_partial_updates;
   const char *use_fbos;
 
@@ -3231,13 +3230,11 @@ should_try_fbos (CoglOnscreen *onscreen)
       return TRUE;
     }
 
-  has_partial_updates = cogl_renderer_egl_has_extensions (renderer_egl,
-                                                          NULL,
-                                                          "EGL_KHR_partial_update",
-                                                          NULL);
+  has_partial_updates = cogl_renderer_has_feature (renderer,
+                                                   COGL_RENDERER_FEATURE_PARTIAL_UPDATE);
 
   meta_topic (META_DEBUG_KMS,
-              "%srying FBO path because EGL_KHR_partial_update %ssupported",
+              "%srying FBO path because partial updates %ssupported",
               has_partial_updates ? "Not t" : "T",
               has_partial_updates ? "" : "not ");
   return !has_partial_updates;

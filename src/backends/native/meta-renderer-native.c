@@ -1100,9 +1100,8 @@ create_secondary_egl_context (CoglRendererEGL  *renderer_egl,
   attributes[i++] = EGL_CONTEXT_CLIENT_VERSION;
   attributes[i++] = 3;
 
-  if (cogl_renderer_egl_has_extensions (renderer_egl,
-                                        NULL,
-                                        "EGL_IMG_context_priority", NULL))
+  if (cogl_renderer_has_feature (COGL_RENDERER (renderer_egl),
+                                 COGL_RENDERER_FEATURE_CONTEXT_PRIORITY))
     {
       attributes[i++] = EGL_CONTEXT_PRIORITY_LEVEL_IMG;
       attributes[i++] = EGL_CONTEXT_PRIORITY_HIGH_IMG;
@@ -1255,9 +1254,8 @@ init_secondary_gpu_data_gpu (MetaRendererNative  *renderer_native,
                  META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU);
 
   secondary_gpu_data->has_EGL_EXT_image_dma_buf_import_modifiers =
-    cogl_renderer_egl_has_extensions (renderer_egl, NULL,
-                                      "EGL_EXT_image_dma_buf_import_modifiers",
-                                      NULL);
+    cogl_renderer_has_feature (COGL_RENDERER (renderer_egl),
+                               COGL_RENDERER_FEATURE_DMA_BUF_MODIFIERS);
 
   egl_vendor = cogl_renderer_egl_query_string (renderer_egl, EGL_VENDOR);
   if (!g_strcmp0 (egl_vendor, "NVIDIA"))

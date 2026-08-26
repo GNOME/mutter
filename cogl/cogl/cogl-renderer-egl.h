@@ -56,7 +56,6 @@ typedef enum _CoglEGLWinsysFeature
   COGL_EGL_WINSYS_FEATURE_BUFFER_AGE                    = 1L << 4,
   COGL_EGL_WINSYS_FEATURE_FENCE_SYNC                    = 1L << 5,
   COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           = 1L << 6,
-  COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY              = 1L << 7,
   COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT             = 1L << 8,
   COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC             = 1L << 9,
 } CoglEGLWinsysFeature;
@@ -141,15 +140,6 @@ gboolean cogl_renderer_egl_set_damage_region (CoglRendererEGL *renderer_egl,
                                               EGLSurface       surface,
                                               const EGLint    *rects,
                                               EGLint           n_rects);
-
-/**
- * cogl_renderer_egl_has_extensions: (skip)
- */
-COGL_EXPORT
-gboolean cogl_renderer_egl_has_extensions (CoglRendererEGL   *renderer_egl,
-                                           const char      ***missing_extensions,
-                                           const char        *first_extension,
-                                           ...);
 
 /**
  * cogl_renderer_egl_has_client_extensions: (skip)

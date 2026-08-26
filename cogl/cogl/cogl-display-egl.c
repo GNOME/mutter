@@ -304,8 +304,8 @@ try_create_context (CoglDisplay  *display,
       attribs[i++] = 2;
     }
 
-  if (cogl_renderer_egl_has_feature (renderer_egl,
-                                     COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY))
+  if (cogl_renderer_has_feature (renderer,
+                                 COGL_RENDERER_FEATURE_CONTEXT_PRIORITY))
     {
       attribs[i++] = EGL_CONTEXT_PRIORITY_LEVEL_IMG;
       attribs[i++] = EGL_CONTEXT_PRIORITY_HIGH_IMG;
@@ -337,8 +337,8 @@ try_create_context (CoglDisplay  *display,
       goto fail;
     }
 
-  if (cogl_renderer_egl_has_feature (renderer_egl,
-                                     COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY))
+  if (cogl_renderer_has_feature (renderer,
+                                 COGL_RENDERER_FEATURE_CONTEXT_PRIORITY))
     {
       EGLint value = EGL_CONTEXT_PRIORITY_MEDIUM_IMG;
 

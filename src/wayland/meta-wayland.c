@@ -888,9 +888,8 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
     COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
   g_autoptr (GError) error = NULL;
 
-  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
-                                         "EGL_WL_bind_wayland_display",
-                                         NULL))
+  if (!cogl_renderer_has_feature (COGL_RENDERER (renderer_egl),
+                                  COGL_RENDERER_FEATURE_WAYLAND_BUFFER))
     {
       meta_topic (META_DEBUG_WAYLAND,
                   "Not binding Wayland display, missing extension");

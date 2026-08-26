@@ -41,3 +41,7 @@ void cogl_renderer_set_driver (CoglRenderer *renderer,
                                CoglDriver   *driver);
 
 void cogl_renderer_update_sync (CoglRenderer *renderer);
+
+void cogl_renderer_set_feature (CoglRenderer        *renderer,
+                                CoglRendererFeature  feature,
+                                gboolean             value);

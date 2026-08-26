@@ -166,16 +166,13 @@ should_send_modifiers (MetaBackend *backend)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  CoglRendererEGL *renderer_egl =
-    COGL_RENDERER_EGL (cogl_context_get_renderer (cogl_context));
+  CoglRenderer *renderer = cogl_context_get_renderer (cogl_context);
 
   if (META_IS_BACKEND_NATIVE (backend))
     return should_send_modifiers_native (backend);
 
-  return cogl_renderer_egl_has_extensions (renderer_egl,
-                                           NULL,
-                                           "EGL_EXT_image_dma_buf_import_modifiers",
-                                           NULL);
+  return cogl_renderer_has_feature (renderer,
+                                    COGL_RENDERER_FEATURE_DMA_BUF_MODIFIERS);
 }
 
 static gboolean
@@ -1853,12 +1850,11 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
 
   g_assert (backend && clutter_backend && cogl_context);
 
-  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
-                                         "EGL_EXT_image_dma_buf_import_modifiers",
-                                         NULL))
+  if (!cogl_renderer_has_feature (COGL_RENDERER (renderer_egl),
+                                  COGL_RENDERER_FEATURE_DMA_BUF_MODIFIERS))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "Missing 'EGL_EXT_image_dma_buf_import_modifiers'");
+                   "Missing DMA buf modifier support");
       return NULL;
     }
 

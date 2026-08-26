@@ -355,7 +355,12 @@ cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
     {
       GET_EGL_PROC_ADDR (eglSetDamageRegionKHR);
       if (priv->eglSetDamageRegionKHR)
-        priv->private_features |= COGL_EGL_WINSYS_FEATURE_BUFFER_AGE;
+        {
+          priv->private_features |= COGL_EGL_WINSYS_FEATURE_BUFFER_AGE;
+          cogl_renderer_set_feature (renderer,
+                                    COGL_RENDERER_FEATURE_PARTIAL_UPDATE,
+                                    TRUE);
+        }
     }
 
   if (cogl_check_extension ("EGL_KHR_create_context", split_extensions))
@@ -390,7 +395,9 @@ cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT;
 
   if (cogl_check_extension ("EGL_IMG_context_priority", split_extensions))
-    priv->private_features |= COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY;
+    cogl_renderer_set_feature (renderer,
+                              COGL_RENDERER_FEATURE_CONTEXT_PRIORITY,
+                              TRUE);
 
   if (cogl_check_extension ("EGL_KHR_image_base", split_extensions))
     {
@@ -402,12 +409,18 @@ cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
     {
       GET_EGL_PROC_ADDR (eglBindWaylandDisplayWL);
       GET_EGL_PROC_ADDR (eglQueryWaylandBufferWL);
+      cogl_renderer_set_feature (renderer,
+                                COGL_RENDERER_FEATURE_WAYLAND_BUFFER,
+                                TRUE);
     }
 
   if (cogl_check_extension ("EGL_EXT_image_dma_buf_import_modifiers", split_extensions))
     {
       GET_EGL_PROC_ADDR (eglQueryDmaBufFormatsEXT);
       GET_EGL_PROC_ADDR (eglQueryDmaBufModifiersEXT);
+      cogl_renderer_set_feature (renderer,
+                                COGL_RENDERER_FEATURE_DMA_BUF_MODIFIERS,
+                                TRUE);
     }
 
   GET_EGL_PROC_ADDR (eglCreateSync);
@@ -533,13 +546,11 @@ cogl_renderer_egl_query_dma_buf_modifiers (CoglRenderer  *renderer,
     cogl_renderer_egl_get_instance_private (renderer_egl);
   EGLint n_modifiers;
 
-  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
-                                         "EGL_EXT_image_dma_buf_import_modifiers",
-                                         NULL))
+  if (!cogl_renderer_has_feature (renderer,
+                                  COGL_RENDERER_FEATURE_DMA_BUF_MODIFIERS))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "Missing EGL extension "
-                   "'EGL_EXT_image_dma_buf_import_modifiers'");
+                   "Missing DMA buf modifier support");
       return FALSE;
     }
 
@@ -973,30 +984,6 @@ check_egl_extensions_for_display (EGLDisplay         display,
   g_strfreev (extensions);
 
   return num_missing == 0;
-}
-
-gboolean
-cogl_renderer_egl_has_extensions (CoglRendererEGL   *renderer_egl,
-                                  const char      ***missing_extensions,
-                                  const char        *first_extension,
-                                  ...)
-{
-  CoglRendererEGLPrivate *priv;
-  va_list var_args;
-  gboolean result;
-
-  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
-
-  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
-
-  va_start (var_args, first_extension);
-  result = check_egl_extensions_for_display (priv->edisplay,
-                                             missing_extensions,
-                                             first_extension,
-                                             var_args);
-  va_end (var_args);
-
-  return result;
 }
 
 gboolean
