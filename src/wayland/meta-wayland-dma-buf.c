@@ -1668,13 +1668,13 @@ dma_buf_bind (struct wl_client *client,
 
 static void
 add_format (MetaWaylandDmaBufManager *dma_buf_manager,
-            CoglRendererEGL          *renderer_egl,
+            CoglRenderer             *renderer,
             uint32_t                  drm_format)
 {
   MetaContext *context = dma_buf_manager->compositor->context;
   MetaBackend *backend = meta_context_get_backend (context);
-  EGLint num_modifiers;
-  g_autofree EGLuint64KHR *modifiers = NULL;
+  g_autoptr (GArray) modifiers = NULL;
+  g_autoptr (GArray) external_only = NULL;
   g_autoptr (GError) error = NULL;
   int i;
   MetaWaylandDmaBufFormat format;
@@ -1682,32 +1682,24 @@ add_format (MetaWaylandDmaBufManager *dma_buf_manager,
   if (!should_send_modifiers (backend))
     goto add_fallback;
 
-  /* First query the number of available modifiers, then allocate an array,
-   * then fill the array. */
-  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl, drm_format, 0,
-                                                  NULL, NULL, &num_modifiers,
-                                                  NULL))
-    goto add_fallback;
+  modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+  external_only = g_array_new (FALSE, FALSE, sizeof (gboolean));
 
-  if (num_modifiers == 0)
-    goto add_fallback;
-
-  modifiers = g_new0 (uint64_t, num_modifiers);
-  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl, drm_format,
-                                                  num_modifiers, modifiers,
-                                                  NULL, &num_modifiers,
-                                                  &error))
+  if (!cogl_renderer_query_dma_buf_modifiers (renderer, drm_format,
+                                              modifiers, external_only,
+                                              &error))
     {
-      g_warning ("Failed to query modifiers for format 0x%" PRIu32 ": %s",
-                 drm_format, error->message);
+      if (error)
+        g_warning ("Failed to query modifiers for format 0x%" PRIu32 ": %s",
+                   drm_format, error->message);
       goto add_fallback;
     }
 
-  for (i = 0; i < num_modifiers; i++)
+  for (i = 0; i < modifiers->len; i++)
     {
       format = (MetaWaylandDmaBufFormat) {
         .drm_format = drm_format,
-        .drm_modifier = modifiers[i],
+        .drm_modifier = g_array_index (modifiers, uint64_t, i),
         .table_index = dma_buf_manager->formats->len,
       };
       g_array_append_val (dma_buf_manager->formats, format);
@@ -1767,46 +1759,42 @@ init_format_table (MetaWaylandDmaBufManager *dma_buf_manager)
 
 static gboolean
 init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
-              CoglRendererEGL           *renderer_egl,
+              CoglRenderer              *renderer,
               GError                   **error)
 {
-  EGLint num_formats;
-  g_autofree EGLint *driver_formats = NULL;
+  g_autoptr (GArray) formats = NULL;
   int i;
   const MetaFormatInfo *format_info;
 
   dma_buf_manager->formats = g_array_new (FALSE, FALSE,
                                           sizeof (MetaWaylandDmaBufFormat));
 
-  if (!cogl_renderer_egl_query_dma_buf_formats (renderer_egl, 0, NULL,
-                                                &num_formats, error))
+  formats = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+
+  if (!cogl_renderer_query_dma_buf_formats (renderer, formats, error))
     return FALSE;
 
-  if (num_formats == 0)
+  if (formats->len == 0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "EGL doesn't support any DRM formats");
+                   "Renderer doesn't support any DRM formats");
       return FALSE;
     }
 
-  driver_formats = g_new0 (EGLint, num_formats);
-  if (!cogl_renderer_egl_query_dma_buf_formats (renderer_egl, num_formats,
-                                                driver_formats, &num_formats,
-                                                error))
-    return FALSE;
-
-  for (i = 0; i < num_formats; i++)
+  for (i = 0; i < formats->len; i++)
     {
-      format_info = meta_format_info_from_drm_format (driver_formats[i]);
+      uint32_t drm_format = g_array_index (formats, uint32_t, i);
+
+      format_info = meta_format_info_from_drm_format (drm_format);
       if (format_info && format_info->multi_texture_format !=
           META_MULTI_TEXTURE_FORMAT_INVALID)
-        add_format (dma_buf_manager, renderer_egl, driver_formats[i]);
+        add_format (dma_buf_manager, renderer, drm_format);
     }
 
   if (dma_buf_manager->formats->len == 0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "EGL doesn't support any DRM formats supported by the "
+                   "Renderer doesn't support any DRM formats supported by the "
                    "compositor");
       return FALSE;
     }
@@ -1943,7 +1931,7 @@ initialize:
   dma_buf_manager->compositor = compositor;
   dma_buf_manager->main_device_id = device_id;
 
-  if (!init_formats (dma_buf_manager, renderer_egl, &local_error))
+  if (!init_formats (dma_buf_manager, COGL_RENDERER (renderer_egl), &local_error))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "No supported formats detected: %s", local_error->message);

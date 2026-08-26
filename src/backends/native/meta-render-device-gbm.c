@@ -117,46 +117,16 @@ meta_render_device_gbm_query_drm_modifiers (MetaRenderDevice       *render_devic
     META_RENDER_DEVICE_GBM (render_device);
   CoglRenderer *renderer =
     cogl_render_device_get_renderer (COGL_RENDER_DEVICE (render_device));
-  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
-  EGLint n_modifiers;
   g_autoptr (GArray) modifiers = NULL;
   g_autoptr (GArray) external_onlys = NULL;
 
-  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
-                                         "EGL_EXT_image_dma_buf_import_modifiers",
-                                         NULL))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "Missing EGL extension "
-                   "'EGL_EXT_image_dma_buf_import_modifiers'");
-      return NULL;
-    }
+  modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+  external_onlys = g_array_new (FALSE, FALSE, sizeof (gboolean));
 
-  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl,
-                                                  drm_format, 0, NULL, NULL,
-                                                  &n_modifiers, error))
+  if (!cogl_renderer_query_dma_buf_modifiers (renderer, drm_format,
+                                              modifiers, external_onlys,
+                                              error))
     return NULL;
-
-  if (n_modifiers == 0)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "No modifiers supported for given format");
-      return NULL;
-    }
-
-  modifiers = g_array_sized_new (FALSE, FALSE, sizeof (uint64_t),
-                                 n_modifiers);
-  external_onlys = g_array_sized_new (FALSE, FALSE, sizeof (EGLBoolean),
-                                      n_modifiers);
-  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl,
-                                                  drm_format, n_modifiers,
-                                                  (EGLuint64KHR *) modifiers->data,
-                                                  (EGLBoolean *) external_onlys->data,
-                                                  &n_modifiers, error))
-    return NULL;
-
-  g_array_set_size (modifiers, n_modifiers);
-  g_array_set_size (external_onlys, n_modifiers);
 
   if (filter != COGL_DRM_MODIFIER_FILTER_NONE)
     {
@@ -180,8 +150,8 @@ meta_render_device_gbm_query_drm_modifiers (MetaRenderDevice       *render_devic
 
           if (filter & COGL_DRM_MODIFIER_FILTER_NOT_EXTERNAL_ONLY)
             {
-              EGLBoolean external_only = g_array_index (external_onlys,
-                                                        EGLBoolean, i);
+              gboolean external_only = g_array_index (external_onlys,
+                                                      gboolean, i);
 
               if (external_only)
                 continue;

@@ -475,6 +475,111 @@ cogl_renderer_egl_detect_hardware_rendering (CoglRendererEGL *renderer_egl)
 }
 
 static gboolean
+cogl_renderer_egl_query_dma_buf_formats (CoglRenderer  *renderer,
+                                         GArray        *formats,
+                                         GError       **error)
+{
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
+    cogl_renderer_egl_get_instance_private (renderer_egl);
+  EGLint n_formats;
+  g_autofree EGLint *egl_formats = NULL;
+  int i;
+
+  if (!is_egl_proc_valid (priv->eglQueryDmaBufFormatsEXT, error))
+    return FALSE;
+
+  if (!priv->eglQueryDmaBufFormatsEXT (priv->edisplay, 0, NULL, &n_formats))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  if (n_formats == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No DMA buf formats supported");
+      return FALSE;
+    }
+
+  egl_formats = g_new (EGLint, n_formats);
+
+  if (!priv->eglQueryDmaBufFormatsEXT (priv->edisplay, n_formats,
+                                       egl_formats, &n_formats))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  for (i = 0; i < n_formats; i++)
+    {
+      uint32_t drm_format = (uint32_t) egl_formats[i];
+
+      g_array_append_val (formats, drm_format);
+    }
+
+  return TRUE;
+}
+
+static gboolean
+cogl_renderer_egl_query_dma_buf_modifiers (CoglRenderer  *renderer,
+                                           uint32_t       drm_format,
+                                           GArray        *modifiers,
+                                           GArray        *external_only,
+                                           GError       **error)
+{
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
+    cogl_renderer_egl_get_instance_private (renderer_egl);
+  EGLint n_modifiers;
+
+  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
+                                         "EGL_EXT_image_dma_buf_import_modifiers",
+                                         NULL))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Missing EGL extension "
+                   "'EGL_EXT_image_dma_buf_import_modifiers'");
+      return FALSE;
+    }
+
+  if (!is_egl_proc_valid (priv->eglQueryDmaBufModifiersEXT, error))
+    return FALSE;
+
+  if (!priv->eglQueryDmaBufModifiersEXT (priv->edisplay, drm_format, 0,
+                                         NULL, NULL, &n_modifiers))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  if (n_modifiers == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No modifiers supported for given format");
+      return FALSE;
+    }
+
+  g_array_set_size (modifiers, n_modifiers);
+  g_array_set_size (external_only, n_modifiers);
+
+  if (!priv->eglQueryDmaBufModifiersEXT (priv->edisplay, drm_format,
+                                         n_modifiers,
+                                         (EGLuint64KHR *) modifiers->data,
+                                         (EGLBoolean *) external_only->data,
+                                         &n_modifiers))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  g_array_set_size (modifiers, n_modifiers);
+  g_array_set_size (external_only, n_modifiers);
+
+  return TRUE;
+}
+
+static gboolean
 cogl_renderer_egl_is_hardware_accelerated (CoglRenderer *renderer)
 {
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
@@ -619,6 +724,10 @@ cogl_renderer_egl_class_init (CoglRendererEGLClass *class)
   renderer_class->connect = cogl_renderer_egl_connect;
   renderer_class->create_dma_buf_framebuffer =
     cogl_renderer_egl_create_dma_buf_framebuffer;
+  renderer_class->query_dma_buf_formats =
+    cogl_renderer_egl_query_dma_buf_formats;
+  renderer_class->query_dma_buf_modifiers =
+    cogl_renderer_egl_query_dma_buf_modifiers;
   renderer_class->is_hardware_accelerated = cogl_renderer_egl_is_hardware_accelerated;
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
@@ -1544,60 +1653,6 @@ cogl_renderer_egl_query_wayland_buffer (CoglRendererEGL     *renderer_egl,
   return TRUE;
 }
 
-gboolean
-cogl_renderer_egl_query_dma_buf_formats (CoglRendererEGL  *renderer_egl,
-                                         EGLint            max_formats,
-                                         EGLint           *formats,
-                                         EGLint           *num_formats,
-                                         GError          **error)
-{
-  CoglRendererEGLPrivate *priv;
-
-  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
-
-  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
-
-  if (!is_egl_proc_valid (priv->eglQueryDmaBufFormatsEXT, error))
-    return FALSE;
-
-  if (!priv->eglQueryDmaBufFormatsEXT (priv->edisplay, max_formats,
-                                       formats, num_formats))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-gboolean
-cogl_renderer_egl_query_dma_buf_modifiers (CoglRendererEGL  *renderer_egl,
-                                           EGLint            format,
-                                           EGLint            max_modifiers,
-                                           EGLuint64KHR     *modifiers,
-                                           EGLBoolean       *external_only,
-                                           EGLint           *num_modifiers,
-                                           GError          **error)
-{
-  CoglRendererEGLPrivate *priv;
-
-  g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
-
-  priv = cogl_renderer_egl_get_instance_private (renderer_egl);
-
-  if (!is_egl_proc_valid (priv->eglQueryDmaBufModifiersEXT, error))
-    return FALSE;
-
-  if (!priv->eglQueryDmaBufModifiersEXT (priv->edisplay, format,
-                                         max_modifiers, modifiers,
-                                         external_only, num_modifiers))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
 
 gboolean
 cogl_renderer_egl_query_display_attrib (CoglRendererEGL  *renderer_egl,
@@ -1765,4 +1820,3 @@ cogl_renderer_egl_choose_config_from_gbm_format (CoglRendererEGL  *renderer_egl,
                "No EGL config matching supported GBM format found");
   return FALSE;
 }
-

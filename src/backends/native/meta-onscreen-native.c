@@ -1214,7 +1214,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
                                                    src_bo, buffer_age);
 
   if (!meta_renderer_native_gles3_blit_shared_bo (driver,
-                                                  renderer_egl,
+                                                  renderer,
                                                   secondary_gpu_data->egl_context,
                                                   dst_egl_image,
                                                   src_egl_image,
