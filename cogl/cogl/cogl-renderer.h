@@ -89,6 +89,22 @@ typedef enum
   COGL_DRIVER_ID_GLES2,
 } CoglDriverId;
 
+/**
+ * CoglRendererFeature:
+ * @COGL_RENDERER_FEATURE_DMA_BUF_MODIFIERS: DMA buf modifier query support
+ * @COGL_RENDERER_FEATURE_WAYLAND_BUFFER: Wayland buffer import support
+ * @COGL_RENDERER_FEATURE_PARTIAL_UPDATE: Partial surface update support
+ * @COGL_RENDERER_FEATURE_CONTEXT_PRIORITY: Context priority support
+ */
+typedef enum _CoglRendererFeature
+{
+  COGL_RENDERER_FEATURE_DMA_BUF_MODIFIERS,
+  COGL_RENDERER_FEATURE_WAYLAND_BUFFER,
+  COGL_RENDERER_FEATURE_PARTIAL_UPDATE,
+  COGL_RENDERER_FEATURE_CONTEXT_PRIORITY,
+
+  COGL_RENDERER_N_FEATURES
+} CoglRendererFeature;
 
 #define COGL_TYPE_RENDERER (cogl_renderer_get_type ())
 
@@ -209,6 +225,17 @@ cogl_renderer_query_dma_buf_modifiers (CoglRenderer  *renderer,
                                        GArray        *modifiers,
                                        GArray        *external_only,
                                        GError       **error);
+
+/**
+ * cogl_renderer_has_feature:
+ * @renderer: A connected #CoglRenderer
+ * @feature: A #CoglRendererFeature
+ *
+ * Returns: %TRUE if the renderer supports the given feature
+ */
+COGL_EXPORT gboolean
+cogl_renderer_has_feature (CoglRenderer        *renderer,
+                           CoglRendererFeature  feature);
 
 /**
  * cogl_renderer_is_hardware_accelerated:

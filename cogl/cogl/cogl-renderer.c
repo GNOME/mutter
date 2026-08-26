@@ -40,6 +40,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-mutter.h"
 
+#include "cogl/cogl-flags.h"
 #include "cogl/cogl-render-device.h"
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-renderer-private.h"
@@ -67,6 +68,8 @@ typedef struct _CoglRendererPrivate
   CoglRenderDevice *render_device;
 
   CoglDriverId driver_id;
+
+  unsigned long features[COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_RENDERER_N_FEATURES)];
 } CoglRendererPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
@@ -364,6 +367,27 @@ cogl_renderer_query_dma_buf_modifiers (CoglRenderer  *renderer,
   g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                "Querying DMA buf modifiers not supported by this renderer");
   return FALSE;
+}
+
+gboolean
+cogl_renderer_has_feature (CoglRenderer        *renderer,
+                           CoglRendererFeature  feature)
+{
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return COGL_FLAGS_GET (priv->features, feature);
+}
+
+void
+cogl_renderer_set_feature (CoglRenderer        *renderer,
+                           CoglRendererFeature  feature,
+                           gboolean             value)
+{
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  COGL_FLAGS_SET (priv->features, feature, value);
 }
 
 gboolean
