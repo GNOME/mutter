@@ -32,6 +32,44 @@
 #define CLUTTER_NUM_KEYS G_N_ELEMENTS (clutter_keys_by_keyval)
 
 /**
+ * clutter_keyval_to_upper:
+ * @keyval: a key value.
+ *
+ * Converts a key value to upper case, if applicable.
+ *
+ * Returns: the upper case form of @keyval, or @keyval itself if it is already
+ *   in upper case or it is not subject to case conversion.
+ */
+unsigned int
+clutter_keyval_to_upper (unsigned int keyval)
+{
+  unsigned int result;
+
+  clutter_keyval_convert_case (keyval, NULL, &result);
+
+  return result;
+}
+
+/**
+ * clutter_keyval_to_lower:
+ * @keyval: a key value.
+ *
+ * Converts a key value to lower case, if applicable.
+ *
+ * Returns: the lower case form of @keyval, or @keyval itself if it is already
+ *  in lower case or it is not subject to case conversion.
+ */
+unsigned int
+clutter_keyval_to_lower (unsigned int keyval)
+{
+  unsigned int result;
+
+  clutter_keyval_convert_case (keyval, &result, NULL);
+
+  return result;
+}
+
+/**
  * clutter_keyval_convert_case: 
  * @symbol: a keyval.
  * @lower: (out): return location of the lowercase version of @symbol.

@@ -30,6 +30,11 @@
 G_BEGIN_DECLS
 
 CLUTTER_EXPORT
+unsigned int clutter_keyval_to_upper (unsigned int keyval);
+CLUTTER_EXPORT
+unsigned int clutter_keyval_to_lower (unsigned int keyval);
+
+CLUTTER_EXPORT
 void clutter_keyval_convert_case (unsigned int  symbol,
                                   unsigned int *lower,
                                   unsigned int *upper);

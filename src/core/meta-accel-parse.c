@@ -395,7 +395,7 @@ meta_accelerator_name (ClutterModifierType accelerator_mods,
 
   accelerator_mods &= CLUTTER_MODIFIER_MASK;
 
-  clutter_keyval_convert_case (accelerator_key, &lower_key, NULL);
+  lower_key = clutter_keyval_to_lower (accelerator_key);
   keyval_name = clutter_keyval_name (lower_key);
   if (!keyval_name)
     keyval_name = "";
