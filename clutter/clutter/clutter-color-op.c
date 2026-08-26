@@ -795,8 +795,11 @@ clutter_color_op_gamma_power_to_string (ClutterColorOp *op)
 {
   ClutterColorOpGammaPowerPrivate *priv =
     clutter_color_op_gamma_power_get_instance_private (CLUTTER_COLOR_OP_GAMMA_POWER (op));
+  char power_str[G_ASCII_DTOSTR_BUF_SIZE];
 
-  return g_strdup_printf ("gamma_power(%.2f)", priv->power);
+  g_ascii_formatd (power_str, sizeof (power_str), "%.2f", priv->power);
+
+  return g_strdup_printf ("gamma_power(%s)", power_str);
 }
 
 static float
@@ -1023,8 +1026,11 @@ clutter_color_op_multiply_to_string (ClutterColorOp *op)
 {
   ClutterColorOpMultiplyPrivate *priv =
     clutter_color_op_multiply_get_instance_private (CLUTTER_COLOR_OP_MULTIPLY (op));
+  char value_str[G_ASCII_DTOSTR_BUF_SIZE];
 
-  return g_strdup_printf ("multiply(%.2f)", priv->value);
+  g_ascii_formatd (value_str, sizeof (value_str), "%.2f", priv->value);
+
+  return g_strdup_printf ("multiply(%s)", value_str);
 }
 
 static float

@@ -1,5 +1,6 @@
 #include <fcntl.h>
 #include <glib/gstdio.h>
+#include <locale.h>
 #include <sys/mman.h>
 
 #include "clutter-mutter.h"
@@ -981,6 +982,28 @@ color_pipeline_temperature_compose (void)
   assert_gpu_cpu_matches (composed, input, 1);
 }
 
+static void
+color_pipeline_to_string_locale (void)
+{
+  g_autoptr (ClutterColorPipeline) p = NULL;
+  g_autofree char *old = NULL;
+
+  old = g_strdup (setlocale (LC_NUMERIC, NULL));
+  if (!setlocale (LC_NUMERIC, "de_DE.UTF-8"))
+    {
+      g_test_skip ("de_DE.UTF-8 is not available");
+      return;
+    }
+
+  p = g_object_new (CLUTTER_TYPE_COLOR_PIPELINE, NULL);
+  clutter_color_pipeline_take_op (p, clutter_color_op_multiply_new (2.0f));
+  clutter_color_pipeline_take_op (p, clutter_color_op_gamma_power_new (2.2f));
+  assert_pipeline_matches (p,
+                           "ClutterColorPipeline: multiply(2.00) -> gamma_power(2.20)");
+
+  setlocale (LC_NUMERIC, old);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/color-pipeline/shader-gpu-vs-cpu", color_pipeline_shader_gpu_vs_cpu)
   CLUTTER_TEST_UNIT ("/color-pipeline/temperature-compose", color_pipeline_temperature_compose)
@@ -996,4 +1019,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/color-pipeline/multiply-matrix-merge", color_pipeline_multiply_matrix_merge)
   CLUTTER_TEST_UNIT ("/color-pipeline/clamp-merge", color_pipeline_clamp_merge)
   CLUTTER_TEST_UNIT ("/color-pipeline/premultiplication", color_pipeline_premultiplication)
+  CLUTTER_TEST_UNIT ("/color-pipeline/to-string-locale", color_pipeline_to_string_locale)
 )
