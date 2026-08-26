@@ -78,10 +78,7 @@ static void
 on_actor_destroy (ClutterActor     *actor,
                   ClutterActorMeta *meta)
 {
-  ClutterActorMetaPrivate *priv =
-    clutter_actor_meta_get_instance_private (meta);
-
-  priv->actor = NULL;
+  CLUTTER_ACTOR_META_GET_CLASS (meta)->set_actor (meta, NULL);
 }
 
 static void
