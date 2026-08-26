@@ -77,14 +77,13 @@ get_quark_for_egl_context (EGLContext egl_context)
 }
 
 static gboolean
-can_blit_buffer (ContextData     *context_data,
-                 CoglRendererEGL *renderer_egl,
-                 uint32_t         drm_format,
-                 uint64_t         drm_modifier)
+can_blit_buffer (ContextData  *context_data,
+                 CoglRenderer *renderer,
+                 uint32_t      drm_format,
+                 uint64_t      drm_modifier)
 {
-  EGLint num_modifiers;
-  EGLuint64KHR *modifiers;
-  EGLBoolean *external_only;
+  g_autoptr (GArray) modifiers = NULL;
+  g_autoptr (GArray) external_only = NULL;
   g_autoptr (GError) error = NULL;
   int i;
   gboolean can_blit;
@@ -102,19 +101,12 @@ can_blit_buffer (ContextData     *context_data,
         return other_support->can_blit;
     }
 
-  if (!cogl_renderer_egl_has_extensions (renderer_egl, NULL,
-                                         "EGL_EXT_image_dma_buf_import_modifiers",
-                                         NULL))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No support for EGL_EXT_image_dma_buf_import_modifiers, "
-                  "assuming blitting linearly will still work.");
-      goto out;
-    }
+  modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+  external_only = g_array_new (FALSE, FALSE, sizeof (gboolean));
 
-  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl,
-                                                   drm_format, 0, NULL, NULL,
-                                                   &num_modifiers, &error))
+  if (!cogl_renderer_query_dma_buf_modifiers (renderer, drm_format,
+                                              modifiers, external_only,
+                                              &error))
     {
       meta_topic (META_DEBUG_RENDER,
                   "Failed to query supported DMA buffer modifiers (%s), "
@@ -123,28 +115,12 @@ can_blit_buffer (ContextData     *context_data,
       goto out;
     }
 
-  if (num_modifiers == 0)
-    goto out;
-
-  modifiers = g_alloca0 (sizeof (EGLuint64KHR) * num_modifiers);
-  external_only = g_alloca0 (sizeof (EGLBoolean) * num_modifiers);
-  if (!cogl_renderer_egl_query_dma_buf_modifiers (renderer_egl,
-                                                   drm_format, num_modifiers,
-                                                   modifiers, external_only,
-                                                   &num_modifiers, &error))
-    {
-      g_warning ("Failed to requery supported DMA buffer modifiers: %s",
-                 error->message);
-      can_blit = FALSE;
-      goto out;
-    }
-
   can_blit = FALSE;
-  for (i = 0; i < num_modifiers; i++)
+  for (i = 0; i < modifiers->len; i++)
     {
-      if (drm_modifier == modifiers[i])
+      if (drm_modifier == g_array_index (modifiers, uint64_t, i))
         {
-          can_blit = !external_only[i];
+          can_blit = !g_array_index (external_only, gboolean, i);
           goto out;
         }
     }
@@ -464,7 +440,7 @@ paint_egl_image (ContextData      *context_data,
 
 gboolean
 meta_renderer_native_gles3_blit_shared_bo (CoglDriver       *driver,
-                                           CoglRendererEGL  *renderer_egl,
+                                           CoglRenderer     *renderer,
                                            EGLContext        egl_context,
                                            EGLImageKHR       dst_egl_image,
                                            EGLImageKHR       src_egl_image,
@@ -494,7 +470,7 @@ meta_renderer_native_gles3_blit_shared_bo (CoglDriver       *driver,
     }
 
   can_blit = can_blit_buffer (context_data,
-                              renderer_egl,
+                              renderer,
                               gbm_bo_get_format (shared_bo),
                               gbm_bo_get_modifier (shared_bo));
 

@@ -27,7 +27,7 @@
 #include "mtk/mtk.h"
 
 gboolean meta_renderer_native_gles3_blit_shared_bo (CoglDriver       *driver,
-                                                    CoglRendererEGL  *renderer_egl,
+                                                    CoglRenderer     *renderer,
                                                     EGLContext        egl_context,
                                                     EGLImageKHR       dst_egl_image,
                                                     EGLImageKHR       src_egl_image,

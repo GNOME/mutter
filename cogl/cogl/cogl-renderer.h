@@ -121,6 +121,16 @@ struct _CoglRendererClass
                                                     const uint64_t   *modifiers,
                                                     GError          **error);
 
+  gboolean (* query_dma_buf_formats) (CoglRenderer  *renderer,
+                                      GArray        *formats,
+                                      GError       **error);
+
+  gboolean (* query_dma_buf_modifiers) (CoglRenderer  *renderer,
+                                        uint32_t       drm_format,
+                                        GArray        *modifiers,
+                                        GArray        *external_only,
+                                        GError       **error);
+
   gboolean (* is_hardware_accelerated) (CoglRenderer *renderer);
 
   void (* update_sync) (CoglRenderer *renderer);
@@ -181,6 +191,24 @@ cogl_renderer_create_dma_buf_framebuffer (CoglRenderer     *renderer,
                                           const uint32_t   *offsets,
                                           const uint64_t   *modifiers,
                                           GError          **error);
+
+/**
+ * cogl_renderer_query_dma_buf_formats: (skip)
+ */
+COGL_EXPORT gboolean
+cogl_renderer_query_dma_buf_formats (CoglRenderer  *renderer,
+                                     GArray        *formats,
+                                     GError       **error);
+
+/**
+ * cogl_renderer_query_dma_buf_modifiers: (skip)
+ */
+COGL_EXPORT gboolean
+cogl_renderer_query_dma_buf_modifiers (CoglRenderer  *renderer,
+                                       uint32_t       drm_format,
+                                       GArray        *modifiers,
+                                       GArray        *external_only,
+                                       GError       **error);
 
 /**
  * cogl_renderer_is_hardware_accelerated:
