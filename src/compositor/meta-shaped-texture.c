@@ -648,6 +648,7 @@ get_unblended_pipeline (MetaShapedTexture   *stex,
       attach_and_save_color_snippet (stex,
                                      color_state, target_color_state,
                                      pipeline, PIPELINE_CACHE_SLOT_UNBLENDED);
+      cogl_pipeline_set_blend (pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
       return pipeline;
     }
   else
@@ -667,6 +668,7 @@ get_unblended_pipeline (MetaShapedTexture   *stex,
       cogl_pipeline_set_layer_combine (pipeline, 0,
                                        "RGBA = REPLACE (TEXTURE)",
                                        NULL);
+      cogl_pipeline_set_blend (pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
 
       attach_and_save_color_snippet (stex,
                                      color_state, target_color_state,
