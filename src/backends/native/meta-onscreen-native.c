@@ -161,6 +161,12 @@ struct _MetaOnscreenNative
   };
 };
 
+/* The loops below walk the array, so a property added to the struct without
+ * growing the array would compile and run, but never be visited.
+ */
+G_STATIC_ASSERT (sizeof (((MetaOnscreenNative *) NULL)->property) ==
+                 sizeof (((MetaOnscreenNative *) NULL)->properties));
+
 G_DEFINE_TYPE (MetaOnscreenNative, meta_onscreen_native,
                COGL_TYPE_ONSCREEN_EGL)
 
