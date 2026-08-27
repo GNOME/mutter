@@ -361,7 +361,7 @@ snapshot_gvdb_recursively (GvdbTable   *table,
   else
     {
       GvdbTable *subtable;
-      GHashTable *dest_subtable;
+      g_autoptr (GHashTable) dest_subtable = NULL;
       g_auto (GStrv) names;
       size_t len, i;
 
