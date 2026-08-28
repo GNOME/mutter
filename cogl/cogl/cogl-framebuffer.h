@@ -97,10 +97,6 @@ struct _CoglFramebufferClass
 
   gboolean (* allocate) (CoglFramebuffer  *framebuffer,
                          GError          **error);
-  void (*flush_state) (CoglContext          *ctx,
-                       CoglFramebuffer      *draw_buffer,
-                       CoglFramebuffer      *read_buffer,
-                       CoglFramebufferState  state);
   CoglFramebuffer* (* get_bind_buffer) (CoglFramebuffer *framebuffer);
   gboolean (* is_y_flipped) (CoglFramebuffer *framebuffer);
 };

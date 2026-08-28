@@ -287,25 +287,6 @@ cogl_framebuffer_get_internal_format (CoglFramebuffer *framebuffer)
   return priv->internal_format;
 }
 
-static void
-cogl_real_flush_framebuffer_state (CoglContext          *ctx,
-                                   CoglFramebuffer      *draw_buffer,
-                                   CoglFramebuffer      *read_buffer,
-                                   CoglFramebufferState  state)
-{
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  if (driver_klass->flush_framebuffer_state)
-    {
-      driver_klass->flush_framebuffer_state (driver,
-                                             ctx,
-                                             draw_buffer,
-                                             read_buffer,
-                                             state);
-    }
-}
-
 static CoglFramebuffer *
 cogl_real_get_bind_buffer (CoglFramebuffer *framebuffer)
 {
@@ -399,7 +380,6 @@ cogl_framebuffer_class_init (CoglFramebufferClass *klass)
                   G_TYPE_NONE,
                   0);
 
-  klass->flush_state = cogl_real_flush_framebuffer_state;
   klass->get_bind_buffer = cogl_real_get_bind_buffer;
 }
 
@@ -1115,8 +1095,11 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
                                       CoglFramebuffer      *read_buffer,
                                       CoglFramebufferState  state)
 {
-  CoglFramebufferClass *framebuffer_klass =
-    COGL_FRAMEBUFFER_GET_CLASS (draw_buffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
+
+  if (!driver_klass->flush_framebuffer_state)
+    return;
 
   /* First bind the draw/read bind buffers */
   if (state & COGL_FRAMEBUFFER_STATE_BIND)
@@ -1129,9 +1112,10 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
       if (draw_bind_buffer != draw_buffer ||
           read_bind_buffer != read_buffer)
         {
-          framebuffer_klass->flush_state (ctx,
-                                          draw_bind_buffer, read_bind_buffer,
-                                          COGL_FRAMEBUFFER_STATE_BIND);
+          driver_klass->flush_framebuffer_state (driver, ctx,
+                                                 draw_bind_buffer,
+                                                 read_bind_buffer,
+                                                 COGL_FRAMEBUFFER_STATE_BIND);
           state &= ~COGL_FRAMEBUFFER_STATE_BIND;
         }
     }
@@ -1141,10 +1125,9 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
    */
   if (state)
     {
-      framebuffer_klass->flush_state (ctx,
-                                      draw_buffer,
-                                      read_buffer,
-                                      state);
+      driver_klass->flush_framebuffer_state (driver, ctx,
+                                             draw_buffer, read_buffer,
+                                             state);
     }
 }
 
