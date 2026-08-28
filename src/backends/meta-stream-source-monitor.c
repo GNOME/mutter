@@ -197,16 +197,14 @@ before_stage_painted (MetaStage        *stage,
   MetaStreamSourceMonitor *source_monitor =
     META_STREAM_SOURCE_MONITOR (user_data);
   MetaStreamSource *source = META_STREAM_SOURCE (source_monitor);
-  MetaStreamPaintPhase paint_phase;
   MetaStreamRecordFlag flags = META_STREAM_RECORD_FLAG_NONE;
+  MetaStreamRecordResult record_result =
+    META_STREAM_RECORD_RESULT_RECORDED_NOTHING;
   int64_t presentation_time_us;
 
   meta_stream_source_accumulate_damage (source, flags, redraw_clip);
 
   if (source_monitor->maybe_record_idle_id)
-    return;
-
-  if (!meta_stream_source_uses_dma_bufs (source))
     return;
 
   if (!clutter_stage_view_peek_scanout (view))
@@ -216,11 +214,24 @@ before_stage_painted (MetaStage        *stage,
                                                      &presentation_time_us))
     presentation_time_us = g_get_monotonic_time ();
 
-  paint_phase = META_STREAM_PAINT_PHASE_PRE_PAINT;
-  meta_stream_source_maybe_record_frame_with_timestamp (source,
-                                                        flags,
-                                                        paint_phase,
-                                                        presentation_time_us);
+  if (meta_stream_source_uses_dma_bufs (source))
+    {
+      MetaStreamPaintPhase paint_phase = META_STREAM_PAINT_PHASE_PRE_PAINT;
+
+      record_result =
+        meta_stream_source_maybe_record_frame_with_timestamp (source,
+                                                              flags,
+                                                              paint_phase,
+                                                              presentation_time_us);
+    }
+
+  if (!(record_result & META_STREAM_RECORD_RESULT_RECORDED_FRAME))
+    {
+      source_monitor->maybe_record_idle_id = mtk_idle_add_once (maybe_record_frame_on_idle,
+                                                                source);
+      mtk_source_set_name_by_id (source_monitor->maybe_record_idle_id,
+                                 "[mutter] maybe_record_frame_on_idle [monitor-source]");
+    }
 }
 
 static gboolean
