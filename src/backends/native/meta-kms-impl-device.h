@@ -162,6 +162,9 @@ drmModePropertyPtr meta_kms_impl_device_find_property (MetaKmsImplDevice       *
 
 int meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device);
 
+gboolean meta_kms_impl_device_ensure_fd (MetaKmsImplDevice  *impl_device,
+                                         GError            **error);
+
 void meta_kms_impl_device_hold_fd (MetaKmsImplDevice *impl_device);
 
 void meta_kms_impl_device_unhold_fd (MetaKmsImplDevice *impl_device);

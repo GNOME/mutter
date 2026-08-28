@@ -345,6 +345,20 @@ ensure_device_file (MetaKmsImplDevice  *impl_device,
 }
 
 gboolean
+meta_kms_impl_device_ensure_fd (MetaKmsImplDevice  *impl_device,
+                                GError            **error)
+{
+#ifndef G_DISABLE_ASSERT
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+#endif
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
+
+  return ensure_device_file (impl_device, error);
+}
+
+gboolean
 meta_kms_impl_device_lease_objects (MetaKmsImplDevice  *impl_device,
                                     GList              *connectors,
                                     GList              *crtcs,
