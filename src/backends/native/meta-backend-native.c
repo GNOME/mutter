@@ -34,6 +34,7 @@
 
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-cast-kms-grant-broker.h"
 #include "backends/native/meta-input-thread.h"
 
 #include <drm_fourcc.h>
@@ -83,6 +84,7 @@ typedef struct _MetaBackendNativePrivate
 
   MetaDevicePool *device_pool;
   MetaKms *kms;
+  MetaCastKmsGrantBroker *cast_kms_grant_broker;
 
   GHashTable *startup_render_devices;
 
@@ -106,9 +108,14 @@ meta_backend_native_dispose (GObject *object)
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);
 
+  /* Revoke grants while their KMS devices and implementation thread exist. */
+  if (priv->cast_kms_grant_broker)
+    g_object_run_dispose (G_OBJECT (priv->cast_kms_grant_broker));
+
   G_OBJECT_CLASS (meta_backend_native_parent_class)->dispose (object);
 
   g_clear_pointer (&priv->startup_render_devices, g_hash_table_unref);
+  g_clear_object (&priv->cast_kms_grant_broker);
   g_clear_object (&priv->kms);
   g_clear_object (&priv->device_pool);
 }
@@ -781,6 +788,9 @@ meta_backend_native_init_basic (MetaBackend  *backend,
 
   if (!init_gpus (native, error))
     return FALSE;
+
+  if (priv->mode == META_BACKEND_NATIVE_MODE_DEFAULT)
+    priv->cast_kms_grant_broker = meta_cast_kms_grant_broker_new (native);
 
   g_signal_connect (meta_backend_get_context (backend),
                     "started",

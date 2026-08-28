@@ -1,0 +1,68 @@
+<!DOCTYPE node PUBLIC
+'-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
+'http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd'>
+<node>
+
+  <!--
+      org.gnome.Mutter.CastKms:
+      @short_description: restricted CastKMS grant channel
+
+      This private interface lets the Pronk session service request a normal
+      CastKMS grant from the compositor that owns the DRM master. Mutter only
+      authorizes method invocations from the unique owner of Pronk's
+      well-known session-bus name.
+  -->
+  <interface name="org.gnome.Mutter.CastKms">
+
+    <!--
+        CreateCaptureGrant:
+        @device_major: major number of the CastKMS primary node
+        @device_minor: minor number of the CastKMS primary node
+        @connector_id: DRM object ID of the CastKMS virtual connector
+        @profile: requested fixed rights profile
+        @holder_fd: restricted CastKMS grant descriptor
+        @grant_id: device-local grant identifier
+        @output_index: stable device-local output identity
+        @rights: immutable rights carried by @holder_fd
+        @flags: grant mode flags; zero identifies a normal compositor grant
+        @initial_state: authoritative grant state after creation
+        @capture_uapi_major: CastKMS capture UAPI major version
+        @capture_uapi_minor: CastKMS capture UAPI minor version
+
+        Profiles:
+          DISPLAY_V1:           1
+          DISPLAY_CEC_V1:       2
+          DISPLAY_CEC_AUDIO_V1: 3
+
+        DISPLAY_CEC_AUDIO_V1 adds private audio-tap permission to
+        DISPLAY_CEC_V1 and requires capture UAPI 0.12 or later. Profiles 1
+        and 2 keep their existing rights and capture UAPI 0.10 minimum.
+        Audio permission does not guarantee that audio is enabled on the
+        device; opening the attachment's tap can still report it unsupported.
+
+        Creates a normal, connector-scoped CastKMS grant on Mutter's current
+        DRM-master file. The kernel gives Mutter a private control descriptor
+        paired with @holder_fd. Closing the final @holder_fd reference notifies
+        Mutter through that descriptor; disconnecting from D-Bus or terminating
+        the authenticated caller makes Mutter close it and revoke the grant.
+        Mutter permits one live brokered grant per CastKMS connector.
+    -->
+    <method name="CreateCaptureGrant">
+      <arg name="device_major" type="u" direction="in" />
+      <arg name="device_minor" type="u" direction="in" />
+      <arg name="connector_id" type="u" direction="in" />
+      <arg name="profile" type="q" direction="in" />
+      <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
+      <arg name="holder_fd" type="h" direction="out" />
+      <arg name="grant_id" type="u" direction="out" />
+      <arg name="output_index" type="u" direction="out" />
+      <arg name="rights" type="u" direction="out" />
+      <arg name="flags" type="u" direction="out" />
+      <arg name="initial_state" type="u" direction="out" />
+      <arg name="capture_uapi_major" type="q" direction="out" />
+      <arg name="capture_uapi_minor" type="q" direction="out" />
+    </method>
+
+  </interface>
+
+</node>

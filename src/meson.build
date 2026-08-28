@@ -656,6 +656,8 @@ mutter_sources += [
   'backends/native/meta-backend-native.h',
   'backends/native/meta-backend-native-private.h',
   'backends/native/meta-backend-native-types.h',
+  'backends/native/meta-cast-kms-grant-broker.c',
+  'backends/native/meta-cast-kms-grant-broker.h',
   'backends/native/meta-barrier-native.c',
   'backends/native/meta-barrier-native.h',
   'backends/native/meta-bezier.c',
@@ -859,6 +861,11 @@ dbus_interfaces = [
   {
     'name': 'meta-dbus-clipboard',
     'interface': 'org.gnome.Mutter.Clipboard.xml',
+    'prefix': 'org.gnome.Mutter.',
+  },
+  {
+    'name': 'meta-dbus-cast-kms',
+    'interface': 'org.gnome.Mutter.CastKms.xml',
     'prefix': 'org.gnome.Mutter.',
   },
   {

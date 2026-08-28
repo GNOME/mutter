@@ -19,6 +19,7 @@
 #pragma once
 
 typedef struct _MetaBackendNative MetaBackendNative;
+typedef struct _MetaCastKmsGrantBroker MetaCastKmsGrantBroker;
 typedef struct _MetaSeatNative MetaSeatNative;
 typedef struct _MetaSeatImpl MetaSeatImpl;
 typedef struct _MetaKeymapNative MetaKeymapNative;
