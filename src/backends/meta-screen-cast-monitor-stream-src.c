@@ -214,14 +214,12 @@ before_stage_painted (MetaStage        *stage,
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
-  MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
+  MetaScreenCastRecordResult record_result =
+    META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
   int64_t presentation_time_us;
 
   if (monitor_src->maybe_record_idle_id)
-    return;
-
-  if (!meta_screen_cast_stream_src_uses_dma_bufs (src))
     return;
 
   if (!clutter_stage_view_peek_scanout (view))
@@ -231,12 +229,27 @@ before_stage_painted (MetaStage        *stage,
     presentation_time_us = g_get_monotonic_time ();
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  paint_phase = META_SCREEN_CAST_PAINT_PHASE_PRE_PAINT;
-  meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
-                                                                 flags,
-                                                                 paint_phase,
-                                                                 redraw_clip,
-                                                                 presentation_time_us);
+
+  if (meta_screen_cast_stream_src_uses_dma_bufs (src))
+    {
+      MetaScreenCastPaintPhase paint_phase =
+        META_SCREEN_CAST_PAINT_PHASE_PRE_PAINT;
+
+      record_result =
+        meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
+                                                                       flags,
+                                                                       paint_phase,
+                                                                       redraw_clip,
+                                                                       presentation_time_us);
+    }
+
+  if (!(record_result & META_SCREEN_CAST_RECORD_RESULT_RECORDED_FRAME))
+    {
+      monitor_src->maybe_record_idle_id =
+        g_idle_add_once (maybe_record_frame_on_idle, src);
+      g_source_set_name_by_id (monitor_src->maybe_record_idle_id,
+                               "[mutter] maybe_record_frame_on_idle [monitor-source]");
+    }
 }
 
 static gboolean
