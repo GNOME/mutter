@@ -640,6 +640,15 @@ mutter_sources += [
   'wayland/meta-window-wayland.h',
 ]
 
+cast_kms_grant_policy_sources = [
+  'backends/native/meta-cast-kms-grant-policy.c',
+  'backends/native/meta-cast-kms-grant-policy.h',
+]
+
+cast_kms_grant_policy_files = files(cast_kms_grant_policy_sources)
+
+mutter_sources += cast_kms_grant_policy_sources
+
 mutter_sources += [
   'wayland/meta-wayland-drm-lease.c',
   'wayland/meta-wayland-drm-lease.h',

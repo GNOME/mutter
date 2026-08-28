@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <xf86drmMode.h>
 
+#include "backends/native/meta-cast-kms-grant-policy.h"
 #include "backends/native/meta-kms-cast-uapi.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
@@ -183,6 +184,7 @@ validate_control_fd (int      control_fd,
 static gboolean
 query_capture_uapi (MetaKmsImplDevice  *impl_device,
                     int                 fd,
+                    uint32_t            rights,
                     uint16_t           *out_major,
                     uint16_t           *out_minor,
                     GError            **error)
@@ -205,20 +207,15 @@ query_capture_uapi (MetaKmsImplDevice  *impl_device,
   if (ioctl_nointr (fd, DRM_IOCTL_CASTKMS_CAPTURE_QUERY_CAPS, &query) == -1)
     return set_errno_error (error, errno, "Query CastKMS capture UAPI");
 
-  if (query.uapi_major != DRM_CASTKMS_CAPTURE_UAPI_MAJOR ||
-      query.uapi_minor < DRM_CASTKMS_CAPTURE_UAPI_MINOR ||
-      query.uapi_major > UINT16_MAX ||
-      query.uapi_minor > UINT16_MAX ||
-      !(query.flags & DRM_CASTKMS_CAPTURE_CAP_GRANT_FD) ||
-      !(query.flags & DRM_CASTKMS_CAPTURE_CAP_GRANT_CONTROL_FD) ||
-      query.reserved != 0)
+  if (!meta_cast_kms_grant_check_caps (&query, rights))
     {
       g_set_error (error,
                    G_IO_ERROR,
                    G_IO_ERROR_NOT_SUPPORTED,
-                   "Unsupported CastKMS capture UAPI %u.%u",
+                   "Unsupported CastKMS capture UAPI %u.%u for grant rights 0x%x",
                    query.uapi_major,
-                   query.uapi_minor);
+                   query.uapi_minor,
+                   rights);
       return FALSE;
     }
 
@@ -309,7 +306,7 @@ create_grant_in_impl (MetaThreadImpl  *thread_impl,
   meta_kms_impl_device_hold_fd (impl_device);
   fd = meta_kms_impl_device_get_fd (impl_device);
 
-  if (!query_capture_uapi (impl_device, fd,
+  if (!query_capture_uapi (impl_device, fd, data->rights,
                            &uapi_major, &uapi_minor,
                            error))
     goto fail_unhold;
