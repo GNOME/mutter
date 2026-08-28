@@ -647,6 +647,15 @@ remote_desktop_tests_client = executable('mutter-remote-desktop-tests-client',
 # Native backend tests
 test_cases += [
   {
+    'name': 'cast-kms-grant',
+    'suite': 'backends/native',
+    'sources': [
+      'cast-kms-grant-unit-tests.c',
+      built_dbus_sources['meta-dbus-cast-kms'],
+      cast_kms_grant_policy_files,
+    ],
+  },
+  {
     'name': 'kms-utils',
     'suite': 'backends/native',
     'sources': [ 'kms-utils-unit-tests.c', ],
