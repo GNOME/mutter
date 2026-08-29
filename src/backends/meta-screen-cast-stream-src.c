@@ -1425,7 +1425,6 @@ build_format_params (MetaScreenCastStreamSrc *src,
           MetaFraction frame_rate_fraction;
 
           frame_rate_fraction = meta_fraction_from_double (frame_rate);
-          max_framerate_values.min = SPA_FRACTION (1, 1);
           max_framerate_values.max = SPA_FRACTION (frame_rate_fraction.num,
                                                    frame_rate_fraction.denom);
           max_framerate_values.def = max_framerate_values.max;
