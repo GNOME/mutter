@@ -152,6 +152,7 @@
         - "app-dbus-name" (type: s): Application D-Bus name in the a11y D-Bus
         - "toplevel-object-path" (type: o): Object path to the toplevel, in the
           given D-Bus name.
+        - "pid" (type: i): Application process ID
 
         If this data is not provided, the focused client will be considered to
         be the desktop environment itself, and the provided coordinates will be
