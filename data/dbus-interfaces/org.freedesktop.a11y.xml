@@ -146,7 +146,7 @@
         "PointerPositionChanged" signal, whenever mouse pointer motion would
         happen.
 
-        The "data" argument is a generic container, so far the only handled keys
+        The "app_data" argument is a generic container, so far the only handled keys
         are relevant to AT-SPI:
 
         - "app-dbus-name" (type: s): Application D-Bus name in the a11y D-Bus
