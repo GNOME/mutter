@@ -652,6 +652,14 @@ test_cases += [
     'sources': [ 'kms-utils-unit-tests.c', ],
   },
   {
+    'name': 'secondary-gpu-copy-state',
+    'suite': 'backends/native',
+    'sources': [
+      'secondary-gpu-copy-state-unit-tests.c',
+      '../backends/native/meta-secondary-gpu-copy-state.c',
+    ],
+  },
+  {
     'name': 'native-virtual-monitor',
     'suite': 'backends/native',
     'sources': [
