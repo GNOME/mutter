@@ -37,7 +37,7 @@
 #define META_CAST_KMS_DBUS_SERVICE "org.gnome.Mutter.CastKms"
 #define META_CAST_KMS_DBUS_PATH "/org/gnome/Mutter/CastKms"
 
-#define PRONK_DBUS_SERVICE "io.github.halfline.Pronk1"
+#define PRONK_DBUS_SERVICE "io.github.pronkproject.Pronk1"
 
 enum
 {
@@ -56,6 +56,7 @@ struct _MetaCastKmsBrokeredGrant
   /* The broker owns every grant in its hash set. */
   MetaCastKmsGrantBroker *broker;
   MetaKmsCastGrant *grant;
+  char *sender;
   /* The grant pins this device for at least as long as this object exists. */
   MetaKmsDevice *kms_device;
   uint32_t connector_id;
@@ -75,6 +76,8 @@ struct _MetaCastKmsGrantBroker
   MetaBackendNative *backend_native;
   MetaDbusAccessChecker *access_checker;
   GHashTable *grants;
+  char *pronk_name_owner;
+  guint pronk_name_watch_id;
   guint dbus_name_id;
   gulong prepare_shutdown_handler_id;
 };
@@ -164,6 +167,52 @@ find_cast_kms_device (MetaCastKmsGrantBroker  *broker,
 static void request_grant_revoke (MetaCastKmsBrokeredGrant *brokered_grant);
 
 static void
+revoke_grants_for_sender (MetaCastKmsGrantBroker *broker,
+                          const char             *sender)
+{
+  g_autoptr (GList) grants = NULL;
+  GList *l;
+
+  if (!sender)
+    return;
+
+  grants = g_hash_table_get_keys (broker->grants);
+  for (l = grants; l; l = l->next)
+    {
+      MetaCastKmsBrokeredGrant *brokered_grant = l->data;
+
+      if (g_strcmp0 (brokered_grant->sender, sender) == 0)
+        request_grant_revoke (brokered_grant);
+    }
+}
+
+static void
+on_pronk_name_appeared (GDBusConnection *connection,
+                        const char      *name,
+                        const char      *name_owner,
+                        gpointer         user_data)
+{
+  MetaCastKmsGrantBroker *broker = user_data;
+
+  if (g_strcmp0 (broker->pronk_name_owner, name_owner) == 0)
+    return;
+
+  revoke_grants_for_sender (broker, broker->pronk_name_owner);
+  g_set_str (&broker->pronk_name_owner, name_owner);
+}
+
+static void
+on_pronk_name_vanished (GDBusConnection *connection,
+                        const char      *name,
+                        gpointer         user_data)
+{
+  MetaCastKmsGrantBroker *broker = user_data;
+
+  revoke_grants_for_sender (broker, broker->pronk_name_owner);
+  g_clear_pointer (&broker->pronk_name_owner, g_free);
+}
+
+static void
 clear_source (GSource **source)
 {
   if (!*source)
@@ -215,6 +264,7 @@ meta_cast_kms_brokered_grant_free (MetaCastKmsBrokeredGrant *brokered_grant)
     g_bus_unwatch_name (brokered_grant->name_watch_id);
 
   g_clear_object (&brokered_grant->grant);
+  g_clear_pointer (&brokered_grant->sender, g_free);
   g_free (brokered_grant);
 }
 
@@ -263,6 +313,7 @@ meta_cast_kms_brokered_grant_new (MetaCastKmsGrantBroker  *broker,
   brokered_grant = g_new0 (MetaCastKmsBrokeredGrant, 1);
   brokered_grant->broker = broker;
   brokered_grant->grant = g_object_ref (grant);
+  brokered_grant->sender = g_strdup (sender);
   brokered_grant->kms_device = kms_device;
   brokered_grant->connector_id = connector_id;
 
@@ -478,6 +529,16 @@ on_bus_acquired (GDBusConnection *connection,
   broker->access_checker = meta_dbus_access_checker_new (connection, context);
   meta_dbus_access_checker_allow_sender (broker->access_checker,
                                          PRONK_DBUS_SERVICE);
+  g_clear_handle_id (&broker->pronk_name_watch_id, g_bus_unwatch_name);
+  g_clear_pointer (&broker->pronk_name_owner, g_free);
+  broker->pronk_name_watch_id =
+    g_bus_watch_name_on_connection (connection,
+                                    PRONK_DBUS_SERVICE,
+                                    G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                    on_pronk_name_appeared,
+                                    on_pronk_name_vanished,
+                                    broker,
+                                    NULL);
 
   if (!g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (broker),
                                          connection,
@@ -563,6 +624,8 @@ meta_cast_kms_grant_broker_dispose (GObject *object)
   broker->backend_native = NULL;
   g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (broker));
   g_clear_handle_id (&broker->dbus_name_id, g_bus_unown_name);
+  g_clear_handle_id (&broker->pronk_name_watch_id, g_bus_unwatch_name);
+  g_clear_pointer (&broker->pronk_name_owner, g_free);
   g_clear_pointer (&broker->grants, g_hash_table_unref);
   g_clear_object (&broker->access_checker);
 
