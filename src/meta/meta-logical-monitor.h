@@ -21,6 +21,8 @@
 
 #include <glib-object.h>
 
+#include "meta/util.h"
+
 #define META_TYPE_LOGICAL_MONITOR (meta_logical_monitor_get_type ())
 META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaLogicalMonitor,
