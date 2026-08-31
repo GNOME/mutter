@@ -2,12 +2,12 @@
 
 import argparse
 import sys
-
 from dataclasses import dataclass, field
-from typing import NamedTuple, Any, Optional
-from types import ModuleType
-from gi.repository import GLib, Gio  # type: ignore
 from enum import Enum, Flag
+from types import ModuleType
+from typing import Any, NamedTuple
+
+from gi.repository import Gio, GLib  # type: ignore
 
 argcomplete: Optional[ModuleType] = None
 BaseCompleter: Any
