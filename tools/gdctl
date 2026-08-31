@@ -9,7 +9,7 @@ from typing import Any, NamedTuple
 
 from gi.repository import Gio, GLib  # type: ignore
 
-argcomplete: Optional[ModuleType] = None
+argcomplete: ModuleType | None = None
 BaseCompleter: Any
 try:
     import argcomplete
