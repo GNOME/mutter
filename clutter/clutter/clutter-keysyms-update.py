@@ -9,9 +9,10 @@
 # Notes   : and creates an updated clutter-keysyms.h
 
 import os
-import sys
 import re
-from typing import TextIO, Iterable
+import sys
+from collections.abc import Iterable
+from typing import TextIO
 
 import requests  # type: ignore[import-untyped]
 
