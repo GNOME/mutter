@@ -1,5 +1,9 @@
 # Mutter
 
+> **Pronk downstream branch:** The `pronk` branch contains experimental
+> network-display integration that is not part of upstream Mutter. Read
+> [PRONK.md](PRONK.md) before building it or reporting an issue.
+
 Mutter is a Wayland display server.
 
 Mutter runs on top of KMS and libinput. It
