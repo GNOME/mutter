@@ -465,11 +465,15 @@ class Monitor:
         )
 
 
+def creating_empty_position() -> Position:
+    return Position(0, 0)
+
+
 @dataclass
 class LogicalMonitor:
     monitors: list[Monitor]
     scale: float
-    position: Position = Position(0, 0)
+    position: Position = field(default_factory=creating_empty_position)
     transform: Transform = Transform.NORMAL
     is_primary: bool = False
     properties: dict[str, Any] = field(default_factory=dict)
