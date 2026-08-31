@@ -972,11 +972,19 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
 }
 
 static void
-detach_onscreens (MetaRenderer *renderer)
+maybe_detach_onscreens (MetaRenderer *renderer)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaPowerSave power_save_mode;
   GList *views;
   GList *l;
+
+  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
+  if (power_save_mode != META_POWER_SAVE_ON)
+    return;
 
   views = meta_renderer_get_views (renderer);
   for (l = views; l; l = l->next)
@@ -1029,7 +1037,7 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
   meta_kms_discard_pending_page_flips (kms);
   g_hash_table_remove_all (renderer_native->mode_set_updates);
 
-  detach_onscreens (renderer);
+  maybe_detach_onscreens (renderer);
 
   parent_renderer_class->rebuild_views (renderer);
 
@@ -1563,9 +1571,14 @@ on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode == META_POWER_SAVE_ON &&
       reason == META_POWER_SAVE_CHANGE_REASON_MODE_CHANGE)
-    meta_renderer_native_queue_modes_reset (renderer_native);
+    {
+      meta_renderer_native_queue_modes_reset (renderer_native);
+    }
   else
-    meta_kms_discard_pending_page_flips (kms);
+    {
+      clear_detached_onscreens (renderer_native);
+      meta_kms_discard_pending_page_flips (kms);
+    }
 }
 
 void
