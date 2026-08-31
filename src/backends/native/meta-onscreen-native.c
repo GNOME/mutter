@@ -2672,6 +2672,7 @@ meta_onscreen_native_discard_pending_swaps (CoglOnscreen *onscreen)
 
   render_source_remove_frame (onscreen_native->render_source,
                               onscreen_native->next_frame);
+  g_clear_pointer (&onscreen_native->next_frame_ready_source, g_source_destroy);
   discard_pending_swap (&onscreen_native->next_frame);
 }
 
