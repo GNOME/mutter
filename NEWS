@@ -1,3 +1,53 @@
+51.rc
+=====
+* Hook up stylus eraser button configuration [Peter; !4819]
+* Fix using hardware cursor for SVG cursors [Michel; !5217]
+* Do not require EDID to generate device color profile [Christian; !4961]
+* Fix auto-rotate on phones without tablet mode switch [Christian; !4962]
+* Decouple timelines from expected presentation times [Michel; !5157]
+* Add background effect policy [Kristof; !5160]
+* Prevent modifier release from stopping key repeat [muzaffarmhd; !4974]
+* Align drag icon coordinates to pixel grid [Juan; !5212]
+* Handle cross GPU buffer scanout [Tyler; !5219]
+* Fix multiple monitors being reported as primary [liuyingjie; !5228]
+* Fix desaturated SDR content in HDR mode [Boogie61; !5230]
+* Add primary GPU rendering path using FBOs [Michel; !4921]
+* Remove clutter_get_default_backend() [Bilal; !4981]
+* Fix offscreen effect glitches on resource scale changes [Victor; !5233]
+* Fix hang on external monitor hotplug [Michel; !5255]
+* Throttle timelines that don't produce a frame every cycle [Michel; !5252]
+* Consider key alias for binding pool bindings [Sebastian K.; !5268]
+* Allow overriding client initial config [Jonas; !5033]
+* Fix direct scanout handling for captures without dma-buf [Michel; !5276]
+* Make binding pool key activation case-insensitive [DaPigGuy; !5264]
+* Support Night Light on hardware without GAMMA_LUT [onetr1ck; !5205]
+* Fix listing all supported fallback resolutions [Yella; !5238]
+* Make software cursor overlay visibility per-view [Victor; !5207]
+* Fixed crashes [onetr1ck, Jonas, Michel; !5216, !5028, !5226, !5242]
+* Plugged leaks [Sebastian K., Jonas, Toluwaleke, Michel, mohansur, Nathan,
+  Gamblit; !4934, !5225, !5235, !5237, !5239, !5222, !5041, !5197]
+* Misc. bug fixes and cleanups [Sebastian W., Bilal, Michel, Carlos, Jonas,
+  Tyler, Marco, onetr1ck, Renjith, Nicolas; !5208, !4980, !5201, !5142, !5229,
+  !5240, !5218, !5246, !5136, !5250, !5253, !5256, !5243, !5148, !5261, !5269,
+  !5270, !5281, !5257, !5280]
+
+Contributors:
+  Boogie61, Victor C., DaPigGuy, Michel Dänzer, Bilal Elmoussaoui,
+  Nicolas Fella, Gamblit, Carlos Garnacho, Christian Glombek, Peter Hutterer,
+  Kristof Imeri, Sebastian Keller, liuyingjie, mohansur, muzaffarmhd,
+  Toluwaleke Ogundipe, onetr1ck, Juan Pablo Ugarte, Renjith Pananchikkal,
+  Yella Ramya Krishna, Nathan Saslavsky, Tyler Schicke,
+  Marco Trevisan (Treviño), Sebastian Wick, Jonas Ådahl
+
+Translators:
+  luming zh [zh_CN], Yuri Chornoivan [uk], Martin [sl], Ekaterine Papava [ka],
+  Quentin PAGÈS [oc], Antonio Marin [ro], Yaron Shahrabani [he],
+  Danial Behzadi [fa], Asier Saratsua Garmendia [eu], burns [pt_BR],
+  Xavi Ivars [ca], Nathan Follens [nl], Francisco Diéguez Souto [gl],
+  Aurimas Černius [lt], Abduqadir Abliz [ug], Alexander Alexandrov Shopov [bg],
+  Jiri Grönroos [fi], Baurzhan Muftakhidinov [kk], Anders Jonsson [sv],
+  Emin Tufan Çetin [tr], Patrik Sivek [cs], Guillaume Bernard [fr]
+
 51.beta
 =======
 * Allow to get last input device from backend [Sergio; !5084]
