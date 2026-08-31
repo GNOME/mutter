@@ -99,7 +99,7 @@ def get_and_filter_header(
         if filter_out and keysymelements[1] in filter_out:
             continue
 
-        if replaces and keysymelements[1] in replaces.keys():
+        if replaces and keysymelements[1] in replaces:
             keysymelements[1] = replaces[keysymelements[1]]
 
         binding = re.sub(f"^{prefix}", "CLUTTER_KEY_", keysymelements[1])
