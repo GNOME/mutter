@@ -3217,8 +3217,8 @@ should_try_fbos (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  CoglRendererEGL *renderer_egl =
-    COGL_RENDERER_EGL (cogl_display_get_renderer (cogl_display));
+  CoglRenderer *renderer = cogl_display_get_renderer (cogl_display);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   gboolean is_nvidia, has_partial_updates;
   const char *use_fbos;
 
@@ -3233,6 +3233,14 @@ should_try_fbos (CoglOnscreen *onscreen)
                   try ? "T" : "Not t",
                   use_fbos);
       return try;
+    }
+
+  if (!cogl_renderer_is_hardware_accelerated (renderer))
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "Not trying FBO path because "
+                  "renderer isn't hardware accelerated");
+      return FALSE;
     }
 
   is_nvidia = meta_onscreen_native_is_nvidia (onscreen_native);
