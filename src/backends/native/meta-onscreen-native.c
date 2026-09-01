@@ -2661,21 +2661,6 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
                                META_KMS_UPDATE_FLAG_NONE);
 }
 
-static void
-discard_pending_swap (ClutterFrame **frame)
-{
-  if (frame && *frame)
-    {
-      MetaFrameNative *frame_native;
-      MetaKmsUpdate *kms_update;
-
-      frame_native = meta_frame_native_from_frame (*frame);
-      kms_update = meta_frame_native_steal_kms_update (frame_native);
-      g_clear_pointer (&kms_update, meta_kms_update_free);
-      g_clear_pointer (frame, clutter_frame_unref);
-    }
-}
-
 void
 meta_onscreen_native_discard_pending_swaps (CoglOnscreen *onscreen)
 {
@@ -2689,7 +2674,7 @@ meta_onscreen_native_discard_pending_swaps (CoglOnscreen *onscreen)
   render_source_remove_frame (onscreen_native->render_source,
                               onscreen_native->next_frame);
   g_clear_pointer (&onscreen_native->next_frame_ready_source, g_source_destroy);
-  discard_pending_swap (&onscreen_native->next_frame);
+  g_clear_pointer (&onscreen_native->next_frame, clutter_frame_unref);
 }
 
 static gboolean
