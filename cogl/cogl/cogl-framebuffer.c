@@ -1100,6 +1100,15 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
   return differences;
 }
 
+static CoglFramebuffer *
+get_bind_buffer (CoglFramebuffer *framebuffer)
+{
+  CoglFramebufferClass *framebuffer_klass =
+    COGL_FRAMEBUFFER_GET_CLASS (framebuffer);
+
+  return framebuffer_klass->get_bind_buffer (framebuffer);
+}
+
 void
 cogl_context_flush_framebuffer_state (CoglContext          *ctx,
                                       CoglFramebuffer      *draw_buffer,
@@ -1109,10 +1118,34 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
   CoglFramebufferClass *framebuffer_klass =
     COGL_FRAMEBUFFER_GET_CLASS (draw_buffer);
 
-  framebuffer_klass->flush_state (ctx,
-                                  draw_buffer,
-                                  read_buffer,
-                                  state);
+  /* First bind the draw/read bind buffers */
+  if (state & COGL_FRAMEBUFFER_STATE_BIND)
+    {
+      CoglFramebuffer *draw_bind_buffer, *read_bind_buffer;
+
+      draw_bind_buffer = get_bind_buffer (draw_buffer);
+      read_bind_buffer = get_bind_buffer (read_buffer);
+
+      if (draw_bind_buffer != draw_buffer ||
+          read_bind_buffer != read_buffer)
+        {
+          framebuffer_klass->flush_state (ctx,
+                                          draw_bind_buffer, read_bind_buffer,
+                                          COGL_FRAMEBUFFER_STATE_BIND);
+          state &= ~COGL_FRAMEBUFFER_STATE_BIND;
+        }
+    }
+
+  /* Then flush the remaining state, which synchronizes the FBO state to the
+   * MetaOnscreenNative ancestor CoglFramebuffer's state.
+   */
+  if (state)
+    {
+      framebuffer_klass->flush_state (ctx,
+                                      draw_buffer,
+                                      read_buffer,
+                                      state);
+    }
 }
 
 static void

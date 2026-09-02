@@ -2306,43 +2306,16 @@ ensure_back_bo (MetaOnscreenNative *onscreen_native)
     }
 }
 
-static void
-meta_onscreen_native_flush_state (CoglContext          *ctx,
-                                  CoglFramebuffer      *draw_buffer,
-                                  CoglFramebuffer      *read_buffer,
-                                  CoglFramebufferState  state)
+static CoglFramebuffer *
+meta_onscreen_native_get_bind_buffer (CoglFramebuffer *framebuffer)
 {
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (draw_buffer);
-  CoglFramebufferClass *framebuffer_class =
-    COGL_FRAMEBUFFER_CLASS (meta_onscreen_native_parent_class);
-
-  COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeFlushState,
-                           "Meta::OnscreenNative::flush_state()");
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (framebuffer);
 
   if (onscreen_native->gbm.surface)
-    {
-      framebuffer_class->flush_state (ctx, draw_buffer, read_buffer, state);
-      return;
-    }
+    return framebuffer;
 
-  /* First bind the back buffer FBO */
-  if (state & COGL_FRAMEBUFFER_STATE_BIND)
-    {
-      CoglFramebuffer *bind_fbo;
-
-      ensure_back_bo (onscreen_native);
-      bind_fbo = COGL_FRAMEBUFFER (onscreen_native->gbm.back->cogl_fbo);
-      framebuffer_class->flush_state (ctx,
-                                      bind_fbo, bind_fbo,
-                                      COGL_FRAMEBUFFER_STATE_BIND);
-    }
-
-  /* Then flush the remaining state, which synchronizes the FBO state to the
-   * MetaOnscreenNative ancestor CoglFramebuffer's state.
-   */
-  state &= ~COGL_FRAMEBUFFER_STATE_BIND;
-  if (state)
-    framebuffer_class->flush_state (ctx, draw_buffer, read_buffer, state);
+  ensure_back_bo (onscreen_native);
+  return COGL_FRAMEBUFFER (onscreen_native->gbm.back->cogl_fbo);
 }
 
 static int
@@ -3916,7 +3889,7 @@ meta_onscreen_native_class_init (MetaOnscreenNativeClass *klass)
   object_class->dispose = meta_onscreen_native_dispose;
 
   framebuffer_class->allocate = meta_onscreen_native_allocate;
-  framebuffer_class->flush_state = meta_onscreen_native_flush_state;
+  framebuffer_class->get_bind_buffer = meta_onscreen_native_get_bind_buffer;
   framebuffer_class->is_y_flipped = meta_onscreen_native_is_y_flipped;
 
   onscreen_class->queue_damage_region =
