@@ -29,9 +29,3 @@ MetaWaylandTestClient * meta_wayland_test_client_new_with_args (MetaContext *con
                                                                 ...) G_GNUC_NULL_TERMINATED;
 
 void meta_wayland_test_client_finish (MetaWaylandTestClient *wayland_test_client);
-
-MetaWindow * meta_find_client_window (MetaContext *context,
-                                      const char  *title);
-
-MetaWindow * meta_wait_for_client_window (MetaContext *context,
-                                          const char  *title);

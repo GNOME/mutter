@@ -176,3 +176,11 @@ void meta_wait_for_paint (ClutterStage *stage);
 
 META_EXPORT
 void meta_wait_wayland_window_reconfigure (MetaWindow *window);
+
+META_EXPORT
+MetaWindow * meta_find_client_window (MetaContext *context,
+                                      const char  *title);
+
+META_EXPORT
+MetaWindow * meta_wait_for_client_window (MetaContext *context,
+                                          const char  *title);

@@ -1262,3 +1262,39 @@ meta_wait_wayland_window_reconfigure (MetaWindow *window)
   while (meta_window_wayland_peek_configuration (wl_window, serial))
     g_main_context_iteration (NULL, TRUE);
 }
+
+MetaWindow *
+meta_find_client_window (MetaContext *context,
+                         const char  *title)
+{
+  MetaDisplay *display = meta_context_get_display (context);
+  g_autoptr (GSList) windows = NULL;
+  GSList *l;
+
+  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+  for (l = windows; l; l = l->next)
+    {
+      MetaWindow *window = l->data;
+
+      if (g_strcmp0 (meta_window_get_title (window), title) == 0)
+        return window;
+    }
+
+  return NULL;
+}
+
+MetaWindow *
+meta_wait_for_client_window (MetaContext *context,
+                             const char  *title)
+{
+  while (TRUE)
+    {
+      MetaWindow *window;
+
+      window = meta_find_client_window (context, title);
+      if (window)
+        return window;
+
+      g_main_context_iteration (NULL, TRUE);
+    }
+}

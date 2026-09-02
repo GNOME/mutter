@@ -17,6 +17,7 @@
 
 #include "config.h"
 
+#include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-runner.h"
 #include "tests/meta-wayland-test-utils.h"
