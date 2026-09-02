@@ -2508,10 +2508,12 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "assert_position") == 0)
     {
       MetaWindow *window;
+      int x;
+      int y;
 
-      if (argc != 4)
+      if (argc != 4 && argc != 3)
         {
-          BAD_COMMAND ("usage: %s <client-id>/<window-id> <x> <y>",
+          BAD_COMMAND ("usage: %s <client-id>/<window-id> [<x> <y>|center]",
                        argv[0]);
         }
 
@@ -2526,8 +2528,26 @@ test_case_do (TestCase    *test,
 
       MtkRectangle frame_rect;
       meta_window_get_frame_rect (window, &frame_rect);
-      int x = parse_window_size (window, argv[2]);
-      int y = parse_window_size (window, argv[3]);
+
+      if (argc == 4)
+        {
+          x = parse_window_size (window, argv[2]);
+          y = parse_window_size (window, argv[3]);
+        }
+      else if (strcmp (argv[2], "center") == 0)
+        {
+          MtkRectangle work_area;
+
+          meta_window_get_work_area_current_monitor (window, &work_area);
+
+          x = (int) roundf ((work_area.width - frame_rect.width) / 2.0f);
+          y = (int) roundf ((work_area.height - frame_rect.height) / 2.0f);
+        }
+      else
+        {
+          BAD_COMMAND ("Invalid symbolic position %s", argv[2]);
+        }
+
       if (frame_rect.x != x || frame_rect.y != y)
         {
           g_set_error (error,
