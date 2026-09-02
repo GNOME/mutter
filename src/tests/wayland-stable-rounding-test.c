@@ -101,30 +101,6 @@ stable_rounding (void)
 }
 
 static void
-on_effects_completed (MetaWindowActor *window_actor,
-                      gboolean        *done)
-{
-  *done = TRUE;
-}
-
-static void
-wait_for_window_added (MetaWindow *window)
-{
-  MetaWindowActor *window_actor;
-  gboolean done = FALSE;
-  gulong handler_id;
-
-  window_actor = meta_window_actor_from_window (window);
-  handler_id = g_signal_connect (window_actor, "effects-completed",
-                                 G_CALLBACK (on_effects_completed), &done);
-
-  while (!done)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_signal_handler_disconnect (window_actor, handler_id);
-}
-
-static void
 stable_rounding_ref_test (void)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (test_window);
@@ -137,7 +113,7 @@ stable_rounding_ref_test (void)
                                        META_MONITORS_CONFIG_FLAG_NONE);
   meta_monitor_manager_reload (monitor_manager);
 
-  wait_for_window_added (test_window);
+  meta_wait_for_effects (test_window);
   g_assert_true (meta_window_wayland_is_acked_fullscreen (wl_window));
   meta_ref_test_verify_view (get_view (),
                              g_test_get_path (), 1,
