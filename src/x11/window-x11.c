@@ -382,7 +382,7 @@ send_configure_notify (MetaWindow *window)
   event.xconfigure.above = None; /* FIXME */
   event.xconfigure.override_redirect = False;
 
-  meta_topic (META_DEBUG_GEOMETRY,
+  meta_topic (META_DEBUG_X11,
               "Sending synthetic configure notify to %s with x: %d y: %d w: %d h: %d",
               window->desc,
               event.xconfigure.x, event.xconfigure.y,
@@ -1122,7 +1122,7 @@ update_net_frame_extents (MetaWindow *window)
   data[2] = top;
   data[3] = bottom;
 
-  meta_topic (META_DEBUG_GEOMETRY,
+  meta_topic (META_DEBUG_X11,
               "Setting _NET_FRAME_EXTENTS on managed window 0x%lx "
               "to left = %lu, right = %lu, top = %lu, bottom = %lu",
               xwindow, data[0], data[1], data[2], data[3]);
@@ -2809,7 +2809,7 @@ meta_window_move_resize_request (MetaWindow  *window,
     }
   else
     {
-      meta_topic (META_DEBUG_GEOMETRY,
+      meta_topic (META_DEBUG_X11,
 		  "Not allowing position change for window %s PROGRAM_POSITION 0x%lx USER_POSITION 0x%lx type %u",
 		  window->desc, window->size_hints.flags & META_SIZE_HINTS_PROGRAM_POSITION,
 		  window->size_hints.flags & META_SIZE_HINTS_USER_POSITION,
@@ -2903,7 +2903,7 @@ meta_window_move_resize_request (MetaWindow  *window,
               window->has_fullscreen_func &&
               !meta_window_is_fullscreen (window))
             {
-              meta_topic (META_DEBUG_GEOMETRY,
+              meta_topic (META_DEBUG_X11,
                           "Treating resize request of legacy application %s as a "
                           "fullscreen request",
                           window->desc);
@@ -4700,7 +4700,7 @@ meta_window_x11_configure (MetaWindow *window)
 
   new_rect = meta_window_config_get_rect (window_config);
 
-  meta_topic (META_DEBUG_GEOMETRY,
+  meta_topic (META_DEBUG_X11,
               "Window %s pre-configured at (%i,%i) [%ix%i]",
               window->desc, new_rect.x, new_rect.y, new_rect.width, new_rect.height);
 
