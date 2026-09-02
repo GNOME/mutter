@@ -52,8 +52,6 @@ typedef struct
 } TestData;
 
 static Atom atom_motif_wm_hints;
-static Atom atom_net_wm_name;
-static Atom atom_utf8_string;
 static Atom atom_test_done;
 
 static void
@@ -96,16 +94,6 @@ remove_mwm_decorations (Display *xdisplay,
                    PropModeReplace,
                    (unsigned char *) &hints,
                    sizeof (hints) / sizeof (unsigned long));
-  XFlush (xdisplay);
-}
-
-static void
-set_title (Display    *xdisplay,
-           Window      window,
-           const char *title)
-{
-  XChangeProperty(xdisplay, window, atom_net_wm_name, atom_utf8_string, 8,
-                  PropModeReplace, (unsigned char*) title, strlen (title));
   XFlush (xdisplay);
 }
 
@@ -162,8 +150,6 @@ main (void)
    * If the bug doesn't reproduces, you see a green rectangle on the screen. */
 
   atom_motif_wm_hints = XInternAtom (xdisplay, "_MOTIF_WM_HINTS", False);
-  atom_net_wm_name = XInternAtom (xdisplay, "_NET_WM_NAME", False);
-  atom_utf8_string = XInternAtom (xdisplay, "UTF8_STRING", False);
   atom_test_done = XInternAtom (xdisplay, "_TEST_DONE", False);
 
   screen = DefaultScreen (xdisplay);
@@ -178,7 +164,7 @@ main (void)
                           CopyFromParent, InputOutput,
                           CopyFromParent, CWBackPixmap | CWEventMask, &attrs);
 
-  set_title (xdisplay, window, "xwayland-allow-commits-test");
+  set_x11_window_title (xdisplay, window, "xwayland-allow-commits-test");
 
   remove_mwm_decorations (xdisplay, window);
   XMapWindow (xdisplay, window);

@@ -28,3 +28,7 @@ GSource *
 x11_event_source_new (Display                *xdisplay,
                       X11EventSourceCallback  callback,
                       gpointer                user_data);
+
+void set_x11_window_title (Display    *xdisplay,
+                           Window      window,
+                           const char *title);

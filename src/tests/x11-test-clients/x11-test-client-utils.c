@@ -77,3 +77,30 @@ x11_event_source_new (Display               *xdisplay,
 
   return source;
 }
+
+static void
+ensure_atom (Atom       *atom,
+             Display    *xdisplay,
+             const char *name)
+{
+  if (*atom)
+    return;
+
+  *atom = XInternAtom (xdisplay, name, False);
+}
+
+void
+set_x11_window_title (Display    *xdisplay,
+                      Window      window,
+                      const char *title)
+{
+  static Atom atom_net_wm_name;
+  static Atom atom_utf8_string;
+
+  ensure_atom (&atom_net_wm_name, xdisplay, "_NET_WM_NAME");
+  ensure_atom (&atom_utf8_string, xdisplay, "UTF8_STRING");
+
+  XChangeProperty (xdisplay, window, atom_net_wm_name, atom_utf8_string, 8,
+                   PropModeReplace, (unsigned char*) title, strlen (title));
+  XFlush (xdisplay);
+}
