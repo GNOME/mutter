@@ -15,6 +15,9 @@ x11_test_clients = [
   {
     'name': 'xwayland-allow-commits-test',
   },
+  {
+    'name': 'user-position',
+  },
 ]
 
 x11_test_client_executables = {}

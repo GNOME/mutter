@@ -1265,6 +1265,7 @@ if have_xwayland
       'suite': 'x11',
       'depends': [
         x11_test_client_executables['xwayland-allow-commits-test'],
+        x11_test_client_executables['user-position'],
       ],
       'sources': [
         'x11-tests.c',

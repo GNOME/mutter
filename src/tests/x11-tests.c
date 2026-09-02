@@ -140,6 +140,47 @@ meta_test_x11_allow_commits_race (void)
 }
 
 static void
+meta_test_x11_user_position (void)
+{
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaX11TestClient *test_client;
+  MetaX11Display *x11_display = NULL;
+  MetaWindow *window;
+  MtkRectangle frame_rect;
+  MtkRectangle client_rect;
+
+  test_client = meta_x11_test_client_new_with_args (test_context,
+                                                    "user-position",
+                                                    NULL);
+
+  while (TRUE)
+    {
+      x11_display = meta_display_get_x11_display (display);
+      if (x11_display)
+        break;
+
+      g_main_context_iteration (NULL, TRUE);
+    }
+
+  window = meta_wait_for_client_window (test_context, "user-position");
+  meta_wait_for_window_shown (window);
+  meta_wait_for_effects (window);
+
+  meta_window_get_frame_rect (window, &frame_rect);
+  meta_window_get_client_content_rect (window, &client_rect);
+
+  /* The client window should have the expected size, but its the frame that
+   * currently gets the user position, not the client window. */
+  g_assert_cmpint (client_rect.width, ==, 200);
+  g_assert_cmpint (client_rect.height, ==, 300);
+  g_assert_cmpint (frame_rect.x, ==, 50);
+  g_assert_cmpint (frame_rect.y, ==, 125);
+
+  meta_x11_test_client_send_sigterm (test_client);
+  meta_x11_test_client_finish (test_client);
+}
+
+static void
 on_before_tests (void)
 {
   virtual_monitor = meta_create_test_monitor (test_context,
@@ -157,6 +198,8 @@ init_tests (void)
 {
   g_test_add_func ("/x11/client/allow-commits-race",
                    meta_test_x11_allow_commits_race);
+  g_test_add_func ("/x11/client/user-position",
+                   meta_test_x11_user_position);
 }
 
 int
