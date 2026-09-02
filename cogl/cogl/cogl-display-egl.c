@@ -261,8 +261,8 @@ try_create_context (CoglDisplay  *display,
   cogl_display_egl_determine_attributes (egl_display,
                                          cfg_attribs);
 
-  if (!cogl_renderer_egl_has_feature (renderer_egl,
-                                      COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT))
+  if (!cogl_renderer_has_feature (renderer,
+                                COGL_RENDERER_FEATURE_NO_CONFIG_CONTEXT))
     {
       if (!display_egl_class->choose_config (egl_display,
                                              cfg_attribs,
@@ -313,8 +313,8 @@ try_create_context (CoglDisplay  *display,
 
   attribs[i++] = EGL_NONE;
 
-  if (cogl_renderer_egl_has_feature (renderer_egl,
-                                     COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT))
+  if (cogl_renderer_has_feature (renderer,
+                                COGL_RENDERER_FEATURE_NO_CONFIG_CONTEXT))
     {
       cogl_display_egl_set_egl_context (egl_display,
                                         eglCreateContext (edpy,

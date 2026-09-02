@@ -3101,8 +3101,8 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
 
   should_be_sharable = should_surface_be_sharable (onscreen);
 
-  if (!cogl_renderer_egl_has_feature (cogl_renderer_egl,
-                                      COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
+  if (!cogl_renderer_has_feature (cogl_renderer,
+                                  COGL_RENDERER_FEATURE_NO_CONFIG_CONTEXT) ||
       !choose_onscreen_egl_config (onscreen, &egl_config, error))
     egl_config = cogl_display_egl_get_egl_config (cogl_display_egl);
 

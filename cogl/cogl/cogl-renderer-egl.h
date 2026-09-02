@@ -56,7 +56,6 @@ typedef enum _CoglEGLWinsysFeature
   COGL_EGL_WINSYS_FEATURE_BUFFER_AGE                    = 1L << 4,
   COGL_EGL_WINSYS_FEATURE_FENCE_SYNC                    = 1L << 5,
   COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           = 1L << 6,
-  COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT             = 1L << 8,
   COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC             = 1L << 9,
 } CoglEGLWinsysFeature;
 
