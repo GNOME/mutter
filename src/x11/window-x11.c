@@ -1301,7 +1301,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   size_dx = constrained_rect.width - frame_rect.width;
   size_dy = constrained_rect.height - frame_rect.height;
 
-  meta_window_config_set_rect (window->config, constrained_rect);
+  meta_window_config_update_rect (window->config, constrained_rect);
   frame_rect = meta_window_config_get_rect (window->config);
 
   if (priv->frame)
@@ -2117,7 +2117,7 @@ meta_window_x11_constructed (GObject *object)
   meta_window_protocol_to_stage_rect (window, &rect, &rect);
 
   window->config = meta_window_config_new ();
-  meta_window_config_set_rect (window->config, rect);
+  meta_window_config_update_rect (window->config, rect);
 
   /* size_hints are the "request" */
   window->size_hints.x = rect.x;
@@ -4695,6 +4695,9 @@ meta_window_x11_configure (MetaWindow *window)
 
   if (window->showing_for_first_time)
     meta_window_config_set_initial (window_config);
+
+  if (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION)
+    meta_window_config_set_has_position (window_config);
 
   meta_window_emit_configure (window, window_config);
 

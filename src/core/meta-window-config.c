@@ -161,6 +161,23 @@ meta_window_config_set_rect (MetaWindowConfig *window_config,
   window_config->has_position = TRUE;
 }
 
+void
+meta_window_config_update_rect (MetaWindowConfig *window_config,
+                                MtkRectangle      rect)
+{
+  g_return_if_fail (META_IS_WINDOW_CONFIG (window_config));
+
+  window_config->rect = rect;
+}
+
+void
+meta_window_config_set_has_position (MetaWindowConfig *window_config)
+{
+  g_return_if_fail (META_IS_WINDOW_CONFIG (window_config));
+
+  window_config->has_position = TRUE;
+}
+
 MtkRectangle
 meta_window_config_get_rect (MetaWindowConfig *window_config)
 {

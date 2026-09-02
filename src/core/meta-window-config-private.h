@@ -92,3 +92,8 @@ const MtkRectangle * meta_window_config_get_saved_rect (MetaWindowConfig *config
 
 void meta_window_config_set_from (MetaWindowConfig *config,
                                   MetaWindowConfig *other);
+
+void meta_window_config_update_rect (MetaWindowConfig *window_config,
+                                     MtkRectangle      rect);
+
+void meta_window_config_set_has_position (MetaWindowConfig *window_config);

@@ -3473,7 +3473,7 @@ unmaximize_window_before_freeing (MetaWindow        *window)
 
   if (window->withdrawn)                /* See bug #137185 */
     {
-      meta_window_config_set_rect (window->config, window->saved_rect);
+      meta_window_config_update_rect (window->config, window->saved_rect);
       set_net_wm_state (window);
     }
 }

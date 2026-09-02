@@ -351,8 +351,11 @@ meta_window_set_custom_frame_extents (MetaWindow      *window,
 
           frame_rect = meta_window_config_get_rect (window->config);
           meta_window_client_rect_to_frame_rect (window, &frame_rect, &frame_rect);
-          meta_window_config_set_rect (window->config, frame_rect);
-          meta_window_client_rect_to_frame_rect (window, &window->unconstrained_rect, &window->unconstrained_rect);
+          meta_window_config_update_rect (window->config, frame_rect);
+
+          meta_window_client_rect_to_frame_rect (window,
+                                                 &window->unconstrained_rect,
+                                                 &window->unconstrained_rect);
         }
     }
   else
