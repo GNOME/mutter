@@ -306,6 +306,12 @@ cogl_real_flush_framebuffer_state (CoglContext          *ctx,
     }
 }
 
+static CoglFramebuffer *
+cogl_real_get_bind_buffer (CoglFramebuffer *framebuffer)
+{
+  return framebuffer;
+}
+
 static void
 cogl_framebuffer_dispose (GObject *object)
 {
@@ -394,6 +400,7 @@ cogl_framebuffer_class_init (CoglFramebufferClass *klass)
                   0);
 
   klass->flush_state = cogl_real_flush_framebuffer_state;
+  klass->get_bind_buffer = cogl_real_get_bind_buffer;
 }
 
 /* This version of cogl_clear can be used internally as an alternative
