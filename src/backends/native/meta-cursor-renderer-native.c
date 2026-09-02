@@ -347,7 +347,7 @@ meta_cursor_renderer_native_update_sprite (MetaCursorRenderer *cursor_renderer,
                                           data, g_free);
 }
 
-static gboolean
+static void
 meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
                                            ClutterCursor      *cursor)
 {
@@ -360,7 +360,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
-  gboolean cursor_changed, cursor_hw_managed = FALSE;
+  gboolean cursor_changed;
   GList *views;
   GList *l;
 
@@ -370,7 +370,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
   if (kms_cursor_manager == NULL)
     {
       g_warn_if_fail (meta_kms_is_shutting_down (kms));
-      return FALSE;
+      return;
     }
 
   if (cursor &&
@@ -452,8 +452,6 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
                                                      NULL);
             }
         }
-
-      cursor_hw_managed |= cursor_stage_view->has_hw_cursor;
     }
 
   if (cursor_changed)
@@ -477,10 +475,16 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
 
   maybe_schedule_cursor_sprite_animation_frame (native, cursor,
                                                 cursor_changed);
+}
 
-  return (!cursor_hw_managed &&
-          cursor &&
-          clutter_cursor_get_texture (cursor, NULL, NULL));
+static gboolean
+meta_cursor_renderer_native_view_has_hw_cursor (MetaCursorRenderer *cursor_renderer,
+                                                ClutterStageView   *view)
+{
+  CursorStageView *cursor_stage_view =
+    get_cursor_stage_view (META_STAGE_VIEW (view));
+
+  return cursor_stage_view && cursor_stage_view->has_hw_cursor;
 }
 
 static void
@@ -1297,6 +1301,7 @@ meta_cursor_renderer_native_class_init (MetaCursorRendererNativeClass *klass)
   object_class->finalize = meta_cursor_renderer_native_finalize;
   renderer_class->update_sprite = meta_cursor_renderer_native_update_sprite;
   renderer_class->update_cursor = meta_cursor_renderer_native_update_cursor;
+  renderer_class->view_has_hw_cursor = meta_cursor_renderer_native_view_has_hw_cursor;
 
   quark_cursor_sprite = g_quark_from_static_string ("-meta-cursor-native");
   quark_cursor_renderer_native_gpu_data =

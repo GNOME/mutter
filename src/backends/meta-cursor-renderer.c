@@ -24,11 +24,14 @@
 
 #include "backends/meta-cursor-renderer.h"
 
+#include "backends/meta-cursor-xcursor.h"
+
 #include <math.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-stage-private.h"
+#include "backends/meta-stage-view.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
@@ -64,7 +67,6 @@ struct _MetaCursorRendererPrivate
   ClutterCursor *overlay_cursor;
 
   MetaOverlay *stage_overlay;
-  gboolean needs_overlay;
   gulong after_paint_handler_id;
 
   GList *hw_cursor_inhibitors;
@@ -139,6 +141,8 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
   CoglTexture *texture = NULL;
   graphene_rect_t dst_rect = GRAPHENE_RECT_INIT_ZERO;
   graphene_matrix_t matrix;
+  gboolean cursor_is_hidden;
+  GList *l;
 
   g_set_object (&priv->overlay_cursor, cursor);
 
@@ -174,12 +178,57 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
         }
     }
 
-  meta_overlay_set_visible (priv->stage_overlay, priv->needs_overlay);
+  cursor_is_hidden =
+    cursor &&
+    META_IS_CURSOR_XCURSOR (cursor) &&
+    meta_cursor_xcursor_get_cursor (META_CURSOR_XCURSOR (cursor)) ==
+    CLUTTER_CURSOR_NONE;
+
+  for (l = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage)); l; l = l->next)
+    {
+      ClutterStageView *view = CLUTTER_STAGE_VIEW (l->data);
+      gboolean view_needs_overlay;
+
+      view_needs_overlay =
+        texture && !cursor_is_hidden &&
+        !META_CURSOR_RENDERER_GET_CLASS (renderer)->view_has_hw_cursor (renderer,
+                                                                        view);
+      meta_overlay_set_view_visible (priv->stage_overlay, view, view_needs_overlay);
+    }
+
   meta_stage_update_cursor_overlay (META_STAGE (stage),
                                     priv->stage_overlay,
                                     texture,
                                     &matrix,
                                     &dst_rect);
+}
+
+/**
+ * meta_cursor_renderer_needs_overlay_on_view:
+ * @renderer: a #MetaCursorRenderer
+ * @view: the #ClutterStageView to query
+ *
+ * Returns whether the software cursor overlay is currently visible on
+ * @view specifically - never a stage-wide aggregate, since different views
+ * can independently need (or not need) a software-composited cursor.
+ *
+ * This reflects the cursor state only. It does not account for a view whose
+ * cursor overlay is inhibited (see
+ * meta_stage_view_is_cursor_overlay_inhibited()), which suppresses the paint
+ * independently of whether the cursor needs one: callers that care whether
+ * the cursor actually ends up composited must check that as well.
+ */
+gboolean
+meta_cursor_renderer_needs_overlay_on_view (MetaCursorRenderer *renderer,
+                                            ClutterStageView   *view)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+
+  if (!priv->stage_overlay)
+    return FALSE;
+
+  return meta_overlay_get_view_visible (priv->stage_overlay, view);
 }
 
 static void
@@ -191,7 +240,11 @@ meta_cursor_renderer_after_paint (ClutterStage       *stage,
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
 
-  if (priv->displayed_cursor && priv->needs_overlay)
+  /* An inhibited view never paints the overlay, so ::cursor-painted must not
+   * claim the cursor was composited there. */
+  if (priv->displayed_cursor &&
+      meta_cursor_renderer_needs_overlay_on_view (renderer, stage_view) &&
+      !meta_stage_view_is_cursor_overlay_inhibited (META_STAGE_VIEW (stage_view)))
     {
       graphene_rect_t rect;
       MtkRectangle view_layout;
@@ -211,14 +264,19 @@ meta_cursor_renderer_after_paint (ClutterStage       *stage,
     }
 }
 
-static gboolean
+static void
 meta_cursor_renderer_real_update_cursor (MetaCursorRenderer *renderer,
                                          ClutterCursor      *cursor)
 {
   if (cursor)
     clutter_cursor_realize_texture (cursor);
+}
 
-  return TRUE;
+static gboolean
+meta_cursor_renderer_real_view_has_hw_cursor (MetaCursorRenderer *renderer,
+                                              ClutterStageView   *view)
+{
+  return FALSE;
 }
 
 static void
@@ -315,6 +373,7 @@ meta_cursor_renderer_class_init (MetaCursorRendererClass *klass)
   object_class->finalize = meta_cursor_renderer_finalize;
   object_class->constructed = meta_cursor_renderer_constructed;
   klass->update_cursor = meta_cursor_renderer_real_update_cursor;
+  klass->view_has_hw_cursor = meta_cursor_renderer_real_view_has_hw_cursor;
 
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend", NULL, NULL,
@@ -497,8 +556,7 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
                                  (int) priv->current_y);
     }
 
-  priv->needs_overlay =
-    META_CURSOR_RENDERER_GET_CLASS (renderer)->update_cursor (renderer, cursor);
+  META_CURSOR_RENDERER_GET_CLASS (renderer)->update_cursor (renderer, cursor);
 
   meta_cursor_renderer_update_stage_overlay (renderer, cursor);
 }
@@ -599,13 +657,4 @@ meta_cursor_renderer_get_backend (MetaCursorRenderer *renderer)
     meta_cursor_renderer_get_instance_private (renderer);
 
   return priv->backend;
-}
-
-gboolean
-meta_cursor_renderer_needs_overlay (MetaCursorRenderer *renderer)
-{
-  MetaCursorRendererPrivate *priv =
-    meta_cursor_renderer_get_instance_private (renderer);
-
-  return priv->needs_overlay;
 }
