@@ -367,7 +367,9 @@ cogl_renderer_egl_init_extensions (CoglRenderer *renderer)
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT;
 
   if (cogl_check_extension ("EGL_KHR_no_config_context", split_extensions))
-    priv->private_features |= COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT;
+    cogl_renderer_set_feature (renderer,
+                              COGL_RENDERER_FEATURE_NO_CONFIG_CONTEXT,
+                              TRUE);
 
   if (cogl_check_extension ("EGL_EXT_buffer_age", split_extensions))
     priv->private_features |= COGL_EGL_WINSYS_FEATURE_BUFFER_AGE;

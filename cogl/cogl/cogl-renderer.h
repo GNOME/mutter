@@ -95,6 +95,7 @@ typedef enum
  * @COGL_RENDERER_FEATURE_WAYLAND_BUFFER: Wayland buffer import support
  * @COGL_RENDERER_FEATURE_PARTIAL_UPDATE: Partial surface update support
  * @COGL_RENDERER_FEATURE_CONTEXT_PRIORITY: Context priority support
+ * @COGL_RENDERER_FEATURE_NO_CONFIG_CONTEXT: No-config context support
  */
 typedef enum _CoglRendererFeature
 {
@@ -102,6 +103,7 @@ typedef enum _CoglRendererFeature
   COGL_RENDERER_FEATURE_WAYLAND_BUFFER,
   COGL_RENDERER_FEATURE_PARTIAL_UPDATE,
   COGL_RENDERER_FEATURE_CONTEXT_PRIORITY,
+  COGL_RENDERER_FEATURE_NO_CONFIG_CONTEXT,
 
   COGL_RENDERER_N_FEATURES
 } CoglRendererFeature;
