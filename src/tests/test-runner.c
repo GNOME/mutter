@@ -2450,6 +2450,61 @@ test_case_do (TestCase    *test,
                                   error))
         return FALSE;
     }
+  else if (strcmp (argv[0], "assert_client_size") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      int width;
+      int height;
+      int client_window_width;
+      int client_window_height;
+      g_autofree char *width_str = NULL;
+      g_autofree char *height_str = NULL;
+      MtkRectangle client_content_rect;
+
+      if (argc != 4)
+        {
+          BAD_COMMAND ("usage: %s <client-id>/<window-id> <width> <height>",
+                       argv[0]);
+        }
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      width = parse_window_size (window, argv[2]);
+      height = parse_window_size (window, argv[3]);
+      client_window_width = width;
+      client_window_height = height;
+
+      width_str = g_strdup_printf ("%d", client_window_width);
+      height_str = g_strdup_printf ("%d", client_window_height);
+
+      if (!meta_test_client_do (client, error, argv[0],
+                                window_id,
+                                width_str,
+                                height_str,
+                                NULL))
+        return FALSE;
+
+      meta_window_get_client_content_rect (window, &client_content_rect);
+
+      if (client_content_rect.width != client_window_width ||
+          client_content_rect.height != client_window_height)
+        {
+          g_set_error (error,
+                       META_TEST_CLIENT_ERROR,
+                       META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                       "Expected client size %dx%d didn't match actual size %dx%d",
+                       client_window_width, client_window_height,
+                       client_content_rect.width, client_content_rect.height);
+          return FALSE;
+        }
+    }
   else if (strcmp (argv[0], "assert_position") == 0)
     {
       MetaWindow *window;

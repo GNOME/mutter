@@ -1084,6 +1084,36 @@ process_line (const char       *line,
           goto out;
         }
     }
+  else if (strcmp (argv[0], "assert_client_size") == 0)
+    {
+      GtkWidget *window;
+      int expected_width;
+      int expected_height;
+      int width;
+      int height;
+
+      if (argc != 4)
+        {
+          g_print ("usage: assert_size <id> <width> <height>\n");
+          goto out;
+        }
+
+      window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gtk_window_get_size (GTK_WINDOW (window), &width, &height);
+
+      expected_width = atoi (argv[2]);
+      expected_height = atoi (argv[3]);
+      if (expected_width != width || expected_height != height)
+        {
+          g_print ("Expected size %dx%d didn't match actual size %dx%d\n",
+                   expected_width, expected_height,
+                   width, height);
+          goto out;
+        }
+    }
   else if (strcmp (argv[0], "assert_primary_monitor") == 0)
     {
       GdkWindow *root_window = gdk_screen_get_root_window ((gdk_screen_get_default ()));
