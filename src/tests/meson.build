@@ -1377,6 +1377,7 @@ stacking_tests = [
   'strut-monitor-changes',
   'window-placement',
   'x11-move',
+  'x11-size',
   'map-maximized',
   'map-fullscreen',
   'fullscreen-on-monitor',

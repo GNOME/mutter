@@ -1,0 +1,6 @@
+new_client x x11
+create x/1
+resize x/1 100 100
+show x/1
+wait
+assert_client_size x/1 100 100

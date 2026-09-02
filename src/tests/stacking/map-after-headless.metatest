@@ -62,7 +62,8 @@ wait
 
 wait_reconfigure x/2
 assert_stacking_showing x/2
-assert_position x/2 300 200
+assert_client_size x/2 200 200
+assert_position x/2 center
 
 destroy x/2
 wait

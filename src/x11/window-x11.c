@@ -548,11 +548,19 @@ meta_window_x11_initialize_state (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
-  MetaWindowConfig *config;
+  g_autoptr (MetaWindowConfig) config = NULL;
 
-  config = priv->wm_state_config;
-  if (!config)
-    config = window->config;
+  if (meta_window_is_ready (window))
+    {
+      config = meta_window_config_new_from (window->config);
+    }
+  else
+    {
+      config = priv->wm_state_config;
+      if (!config)
+        config = window->config;
+      g_object_ref (config);
+    }
 
   /* For override-redirect windows, save the client rect
    * directly. window->config->rect was assigned from the XWindowAttributes
@@ -588,6 +596,9 @@ meta_window_x11_initialize_state (MetaWindow *window)
       if (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION ||
           meta_window_config_get_is_fullscreen (config))
         meta_window_config_set_position (config, rect.x, rect.y);
+
+      if (meta_window_is_ready (window))
+        meta_window_process_config (window, config);
     }
 }
 
