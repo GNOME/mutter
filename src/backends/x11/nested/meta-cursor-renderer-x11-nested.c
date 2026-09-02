@@ -35,13 +35,19 @@ struct _MetaCursorRendererX11Nested
 G_DEFINE_TYPE (MetaCursorRendererX11Nested, meta_cursor_renderer_x11_nested,
                META_TYPE_CURSOR_RENDERER);
 
-static gboolean
+static void
 meta_cursor_renderer_x11_nested_update_cursor (MetaCursorRenderer *renderer,
                                                MetaCursorSprite   *cursor_sprite)
 {
   if (cursor_sprite)
     meta_cursor_sprite_realize_texture (cursor_sprite);
-  return TRUE;
+}
+
+static gboolean
+meta_cursor_renderer_x11_nested_view_has_hw_cursor (MetaCursorRenderer *renderer,
+                                                    ClutterStageView   *view)
+{
+  return FALSE;
 }
 
 static Cursor
@@ -94,6 +100,7 @@ meta_cursor_renderer_x11_nested_class_init (MetaCursorRendererX11NestedClass *kl
   object_class->constructed = meta_cursor_renderer_x11_nested_constructed;
 
   renderer_class->update_cursor = meta_cursor_renderer_x11_nested_update_cursor;
+  renderer_class->view_has_hw_cursor = meta_cursor_renderer_x11_nested_view_has_hw_cursor;
 }
 
 static void

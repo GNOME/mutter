@@ -83,7 +83,7 @@ create_x_cursor (Display    *xdisplay,
   return result;
 }
 
-static gboolean
+static void
 meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite)
 {
@@ -97,7 +97,7 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
     {
       if (cursor_sprite)
         meta_cursor_sprite_realize_texture (cursor_sprite);
-      return TRUE;
+      return;
     }
 
   gboolean has_server_cursor = FALSE;
@@ -137,8 +137,13 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
 
   if (cursor_sprite)
     meta_cursor_sprite_realize_texture (cursor_sprite);
+}
 
-  return !x11->server_cursor_visible;
+static gboolean
+meta_cursor_renderer_x11_view_has_hw_cursor (MetaCursorRenderer *renderer,
+                                             ClutterStageView   *view)
+{
+  return TRUE;
 }
 
 static void
@@ -147,6 +152,7 @@ meta_cursor_renderer_x11_class_init (MetaCursorRendererX11Class *klass)
   MetaCursorRendererClass *renderer_class = META_CURSOR_RENDERER_CLASS (klass);
 
   renderer_class->update_cursor = meta_cursor_renderer_x11_update_cursor;
+  renderer_class->view_has_hw_cursor = meta_cursor_renderer_x11_view_has_hw_cursor;
 }
 
 static void
