@@ -796,12 +796,12 @@ meta_context_dispose (GObject *object)
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
-  g_signal_emit (context, signals[PREPARE_SHUTDOWN], 0);
-
   g_clear_object (&priv->service_channel);
 
   if (priv->wayland_compositor)
     meta_wayland_compositor_prepare_shutdown (priv->wayland_compositor);
+
+  g_signal_emit (context, signals[PREPARE_SHUTDOWN], 0);
 
   if (priv->display)
     meta_display_close (priv->display, META_CURRENT_TIME);
