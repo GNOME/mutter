@@ -566,6 +566,9 @@ meta_window_x11_initialize_state (MetaWindow *window)
     {
       priv->client_rect = meta_window_config_get_rect (config);
       window->buffer_rect = meta_window_config_get_rect (config);
+
+      meta_window_x11_update_shape_region (window);
+      meta_window_x11_update_input_region (window);
     }
   else
     {
@@ -586,9 +589,6 @@ meta_window_x11_initialize_state (MetaWindow *window)
           meta_window_config_get_is_fullscreen (config))
         meta_window_config_set_position (config, rect.x, rect.y);
     }
-
-  meta_window_x11_update_shape_region (window);
-  meta_window_x11_update_input_region (window);
 }
 
 static void
@@ -1523,6 +1523,12 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   *result |= META_MOVE_RESIZE_RESULT_UPDATE_UNCONSTRAINED;
 
   update_gtk_edge_constraints (window);
+
+  if (need_resize_client)
+    {
+      meta_window_x11_update_shape_region (window);
+      meta_window_x11_update_input_region (window);
+    }
 }
 
 static gboolean
