@@ -78,3 +78,11 @@ wait_reconfigure x/3
 assert_position x/3 350 250
 assert_size x/3 100 100
 destroy x/3
+
+create x/4
+fullscreen x/4 secondary
+show x/4
+wait
+assert_position x/4 800 0
+assert_size x/4 640 480
+destroy x/4
