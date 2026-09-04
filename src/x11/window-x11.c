@@ -4704,7 +4704,8 @@ meta_window_x11_configure (MetaWindow *window)
               "Window %s pre-configured at (%i,%i) [%ix%i]",
               window->desc, new_rect.x, new_rect.y, new_rect.width, new_rect.height);
 
-  if (meta_window_config_has_position (window_config))
+  if (meta_window_config_has_position (window_config) ||
+      meta_window_config_get_is_fullscreen (window_config))
     {
       MetaDisplay *display = meta_window_get_display (window);
       MetaContext *context = meta_display_get_context (display);
