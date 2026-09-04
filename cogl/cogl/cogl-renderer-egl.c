@@ -1231,9 +1231,16 @@ cogl_renderer_egl_choose_first_config (CoglRendererEGL  *renderer_egl,
 
   status = eglChooseConfig (priv->edisplay, attrib_list,
                             chosen_config, 1, &num_configs);
-  if (status != EGL_TRUE || num_configs < 1)
+  if (status != EGL_TRUE)
     {
       set_egl_error (error);
+      return FALSE;
+    }
+
+  if (num_configs < 1)
+    {
+      g_set_error_literal (error, COGL_EGL_ERROR, EGL_BAD_CONFIG,
+                           "No matching EGLConfig found");
       return FALSE;
     }
 
