@@ -4686,14 +4686,16 @@ meta_window_x11_configure (MetaWindow *window)
   window_config = meta_window_take_pending_config (window);
   if (!window_config)
     window_config = meta_window_config_new_from (window->config);
-  if (window->showing_for_first_time)
-    meta_window_config_set_initial (window_config);
 
   if (priv->wm_state_config)
     {
       meta_window_config_set_from (window_config, priv->wm_state_config);
       g_clear_object (&priv->wm_state_config);
     }
+
+  if (window->showing_for_first_time)
+    meta_window_config_set_initial (window_config);
+
   meta_window_emit_configure (window, window_config);
 
   new_rect = meta_window_config_get_rect (window_config);
