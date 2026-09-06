@@ -129,7 +129,6 @@ variables:
       xorg-x11-proto-devel
       qemu-system-x86-core
       busybox
-      zenity
       gnome-desktop-testing
       mypy
       umockdev-devel
