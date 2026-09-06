@@ -56,6 +56,7 @@ typedef struct _MetaKmsPlaneCursorSizeHints
 } MetaKmsPlaneCursorSizeHints;
 
 #define META_TYPE_KMS_PLANE meta_kms_plane_get_type ()
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaKmsPlane, meta_kms_plane,
                       META, KMS_PLANE, GObject)
 

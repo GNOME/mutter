@@ -25,6 +25,8 @@ mutter_test_sources = [
   'meta-test-shell.h',
   'meta-test-utils.c',
   'meta-test-utils.h',
+  'meta-vkms-device.c',
+  'meta-vkms-device.h',
 ]
 
 if libevdev_dep.found()
@@ -865,6 +867,16 @@ kms_test_cases = [
       'meta-kms-test-utils.c',
       'meta-kms-test-utils.h',
       'native-kms-device.c',
+    ],
+    'variants': kms_test_variants,
+  },
+  {
+    'name': 'kms-vkms-device',
+    'suite': 'backends/native/kms',
+    'sources': [
+      'meta-kms-test-utils.c',
+      'meta-kms-test-utils.h',
+      'native-kms-vkms-device.c',
     ],
     'variants': kms_test_variants,
   },

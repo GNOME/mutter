@@ -24,7 +24,6 @@
 #include <gio/gio.h>
 #define G_SETTINGS_ENABLE_BACKEND
 #include <gio/gsettingsbackend.h>
-#include <fcntl.h>
 
 #include "compositor/compositor-private.h"
 #include "compositor/meta-plugin-manager.h"
@@ -34,6 +33,7 @@
 #include "tests/meta-backend-test.h"
 #include "tests/meta-test-shell.h"
 #include "tests/meta-test-utils-private.h"
+#include "tests/meta-vkms-device.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
 
@@ -56,6 +56,9 @@ typedef struct _MetaContextTestPrivate
   MetaSessionManager *session_manager;
   CoglColor *background_color;
   UMockdevTestbed *udev_testbed;
+  const MetaVkmsDeviceConfig *device_configs; /* (unowned) (nullable) */
+  size_t n_device_configs;
+  GPtrArray *vkms_devices; /* (owned) (nullable) (element-type MetaVkmsDevice) */
 } MetaContextTestPrivate;
 
 struct _MetaContextTestClass
@@ -100,6 +103,7 @@ meta_context_test_finalize (GObject *object)
   g_clear_pointer (&priv->background_color, cogl_color_free);
   g_clear_object (&priv->session_manager);
   g_clear_object (&priv->udev_testbed);
+  g_clear_pointer (&priv->vkms_devices, g_ptr_array_unref);
 
   G_OBJECT_CLASS (meta_context_test_parent_class)->finalize (object);
 }
@@ -167,6 +171,29 @@ static MetaBackend *
 create_test_vkms_backend (MetaContext  *context,
                           GError      **error)
 {
+  MetaContextTest *context_test = META_CONTEXT_TEST (context);
+  MetaContextTestPrivate *priv =
+    meta_context_test_get_instance_private (context_test);
+  size_t i;
+
+  priv->vkms_devices =
+    g_ptr_array_new_with_free_func ((GDestroyNotify) meta_vkms_device_free);
+
+  for (i = 0; i < priv->n_device_configs; i++)
+    {
+      MetaVkmsDevice *device;
+
+      device = meta_vkms_device_new (&priv->device_configs[i]);
+
+      if (!meta_vkms_device_enable (device, error))
+        {
+          meta_vkms_device_free (device);
+          return NULL;
+        }
+
+      g_ptr_array_add (priv->vkms_devices, device);
+    }
+
   return g_initable_new (META_TYPE_BACKEND_NATIVE,
                          NULL, error,
                          "context", context,
@@ -403,6 +430,12 @@ meta_create_test_context (MetaContextTestType type,
   priv->flags = flags;
   priv->udev_testbed = umockdev_testbed_new ();
 
+  if (type == META_CONTEXT_TEST_TYPE_VKMS)
+    {
+      priv->device_configs = &meta_vkms_default_device_config;
+      priv->n_device_configs = 1;
+    }
+
   return META_CONTEXT (context_test);
 }
 
@@ -489,4 +522,19 @@ meta_context_test_set_background_color (MetaContextTest *context_test,
 
   g_clear_pointer (&priv->background_color, cogl_color_free);
   priv->background_color = cogl_color_copy (&color);
+}
+
+/**
+ * meta_context_test_set_vkms_device_configs: (skip)
+ */
+void
+meta_context_test_set_vkms_device_configs (MetaContextTest            *context_test,
+                                           const MetaVkmsDeviceConfig *configs,
+                                           size_t                      n_configs)
+{
+  MetaContextTestPrivate *priv =
+    meta_context_test_get_instance_private (context_test);
+
+  priv->device_configs = configs;
+  priv->n_device_configs = n_configs;
 }

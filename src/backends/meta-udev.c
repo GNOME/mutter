@@ -121,7 +121,8 @@ meta_is_udev_test_device (GUdevDevice *device)
 
   devpath = g_udev_device_get_property (device, "DEVPATH");
   if (devpath &&
-      g_str_has_prefix (devpath, "/devices/faux/vkms/drm/card"))
+      g_str_has_prefix (devpath, "/devices/faux/") &&
+      strstr (devpath, "/drm/card"))
     return TRUE;
 
   return g_strcmp0 (g_udev_device_get_property (device, "ID_PATH"),

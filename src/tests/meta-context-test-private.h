@@ -21,8 +21,14 @@
 #include "config.h"
 
 #include "meta-test/meta-context-test.h"
+#include "tests/meta-vkms-device.h"
 
 #include <umockdev.h>
 
 META_EXPORT
 UMockdevTestbed * meta_context_test_get_udev_testbed (MetaContextTest *context_test);
+
+META_EXPORT
+void meta_context_test_set_vkms_device_configs (MetaContextTest            *context_test,
+                                                const MetaVkmsDeviceConfig *configs,
+                                                size_t                      n_configs);

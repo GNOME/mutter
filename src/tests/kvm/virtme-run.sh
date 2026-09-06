@@ -64,6 +64,7 @@ vng \
   --exec "$SCRIPT_FILE" \
   --cpus 2 \
   $ISOLATE_DIRS_ARGS \
+  --append "vkms.create_default_dev=0" \
   --qemu-opts="-cpu host,pdcm=off"
 VM_RESULT=$?
 if [ $VM_RESULT != 0 ]; then
