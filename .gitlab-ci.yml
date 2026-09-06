@@ -177,8 +177,7 @@ variables:
       dnf builddep -y gtk4 --setopt=install_weak_deps=False
 
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
-        # deprecated header no longer included in openssl-devel
-        dnf install -y virtme-ng openssl-devel-engine
+        dnf install -y virtme-ng
       fi
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \

@@ -16,7 +16,7 @@ else
     console: true,
     command: [
       build_linux,
-      'https://gitlab.freedesktop.org/drm/kernel.git',
+      'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git',
       '@INPUT@',
       '@OUTPUT@',
       '--configitem', 'CONFIG_DRM_VKMS=y',
