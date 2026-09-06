@@ -135,28 +135,3 @@ OPTIONS+=( "${DESTDIRS[@]/#/--destdir=}" )
 SCRIPTS_DIR="$(dirname $0)"
 
 pip_install ruff==0.16.4
-
-if ! pkgconf --atleast-version 1.48 wayland-protocols
-then
-  ./$SCRIPTS_DIR/install-meson-project.sh \
-     "${OPTIONS[@]}" \
-     https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
-     1.48
-fi
-
-if ! pkgconf --atleast-version 44.4 gnome-qr-4
-then
-  ./$SCRIPTS_DIR/install-meson-project.sh \
-     "${OPTIONS[@]}" \
-     https://gitlab.gnome.org/GNOME/gnome-desktop.git \
-     --commit 577dd63bf237e3a86134057cb647e21876609cf7 \
-     master
-fi
-
-if ! check_gsettings_key org.gnome.desktop.peripherals.touchpad custom-accel-config
-then
-  ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas \
-      51.rc
-fi
