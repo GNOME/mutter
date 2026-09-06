@@ -55,6 +55,51 @@ else
   pushd linux
 fi
 
+# committer identity for git-am
+git config user.name "Mutter CI"
+git config user.email "mutter@gitlab.gnome.org"
+
+cat << EOT | git am
+From 811018a8475a4eb1bdb4ba4ab0d2a33515135de6 Mon Sep 17 00:00:00 2001
+From: Sebastian Wick <sebastian.wick@redhat.com>
+Date: Sun, 25 Oct 2026 14:47:22 +0100
+Subject: [PATCH] drm/vkms: Use drm_dev_unplug() for ConfigFS device removal
+
+VKMS ConfigFS devices can be disabled while userspace still holds open
+file descriptors. Using drm_dev_unregister() leaves the device in a
+state where ioctls are still accepted but internal locks can deadlock
+with the teardown path. Specifically, drmModeGetConnector() triggers
+fill_modes which acquires mode_config locks that contend with
+drm_atomic_helper_shutdown().
+
+Use drm_dev_unplug() instead, which marks the device as unplugged so
+the ioctl layer rejects subsequent calls with -ENODEV and drm_poll()
+returns EPOLLERR. This matches the pattern used by other hot-removable
+DRM drivers (gud, hyperv, bochs).
+
+Signed-off-by: Sebastian Wick <sebastian.wick@redhat.com>
+---
+ drivers/gpu/drm/vkms/vkms_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/vkms/vkms_drv.c b/drivers/gpu/drm/vkms/vkms_drv.c
+index 5a640b531d88..716f9c966c21 100644
+--- a/drivers/gpu/drm/vkms/vkms_drv.c
++++ b/drivers/gpu/drm/vkms/vkms_drv.c
+@@ -259,7 +259,7 @@ void vkms_destroy(struct vkms_config *config)
+ 
+ 	fdev = config->dev->faux_dev;
+ 
+-	drm_dev_unregister(&config->dev->drm);
++	drm_dev_unplug(&config->dev->drm);
+ 	drm_atomic_helper_shutdown(&config->dev->drm);
+ 	devres_release_group(&fdev->dev, NULL);
+ 	faux_device_destroy(fdev);
+-- 
+2.55.0
+
+EOT
+
 make defconfig
 sync
 make kvm_guest.config
