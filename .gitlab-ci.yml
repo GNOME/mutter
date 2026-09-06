@@ -557,7 +557,7 @@ build-wayland-only@x86_64:
     - .test-mutter-base
   script:
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
-    - mkdir -m 1777 /tmp/.X11-unix
+    - mkdir -p -m 1777 /tmp/.X11-unix
     - ./src/tests/meta-dbus-runner.py
         --
         meson test
@@ -658,7 +658,7 @@ can-run-gnome-kiosk@x86_64:
     - .gitlab-ci/checkout-gnome-kiosk.sh
     - meson setup gnome-kiosk gnome-kiosk/build --prefix /usr -Dbuildtype=debugoptimized --werror
     - sudo meson install -C gnome-kiosk/build
-    - mkdir -m 1777 /tmp/.X11-unix
+    - mkdir -p -m 1777 /tmp/.X11-unix
     - dbus-run-session -- meson test -C gnome-kiosk/build --timeout-multiplier 5
   artifacts:
     expire_in: 7 day
@@ -688,7 +688,7 @@ can-run-gnome-shell@x86_64:
         --werror
         --fatal-meson-warnings
     - sudo meson install -C gnome-shell/build
-    - mkdir -m 1777 /tmp/.X11-unix
+    - mkdir -p -m 1777 /tmp/.X11-unix
     - dbus-run-session --
         meson test -C gnome-shell/build
           --timeout-multiplier 5
@@ -746,7 +746,7 @@ dist-mutter:
         --wrap-mode nofallback
         -Dbuildtype=debugoptimized
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
-    - mkdir -m 1777 /tmp/.X11-unix
+    - mkdir -p -m 1777 /tmp/.X11-unix
     - ./src/tests/meta-dbus-runner.py
         --
         meson dist -C build --include-subprojects
@@ -784,7 +784,7 @@ installed-tests-mutter@x86_64:
     - build-mutter@x86_64
   script:
     - meson install -C build --no-rebuild
-    - mkdir -m 1777 /tmp/.X11-unix
+    - mkdir -p -m 1777 /tmp/.X11-unix
     - mkdir installed-tests-logs
     - gnome-desktop-testing-runner -L installed-tests-logs mutter
   artifacts:
