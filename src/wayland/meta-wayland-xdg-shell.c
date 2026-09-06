@@ -405,7 +405,7 @@ xdg_toplevel_set_max_size (struct wl_client   *client,
   if (width < 0 || height < 0)
     {
       wl_resource_post_error (resource,
-                              XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
+                              XDG_TOPLEVEL_ERROR_INVALID_SIZE,
                               "invalid negative max size requested %i x %i",
                               width, height);
       return;
@@ -438,7 +438,7 @@ xdg_toplevel_set_min_size (struct wl_client   *client,
   if (width < 0 || height < 0)
     {
       wl_resource_post_error (resource,
-                              XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
+                              XDG_TOPLEVEL_ERROR_INVALID_SIZE,
                               "invalid negative min size requested %i x %i",
                               width, height);
       return;
@@ -1078,10 +1078,10 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
         }
       else
         {
-          if (surface->resource)
+          if (xdg_toplevel->resource)
             {
-              wl_resource_post_error (surface->resource,
-                                      XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
+              wl_resource_post_error (xdg_toplevel->resource,
+                                      XDG_TOPLEVEL_ERROR_INVALID_SIZE,
                                       "Invalid min/max size");
             }
         }
