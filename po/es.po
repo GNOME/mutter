@@ -7,23 +7,22 @@
 # Pablo Gonzalo del Campo <pablodc@bigfoot.com>,2002,2003.
 # Francisco Javier F. Serrador <serrador@cvs.gnome.org>, 2004, 2005, 2006.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2022-2024.
-# Daniel Mustieles García <daniel.mustieles@gmail.com>, 2024-2026.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2024-2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-17 17:44+0000\n"
-"PO-Revision-Date: 2026-02-25 11:28+0100\n"
-"Last-Translator: Daniel Mustieles García <daniel.mustieles@gmail.com>\n"
-"Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
-"Language: es_ES\n"
+"POT-Creation-Date: 2026-09-01 10:20+0000\n"
+"PO-Revision-Date: 2026-09-07 12:46+0200\n"
+"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
+"Language-Team: Spanish <l10n-es@gnome.org>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 49.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 50.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -253,13 +252,40 @@ msgstr "Maximizar la ventana verticalmente"
 msgid "Maximize window horizontally"
 msgstr "Maximizar la ventana horizontalmente"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "Ver división a la izquierda"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "Ver división a la derecha"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "Asignar siempre búferes de exploración con modificadores explícitos"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"Cuando es verdadero, Mutter siempre asignará búferes de exploración con "
+"modificadores explícitos, si el controlador lo admite. Esta opción requiere "
+"reiniciar."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr ""
+"Finalizar automáticamente Xwayland después de que el último cliente se haya "
+"ido"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"Cuando es verdadero, Mutter finalizará automáticamente Xwayland después de "
+"que desaparezca el último cliente relevante. Esta opción requiere reiniciar."
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
@@ -389,45 +415,19 @@ msgstr ""
 "Cuando es cierto, las ventanas nuevas se colocarán siempre en el centro de "
 "la pantalla activa del monitor."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr "Activar las características experimentales"
-
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
-"allocate scanout buffers with explicit modifiers, if supported by the "
-"driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
-msgstr ""
-"Para activar funciones experimentales, añada la palabra clave de función a "
-"la lista. Si la función requiere reiniciar el compositor depende de la "
-"función dada. No es necesario que ninguna función experimental siga "
-"disponible o sea configurable. No espere que agregar nada en esta "
-"configuración esté preparado para el futuro. Palabras clave actualmente "
-"posibles: • “modificadores de kms”: hace que Mutter siempre asigne buffers "
-"de exploración con modificadores explícitos, si el controlador lo admite. "
-"Requiere un reinicio. • “autoclose-xwayland”: finaliza automáticamente "
-"Xwayland si todos los clientes X11 relevantes desaparecen. Requiere un "
-"reinicio."
-
-#: data/org.gnome.mutter.gschema.xml.in:130
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificador que usar para encontrar el puntero"
 
-#: data/org.gnome.mutter.gschema.xml.in:131
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Esta tecla iniciará la acción de encontrar el puntero."
 
-#: data/org.gnome.mutter.gschema.xml.in:138
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "Tiempo de espera para la comprobación de ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:139
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -437,11 +437,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "Por configuración de iluminación de salida"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -453,15 +453,15 @@ msgstr ""
 "valor de coma flotante asociado que representa la iluminación de salida en "
 "porcentaje (%). Si no se especifica, el valor predeterminado es 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "Cambiar la configuración del monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota la configuración del monitor empotrado"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "Cancelar cualquier sesión de captura de entrada activa"
 
@@ -657,7 +657,7 @@ msgstr "Tipo"
 msgid "Add"
 msgstr "Añadir"
 
-#: mdk/mdk-launcher-entry.c:198
+#: mdk/mdk-launcher-entry.c:204
 msgid "Run"
 msgstr "Ejecutar"
 
@@ -698,65 +698,73 @@ msgid "_Monitors"
 msgstr "_Monitores"
 
 #: mdk/mdk-main-window.ui:26
+msgid "_Add monitor"
+msgstr "_Añadir monitor"
+
+#: mdk/mdk-main-window.ui:30
 msgid "_Emulate monitor modes"
 msgstr "_Emular modos de monitor"
 
-#: mdk/mdk-main-window.ui:33
+#: mdk/mdk-main-window.ui:37
 msgid "_Launchers"
 msgstr "_Lanzadores"
 
-#: mdk/mdk-main-window.ui:37
+#: mdk/mdk-main-window.ui:41
 msgid "_Edit launchers"
 msgstr "_Editar lanzadores"
 
-#: mdk/mdk-main-window.ui:44
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
 msgstr "_Acerca del Kit de desarrollo Mutter"
 
-#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Kit de desarrollo Mutter"
 
-#: mdk/mdk-main-window.ui:60
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "Menú principal"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "El equipo de Mutter"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "Kit de desarrollo de software Mutter"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "Acerca del Kit de desarrollo Mutter"
 
-#: mdk/mdk-monitor.c:556
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "Opciones del kit de desarrollo"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "Falló al crear el monitor"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "Pantalla integrada"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "Desconocida"
 
-#: src/backends/meta-monitor.c:314
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "Pantalla desconocida"
 
-#: src/backends/meta-monitor.c:322
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:330
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -768,47 +776,51 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Evento de campana"
 
-#: src/core/display.c:608
+#: src/core/display.c:603
 msgid "Privacy Screen Enabled"
 msgstr "Privacidad de pantalla activada"
 
-#: src/core/display.c:609
+#: src/core/display.c:604
 msgid "Privacy Screen Disabled"
 msgstr "Privacidad de pantalla desactivada"
 
-#: src/core/meta-context-main.c:356
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "Ejecutar como compositor Wayland"
 
-#: src/core/meta-context-main.c:363
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Ejecutar el compositor wayland sin iniciar Xwayland"
 
-#: src/core/meta-context-main.c:370
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "Especifique el nombre de pantalla Wayland que usar"
 
-#: src/core/meta-context-main.c:377
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "Ejecutar como servidor completo, en lugar de anidado"
 
-#: src/core/meta-context-main.c:382
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "Ejecutar como servidor sin periféricos"
 
-#: src/core/meta-context-main.c:387
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Añadir monitor virtual persistente WxH o WxH@R)"
 
-#: src/core/meta-context-main.c:394
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "Ejecutar kit de desarrollo"
 
-#: src/core/meta-context-main.c:405
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "Argumentos del kit de desarrollo"
+
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "Perfilar el rendimiento usando instrumentación de trazas"
 
-#: src/core/meta-context-main.c:411
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "Activar el control de depuración de la interfaz de D-Bus"
 
@@ -837,7 +849,7 @@ msgid "Show on-screen help"
 msgstr "Mostrar la ayuda en pantalla"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:303
 msgid "Compositor"
 msgstr "Compositor"
 
@@ -849,12 +861,12 @@ msgstr "Imprimir versión"
 msgid "Mutter plugin to use"
 msgstr "Complemento de mutter que usar"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1866
 #, c-format
 msgid "Workspace %d"
 msgstr "Área de trabajo %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter se compiló sin soporte para modo detallado"
 
@@ -867,24 +879,24 @@ msgstr "Área de trabajo cambiada"
 msgid "Mode Switch: Mode %d"
 msgstr "Cambiar modo: modo %d"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:729
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "La pantalla «%s”»ya tiene un administrador de ventanas"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falló al abrir la pantalla del sistema X-Window «%s»"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "La ventana %d en la pantalla «%s» no es válida"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -901,6 +913,31 @@ msgstr "Formato %s no soportado"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (en %s)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "Activar las características experimentales"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the "
+#~ "given feature. Any experimental feature is not required to still be "
+#~ "available, or configurable. Don’t expect adding anything in this setting "
+#~ "to be future proof. Currently possible keywords: • “kms-modifiers” — "
+#~ "makes mutter always allocate scanout buffers with explicit modifiers, if "
+#~ "supported by the driver. Requires a restart. • “autoclose-xwayland” — "
+#~ "automatically terminates Xwayland if all relevant X11 clients are gone. "
+#~ "Requires a restart."
+#~ msgstr ""
+#~ "Para activar funciones experimentales, añada la palabra clave de función "
+#~ "a la lista. Si la función requiere reiniciar el compositor depende de la "
+#~ "función dada. No es necesario que ninguna función experimental siga "
+#~ "disponible o sea configurable. No espere que agregar nada en esta "
+#~ "configuración esté preparado para el futuro. Palabras clave actualmente "
+#~ "posibles: • “modificadores de kms”: hace que Mutter siempre asigne "
+#~ "buffers de exploración con modificadores explícitos, si el controlador lo "
+#~ "admite. Requiere un reinicio. • “autoclose-xwayland”: finaliza "
+#~ "automáticamente Xwayland si todos los clientes X11 relevantes "
+#~ "desaparecen. Requiere un reinicio."
 
 #, fuzzy
 #~ msgid "Replace the running window manager"
@@ -1007,7 +1044,7 @@ msgstr "%s (en %s)"
 #~ "These windows do not support “save current setup” and will have to be "
 #~ "restarted manually next time you log in."
 #~ msgstr ""
-#~ "Estas ventanas no admiten \"guardar la configuración actual\" y deberán "
+#~ "Estas ventanas no admiten “guardar configuración actual” y deberán "
 #~ "reiniciarse manualmente la próxima vez que inicie sesión."
 
 #, fuzzy
@@ -1611,8 +1648,7 @@ msgstr "%s (en %s)"
 
 #, fuzzy
 #~ msgid "Outermost element in theme must be <metacity_theme> not <%s>"
-#~ msgstr ""
-#~ "El elemento más externo del tema debe ser <metacity_theme> y no <%s>"
+#~ msgstr "El elemento más externo del tema debe ser <metacity_theme> no <%s>"
 
 #, fuzzy
 #~ msgid ""
@@ -2710,7 +2746,7 @@ msgstr "%s (en %s)"
 #~ "silenciosamente para que se puedan agregar botones en futuras versiones "
 #~ "de Metacity sin alterar las versiones anteriores. Se puede utilizar una "
 #~ "etiqueta espaciadora especial para insertar algo de espacio entre dos "
-#~ "botones adyacentes."
+#~ "adyacentes. botones."
 
 #, fuzzy
 #~ msgid "Automatically raises the focused window"
@@ -2874,7 +2910,7 @@ msgstr "%s (en %s)"
 #~ "option back to true or live with the \"bug\" they requested."
 #~ msgstr ""
 #~ "Establecer esta opción en falso puede generar errores, por lo que se "
-#~ "desaconseja encarecidamente a los usuarios que la cambien desde el valor "
+#~ "desaconseja encarecidamente a los usuarios que la cambien del valor "
 #~ "predeterminado verdadero. Muchas acciones (por ejemplo, hacer clic en el "
 #~ "área del cliente, mover o cambiar el tamaño de la ventana) normalmente "
 #~ "generan la ventana como efecto secundario. Establecer esta opción en "
@@ -2889,7 +2925,7 @@ msgstr "%s (en %s)"
 #~ "deshabilitada en el modo hacer clic para enfocar. Tenga en cuenta que la "
 #~ "lista de formas de abrir ventanas cuando rise_on_click es falso no "
 #~ "incluye solicitudes programáticas de aplicaciones para abrir ventanas; "
-#~ "dichas solicitudes serán ignoradas independientemente del motivo de la "
+#~ "dichas solicitudes serán ignoradas independientemente de el motivo de la "
 #~ "solicitud. Si es desarrollador de aplicaciones y tiene un usuario "
 #~ "quejándose de que su aplicación no funciona con esta configuración "
 #~ "deshabilitada, dígale que es _su_ culpa por romper su administrador de "
@@ -2930,7 +2966,7 @@ msgstr "%s (en %s)"
 #~ "que hace que la barra de título de la aplicación que envió la señal de "
 #~ "campana parpadee. Si se desconoce la aplicación que envió la campana "
 #~ "(como suele ser el caso del \"bip del sistema\" predeterminado), la barra "
-#~ "de título de la ventana actualmente enfocada parpadea."
+#~ "de título de la ventana actualmente enfocada es brilló."
 
 #, fuzzy
 #~ msgid ""
@@ -3039,8 +3075,7 @@ msgstr "%s (en %s)"
 #~ "que maximizará/desmaximizará la ventana solo en esa dirección, "
 #~ "'minimizar' que minimizará la ventana, 'sombra' que enrollará la ventana "
 #~ "hacia arriba, 'menú' que mostrará el menú de la ventana, 'inferior' que "
-#~ "colocará la ventana detrás de todas las demás, y 'ninguna' que no hará "
-#~ "nada."
+#~ "pondrá la ventana detrás de todas las demás, y 'ninguna' que no hará nada."
 
 #, fuzzy
 #~ msgid ""
@@ -3060,7 +3095,7 @@ msgstr "%s (en %s)"
 #~ "'toggle_maximize_vertical' que maximizará/desmaximizará la ventana solo "
 #~ "en esa dirección, 'minimizar' que minimizará la ventana, 'sombra' que "
 #~ "enrollará la ventana hacia arriba, 'menú' que mostrará el menú de la "
-#~ "ventana, 'inferior' que colocará la ventana detrás de todas las demás, y "
+#~ "ventana, 'inferior' que pondrá la ventana detrás de todas las demás, y "
 #~ "'ninguna' que no hará nada."
 
 #, fuzzy
@@ -3081,8 +3116,7 @@ msgstr "%s (en %s)"
 #~ "que maximizará/desmaximizará la ventana solo en esa dirección, "
 #~ "'minimizar' que minimizará la ventana, 'sombra' que enrollará la ventana "
 #~ "hacia arriba, 'menú' que mostrará el menú de la ventana, 'inferior' que "
-#~ "colocará la ventana detrás de todas las demás, y 'ninguna' que no hará "
-#~ "nada."
+#~ "pondrá la ventana detrás de todas las demás, y 'ninguna' que no hará nada."
 
 #, fuzzy
 #~ msgid ""
@@ -3105,7 +3139,7 @@ msgstr "%s (en %s)"
 #~ msgstr ""
 #~ "Activa una indicación visual cuando una aplicación o el sistema emite una "
 #~ "\"campana\" o un \"bip\"; Útil para personas con problemas de audición y "
-#~ "para uso en entornos ruidosos."
+#~ "para uso en ambientes ruidosos."
 
 #, fuzzy
 #~ msgid "Use standard system font in window titles"
@@ -3853,9 +3887,9 @@ msgstr "%s (en %s)"
 #~ "junto con este enlace hace que la dirección avance nuevamente. El formato "
 #~ "se parece a \"<Control>a\" o \"<Shift><Alt>F1\". El analizador es "
 #~ "bastante liberal y permite mayúsculas y minúsculas, y también "
-#~ "abreviaturas como \"<Ctl>\" y \"<Ctrl>\". Si configura la opción con la "
-#~ "cadena especial \"deshabilitada\", no habrá combinación de teclas para "
-#~ "esta acción."
+#~ "abreviaturas como \"<Ctl>\" y \"<Ctrl>\". Si configura la opción en la "
+#~ "cadena especial \"deshabilitada\", entonces no habrá combinación de "
+#~ "teclas para esto acción."
 
 #, fuzzy
 #~ msgid ""
@@ -3873,9 +3907,9 @@ msgstr "%s (en %s)"
 #~ "\"shift\" junto con este enlace hace que la dirección avance nuevamente. "
 #~ "El formato se parece a \"<Control>a\" o \"<Shift><Alt>F1\". El analizador "
 #~ "es bastante liberal y permite mayúsculas y minúsculas, y también "
-#~ "abreviaturas como \"<Ctl>\" y \"<Ctrl>\". Si configura la opción con la "
-#~ "cadena especial \"deshabilitada\", no habrá combinación de teclas para "
-#~ "esta acción."
+#~ "abreviaturas como \"<Ctl>\" y \"<Ctrl>\". Si configura la opción en la "
+#~ "cadena especial \"deshabilitada\", entonces no habrá combinación de "
+#~ "teclas para esto acción."
 
 #, fuzzy
 #~ msgid ""
@@ -3962,8 +3996,8 @@ msgstr "%s (en %s)"
 #~ "movimiento. El formato se parece a \"<Control>a\" o \"<Shift><Alt>F1\". "
 #~ "El analizador es bastante liberal y permite mayúsculas y minúsculas, y "
 #~ "también abreviaturas como \"<Ctl>\" y \"<Ctrl>\". Si configura la opción "
-#~ "con la cadena especial \"deshabilitada\", no habrá combinación de teclas "
-#~ "para esta acción."
+#~ "en la cadena especial \"deshabilitada\", entonces no habrá combinación de "
+#~ "teclas para esto acción."
 
 #, fuzzy
 #~ msgid ""
@@ -3983,7 +4017,8 @@ msgstr "%s (en %s)"
 #~ "\"<Control>a\" o \"<Shift><Alt>F1\". El analizador es bastante liberal y "
 #~ "permite mayúsculas y minúsculas, y también abreviaturas como \"<Ctl>\" y "
 #~ "\"<Ctrl>\". Si configura la opción con la cadena especial "
-#~ "\"deshabilitada\", no habrá combinación de teclas para esta acción."
+#~ "\"deshabilitada\", entonces habrá no hay combinación de teclas para esta "
+#~ "acción."
 
 #, fuzzy
 #~ msgid ""
@@ -4002,8 +4037,8 @@ msgstr "%s (en %s)"
 #~ "movimiento. El formato se parece a \"<Control>a\" o \"<Shift><Alt>F1\". "
 #~ "El analizador es bastante liberal y permite mayúsculas y minúsculas, y "
 #~ "también abreviaturas como \"<Ctl>\" y \"<Ctrl>\". Si configura la opción "
-#~ "con la cadena especial \"deshabilitada\", no habrá combinación de teclas "
-#~ "para esta acción."
+#~ "con la cadena especial \"deshabilitada\", entonces no habrá combinación "
+#~ "de teclas para esta acción."
 
 #, fuzzy
 #~ msgid ""
@@ -4220,8 +4255,9 @@ msgstr "%s (en %s)"
 #~ "por debajo de todas las demás. El formato se parece a \"<Control>a\" o "
 #~ "\"<Shift><Alt>F1\". El analizador es bastante liberal y permite "
 #~ "mayúsculas y minúsculas, y también abreviaturas como \"<Ctl>\" y "
-#~ "\"<Ctrl>\". Si configura la opción con la cadena especial "
-#~ "\"deshabilitada\", no habrá combinación de teclas para esta acción."
+#~ "\"<Ctrl>\". Si configura la opción en la cadena especial "
+#~ "\"deshabilitado\", entonces no habrá combinación de teclas para esta "
+#~ "acción."
 
 #, fuzzy
 #~ msgid ""
