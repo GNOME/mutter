@@ -5685,6 +5685,25 @@ clutter_actor_real_get_cursor_for_sprite (ClutterActor  *self,
   return clutter_backend_get_cursor (backend, priv->cursor_type);
 }
 
+static gboolean
+has_binding_pools (ClutterActor *actor)
+{
+  GType type;
+
+  type = G_OBJECT_TYPE (actor);
+  g_assert (g_type_is_a (type, CLUTTER_TYPE_ACTOR));
+
+  while (type != CLUTTER_TYPE_ACTOR)
+    {
+      if (clutter_binding_pool_find (g_type_name (type)))
+        return TRUE;
+
+      type = g_type_parent (type);
+    }
+
+  return FALSE;
+}
+
 static GObject *
 clutter_actor_constructor (GType gtype,
                            guint n_props,
@@ -5721,6 +5740,19 @@ clutter_actor_constructor (GType gtype,
 
   if (!self->priv->color_state)
     clutter_actor_unset_color_state (self);
+
+  if (has_binding_pools (self))
+    {
+      ClutterKeyController *key_controller;
+
+      key_controller =
+        CLUTTER_KEY_CONTROLLER (clutter_key_controller_new (NULL));
+      clutter_key_controller_set_trigger_keybindings (key_controller, TRUE);
+
+      clutter_actor_add_action_with_name (self,
+                                          "Clutter shortcuts key controller",
+                                          CLUTTER_ACTION (key_controller));
+    }
 
   return retval;
 }

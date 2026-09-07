@@ -4510,8 +4510,6 @@ clutter_text_init (ClutterText *self)
                                   CLUTTER_GESTURE (priv->pan_gesture));
 
   priv->key_controller = clutter_key_controller_new (priv->input_focus);
-  clutter_key_controller_set_trigger_keybindings (CLUTTER_KEY_CONTROLLER (priv->key_controller),
-                                                  TRUE);
   g_signal_connect (priv->key_controller,
                     "key-press", G_CALLBACK (on_key_controller_key_pressed),
                     self);

@@ -73,6 +73,8 @@ key_group_action_move_left (KeyGroup            *self,
   if (self->selected_index < 0)
     self->selected_index = n_children - 1;
 
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
+
   return TRUE;
 }
 
@@ -96,6 +98,8 @@ key_group_action_move_right (KeyGroup            *self,
 
   if (self->selected_index >= n_children)
     self->selected_index = 0;
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
 
   return TRUE;
 }
@@ -123,32 +127,11 @@ key_group_action_activate (KeyGroup            *self,
   if (child != NULL)
     {
       g_signal_emit (self, group_signals[ACTIVATE], 0, child);
+      clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
       return TRUE;
     }
   else
     return FALSE;
-}
-
-static gboolean
-key_group_key_press (ClutterActor *actor,
-                     ClutterEvent *event)
-{
-  ClutterBindingPool *pool;
-  gboolean res;
-
-  pool = clutter_binding_pool_find (G_OBJECT_TYPE_NAME (actor));
-  g_assert_nonnull (pool);
-
-  res = clutter_binding_pool_activate (pool,
-                                       clutter_event_get_key_symbol (event),
-                                       clutter_event_get_state (event),
-                                       G_OBJECT (actor));
-
-  /* if we activate a key binding, redraw the actor */
-  if (res)
-    clutter_actor_queue_redraw (actor);
-
-  return res ? CLUTTER_EVENT_STOP : CLUTTER_EVENT_PROPAGATE;
 }
 
 static void
@@ -203,7 +186,6 @@ key_group_class_init (KeyGroupClass *klass)
   ClutterBindingPool *binding_pool;
 
   actor_class->paint = key_group_paint;
-  actor_class->key_press_event = key_group_key_press;
 
   group_signals[ACTIVATE] =
     g_signal_new (g_intern_static_string ("activate"),
@@ -248,15 +230,20 @@ G_MODULE_EXPORT int
 test_binding_pool_main (int argc, char *argv[])
 {
   ClutterActor *stage, *key_group;
+  ClutterAction *click_gesture;
   gint group_x, group_y;
 
   clutter_test_init (&argc, &argv);
 
   stage = clutter_test_get_stage ();
-  g_signal_connect (stage,
-                    "button-press-event", G_CALLBACK (clutter_test_quit),
-                    NULL);
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
+
+  click_gesture = clutter_click_gesture_new ();
+  clutter_click_gesture_set_recognize_on_press (CLUTTER_CLICK_GESTURE (click_gesture),
+                                                TRUE);
+  g_signal_connect (click_gesture, "recognize",
+                    G_CALLBACK (clutter_test_quit), NULL);
+  clutter_actor_add_action (stage, click_gesture);
 
   key_group = g_object_new (TYPE_KEY_GROUP, NULL);
   clutter_actor_add_child (stage, key_group);

@@ -73,6 +73,9 @@ key_group_action_move_left (KeyGroup            *self,
   if (self->selected_index < 0)
     self->selected_index = n_children - 1;
 
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
+  self->serial++;
+
   return TRUE;
 }
 
@@ -93,6 +96,9 @@ key_group_action_move_right (KeyGroup            *self,
 
   if (self->selected_index >= n_children)
     self->selected_index = 0;
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
+  self->serial++;
 
   return TRUE;
 }
@@ -117,35 +123,12 @@ key_group_action_activate (KeyGroup            *self,
   if (child != NULL)
     {
       g_signal_emit (self, group_signals[ACTIVATE], 0, child);
+      clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
+      self->serial++;
       return TRUE;
     }
   else
     return FALSE;
-}
-
-static gboolean
-key_group_key_press (ClutterActor *actor,
-                     ClutterEvent *event)
-{
-  KeyGroup *group = (KeyGroup *) actor;
-  ClutterBindingPool *pool;
-  gboolean res;
-
-  pool = clutter_binding_pool_find (G_OBJECT_TYPE_NAME (actor));
-  g_assert_nonnull (pool);
-
-  res = clutter_binding_pool_activate (pool,
-                                       clutter_event_get_key_symbol (event),
-                                       clutter_event_get_state (event),
-                                       G_OBJECT (actor));
-
-  /* if we activate a key binding, redraw the actor */
-  if (res)
-    clutter_actor_queue_redraw (actor);
-
-  group->serial++;
-
-  return res;
 }
 
 static void
@@ -213,7 +196,6 @@ key_group_class_init (KeyGroupClass *klass)
   gobject_class->finalize = key_group_finalize;
 
   actor_class->paint = key_group_paint;
-  actor_class->key_press_event = key_group_key_press;
 
   group_signals[ACTIVATE] =
     g_signal_new (g_intern_static_string ("activate"),
