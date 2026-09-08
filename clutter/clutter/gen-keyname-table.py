@@ -64,7 +64,7 @@ static const char keynames[] =""")
     offset = 0
     for key in keys:
         if offset != 0:
-            print("")
+            print()
 
         print(f'  "{key.name}\\0"', end="")
 
