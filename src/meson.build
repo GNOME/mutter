@@ -764,6 +764,8 @@ mutter_sources += [
   'backends/native/meta-renderer-native.h',
   'backends/native/meta-renderer-view-native.c',
   'backends/native/meta-renderer-view-native.h',
+  'backends/native/meta-secondary-gpu-copy-state.c',
+  'backends/native/meta-secondary-gpu-copy-state.h',
   'backends/native/meta-seat-impl.c',
   'backends/native/meta-seat-impl.h',
   'backends/native/meta-seat-native.c',
