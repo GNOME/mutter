@@ -481,6 +481,11 @@ test_cases += [
     'installed_args': bindir / 'gdctl',
   },
   {
+    'name': 'damage-history',
+    'suite': 'unit',
+    'sources': [ 'damage-history-unit-tests.c', ],
+  },
+  {
     'name': 'stage-views',
     'suite': 'compositor',
     'sources': [ 'stage-view-tests.c', ],
