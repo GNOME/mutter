@@ -1262,14 +1262,10 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
       return NULL;
     }
 
-  if (mtk_region_num_rectangles (region) > MAX_DAMAGE_RECTANGLES)
-    {
-      MtkRectangle extents = mtk_region_get_extents (region);
-
-      blit_region = mtk_region_create_rectangle (&extents);
-    }
-  else
-    blit_region = mtk_region_copy (region);
+  blit_region = meta_secondary_gpu_copy_state_get_damage (
+    secondary_gpu_state->copy_state,
+    region,
+    MAX_DAMAGE_RECTANGLES);
   if (!cogl_framebuffer_blit_region (framebuffer,
                                      dmabuf_fb,
                                      blit_region,
