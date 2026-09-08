@@ -1072,7 +1072,7 @@ do_record_frame (MetaStreamSource      *source,
 
       damage = mtk_region_copy (original_damage);
 
-      for (age = 1; age <= buffer_age; age++)
+      for (age = 1; age < buffer_age; age++)
         {
           const MtkRegion *old_damage;
 
