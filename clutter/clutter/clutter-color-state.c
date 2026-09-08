@@ -252,9 +252,6 @@ gboolean
 clutter_color_state_equals (ClutterColorState *color_state,
                             ClutterColorState *other_color_state)
 {
-  ClutterColorStateClass *color_state_class =
-    CLUTTER_COLOR_STATE_GET_CLASS (color_state);
-
   if (color_state == other_color_state)
     return TRUE;
 
@@ -267,30 +264,25 @@ clutter_color_state_equals (ClutterColorState *color_state,
   if (G_OBJECT_TYPE (color_state) != G_OBJECT_TYPE (other_color_state))
     return FALSE;
 
-  return color_state_class->equals (color_state, other_color_state);
+  return CLUTTER_COLOR_STATE_GET_CLASS (color_state)->equals (
+    color_state, other_color_state);
 }
 
 char *
 clutter_color_state_to_string (ClutterColorState *color_state)
 {
-  ClutterColorStateClass *color_state_class =
-    CLUTTER_COLOR_STATE_GET_CLASS (color_state);
-
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), NULL);
 
-  return color_state_class->to_string (color_state);
+  return CLUTTER_COLOR_STATE_GET_CLASS (color_state)->to_string (color_state);
 }
 
 ClutterEncodingRequiredFormat
 clutter_color_state_required_format (ClutterColorState *color_state)
 {
-
-  ClutterColorStateClass *color_state_class =
-    CLUTTER_COLOR_STATE_GET_CLASS (color_state);
-
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
 
-  return color_state_class->required_format (color_state);
+  return CLUTTER_COLOR_STATE_GET_CLASS (color_state)->required_format (
+    color_state);
 }
 
 /**
@@ -311,12 +303,10 @@ ClutterColorState *
 clutter_color_state_get_blending (ClutterColorState *color_state,
                                   gboolean           force)
 {
-  ClutterColorStateClass *color_state_class =
-    CLUTTER_COLOR_STATE_GET_CLASS (color_state);
-
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
 
-  return color_state_class->get_blending (color_state, force);
+  return CLUTTER_COLOR_STATE_GET_CLASS (color_state)->get_blending (
+    color_state, force);
 }
 
 const ClutterLuminance *
@@ -324,5 +314,6 @@ clutter_color_state_get_luminance (ClutterColorState *color_state)
 {
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), NULL);
 
-  return CLUTTER_COLOR_STATE_GET_CLASS (color_state)->get_luminance (color_state);
+  return CLUTTER_COLOR_STATE_GET_CLASS (color_state)->get_luminance (
+    color_state);
 }
