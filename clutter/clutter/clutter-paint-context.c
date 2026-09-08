@@ -41,6 +41,8 @@ struct _ClutterPaintContext
   GList *color_states;
 
   ClutterColorState *framebuffer_color_state;
+
+  int clone_paint_level;
 };
 
 G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
@@ -314,4 +316,22 @@ clutter_paint_context_get_color_state (ClutterPaintContext *paint_context)
   g_return_val_if_fail (paint_context->color_states, NULL);
 
   return CLUTTER_COLOR_STATE (paint_context->color_states->data);
+}
+
+void
+clutter_paint_context_push_clone_paint (ClutterPaintContext *paint_context)
+{
+  paint_context->clone_paint_level++;
+}
+
+void
+clutter_paint_context_pop_clone_paint (ClutterPaintContext *paint_context)
+{
+  paint_context->clone_paint_level--;
+}
+
+gboolean
+clutter_paint_context_is_in_clone_paint (ClutterPaintContext *paint_context)
+{
+  return paint_context->clone_paint_level > 0;
 }

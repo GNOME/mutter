@@ -264,9 +264,6 @@ gboolean                        _clutter_actor_set_default_paint_volume         
 
 const char *                    _clutter_actor_get_debug_name                           (ClutterActor *self);
 
-void                            _clutter_actor_push_clone_paint                         (void);
-void                            _clutter_actor_pop_clone_paint                          (void);
-
 ClutterActorAlign               _clutter_actor_get_effective_x_align                    (ClutterActor *self);
 
 void                            _clutter_actor_attach_clone                             (ClutterActor *actor,

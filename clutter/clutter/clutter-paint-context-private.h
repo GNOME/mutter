@@ -39,3 +39,9 @@ void clutter_paint_context_push_target_color_state (ClutterPaintContext *paint_c
                                                     ClutterColorState   *color_state);
 
 void clutter_paint_context_pop_target_color_state (ClutterPaintContext *paint_context);
+
+void clutter_paint_context_push_clone_paint (ClutterPaintContext *paint_context);
+
+void clutter_paint_context_pop_clone_paint (ClutterPaintContext *paint_context);
+
+gboolean clutter_paint_context_is_in_clone_paint (ClutterPaintContext *paint_context);

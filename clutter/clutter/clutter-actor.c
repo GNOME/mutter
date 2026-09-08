@@ -3180,26 +3180,6 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
                                            node);
 }
 
-static int clone_paint_level = 0;
-
-void
-_clutter_actor_push_clone_paint (void)
-{
-  clone_paint_level++;
-}
-
-void
-_clutter_actor_pop_clone_paint (void)
-{
-  clone_paint_level--;
-}
-
-static gboolean
-in_clone_paint (void)
-{
-  return clone_paint_level > 0;
-}
-
 /* Returns TRUE if the actor can be ignored */
 /* FIXME: we should return a ClutterCullResult, and
  * clutter_actor_paint should understand that a CLUTTER_CULL_RESULT_IN
@@ -3640,7 +3620,8 @@ clutter_actor_paint (ClutterActor        *self,
   add_or_remove_flatten_effect (self);
 
   culling_inhibited = priv->inhibit_culling_counter > 0;
-  if (!culling_inhibited && !in_clone_paint ())
+  if (!culling_inhibited &&
+      !clutter_paint_context_is_in_clone_paint (paint_context))
     {
       gboolean success;
       gboolean should_cull_out = (clutter_paint_debug_flags &

@@ -41,6 +41,7 @@
 #include "clutter/clutter-clone.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-main.h"
+#include "clutter/clutter-paint-context-private.h"
 #include "clutter/clutter-paint-volume-private.h"
 #include "clutter/clutter-private.h"
 
@@ -167,9 +168,9 @@ clutter_clone_paint (ClutterActor        *actor,
           cogl_framebuffer_scale (fb, priv->x_scale, priv->y_scale, 1.0f);
         }
 
-      _clutter_actor_push_clone_paint ();
+      clutter_paint_context_push_clone_paint (paint_context);
       clutter_actor_paint (priv->clone_source, paint_context);
-      _clutter_actor_pop_clone_paint ();
+      clutter_paint_context_pop_clone_paint (paint_context);
 
       if (fb != NULL)
         cogl_framebuffer_pop_matrix (fb);
