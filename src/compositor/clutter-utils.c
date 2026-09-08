@@ -65,8 +65,8 @@ round_to_fixed (float x)
 
 /* This helper function checks if (according to our fixed point precision)
  * the vertices @verts form a box of width @widthf and height @heightf
- * located at integral coordinates. These coordinates are returned
- * in @x_origin and @y_origin.
+ * located at integral coordinates. These coordinates, along with the X/Y
+ * scale factors, are returned in @out_transforms.
  */
 gboolean
 meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
@@ -118,16 +118,13 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
 
 /**
  * meta_actor_painting_untransformed:
+ * @fb: the framebuffer being painted to
  * @paint_width: the width of the painted area
  * @paint_height: the height of the painted area
  * @sample_width: the width of the sampled area of the texture
  * @sample_height: the height of the sampled area of the texture
- * @x_origin: if the transform is only an integer translation
- *  then the X coordinate of the location of the origin under the transformation
- *  from drawing space to screen pixel space is returned here.
- * @y_origin: if the transform is only an integer translation
- *  then the X coordinate of the location of the origin under the transformation
- *  from drawing space to screen pixel space is returned here.
+ * @out_transforms: (out): the origin and X/Y scale factors of the
+ *  transformation from drawing space to screen pixel space.
  *
  * Determines if the current painting transform is an integer translation.
  * This can differ from the result of meta_actor_is_untransformed() when
