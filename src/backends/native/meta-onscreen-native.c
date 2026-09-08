@@ -1008,6 +1008,7 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
       meta_topic (META_DEBUG_KMS,
                   "Using zero-copy for %s succeeded once.",
                   meta_render_device_get_name (render_device));
+      meta_secondary_gpu_copy_state_reset (secondary_gpu_state->copy_state);
     }
 
   secondary_gpu_state->import_status =
