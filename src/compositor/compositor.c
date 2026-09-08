@@ -1388,7 +1388,7 @@ meta_compositor_is_unredirect_inhibited (MetaCompositor *compositor)
  * @blur_radius: blur radius in pixels for compositor-rendered background effects
  * @saturation: color boost applied after blurring; 1.0 leaves colors unchanged,
  *   values above 1.0 increase color relative to luma
- * @noise: amount of screen-space grain to add after blurring; 0.0 disables it
+ * @noise: amount of surface-space grain to add after blurring; 0.0 disables it
  *
  * Sets the parameters for compositor-rendered background blurs requested by
  * clients through ext-background-effect-v1.

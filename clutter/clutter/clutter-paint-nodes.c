@@ -1409,11 +1409,12 @@ create_blur_capture_render_objects (ClutterBlurNode *blur_node,
 static const char *blur_framebuffer_effect_declarations =
   "uniform float blur_framebuffer_saturation;                               \n"
   "uniform float blur_framebuffer_noise;                                    \n"
+  "uniform vec2 blur_framebuffer_noise_size;                                \n"
   "                                                                          \n"
   "float blur_framebuffer_random_noise (vec2 position)                       \n"
   "{                                                                         \n"
-  "  return fract (sin (dot (position, vec2 (12.9898, 78.233))) *           \n"
-  "                43758.5453);                                             \n"
+  "  return fract (52.9829189 * fract (dot (position,                       \n"
+  "                                         vec2 (0.06711056, 0.00583715))));\n"
   "}                                                                         \n";
 
 static const char *blur_framebuffer_effect_source =
@@ -1421,11 +1422,18 @@ static const char *blur_framebuffer_effect_source =
   "    {                                                                     \n"
   "      vec3 color = cogl_color_out.rgb / cogl_color_out.a;                 \n"
   "      float luma = dot (color, vec3 (0.299, 0.587, 0.114));               \n"
-  "      float grain =                                                     \n"
-  "        blur_framebuffer_random_noise (floor (gl_FragCoord.xy)) - 0.5;   \n"
   "                                                                          \n"
   "      color = mix (vec3 (luma), color, blur_framebuffer_saturation);      \n"
-  "      color += vec3 (grain * blur_framebuffer_noise);                     \n"
+  "      if (blur_framebuffer_noise > 0.0)                                   \n"
+  "        {                                                                 \n"
+  "          vec2 grain_coord =                                              \n"
+  "            floor (cogl_tex_coord0_in.st * blur_framebuffer_noise_size);  \n"
+  "          float uniform_noise =                                           \n"
+  "            2.0 * blur_framebuffer_random_noise (grain_coord) - 1.0;      \n"
+  "          float grain = 0.5 * sign (uniform_noise) *                      \n"
+  "            (1.0 - sqrt (1.0 - abs (uniform_noise)));                     \n"
+  "          color += vec3 (grain * blur_framebuffer_noise);                 \n"
+  "        }                                                                 \n"
   "      color = clamp (color, vec3 (0.0), vec3 (1.0));                      \n"
   "                                                                          \n"
   "      cogl_color_out.rgb = color * cogl_color_out.a;                      \n"
@@ -1434,11 +1442,14 @@ static const char *blur_framebuffer_effect_source =
 static void
 add_blur_framebuffer_effect (CoglPipeline *pipeline,
                              float         saturation,
-                             float         noise)
+                             float         noise,
+                             float         noise_width,
+                             float         noise_height)
 {
   CoglSnippet *snippet;
   int saturation_uniform;
   int noise_uniform;
+  int noise_size_uniform;
 
   if (saturation == 1.0f && noise == 0.0f)
     return;
@@ -1459,6 +1470,19 @@ add_blur_framebuffer_effect (CoglPipeline *pipeline,
     cogl_pipeline_get_uniform_location (pipeline, "blur_framebuffer_noise");
   if (noise_uniform > -1)
     cogl_pipeline_set_uniform_1f (pipeline, noise_uniform, noise);
+
+  noise_size_uniform =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        "blur_framebuffer_noise_size");
+  if (noise_size_uniform > -1)
+    {
+      float noise_size[2] = { noise_width, noise_height };
+
+      cogl_pipeline_set_uniform_float (pipeline,
+                                       noise_size_uniform,
+                                       2, 1,
+                                       noise_size);
+    }
 }
 
 static void
@@ -1701,7 +1725,11 @@ clutter_blur_node_new_from_framebuffer (CoglFramebuffer *framebuffer,
   layer_node = CLUTTER_LAYER_NODE (blur_node);
   layer_node->skip_color_state_transform = TRUE;
 
-  add_blur_framebuffer_effect (layer_node->pipeline, saturation, noise);
+  add_blur_framebuffer_effect (layer_node->pipeline,
+                               saturation,
+                               noise,
+                               width,
+                               height);
 
   opacity_f = opacity / 255.0f;
   cogl_color_init_from_4f (&color, opacity_f, opacity_f, opacity_f, opacity_f);
