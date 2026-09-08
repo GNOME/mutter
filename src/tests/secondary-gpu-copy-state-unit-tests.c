@@ -161,6 +161,30 @@ test_retains_damage_from_failed_copy (void)
 }
 
 static void
+test_reset_invalidates_buffer_contents (void)
+{
+  g_autoptr (MetaSecondaryGpuCopyState) copy_state = NULL;
+  g_autoptr (MtkRegion) damage = create_damage (10, 10);
+  g_autoptr (MtkRegion) repair = NULL;
+
+  copy_state = meta_secondary_gpu_copy_state_new (2,
+                                                  TEST_WIDTH,
+                                                  TEST_HEIGHT);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage, TRUE);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage, TRUE);
+
+  meta_secondary_gpu_copy_state_reset (copy_state);
+
+  g_assert_cmpuint (
+    meta_secondary_gpu_copy_state_get_next_buffer_index (copy_state),
+    ==,
+    0);
+  repair = meta_secondary_gpu_copy_state_get_damage (
+    copy_state, damage, TEST_MAX_DAMAGE_RECTANGLES);
+  assert_full_damage (repair);
+}
+
+static void
 test_empty_damage_needs_no_copy (void)
 {
   g_autoptr (MetaSecondaryGpuCopyState) copy_state = NULL;
@@ -300,6 +324,8 @@ main (int    argc,
                    test_accumulates_damage_for_rotating_buffers);
   g_test_add_func ("/backends/native/secondary-gpu-copy/failed-copy",
                    test_retains_damage_from_failed_copy);
+  g_test_add_func ("/backends/native/secondary-gpu-copy/reset",
+                   test_reset_invalidates_buffer_contents);
   g_test_add_func ("/backends/native/secondary-gpu-copy/empty-damage",
                    test_empty_damage_needs_no_copy);
   g_test_add_func ("/backends/native/secondary-gpu-copy/empty-damage-history",

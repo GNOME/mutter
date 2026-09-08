@@ -53,5 +53,8 @@ meta_secondary_gpu_copy_state_finish_frame (
   const MtkRegion           *damage,
   gboolean                   buffer_copied);
 
+void
+meta_secondary_gpu_copy_state_reset (MetaSecondaryGpuCopyState *copy_state);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaSecondaryGpuCopyState,
                                meta_secondary_gpu_copy_state_free)
