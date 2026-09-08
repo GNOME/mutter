@@ -631,7 +631,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
         {
           int age;
 
-          for (age = 1; age <= buffer_age; age++)
+          for (age = 1; age < buffer_age; age++)
             {
               const MtkRegion *old_damage;
 
