@@ -18291,6 +18291,41 @@ clutter_actor_has_mapped_clones (ClutterActor *self)
   return FALSE;
 }
 
+void
+clutter_actor_foreach_mapped_clone (ClutterActor          *self,
+                                    ClutterActorCloneFunc  callback,
+                                    gpointer               user_data)
+{
+  ClutterActor *source;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+  g_return_if_fail (callback != NULL);
+
+  if (self->priv->in_cloned_branch == 0)
+    return;
+
+  for (source = self; source; source = source->priv->parent)
+    {
+      if (source->priv->clones)
+        {
+          GHashTableIter iter;
+          gpointer key;
+
+          g_hash_table_iter_init (&iter, source->priv->clones);
+          while (g_hash_table_iter_next (&iter, &key, NULL))
+            {
+              ClutterActor *clone = key;
+
+              if (clutter_actor_is_mapped (clone))
+                callback (source, clone, user_data);
+            }
+        }
+
+      if (!clutter_actor_is_visible (source))
+        return;
+    }
+}
+
 static void
 push_in_paint_unmapped_branch (ClutterActor *self,
                                guint         count)

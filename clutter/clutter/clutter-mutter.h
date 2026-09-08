@@ -63,6 +63,25 @@ CLUTTER_EXPORT
 gboolean clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
                                                      ClutterStageView *view);
 
+typedef void (* ClutterActorCloneFunc) (ClutterActor *source,
+                                        ClutterActor *clone,
+                                        gpointer      user_data);
+
+/**
+ * clutter_actor_foreach_mapped_clone: (skip)
+ * @self: a #ClutterActor
+ * @callback: function to call for each mapped clone
+ * @user_data: data to pass to @callback
+ *
+ * Calls @callback for each mapped clone directly attached to @self or one of
+ * its ancestors. The @source argument identifies the actor cloned by the
+ * corresponding @clone. Nested clone paint paths are not traversed.
+ */
+CLUTTER_EXPORT
+void clutter_actor_foreach_mapped_clone (ClutterActor          *self,
+                                         ClutterActorCloneFunc  callback,
+                                         gpointer               user_data);
+
 CLUTTER_EXPORT
 int64_t clutter_stage_get_frame_counter (ClutterStage *stage);
 
