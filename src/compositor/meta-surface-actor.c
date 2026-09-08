@@ -488,19 +488,26 @@ sync_background_blur (MetaSurfaceActor *surface_actor)
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (surface_actor);
   ClutterActor *actor = CLUTTER_ACTOR (surface_actor);
+  float blur_radius;
 
   g_clear_pointer (&priv->background_blur,
                    meta_background_blur_destroy);
 
-  if (!priv->background_blur_sample_region)
+  if (!priv->background_blur_region)
     return;
 
-  if (!clutter_actor_is_mapped (actor))
+  if (!clutter_actor_is_mapped (actor) &&
+      !clutter_actor_has_mapped_clones (actor))
     return;
 
+  meta_compositor_get_background_blur_params (priv->compositor,
+                                              &blur_radius,
+                                              NULL,
+                                              NULL);
   priv->background_blur =
     meta_background_blur_new (actor,
-                              priv->background_blur_sample_region);
+                              priv->background_blur_region,
+                              blur_radius);
 }
 
 static void

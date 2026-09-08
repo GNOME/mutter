@@ -561,7 +561,9 @@ on_clone_notify_mapped (ClutterClone    *clone,
     priv->n_mapped_clones++;
   else
     priv->n_mapped_clones--;
-  update_is_effectively_visible  (window_actor);
+  if (!priv->disposed)
+    meta_window_actor_invalidate_background_blur (window_actor);
+  update_is_effectively_visible (window_actor);
 }
 
 static void
@@ -576,7 +578,9 @@ on_cloned (ClutterActor *actor,
                     G_CALLBACK (on_clone_notify_mapped), actor);
   if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
     priv->n_mapped_clones++;
-  update_is_effectively_visible  (window_actor);
+  if (!priv->disposed)
+    meta_window_actor_invalidate_background_blur (window_actor);
+  update_is_effectively_visible (window_actor);
 }
 
 static void
@@ -590,7 +594,9 @@ on_decloned (ClutterActor *actor,
   g_signal_handlers_disconnect_by_func (clone, on_clone_notify_mapped, actor);
   if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
     priv->n_mapped_clones--;
-  update_is_effectively_visible  (window_actor);
+  if (!priv->disposed)
+    meta_window_actor_invalidate_background_blur (window_actor);
+  update_is_effectively_visible (window_actor);
 }
 
 static void

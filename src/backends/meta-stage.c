@@ -626,7 +626,7 @@ meta_stage_apply_redraw_clip_filters (MetaStage        *stage,
   g_return_if_fail (META_IS_STAGE (stage));
   g_return_if_fail (CLUTTER_IS_STAGE_VIEW (stage_view));
 
-  if (!redraw_clip || !stage->redraw_clip_filters)
+  if (!stage->redraw_clip_filters)
     return;
 
   do

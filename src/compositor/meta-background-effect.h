@@ -26,7 +26,8 @@ MtkRegion * meta_background_effect_create_blur_sample_region (const MtkRegion *b
                                                               float            radius);
 
 MetaBackgroundBlur * meta_background_blur_new (ClutterActor    *actor,
-                                               const MtkRegion *sample_region);
+                                               const MtkRegion *blur_region,
+                                               float            radius);
 void meta_background_blur_destroy (MetaBackgroundBlur *blur);
 
 void meta_background_effect_paint_blur_region (ClutterPaintNode       *root_node,
