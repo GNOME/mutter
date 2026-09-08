@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     keys = []
     with open(sys.argv[1], "r", encoding="utf8") as keynames:
-        for line in keynames.readlines():
+        for line in keynames:
             if line.startswith("!"):
                 continue
 
