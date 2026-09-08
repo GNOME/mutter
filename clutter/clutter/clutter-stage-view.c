@@ -549,25 +549,11 @@ copy_shadowfb_to_onscreen (ClutterStageView *view,
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
   CoglFramebuffer *shadowfb = COGL_FRAMEBUFFER (priv->shadow.framebuffer);
-  g_autoptr (MtkRegion) damage_region = NULL;
   g_autoptr (GError) error = NULL;
-
-  if (mtk_region_is_empty (swap_region))
-    {
-      MtkRectangle full_damage = {
-        .width = cogl_framebuffer_get_width (priv->framebuffer),
-        .height = cogl_framebuffer_get_height (priv->framebuffer),
-      };
-      damage_region = mtk_region_create_rectangle (&full_damage);
-    }
-  else
-    {
-      damage_region = mtk_region_copy (swap_region);
-    }
 
   if (!cogl_framebuffer_blit_region (shadowfb,
                                      priv->framebuffer,
-                                     damage_region,
+                                     swap_region,
                                      0, 0,
                                      &error))
     g_warning ("Failed to blit shadow buffer: %s", error->message);
