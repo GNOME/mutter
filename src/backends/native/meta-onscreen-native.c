@@ -144,7 +144,6 @@ struct _MetaOnscreenNative
 
   gboolean needs_flush;
 
-  gboolean vrr_allowed;
   gboolean vrr_enabled;
 
   MetaRendererView *view;
@@ -156,8 +155,9 @@ struct _MetaOnscreenNative
       KmsProperty gamma_lut;
       KmsProperty ctm;
       KmsProperty privacy_screen;
+      KmsProperty vrr;
     } property;
-    KmsProperty properties[3];
+    KmsProperty properties[4];
   };
 };
 
@@ -2254,42 +2254,23 @@ void
 meta_onscreen_native_allow_vrr (MetaOnscreenNative *onscreen_native,
                                 gboolean            allowed)
 {
-  onscreen_native->vrr_allowed = allowed;
-}
+  gboolean vrr_enabled;
 
-static void
-maybe_update_vrr (MetaOnscreenNative *onscreen_native,
-                  ClutterFrame       *frame)
-{
-  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
-  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
-  const MetaKmsCrtcState *crtc_state =
-    meta_kms_crtc_get_current_state (kms_crtc);
-  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
-  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
-  ClutterFrameClock *frame_clock =
-    clutter_stage_view_get_frame_clock (stage_view);
-  ClutterFrameClockMode frame_clock_mode;
-  MetaKmsUpdate *kms_update;
-  gboolean vrr_enabled = FALSE;
-
-  if (meta_output_is_vrr_enabled (onscreen_native->output))
-    vrr_enabled = onscreen_native->vrr_allowed;
+  vrr_enabled = allowed &&
+                meta_output_is_vrr_enabled (onscreen_native->output);
 
   if (vrr_enabled != onscreen_native->vrr_enabled)
     {
+      ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+      ClutterFrameClock *frame_clock =
+        clutter_stage_view_get_frame_clock (stage_view);
+      ClutterFrameClockMode frame_clock_mode;
+
+      onscreen_native->vrr_enabled = vrr_enabled;
       frame_clock_mode = vrr_enabled ? CLUTTER_FRAME_CLOCK_MODE_VARIABLE :
                          CLUTTER_FRAME_CLOCK_MODE_FIXED;
       clutter_frame_clock_set_mode (frame_clock, frame_clock_mode);
-      onscreen_native->vrr_enabled = vrr_enabled;
-    }
-
-  if (crtc_state->vrr.supported &&
-      vrr_enabled != crtc_state->vrr.enabled)
-    {
-      kms_update = meta_frame_native_ensure_kms_update (frame_native, kms_device);
-      meta_kms_update_set_vrr (kms_update, kms_crtc, vrr_enabled);
+      onscreen_native->property.vrr.invalidated = TRUE;
     }
 }
 
@@ -2306,8 +2287,6 @@ meta_onscreen_native_before_redraw (CoglOnscreen *onscreen,
 
       meta_kms_device_await_flush (meta_kms_crtc_get_device (kms_crtc), kms_crtc);
     }
-
-  maybe_update_vrr (onscreen_native, frame);
 }
 
 void
@@ -2366,6 +2345,20 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
       meta_kms_update_set_privacy_screen (kms_update, kms_connector, enabled);
       onscreen_native->property.privacy_screen.invalidated = FALSE;
       onscreen_native->property.privacy_screen.target_frame_counter =
+        target_frame_counter;
+    }
+
+  if (onscreen_native->property.vrr.invalidated)
+    {
+      MetaKmsUpdate *kms_update;
+
+      kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                        kms_device);
+
+      meta_kms_update_set_vrr (kms_update, kms_crtc,
+                               onscreen_native->vrr_enabled);
+      onscreen_native->property.vrr.invalidated = FALSE;
+      onscreen_native->property.vrr.target_frame_counter =
         target_frame_counter;
     }
 }
@@ -3634,6 +3627,8 @@ meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native)
     onscreen_native->property.ctm.invalidated = TRUE;
   if (output_info->supports_privacy_screen)
     onscreen_native->property.privacy_screen.invalidated = TRUE;
+  if (output_info->supports_vrr)
+    onscreen_native->property.vrr.invalidated = TRUE;
 }
 
 static void
