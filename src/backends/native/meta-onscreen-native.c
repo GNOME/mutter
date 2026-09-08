@@ -1137,6 +1137,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   int buffer_age;
   g_autoptr (MtkRegion) blit_region = NULL;
   g_autoptr (MtkRegion) region_to_push = NULL;
+  gboolean buffer_copied = FALSE;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferSecondaryGpu,
                            "copy_shared_framebuffer_gpu()");
@@ -1228,6 +1229,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
       g_prefix_error (error, "Failed to blit shared framebuffer: ");
       goto done;
     }
+  buffer_copied = TRUE;
 
   sync_fd = cogl_renderer_egl_create_sync_fd (renderer_egl, error);
   if (sync_fd < 0)
@@ -1250,6 +1252,9 @@ done:
     }
 
   cogl_display_egl_ensure_current (COGL_DISPLAY_EGL (cogl_display));
+
+  if (!buffer_copied)
+    g_clear_object (&dst_buffer_gbm);
 
   return dst_buffer_gbm ? META_DRM_BUFFER (dst_buffer_gbm) : NULL;
 }
