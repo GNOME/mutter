@@ -41,7 +41,8 @@ meta_secondary_gpu_copy_state_get_next_buffer_index (MetaSecondaryGpuCopyState *
  */
 MtkRegion *
 meta_secondary_gpu_copy_state_get_damage (MetaSecondaryGpuCopyState *copy_state,
-                                          const MtkRegion           *damage);
+                                          const MtkRegion           *damage,
+                                          unsigned int               max_rectangles);
 
 /* Call exactly once for every source frame, including failed copies. */
 void
