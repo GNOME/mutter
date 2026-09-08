@@ -22,10 +22,10 @@
 
 # Python port of <https://gitlab.gnome.org/GNOME/gtk/-/blob/main/gdk/gen-keyname-table.pl>
 
-from dataclasses import dataclass
-import sys
 import re
+import sys
 import time
+from dataclasses import dataclass
 
 
 @dataclass
