@@ -1300,7 +1300,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   uint32_t offset;
   uint32_t drm_format;
   uint64_t modifier;
-  int n_rectangles;
+  g_autoptr (MtkRegion) blit_region = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferPrimaryGpu,
                            "copy_shared_framebuffer_primary_gpu()");
@@ -1364,15 +1364,17 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
       return NULL;
     }
 
-  n_rectangles = mtk_region_num_rectangles (region);
-  if ((n_rectangles > MAX_DAMAGE_RECTANGLES &&
-       !cogl_framebuffer_blit (framebuffer,
-                               COGL_FRAMEBUFFER (dmabuf_fb),
-                               0, 0, 0, 0,
-                               width, height,
-                               &error)) ||
-      !cogl_framebuffer_blit_region (framebuffer, COGL_FRAMEBUFFER (dmabuf_fb),
-                                     region,
+  if (mtk_region_num_rectangles (region) > MAX_DAMAGE_RECTANGLES)
+    {
+      MtkRectangle extents = mtk_region_get_extents (region);
+
+      blit_region = mtk_region_create_rectangle (&extents);
+    }
+  else
+    blit_region = mtk_region_copy (region);
+  if (!cogl_framebuffer_blit_region (framebuffer,
+                                     dmabuf_fb,
+                                     blit_region,
                                      0, 0,
                                      &error))
     return NULL;
