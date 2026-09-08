@@ -1289,7 +1289,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   MetaDrmBufferDumb *buffer_dumb;
   MetaDrmBuffer *buffer;
   int width, height;
-  CoglFramebuffer *dmabuf_fb;
+  g_autoptr (CoglFramebuffer) dmabuf_fb = NULL;
   CoglContext *cogl_context;
   CoglDisplay *cogl_display;
   CoglRenderer *cogl_renderer;
@@ -1375,10 +1375,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
                                      region,
                                      0, 0,
                                      &error))
-    {
-      g_object_unref (dmabuf_fb);
-      return NULL;
-    }
+    return NULL;
 
   secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
 
