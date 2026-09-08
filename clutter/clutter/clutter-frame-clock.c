@@ -477,12 +477,14 @@ maybe_reschedule_update (ClutterFrameClock *frame_clock)
     {
       if (frame_clock->pending_reschedule_now)
         {
+          frame_clock->pending_reschedule = FALSE;
           frame_clock->pending_reschedule_now = FALSE;
           clutter_frame_clock_schedule_update_now (frame_clock);
         }
       else if (frame_clock->pending_reschedule ||
                !frame_clock->throttle_timelines)
         {
+          frame_clock->pending_reschedule = FALSE;
           frame_clock->throttle_timelines = TRUE;
           clutter_frame_clock_schedule_update (frame_clock);
         }
@@ -491,7 +493,6 @@ maybe_reschedule_update (ClutterFrameClock *frame_clock)
           clutter_frame_clock_schedule_update_throttled (frame_clock);
         }
 
-      frame_clock->pending_reschedule = FALSE;
       return;
     }
 
