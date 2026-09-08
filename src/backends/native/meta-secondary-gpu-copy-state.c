@@ -88,7 +88,8 @@ meta_secondary_gpu_copy_state_get_next_buffer_index (
 MtkRegion *
 meta_secondary_gpu_copy_state_get_damage (
   MetaSecondaryGpuCopyState *copy_state,
-  const MtkRegion           *damage)
+  const MtkRegion           *damage,
+  unsigned int               max_rectangles)
 {
   uint64_t buffer_sequence;
   uint64_t buffer_age;
@@ -118,6 +119,13 @@ meta_secondary_gpu_copy_state_get_damage (
         clutter_damage_history_lookup (copy_state->damage_history,
                                        previous_age);
       mtk_region_union (accumulated_damage, previous_damage);
+    }
+
+  if (mtk_region_num_rectangles (accumulated_damage) > max_rectangles)
+    {
+      MtkRectangle extents = mtk_region_get_extents (accumulated_damage);
+
+      return mtk_region_create_rectangle (&extents);
     }
 
   return g_steal_pointer (&accumulated_damage);
