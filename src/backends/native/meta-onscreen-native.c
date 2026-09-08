@@ -82,13 +82,8 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   MetaGpuKms *gpu_kms;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  struct {
-    MetaDrmBufferGbm *buffer_gbm[2];
-  } gbm;
-
-  struct {
-    MetaDrmBufferDumb *dumb_fbs[3];
-  } cpu;
+  MetaDrmBufferGbm *buffer_gbm[2];
+  MetaDrmBufferDumb *dumb_fbs[3];
 
   MetaSecondaryGpuCopyState *copy_state;
 
@@ -960,15 +955,15 @@ secondary_gpu_release_dumb (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_s
 {
   unsigned i;
 
-  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
-    g_clear_object (&secondary_gpu_state->cpu.dumb_fbs[i]);
+  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->dumb_fbs); i++)
+    g_clear_object (&secondary_gpu_state->dumb_fbs[i]);
 }
 
 static void
 secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  g_clear_object (&secondary_gpu_state->gbm.buffer_gbm[0]);
-  g_clear_object (&secondary_gpu_state->gbm.buffer_gbm[1]);
+  g_clear_object (&secondary_gpu_state->buffer_gbm[0]);
+  g_clear_object (&secondary_gpu_state->buffer_gbm[1]);
   g_clear_object (&secondary_gpu_state->source_framebuffer);
   g_clear_pointer (&secondary_gpu_state->copy_state,
                    meta_secondary_gpu_copy_state_free);
@@ -1104,7 +1099,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   buffer_index = meta_secondary_gpu_copy_state_get_next_buffer_index (
     secondary_gpu_state->copy_state);
   dst_buffer_gbm =
-    g_object_ref (secondary_gpu_state->gbm.buffer_gbm[buffer_index]);
+    g_object_ref (secondary_gpu_state->buffer_gbm[buffer_index]);
   dst_bo = meta_drm_buffer_gbm_get_bo (dst_buffer_gbm);
   dst_egl_image = meta_egl_ensure_gbm_bo_egl_image (renderer_egl,
                                                     dst_bo,
@@ -1176,7 +1171,7 @@ secondary_gpu_get_next_dumb_buffer (MetaOnscreenNativeSecondaryGpuState *seconda
   buffer_index = meta_secondary_gpu_copy_state_get_next_buffer_index (
     secondary_gpu_state->copy_state);
 
-  return secondary_gpu_state->cpu.dumb_fbs[buffer_index];
+  return secondary_gpu_state->dumb_fbs[buffer_index];
 }
 
 static MetaDrmBuffer *
@@ -3388,24 +3383,24 @@ create_secondary_gpu_buffers (CoglOnscreen                         *onscreen,
           continue;
         }
 
-      secondary_gpu_state->gbm.buffer_gbm[0] =
+      secondary_gpu_state->buffer_gbm[0] =
         create_secondary_gpu_buffer (onscreen, gbm_device, device_file,
                                      width, height, format,
                                      error);
-      if (!secondary_gpu_state->gbm.buffer_gbm[0])
+      if (!secondary_gpu_state->buffer_gbm[0])
         continue;
 
-      secondary_gpu_state->gbm.buffer_gbm[1] =
+      secondary_gpu_state->buffer_gbm[1] =
         create_secondary_gpu_buffer (onscreen, gbm_device, device_file,
                                      width, height, format,
                                      error);
-      if (secondary_gpu_state->gbm.buffer_gbm[1])
+      if (secondary_gpu_state->buffer_gbm[1])
         break;
 
-      g_clear_object (&secondary_gpu_state->gbm.buffer_gbm[0]);
+      g_clear_object (&secondary_gpu_state->buffer_gbm[0]);
     }
 
-  return secondary_gpu_state->gbm.buffer_gbm[0] != NULL;
+  return secondary_gpu_state->buffer_gbm[0] != NULL;
 }
 
 static gboolean
@@ -3445,7 +3440,7 @@ init_secondary_gpu_state_gpu_copy_mode (CoglOnscreen               *onscreen,
 
   secondary_gpu_state->copy_state =
     meta_secondary_gpu_copy_state_new (
-      G_N_ELEMENTS (secondary_gpu_state->gbm.buffer_gbm),
+      G_N_ELEMENTS (secondary_gpu_state->buffer_gbm),
       cogl_framebuffer_get_width (framebuffer),
       cogl_framebuffer_get_height (framebuffer));
 
@@ -3554,11 +3549,11 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   secondary_gpu_state->gpu_kms = gpu_kms;
   secondary_gpu_state->copy_state =
     meta_secondary_gpu_copy_state_new (
-      G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs),
+      G_N_ELEMENTS (secondary_gpu_state->dumb_fbs),
       width,
       height);
 
-  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
+  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->dumb_fbs); i++)
     {
       MetaDrmBuffer *dumb_buffer;
 
@@ -3572,7 +3567,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
           return FALSE;
         }
 
-      secondary_gpu_state->cpu.dumb_fbs[i] = META_DRM_BUFFER_DUMB (dumb_buffer);
+      secondary_gpu_state->dumb_fbs[i] = META_DRM_BUFFER_DUMB (dumb_buffer);
     }
 
   /*
