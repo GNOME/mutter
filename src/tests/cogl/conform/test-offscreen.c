@@ -1,6 +1,7 @@
 #define COGL_VERSION_MIN_REQUIRED COGL_VERSION_1_0
 
 #include <cogl/cogl.h>
+#include <drm_fourcc.h>
 
 #include "tests/cogl-test-utils.h"
 
@@ -209,6 +210,50 @@ test_offscreen (void)
     g_print ("OK\n");
 }
 
+static void
+test_dma_buf_framebuffer_without_egl_image_support (void)
+{
+  CoglDisplay *display = cogl_context_get_display (test_ctx);
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
+  CoglDriver *driver = cogl_context_get_driver (test_ctx);
+  g_autoptr (CoglFramebuffer) framebuffer = NULL;
+  g_autoptr (GError) error = NULL;
+  gboolean had_egl_image_support;
+  int fd = -1;
+  uint32_t stride = 4;
+  uint32_t offset = 0;
+
+  if (!COGL_IS_RENDERER_EGL (renderer))
+    {
+      g_test_skip ("An EGL renderer is required");
+      return;
+    }
+
+  had_egl_image_support =
+    cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE);
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE,
+                           FALSE);
+
+  /* Unsupported texture imports must be rejected before accessing the fd. */
+  framebuffer = cogl_renderer_create_dma_buf_framebuffer (
+    renderer, test_ctx,
+    1, 1,
+    DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_BGRX_8888,
+    1, &fd, &stride, &offset, NULL,
+    &error);
+
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE,
+                           had_egl_image_support);
+
+  g_assert_null (framebuffer);
+  g_assert_error (error, COGL_SYSTEM_ERROR, COGL_SYSTEM_ERROR_UNSUPPORTED);
+  g_assert_nonnull (strstr (error->message, "EGL"));
+}
+
 COGL_TEST_SUITE (
   g_test_add_func ("/offscreen", test_offscreen);
+  g_test_add_func ("/offscreen/dma-buf-without-egl-image-support",
+                   test_dma_buf_framebuffer_without_egl_image_support);
 )
