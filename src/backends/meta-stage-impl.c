@@ -614,15 +614,16 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
    * the resize anyway so it should only exhibit temporary
    * artefacts.
    */
-  /* swap_region does not need damage history, set it up before that */
-  if (!use_clipped_redraw)
-    swap_region = mtk_region_create ();
-  else if (clutter_stage_view_has_shadowfb (stage_view))
+  /* Shadow framebuffer copies must repair the onscreen buffer, so share
+   * fb_clip_region to include the damage history added below. Otherwise,
+   * swap_region only describes the changes made by the current frame.
+   */
+  if (clutter_stage_view_has_shadowfb (stage_view))
     swap_region = mtk_region_ref (fb_clip_region);
   else
     swap_region = mtk_region_copy (fb_clip_region);
 
-  swap_with_damage = FALSE;
+  swap_with_damage = !use_clipped_redraw;
   if (has_buffer_age)
     {
       clutter_damage_history_record (damage_history, fb_clip_region);
