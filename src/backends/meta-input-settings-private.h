@@ -64,21 +64,21 @@ struct _MetaInputSettingsClass
 {
   GObjectClass parent_class;
 
-  void (* set_send_events)   (MetaInputSettings        *settings,
-                              ClutterInputDevice       *device,
-                              GDesktopDeviceSendEvents  mode);
-  void (* set_matrix)        (MetaInputSettings  *settings,
-                              ClutterInputDevice *device,
-                              const float         matrix[6]);
-  void (* set_speed)         (MetaInputSettings  *settings,
-                              ClutterInputDevice *device,
-                              gdouble             speed);
-  void (* set_left_handed)   (MetaInputSettings  *settings,
-                              ClutterInputDevice *device,
-                              gboolean            enabled);
-  void (* set_tap_enabled)   (MetaInputSettings  *settings,
-                              ClutterInputDevice *device,
-                              gboolean            enabled);
+  void (* set_send_events) (MetaInputSettings        *settings,
+                            ClutterInputDevice       *device,
+                            GDesktopDeviceSendEvents  mode);
+  void (* set_matrix) (MetaInputSettings  *settings,
+                       ClutterInputDevice *device,
+                       const float         matrix[6]);
+  void (* set_speed) (MetaInputSettings  *settings,
+                      ClutterInputDevice *device,
+                      gdouble             speed);
+  void (* set_left_handed) (MetaInputSettings  *settings,
+                            ClutterInputDevice *device,
+                            gboolean            enabled);
+  void (* set_tap_enabled) (MetaInputSettings  *settings,
+                            ClutterInputDevice *device,
+                            gboolean            enabled);
   void (* set_tap_button_map) (MetaInputSettings            *settings,
                                ClutterInputDevice           *device,
                                GDesktopTouchpadTapButtonMap  mode);
@@ -97,9 +97,9 @@ struct _MetaInputSettingsClass
   void (* set_invert_scroll) (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
                               gboolean            inverted);
-  void (* set_edge_scroll)   (MetaInputSettings  *settings,
-                              ClutterInputDevice *device,
-                              gboolean            enabled);
+  void (* set_edge_scroll) (MetaInputSettings  *settings,
+                            ClutterInputDevice *device,
+                            gboolean            enabled);
   void (* set_two_finger_scroll) (MetaInputSettings  *settings,
                                   ClutterInputDevice *device,
                                   gboolean            enabled);
@@ -108,27 +108,27 @@ struct _MetaInputSettingsClass
                               guint               button,
                               gboolean            button_lock);
 
-  void (* set_click_method)  (MetaInputSettings            *settings,
-                              ClutterInputDevice           *device,
-                              GDesktopTouchpadClickMethod   mode);
+  void (* set_click_method) (MetaInputSettings            *settings,
+                             ClutterInputDevice           *device,
+                             GDesktopTouchpadClickMethod   mode);
 
   void (* set_keyboard_repeat) (MetaInputSettings *settings,
                                 gboolean           repeat,
                                 guint              delay,
                                 guint              interval);
 
-  void (* set_tablet_mapping)        (MetaInputSettings      *settings,
-                                      ClutterInputDevice     *device,
-                                      GDesktopTabletMapping   mapping);
-  void (* set_tablet_aspect_ratio)   (MetaInputSettings      *settings,
-                                      ClutterInputDevice     *device,
-                                      double                  ratio);
-  void (* set_tablet_area)           (MetaInputSettings      *settings,
-                                      ClutterInputDevice     *device,
-                                      gdouble                 padding_left,
-                                      gdouble                 padding_right,
-                                      gdouble                 padding_top,
-                                      gdouble                 padding_bottom);
+  void (* set_tablet_mapping) (MetaInputSettings      *settings,
+                               ClutterInputDevice     *device,
+                               GDesktopTabletMapping   mapping);
+  void (* set_tablet_aspect_ratio) (MetaInputSettings      *settings,
+                                    ClutterInputDevice     *device,
+                                    double                  ratio);
+  void (* set_tablet_area) (MetaInputSettings      *settings,
+                            ClutterInputDevice     *device,
+                            gdouble                 padding_left,
+                            gdouble                 padding_right,
+                            gdouble                 padding_top,
+                            gdouble                 padding_bottom);
 
   void (* set_mouse_accel_profile) (MetaInputSettings           *settings,
                                     ClutterInputDevice          *device,
