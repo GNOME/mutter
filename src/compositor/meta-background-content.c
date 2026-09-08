@@ -400,6 +400,7 @@ setup_pipeline (MetaBackgroundContent *self,
   float color_component;
   CoglFramebuffer *fb;
   CoglPipelineFilter min_filter, mag_filter;
+  MetaTransforms transforms = { 0 };
   CoglColor color;
 
   opacity = clutter_actor_get_paint_opacity (actor);
@@ -555,14 +556,24 @@ setup_pipeline (MetaBackgroundContent *self,
                                          actor_pixel_rect->height,
                                          self->texture_width,
                                          self->texture_height,
-                                         NULL))
+                                         &transforms))
     {
       min_filter = COGL_PIPELINE_FILTER_NEAREST;
       mag_filter = COGL_PIPELINE_FILTER_NEAREST;
     }
   else
     {
-      min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
+      /* The min filter (and thus mipmaps) only ever applies to minified
+       * images, so scaling down is the only case we need to care about here;
+       * otherwise, avoid requesting a mipmap filter so cogl doesn't generate
+       * mipmaps that would never actually be sampled.
+       */
+      if (transforms.x_scale < 1.0f - FLT_EPSILON ||
+          transforms.y_scale < 1.0f - FLT_EPSILON)
+        min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
+      else
+        min_filter = COGL_PIPELINE_FILTER_LINEAR;
+
       mag_filter = COGL_PIPELINE_FILTER_LINEAR;
     }
 
