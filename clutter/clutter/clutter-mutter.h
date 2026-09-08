@@ -83,6 +83,16 @@ void clutter_actor_foreach_mapped_clone (ClutterActor          *self,
                                          gpointer               user_data);
 
 /**
+ * clutter_actor_invalidate_paint_cache: (skip)
+ * @self: a #ClutterActor
+ *
+ * Invalidates cached paint results containing @self without scheduling an
+ * additional redraw.
+ */
+CLUTTER_EXPORT
+void clutter_actor_invalidate_paint_cache (ClutterActor *self);
+
+/**
  * clutter_clone_get_source_transform: (skip)
  * @clone: a #ClutterClone
  * @transform: (out): return location for the source-to-clone transform

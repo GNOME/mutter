@@ -18380,6 +18380,44 @@ clutter_actor_foreach_mapped_clone (ClutterActor          *self,
 }
 
 static void
+clutter_actor_invalidate_paint_cache_internal (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
+    return;
+
+  priv->is_dirty = TRUE;
+  priv->effect_to_redraw = NULL;
+
+  if (priv->clones)
+    {
+      GHashTableIter iter;
+      gpointer key;
+
+      g_hash_table_iter_init (&iter, priv->clones);
+      while (g_hash_table_iter_next (&iter, &key, NULL))
+        {
+          ClutterActor *clone = key;
+
+          if (clutter_actor_is_mapped (clone))
+            clutter_actor_invalidate_paint_cache_internal (clone);
+        }
+    }
+
+  if (clutter_actor_is_visible (self) && priv->parent)
+    clutter_actor_invalidate_paint_cache_internal (priv->parent);
+}
+
+void
+clutter_actor_invalidate_paint_cache (ClutterActor *self)
+{
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  clutter_actor_invalidate_paint_cache_internal (self);
+}
+
+static void
 push_in_paint_unmapped_branch (ClutterActor *self,
                                guint         count)
 {

@@ -1,4 +1,4 @@
-#include <clutter/clutter.h>
+#include <clutter/clutter-mutter.h>
 
 #include "tests/clutter-test-utils.h"
 
@@ -211,6 +211,9 @@ verify_redraws (gpointer user_data)
      any transformation. */
   clutter_actor_set_translation (data->parent_container, 0.f, -1.f, 0.f);
   verify_redraw (data, 0);
+
+  clutter_actor_invalidate_paint_cache (data->child);
+  verify_redraw (data, 1);
 
   /* Redrawing an unrelated actor shouldn't cause a redraw */
   clutter_actor_set_position (data->unrelated_actor, 0, 1);
