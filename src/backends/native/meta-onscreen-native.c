@@ -1382,8 +1382,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
 
 static MetaDrmBuffer *
 copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
-                             MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
-                             MetaRendererNativeGpuData           *renderer_gpu_data)
+                             MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
@@ -1488,8 +1487,7 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen    *onscreen,
                 }
 
               copy = copy_shared_framebuffer_cpu (onscreen,
-                                                  secondary_gpu_state,
-                                                  renderer_gpu_data);
+                                                  secondary_gpu_state);
             }
           else if (!secondary_gpu_state->noted_primary_gpu_copy_ok)
             {
