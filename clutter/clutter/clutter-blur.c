@@ -279,15 +279,15 @@ setup_blur_pass (ClutterBlur *blur,
   return TRUE;
 }
 
-static float
-calculate_downscale_factor (float width,
-                            float height,
-                            float sigma)
+float
+clutter_blur_calculate_downscale_factor (float width,
+                                         float height,
+                                         float radius)
 {
   float downscale_factor = 1.f;
   float scaled_width = width;
   float scaled_height = height;
-  float scaled_sigma = sigma;
+  float scaled_sigma = radius / 2.0f;
 
   /* This is the algorithm used by Firefox; keep downscaling until either the
    * blur radius is lower than the threshold, or the downscaled texture is too
@@ -301,7 +301,7 @@ calculate_downscale_factor (float width,
 
       scaled_width = width / downscale_factor;
       scaled_height = height / downscale_factor;
-      scaled_sigma = sigma / downscale_factor;
+      scaled_sigma = radius / (2.0f * downscale_factor);
     }
 
   return downscale_factor;
@@ -361,9 +361,8 @@ clutter_blur_new (CoglTexture *texture,
   blur = g_new0 (ClutterBlur, 1);
   blur->sigma = radius / 2.0f;
   blur->source_texture = g_object_ref (texture);
-  blur->downscale_factor = calculate_downscale_factor (width,
-                                                       height,
-                                                       blur->sigma);
+  blur->downscale_factor =
+    clutter_blur_calculate_downscale_factor (width, height, radius);
 
   if (G_APPROX_VALUE (blur->sigma, 0.0f, FLT_EPSILON))
     goto out;

@@ -27,6 +27,8 @@
 
 #include "clutter/clutter-paint-node-private.h"
 
+#include <math.h>
+
 #include "cogl/cogl.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-blur-private.h"
@@ -1361,6 +1363,8 @@ struct _ClutterBlurNode
 
   ClutterBlur *blur;
   CoglFramebuffer *source_framebuffer;
+  CoglFramebuffer *capture_framebuffer;
+  CoglPipeline *capture_pipeline;
   int source_x;
   int source_y;
   int source_width;
@@ -1368,6 +1372,39 @@ struct _ClutterBlurNode
 };
 
 G_DEFINE_TYPE (ClutterBlurNode, clutter_blur_node, CLUTTER_TYPE_LAYER_NODE)
+
+static gboolean
+create_blur_capture_render_objects (ClutterBlurNode *blur_node,
+                                    unsigned int     width,
+                                    unsigned int     height)
+{
+  CoglContext *cogl_context =
+    cogl_framebuffer_get_context (blur_node->source_framebuffer);
+  g_autoptr (CoglTexture) texture = NULL;
+  g_autoptr (CoglOffscreen) offscreen = NULL;
+  g_autoptr (GError) error = NULL;
+
+  texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
+
+  offscreen = cogl_offscreen_new_with_texture (texture);
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error))
+    {
+      g_warning ("Unable to allocate blur capture offscreen: %s",
+                 error->message);
+      return FALSE;
+    }
+
+  blur_node->capture_pipeline = cogl_pipeline_copy (default_texture_pipeline);
+  cogl_pipeline_set_layer_filters (blur_node->capture_pipeline, 0,
+                                   COGL_PIPELINE_FILTER_LINEAR,
+                                   COGL_PIPELINE_FILTER_LINEAR);
+  cogl_pipeline_set_layer_texture (blur_node->capture_pipeline, 0, texture);
+
+  blur_node->capture_framebuffer =
+    COGL_FRAMEBUFFER (g_steal_pointer (&offscreen));
+
+  return TRUE;
+}
 
 static const char *blur_framebuffer_effect_declarations =
   "uniform float blur_framebuffer_saturation;                               \n"
@@ -1436,11 +1473,16 @@ clutter_blur_node_post_draw (ClutterPaintNode    *node,
   if (blur_node->source_framebuffer)
     {
       ClutterLayerNode *layer_node = CLUTTER_LAYER_NODE (node);
+      CoglFramebuffer *capture_target;
       g_autoptr (GError) error = NULL;
+
+      capture_target = blur_node->capture_framebuffer
+        ? blur_node->capture_framebuffer
+        : layer_node->offscreen;
 
       should_blur =
         cogl_framebuffer_blit (blur_node->source_framebuffer,
-                               layer_node->offscreen,
+                               capture_target,
                                blur_node->source_x,
                                blur_node->source_y,
                                0,
@@ -1449,8 +1491,30 @@ clutter_blur_node_post_draw (ClutterPaintNode    *node,
                                blur_node->source_height,
                                &error);
       if (!should_blur)
-        g_warning ("Failed to capture blur node framebuffer: %s",
-                   error->message);
+        {
+          g_warning ("Failed to capture blur node framebuffer: %s",
+                     error->message);
+        }
+      else if (blur_node->capture_framebuffer)
+        {
+          CoglColor transparent;
+          float dst_width;
+          float dst_height;
+
+          dst_width = cogl_framebuffer_get_width (layer_node->offscreen);
+          dst_height = cogl_framebuffer_get_height (layer_node->offscreen);
+
+          cogl_color_init_from_4f (&transparent, 0.0, 0.0, 0.0, 0.0);
+          cogl_framebuffer_clear (layer_node->offscreen,
+                                  COGL_BUFFER_BIT_COLOR,
+                                  &transparent);
+          cogl_framebuffer_draw_textured_rectangle (layer_node->offscreen,
+                                                    blur_node->capture_pipeline,
+                                                    0.0, 0.0,
+                                                    dst_width, dst_height,
+                                                    0.0, 0.0,
+                                                    1.0, 1.0);
+        }
     }
 
   if (should_blur)
@@ -1466,6 +1530,8 @@ clutter_blur_node_finalize (ClutterPaintNode *node)
 
   g_clear_pointer (&blur_node->blur, clutter_blur_free);
   g_clear_object (&blur_node->source_framebuffer);
+  g_clear_object (&blur_node->capture_framebuffer);
+  g_clear_object (&blur_node->capture_pipeline);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_blur_node_parent_class)->finalize (node);
 }
@@ -1594,6 +1660,10 @@ clutter_blur_node_new_from_framebuffer (CoglFramebuffer *framebuffer,
   ClutterLayerNode *layer_node;
   CoglColor color;
   float opacity_f;
+  float downscale_factor;
+  unsigned int scaled_width;
+  unsigned int scaled_height;
+  float scaled_radius;
 
   g_return_val_if_fail (COGL_IS_FRAMEBUFFER (framebuffer), NULL);
   g_return_val_if_fail (width > 0, NULL);
@@ -1602,7 +1672,13 @@ clutter_blur_node_new_from_framebuffer (CoglFramebuffer *framebuffer,
   g_return_val_if_fail (saturation >= 0.0, NULL);
   g_return_val_if_fail (noise >= 0.0, NULL);
 
-  node = clutter_blur_node_new (width, height, radius);
+  downscale_factor =
+    clutter_blur_calculate_downscale_factor (width, height, radius);
+  scaled_width = MAX (1u, (unsigned int) floorf (width / downscale_factor));
+  scaled_height = MAX (1u, (unsigned int) floorf (height / downscale_factor));
+  scaled_radius = radius / downscale_factor;
+
+  node = clutter_blur_node_new (scaled_width, scaled_height, scaled_radius);
   if (!node)
     return NULL;
 
@@ -1613,8 +1689,18 @@ clutter_blur_node_new_from_framebuffer (CoglFramebuffer *framebuffer,
   blur_node->source_width = width;
   blur_node->source_height = height;
 
+  if (downscale_factor > 1.0f)
+    {
+      if (!create_blur_capture_render_objects (blur_node, width, height))
+        {
+          clutter_paint_node_unref (node);
+          return NULL;
+        }
+    }
+
   layer_node = CLUTTER_LAYER_NODE (blur_node);
   layer_node->skip_color_state_transform = TRUE;
+
   add_blur_framebuffer_effect (layer_node->pipeline, saturation, noise);
 
   opacity_f = opacity / 255.0f;
