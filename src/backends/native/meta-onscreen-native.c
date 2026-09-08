@@ -1392,7 +1392,7 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   int width, height, stride;
   uint32_t drm_format;
   void *buffer_data;
-  CoglBitmap *dumb_bitmap;
+  g_autoptr (CoglBitmap) dumb_bitmap = NULL;
   CoglPixelFormat cogl_format;
   const MetaFormatInfo *format_info;
 
@@ -1427,9 +1427,10 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                                                  0 /* y */,
                                                  COGL_READ_PIXELS_COLOR_BUFFER,
                                                  dumb_bitmap))
-    g_warning ("Failed to CPU-copy to a secondary GPU output");
-
-  g_object_unref (dumb_bitmap);
+    {
+      g_warning ("Failed to CPU-copy to a secondary GPU output");
+      return NULL;
+    }
 
   secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
 
