@@ -23,6 +23,7 @@
 
 #define TEST_WIDTH 100
 #define TEST_HEIGHT 80
+#define TEST_DAMAGE_HISTORY_LENGTH 16
 
 static MtkRegion *
 create_damage (int x,
@@ -63,7 +64,7 @@ test_accumulates_damage_for_rotating_buffers (void)
     copy_state, damage_1);
   assert_full_damage (repair);
   g_clear_pointer (&repair, mtk_region_unref);
-  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_1);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_1, TRUE);
 
   g_assert_cmpuint (
     meta_secondary_gpu_copy_state_get_next_buffer_index (copy_state),
@@ -73,7 +74,7 @@ test_accumulates_damage_for_rotating_buffers (void)
     copy_state, damage_2);
   assert_full_damage (repair);
   g_clear_pointer (&repair, mtk_region_unref);
-  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_2);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_2, TRUE);
 
   g_assert_cmpuint (
     meta_secondary_gpu_copy_state_get_next_buffer_index (copy_state),
@@ -83,7 +84,7 @@ test_accumulates_damage_for_rotating_buffers (void)
     copy_state, damage_3);
   assert_full_damage (repair);
   g_clear_pointer (&repair, mtk_region_unref);
-  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_3);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_3, TRUE);
 
   g_assert_cmpuint (
     meta_secondary_gpu_copy_state_get_next_buffer_index (copy_state),
@@ -99,6 +100,45 @@ test_accumulates_damage_for_rotating_buffers (void)
 }
 
 static void
+test_retains_damage_from_failed_copy (void)
+{
+  g_autoptr (MetaSecondaryGpuCopyState) copy_state = NULL;
+  g_autoptr (MtkRegion) damage_1 = create_damage (10, 10);
+  g_autoptr (MtkRegion) damage_2 = create_damage (20, 10);
+  g_autoptr (MtkRegion) damage_3 = create_damage (30, 10);
+  g_autoptr (MtkRegion) damage_4 = create_damage (40, 10);
+  g_autoptr (MtkRegion) damage_5 = create_damage (50, 10);
+  g_autoptr (MtkRegion) repair = NULL;
+
+  copy_state = meta_secondary_gpu_copy_state_new (3,
+                                                  TEST_WIDTH,
+                                                  TEST_HEIGHT);
+
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_1, TRUE);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_2, TRUE);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_3, TRUE);
+
+  repair = meta_secondary_gpu_copy_state_get_damage (
+    copy_state, damage_4);
+  g_assert_true (mtk_region_contains_point (repair, 20, 10));
+  g_clear_pointer (&repair, mtk_region_unref);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_4, FALSE);
+
+  g_assert_cmpuint (
+    meta_secondary_gpu_copy_state_get_next_buffer_index (copy_state),
+    ==,
+    0);
+  repair = meta_secondary_gpu_copy_state_get_damage (
+    copy_state, damage_5);
+
+  g_assert_false (mtk_region_contains_point (repair, 10, 10));
+  g_assert_true (mtk_region_contains_point (repair, 20, 10));
+  g_assert_true (mtk_region_contains_point (repair, 30, 10));
+  g_assert_true (mtk_region_contains_point (repair, 40, 10));
+  g_assert_true (mtk_region_contains_point (repair, 50, 10));
+}
+
+static void
 test_empty_damage_needs_no_copy (void)
 {
   g_autoptr (MetaSecondaryGpuCopyState) copy_state = NULL;
@@ -109,10 +149,43 @@ test_empty_damage_needs_no_copy (void)
                                                   TEST_WIDTH,
                                                   TEST_HEIGHT);
   meta_secondary_gpu_copy_state_finish_frame (copy_state,
-                                              empty_damage);
+                                              empty_damage,
+                                              TRUE);
   repair = meta_secondary_gpu_copy_state_get_damage (
     copy_state, empty_damage);
 
+  g_assert_true (mtk_region_is_empty (repair));
+}
+
+static void
+test_empty_damage_preserves_history (void)
+{
+  g_autoptr (MetaSecondaryGpuCopyState) copy_state = NULL;
+  g_autoptr (MtkRegion) damage_1 = create_damage (10, 10);
+  g_autoptr (MtkRegion) damage_2 = create_damage (20, 10);
+  g_autoptr (MtkRegion) empty_damage = mtk_region_create ();
+  g_autoptr (MtkRegion) repair = NULL;
+
+  copy_state = meta_secondary_gpu_copy_state_new (2,
+                                                  TEST_WIDTH,
+                                                  TEST_HEIGHT);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_1, TRUE);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage_2, TRUE);
+
+  repair = meta_secondary_gpu_copy_state_get_damage (
+    copy_state, empty_damage);
+  g_assert_true (mtk_region_equal (repair, damage_2));
+  g_clear_pointer (&repair, mtk_region_unref);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, empty_damage, FALSE);
+
+  repair = meta_secondary_gpu_copy_state_get_damage (
+    copy_state, empty_damage);
+  g_assert_true (mtk_region_equal (repair, damage_2));
+  g_clear_pointer (&repair, mtk_region_unref);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, empty_damage, TRUE);
+
+  repair = meta_secondary_gpu_copy_state_get_damage (
+    copy_state, empty_damage);
   g_assert_true (mtk_region_is_empty (repair));
 }
 
@@ -128,9 +201,35 @@ test_full_damage_is_retained (void)
   copy_state = meta_secondary_gpu_copy_state_new (2,
                                                   TEST_WIDTH,
                                                   TEST_HEIGHT);
-  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage);
-  meta_secondary_gpu_copy_state_finish_frame (copy_state, full_damage);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage, TRUE);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, full_damage, TRUE);
 
+  repair = meta_secondary_gpu_copy_state_get_damage (
+    copy_state, damage);
+  assert_full_damage (repair);
+}
+
+static void
+test_old_damage_history_means_full_damage (void)
+{
+  g_autoptr (MetaSecondaryGpuCopyState) copy_state = NULL;
+  g_autoptr (MtkRegion) damage = create_damage (10, 10);
+  g_autoptr (MtkRegion) repair = NULL;
+
+  copy_state = meta_secondary_gpu_copy_state_new (1,
+                                                  TEST_WIDTH,
+                                                  TEST_HEIGHT);
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage, TRUE);
+
+  for (int i = 1; i < TEST_DAMAGE_HISTORY_LENGTH; i++)
+    meta_secondary_gpu_copy_state_finish_frame (copy_state, damage, FALSE);
+
+  repair = meta_secondary_gpu_copy_state_get_damage (
+    copy_state, damage);
+  g_assert_true (mtk_region_equal (repair, damage));
+  g_clear_pointer (&repair, mtk_region_unref);
+
+  meta_secondary_gpu_copy_state_finish_frame (copy_state, damage, FALSE);
   repair = meta_secondary_gpu_copy_state_get_damage (
     copy_state, damage);
   assert_full_damage (repair);
@@ -144,10 +243,16 @@ main (int    argc,
 
   g_test_add_func ("/backends/native/secondary-gpu-copy/rotating-buffers",
                    test_accumulates_damage_for_rotating_buffers);
+  g_test_add_func ("/backends/native/secondary-gpu-copy/failed-copy",
+                   test_retains_damage_from_failed_copy);
   g_test_add_func ("/backends/native/secondary-gpu-copy/empty-damage",
                    test_empty_damage_needs_no_copy);
+  g_test_add_func ("/backends/native/secondary-gpu-copy/empty-damage-history",
+                   test_empty_damage_preserves_history);
   g_test_add_func ("/backends/native/secondary-gpu-copy/full-damage",
                    test_full_damage_is_retained);
+  g_test_add_func ("/backends/native/secondary-gpu-copy/history-too-old",
+                   test_old_damage_history_means_full_damage);
 
   return g_test_run ();
 }

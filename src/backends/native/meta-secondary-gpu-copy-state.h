@@ -45,11 +45,12 @@ meta_secondary_gpu_copy_state_get_damage (
   MetaSecondaryGpuCopyState *copy_state,
   const MtkRegion           *damage);
 
-/* Call exactly once for every successfully copied source frame. */
+/* Call exactly once for every source frame, including failed copies. */
 void
 meta_secondary_gpu_copy_state_finish_frame (
   MetaSecondaryGpuCopyState *copy_state,
-  const MtkRegion           *damage);
+  const MtkRegion           *damage,
+  gboolean                   buffer_copied);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaSecondaryGpuCopyState,
                                meta_secondary_gpu_copy_state_free)

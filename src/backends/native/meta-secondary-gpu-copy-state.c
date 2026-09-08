@@ -26,8 +26,9 @@
 struct _MetaSecondaryGpuCopyState
 {
   /*
-   * frame_sequence advances for every copied source frame. A destination
-   * buffer's sequence identifies the frame it contains.
+   * frame_sequence advances for every source frame. A destination buffer's
+   * sequence advances only when that buffer was successfully copied, so its
+   * age still accounts for damage from failed copy attempts.
    */
   unsigned int n_buffers;
   unsigned int next_buffer_index;
@@ -125,15 +126,19 @@ meta_secondary_gpu_copy_state_get_damage (
 void
 meta_secondary_gpu_copy_state_finish_frame (
   MetaSecondaryGpuCopyState *copy_state,
-  const MtkRegion           *damage)
+  const MtkRegion           *damage,
+  gboolean                   buffer_copied)
 {
   clutter_damage_history_record (copy_state->damage_history, damage);
   clutter_damage_history_step (copy_state->damage_history);
 
-  copy_state->buffer_sequences[copy_state->next_buffer_index] =
-    copy_state->frame_sequence;
-  copy_state->next_buffer_index =
-    (copy_state->next_buffer_index + 1) % copy_state->n_buffers;
+  if (buffer_copied)
+    {
+      copy_state->buffer_sequences[copy_state->next_buffer_index] =
+        copy_state->frame_sequence;
+      copy_state->next_buffer_index =
+        (copy_state->next_buffer_index + 1) % copy_state->n_buffers;
+    }
 
   copy_state->frame_sequence++;
 }
