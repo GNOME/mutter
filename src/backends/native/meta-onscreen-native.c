@@ -87,7 +87,6 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   } gbm;
 
   struct {
-    MetaDrmBufferDumb *current_dumb_fb;
     MetaDrmBufferDumb *dumb_fbs[3];
   } cpu;
 
@@ -1171,18 +1170,12 @@ done:
 static MetaDrmBufferDumb *
 secondary_gpu_get_next_dumb_buffer (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  MetaDrmBufferDumb *current_dumb_fb;
-  const int n_dumb_fbs = G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs);
-  int i;
+  unsigned int buffer_index;
 
-  current_dumb_fb = secondary_gpu_state->cpu.current_dumb_fb;
-  for (i = 0; i < n_dumb_fbs; i++)
-    {
-      if (current_dumb_fb == secondary_gpu_state->cpu.dumb_fbs[i])
-        return secondary_gpu_state->cpu.dumb_fbs[(i + 1) % n_dumb_fbs];
-    }
+  buffer_index = meta_secondary_gpu_copy_state_get_next_buffer_index (
+    secondary_gpu_state->copy_state);
 
-  return secondary_gpu_state->cpu.dumb_fbs[0];
+  return secondary_gpu_state->cpu.dumb_fbs[buffer_index];
 }
 
 static MetaDrmBuffer *
@@ -1288,8 +1281,6 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
                                      &error))
     return NULL;
 
-  secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
-
   return g_object_ref (buffer);
 }
 
@@ -1343,8 +1334,6 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
       g_warning ("Failed to CPU-copy to a secondary GPU output");
       return NULL;
     }
-
-  secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
 
   return g_object_ref (buffer);
 }
@@ -1409,6 +1398,11 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen    *onscreen,
                           meta_render_device_get_name (render_device));
               secondary_gpu_state->noted_primary_gpu_copy_ok = TRUE;
             }
+
+          meta_secondary_gpu_copy_state_finish_frame (
+            secondary_gpu_state->copy_state,
+            region,
+            copy != NULL);
           break;
         }
     }
@@ -3557,6 +3551,11 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
   secondary_gpu_state->gpu_kms = gpu_kms;
+  secondary_gpu_state->copy_state =
+    meta_secondary_gpu_copy_state_new (
+      G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs),
+      width,
+      height);
 
   for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
     {
