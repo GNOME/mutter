@@ -1356,7 +1356,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
                                                         &modifier,
                                                         &error);
 
-  if (error)
+  if (!dmabuf_fb)
     {
       meta_topic (META_DEBUG_KMS,
                   "Failed to create DMA buffer for blitting: %s",

@@ -524,10 +524,19 @@ cogl_renderer_egl_create_dma_buf_framebuffer (CoglRenderer     *renderer,
                                               GError          **error)
 {
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglDriver *driver = cogl_context_get_driver (context);
   EGLImageKHR egl_image;
   CoglEglImageFlags flags;
   CoglTexture *cogl_tex;
   CoglOffscreen *cogl_fbo;
+
+  if (!cogl_driver_has_feature (driver,
+                                COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE))
+    {
+      g_set_error (error, COGL_SYSTEM_ERROR, COGL_SYSTEM_ERROR_UNSUPPORTED,
+                   "Creating textures from EGL images is not supported");
+      return NULL;
+    }
 
   egl_image = cogl_renderer_egl_create_dmabuf_image (renderer_egl,
                                                      width,
