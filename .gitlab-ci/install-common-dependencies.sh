@@ -151,10 +151,10 @@ then
      master
 fi
 
-if ! check_gsettings_key org.gnome.desktop.a11y.interface keyboard-focus-visible-timeout
+if ! check_gsettings_key org.gnome.desktop.peripherals.touchpad custom-accel-config
 then
   ./$SCRIPTS_DIR/install-meson-project.sh \
       "${OPTIONS[@]}" \
       https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas \
-      51.alpha
+      51.rc
 fi
