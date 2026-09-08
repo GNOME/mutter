@@ -49,18 +49,20 @@ clutter_damage_history_free (ClutterDamageHistory *history)
   g_free (history);
 }
 
+/*
+ * The current frame's damage is supplied separately, so a buffer of age N
+ * needs only N - 1 completed frames in the history. Call before stepping
+ * the history for the current frame.
+ */
 gboolean
 clutter_damage_history_is_age_valid (ClutterDamageHistory *history,
                                      int                   age)
 {
-  if (age >= DAMAGE_HISTORY_LENGTH ||
+  if (age > DAMAGE_HISTORY_LENGTH ||
       age < 1)
     return FALSE;
 
-  if (!clutter_damage_history_lookup (history, age))
-    return FALSE;
-
-  return TRUE;
+  return age == 1 || clutter_damage_history_lookup (history, age - 1);
 }
 
 void
