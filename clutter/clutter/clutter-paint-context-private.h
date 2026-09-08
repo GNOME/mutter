@@ -40,8 +40,11 @@ void clutter_paint_context_push_target_color_state (ClutterPaintContext *paint_c
 
 void clutter_paint_context_pop_target_color_state (ClutterPaintContext *paint_context);
 
-void clutter_paint_context_push_clone_paint (ClutterPaintContext *paint_context);
+void clutter_paint_context_push_clone_paint (ClutterPaintContext *paint_context,
+                                             GList               *clone_link);
 
 void clutter_paint_context_pop_clone_paint (ClutterPaintContext *paint_context);
 
 gboolean clutter_paint_context_is_in_clone_paint (ClutterPaintContext *paint_context);
+
+const GList * clutter_paint_context_get_clone_stack (ClutterPaintContext *paint_context);

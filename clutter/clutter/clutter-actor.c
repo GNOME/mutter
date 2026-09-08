@@ -3180,6 +3180,59 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
                                            node);
 }
 
+void
+clutter_actor_get_effective_eye_transformation_matrix (ClutterActor        *self,
+                                                       ClutterPaintContext *paint_context,
+                                                       graphene_matrix_t   *transform)
+{
+  const GList *clone_stack;
+  graphene_matrix_t self_to_current;
+  graphene_matrix_t current_to_eye;
+  ClutterActor *current_actor;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+  g_return_if_fail (paint_context != NULL);
+  g_return_if_fail (transform != NULL);
+
+  clone_stack = clutter_paint_context_get_clone_stack (paint_context);
+  if (!clone_stack || !clutter_actor_is_in_clone_paint (self))
+    {
+      clutter_actor_get_relative_transformation_matrix (self, NULL, transform);
+      return;
+    }
+
+  graphene_matrix_init_identity (&self_to_current);
+  current_actor = self;
+
+  for (const GList *l = clone_stack; l; l = l->next)
+    {
+      ClutterClone *clone = CLUTTER_CLONE (l->data);
+      ClutterActor *source = clutter_clone_get_source (clone);
+      graphene_matrix_t current_to_source;
+      graphene_matrix_t source_to_clone;
+      graphene_matrix_t current_to_clone;
+      graphene_matrix_t self_to_clone;
+
+      clutter_actor_get_relative_transformation_matrix (current_actor,
+                                                        source,
+                                                        &current_to_source);
+      clutter_clone_get_source_transform (clone, &source_to_clone);
+      graphene_matrix_multiply (&current_to_source,
+                                &source_to_clone,
+                                &current_to_clone);
+      graphene_matrix_multiply (&self_to_current,
+                                &current_to_clone,
+                                &self_to_clone);
+      self_to_current = self_to_clone;
+      current_actor = CLUTTER_ACTOR (clone);
+    }
+
+  clutter_actor_get_relative_transformation_matrix (current_actor,
+                                                    NULL,
+                                                    &current_to_eye);
+  graphene_matrix_multiply (&self_to_current, &current_to_eye, transform);
+}
+
 /* Returns TRUE if the actor can be ignored */
 /* FIXME: we should return a ClutterCullResult, and
  * clutter_actor_paint should understand that a CLUTTER_CULL_RESULT_IN

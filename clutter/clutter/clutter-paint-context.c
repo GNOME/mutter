@@ -42,7 +42,7 @@ struct _ClutterPaintContext
 
   ClutterColorState *framebuffer_color_state;
 
-  int clone_paint_level;
+  GQueue clone_stack;
 };
 
 G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
@@ -319,19 +319,28 @@ clutter_paint_context_get_color_state (ClutterPaintContext *paint_context)
 }
 
 void
-clutter_paint_context_push_clone_paint (ClutterPaintContext *paint_context)
+clutter_paint_context_push_clone_paint (ClutterPaintContext *paint_context,
+                                        GList               *clone_link)
 {
-  paint_context->clone_paint_level++;
+  g_queue_push_head_link (&paint_context->clone_stack, clone_link);
 }
 
 void
 clutter_paint_context_pop_clone_paint (ClutterPaintContext *paint_context)
 {
-  paint_context->clone_paint_level--;
+  g_return_if_fail (!g_queue_is_empty (&paint_context->clone_stack));
+
+  g_queue_pop_head_link (&paint_context->clone_stack);
 }
 
 gboolean
 clutter_paint_context_is_in_clone_paint (ClutterPaintContext *paint_context)
 {
-  return paint_context->clone_paint_level > 0;
+  return !g_queue_is_empty (&paint_context->clone_stack);
+}
+
+const GList *
+clutter_paint_context_get_clone_stack (ClutterPaintContext *paint_context)
+{
+  return paint_context->clone_stack.head;
 }

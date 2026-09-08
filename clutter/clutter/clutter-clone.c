@@ -41,6 +41,7 @@
 #include "clutter/clutter-clone.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-main.h"
+#include "clutter/clutter-mutter.h"
 #include "clutter/clutter-paint-context-private.h"
 #include "clutter/clutter-paint-volume-private.h"
 #include "clutter/clutter-private.h"
@@ -158,6 +159,7 @@ clutter_clone_paint (ClutterActor        *actor,
    */
   if (clutter_actor_is_realized (priv->clone_source))
     {
+      GList clone_link = { .data = self };
       CoglFramebuffer *fb = NULL;
 
       if (priv->x_scale != 1.0 || priv->y_scale != 1.0)
@@ -168,7 +170,7 @@ clutter_clone_paint (ClutterActor        *actor,
           cogl_framebuffer_scale (fb, priv->x_scale, priv->y_scale, 1.0f);
         }
 
-      clutter_paint_context_push_clone_paint (paint_context);
+      clutter_paint_context_push_clone_paint (paint_context, &clone_link);
       clutter_actor_paint (priv->clone_source, paint_context);
       clutter_paint_context_pop_clone_paint (paint_context);
 
@@ -384,6 +386,20 @@ clutter_clone_init (ClutterClone *self)
 
   priv->x_scale = 1.f;
   priv->y_scale = 1.f;
+}
+
+void
+clutter_clone_get_source_transform (ClutterClone      *clone,
+                                    graphene_matrix_t *transform)
+{
+  ClutterClonePrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_CLONE (clone));
+  g_return_if_fail (transform != NULL);
+
+  priv = clutter_clone_get_instance_private (clone);
+
+  graphene_matrix_init_scale (transform, priv->x_scale, priv->y_scale, 1.0f);
 }
 
 /**

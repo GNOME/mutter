@@ -82,6 +82,29 @@ void clutter_actor_foreach_mapped_clone (ClutterActor          *self,
                                          ClutterActorCloneFunc  callback,
                                          gpointer               user_data);
 
+/**
+ * clutter_clone_get_source_transform: (skip)
+ * @clone: a #ClutterClone
+ * @transform: (out): return location for the source-to-clone transform
+ */
+CLUTTER_EXPORT
+void clutter_clone_get_source_transform (ClutterClone      *clone,
+                                         graphene_matrix_t *transform);
+
+/**
+ * clutter_actor_get_effective_eye_transformation_matrix: (skip)
+ * @self: a #ClutterActor
+ * @paint_context: the current #ClutterPaintContext
+ * @transform: (out): return location for the effective eye transform
+ *
+ * Gets the transform from @self to eye coordinates along the current paint
+ * path, including any active #ClutterClone transforms.
+ */
+CLUTTER_EXPORT
+void clutter_actor_get_effective_eye_transformation_matrix (ClutterActor        *self,
+                                                            ClutterPaintContext *paint_context,
+                                                            graphene_matrix_t   *transform);
+
 CLUTTER_EXPORT
 int64_t clutter_stage_get_frame_counter (ClutterStage *stage);
 
