@@ -94,7 +94,7 @@ struct _CoglOnscreenClass
  * back buffer contents for a #CoglOnscreen as the number of frames
  * elapsed since the contents were most recently defined.
  *
- * These age values exposes enough information to applications about
+ * These age values expose enough information to applications about
  * how Cogl internally manages back buffers to allow applications to
  * re-use the contents of old frames and minimize how much must be
  * redrawn for the next frame.
@@ -105,17 +105,15 @@ struct _CoglOnscreenClass
  *
  * The queried value remains valid until the next buffer swap.
  *
- * The recommended way to take advantage of this buffer age api is to
- * build up a circular buffer of length 3 for tracking damage regions
- * over the last 3 frames and when starting a new frame look at the
- * age of the buffer and combine the damage regions for the current
- * frame with the damage regions of previous @age frames so you know
- * everything that must be redrawn to update the old contents for the
- * new frame.
+ * Track previous frames' damage regions in a circular buffer. For a
+ * buffer of age N, combine the current frame's damage with the previous
+ * N - 1 frames' damage to find everything that needs to be redrawn.
+ * For example, age 1 needs only the current damage; age 2 also needs the
+ * previous frame's damage. If the age is 0 or the required damage history
+ * is unavailable, redraw the whole buffer.
  *
- * If the system doesn't not support being able to track the age
- * of back buffers then this function will always return 0 which
- * implies that the contents are undefined.
+ * If the system cannot track back buffer ages, this function returns 0
+ * and the contents must be treated as undefined.
  *
  * The %COGL_WINSYS_FEATURE_BUFFER_AGE feature can optionally be
  * explicitly checked to determine if Cogl is currently tracking the
