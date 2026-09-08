@@ -1365,7 +1365,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
     }
 
   n_rectangles = mtk_region_num_rectangles (region);
-  if (((n_rectangles == 0 || n_rectangles > MAX_DAMAGE_RECTANGLES) &&
+  if ((n_rectangles > MAX_DAMAGE_RECTANGLES &&
        !cogl_framebuffer_blit (framebuffer,
                                COGL_FRAMEBUFFER (dmabuf_fb),
                                0, 0, 0, 0,
