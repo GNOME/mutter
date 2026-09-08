@@ -20,6 +20,7 @@
 #include "backends/native/meta-secondary-gpu-copy-state.h"
 
 #include <stdint.h>
+#include <string.h>
 
 #include "clutter/clutter-mutter.h"
 
@@ -148,5 +149,25 @@ meta_secondary_gpu_copy_state_finish_frame (
         (copy_state->next_buffer_index + 1) % copy_state->n_buffers;
     }
 
+  if (G_UNLIKELY (copy_state->frame_sequence == G_MAXUINT64))
+    {
+      meta_secondary_gpu_copy_state_reset (copy_state);
+      return;
+    }
+
   copy_state->frame_sequence++;
+}
+
+void
+meta_secondary_gpu_copy_state_reset (MetaSecondaryGpuCopyState *copy_state)
+{
+  memset (copy_state->buffer_sequences,
+          0,
+          sizeof (*copy_state->buffer_sequences) * copy_state->n_buffers);
+  copy_state->next_buffer_index = 0;
+  copy_state->frame_sequence = 1;
+
+  g_clear_pointer (&copy_state->damage_history,
+                   clutter_damage_history_free);
+  copy_state->damage_history = clutter_damage_history_new ();
 }
