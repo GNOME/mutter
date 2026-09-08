@@ -925,6 +925,13 @@ meta_background_set_blend_textures (MetaBackground          *self,
   g_return_if_fail (META_IS_BACKGROUND (self));
   g_return_if_fail (blend_factor >= 0.0 && blend_factor <= 1.0);
 
+  if (self->texture1 == texture1 &&
+      self->texture2 == texture2 &&
+      self->style == style &&
+      clutter_color_state_equals (self->color_state, color_state) &&
+      G_APPROX_VALUE (self->blend_factor, (float) blend_factor, FLT_EPSILON))
+    return;
+
   if (g_set_object (&self->texture1, texture1))
     free_wallpaper_texture (self);
 
