@@ -33,9 +33,9 @@ typedef struct _ClutterColorPipeline
   GList *ops; /* ClutterColorOp */
 } ClutterColorPipeline;
 
-G_DEFINE_TYPE (ClutterColorPipeline,
-               clutter_color_pipeline,
-               G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (ClutterColorPipeline,
+                     clutter_color_pipeline,
+                     G_TYPE_OBJECT)
 
 static void
 clutter_color_pipeline_dispose (GObject *gobject)

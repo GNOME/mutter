@@ -65,9 +65,9 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-G_DEFINE_TYPE (ClutterPageTurnEffect,
-               clutter_page_turn_effect,
-               CLUTTER_TYPE_DEFORM_EFFECT);
+G_DEFINE_FINAL_TYPE (ClutterPageTurnEffect,
+                     clutter_page_turn_effect,
+                     CLUTTER_TYPE_DEFORM_EFFECT);
 
 static void
 clutter_page_turn_effect_deform_vertex (ClutterDeformEffect  *effect,

@@ -55,9 +55,9 @@ struct _ClutterScrollController
   ClutterScrollControllerFlags flags;
 };
 
-G_DEFINE_TYPE (ClutterScrollController,
-               clutter_scroll_controller,
-               CLUTTER_TYPE_ACTION)
+G_DEFINE_FINAL_TYPE (ClutterScrollController,
+                     clutter_scroll_controller,
+                     CLUTTER_TYPE_ACTION)
 
 static void
 clutter_scroll_controller_reset_accumulated (ClutterScrollController *scroll_controller)

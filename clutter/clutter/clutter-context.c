@@ -89,7 +89,7 @@ typedef struct _ClutterContextPrivate
   ClutterColorState *default_color_state;
 } ClutterContextPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterContext, clutter_context, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterContext, clutter_context, G_TYPE_OBJECT)
 
 static void
 clutter_context_dispose (GObject *object)

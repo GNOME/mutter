@@ -42,9 +42,9 @@ struct _ClutterMotionController
   ClutterAction parent_instance;
 };
 
-G_DEFINE_TYPE (ClutterMotionController,
-               clutter_motion_controller,
-               CLUTTER_TYPE_ACTION)
+G_DEFINE_FINAL_TYPE (ClutterMotionController,
+                     clutter_motion_controller,
+                     CLUTTER_TYPE_ACTION)
 
 static gboolean
 clutter_motion_controller_handle_event (ClutterAction      *action,

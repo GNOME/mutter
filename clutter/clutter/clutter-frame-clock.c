@@ -179,8 +179,7 @@ struct _ClutterFrameClock
   GQueue *deferred_times;
 };
 
-G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
-               G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (ClutterFrameClock, clutter_frame_clock, G_TYPE_OBJECT)
 
 static void
 clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,

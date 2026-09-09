@@ -35,8 +35,8 @@ struct _ClutterInputOnlyAction
   GDestroyNotify user_data_destroy;
 };
 
-G_DEFINE_TYPE (ClutterInputOnlyAction, clutter_input_only_action,
-               CLUTTER_TYPE_ACTION)
+G_DEFINE_FINAL_TYPE (ClutterInputOnlyAction, clutter_input_only_action,
+                     CLUTTER_TYPE_ACTION)
 
 static void
 clutter_input_only_action_dispose (GObject *object)

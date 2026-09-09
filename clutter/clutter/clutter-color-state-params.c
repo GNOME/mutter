@@ -55,9 +55,9 @@ typedef struct _ClutterColorStateParams
   ClutterLuminance luminance;
 } ClutterColorStateParams;
 
-G_DEFINE_TYPE (ClutterColorStateParams,
-               clutter_color_state_params,
-               CLUTTER_TYPE_COLOR_STATE)
+G_DEFINE_FINAL_TYPE (ClutterColorStateParams,
+                     clutter_color_state_params,
+                     CLUTTER_TYPE_COLOR_STATE)
 
 
 const ClutterColorimetry *

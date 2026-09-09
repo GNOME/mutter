@@ -251,8 +251,8 @@ struct _ClutterColorOpClampUnit
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE (ClutterColorOpClampUnit, clutter_color_op_clamp_unit,
-               CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE (ClutterColorOpClampUnit, clutter_color_op_clamp_unit,
+                     CLUTTER_TYPE_COLOR_OP)
 
 static float
 clutter_color_op_clamp_unit_do_transform_one (ClutterColorOp *op,
@@ -318,9 +318,9 @@ struct _ClutterColorOpSrgbPiecewiseEotf
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOpSrgbPiecewiseEotf,
-                            clutter_color_op_srgb_piecewise_eotf,
-                            CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterColorOpSrgbPiecewiseEotf,
+                                  clutter_color_op_srgb_piecewise_eotf,
+                                  CLUTTER_TYPE_COLOR_OP)
 
 static float
 clutter_color_op_srgb_piecewise_eotf_do_transform_one (ClutterColorOp *op,
@@ -381,9 +381,9 @@ struct _ClutterColorOpSrgbPiecewiseInvEotf
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOpSrgbPiecewiseInvEotf,
-                            clutter_color_op_srgb_piecewise_inv_eotf,
-                            CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterColorOpSrgbPiecewiseInvEotf,
+                                  clutter_color_op_srgb_piecewise_inv_eotf,
+                                  CLUTTER_TYPE_COLOR_OP)
 
 static float
 clutter_color_op_srgb_piecewise_inv_eotf_do_transform_one (ClutterColorOp *op,
@@ -439,8 +439,8 @@ struct _ClutterColorOpPqEotf
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE (ClutterColorOpPqEotf, clutter_color_op_pq_eotf,
-               CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE (ClutterColorOpPqEotf, clutter_color_op_pq_eotf,
+                     CLUTTER_TYPE_COLOR_OP)
 
 static float
 clutter_color_op_pq_eotf_do_transform_one (ClutterColorOp *op,
@@ -490,8 +490,8 @@ struct _ClutterColorOpPqInvEotf
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE (ClutterColorOpPqInvEotf, clutter_color_op_pq_inv_eotf,
-               CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE (ClutterColorOpPqInvEotf, clutter_color_op_pq_inv_eotf,
+                     CLUTTER_TYPE_COLOR_OP)
 
 static float
 clutter_color_op_pq_inv_eotf_do_transform_one (ClutterColorOp *op,
@@ -548,9 +548,9 @@ struct _ClutterColorOp3DLut
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOp3DLut,
-                            clutter_color_op_3d_lut,
-                            CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterColorOp3DLut,
+                                  clutter_color_op_3d_lut,
+                                  CLUTTER_TYPE_COLOR_OP)
 
 static void
 clutter_color_op_3d_lut_sample (ClutterColorOp3DLutPrivate *priv,
@@ -786,9 +786,9 @@ struct _ClutterColorOpGammaPower
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOpGammaPower,
-                            clutter_color_op_gamma_power,
-                            CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterColorOpGammaPower,
+                                  clutter_color_op_gamma_power,
+                                  CLUTTER_TYPE_COLOR_OP)
 
 static char *
 clutter_color_op_gamma_power_to_string (ClutterColorOp *op)
@@ -858,9 +858,9 @@ struct _ClutterColorOpCurve1D
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOpCurve1D,
-                            clutter_color_op_curve_1d,
-                            CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterColorOpCurve1D,
+                                  clutter_color_op_curve_1d,
+                                  CLUTTER_TYPE_COLOR_OP)
 
 static void
 clutter_color_op_curve_1d_do_transform (ClutterColorOp *op,
@@ -1017,9 +1017,9 @@ struct _ClutterColorOpMultiply
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOpMultiply,
-                            clutter_color_op_multiply,
-                            CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterColorOpMultiply,
+                                  clutter_color_op_multiply,
+                                  CLUTTER_TYPE_COLOR_OP)
 
 static char *
 clutter_color_op_multiply_to_string (ClutterColorOp *op)
@@ -1081,9 +1081,9 @@ struct _ClutterColorOpYcbcrMatrix
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOpYcbcrMatrix,
-                            clutter_color_op_ycbcr_matrix,
-                            CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterColorOpYcbcrMatrix,
+                                  clutter_color_op_ycbcr_matrix,
+                                  CLUTTER_TYPE_COLOR_OP)
 
 static void
 clutter_color_op_ycbcr_matrix_do_transform (ClutterColorOp *op,
@@ -1207,9 +1207,9 @@ struct _ClutterColorOpMatrix4x4
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOpMatrix4x4,
-                            clutter_color_op_matrix_4x4,
-                            CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterColorOpMatrix4x4,
+                                  clutter_color_op_matrix_4x4,
+                                  CLUTTER_TYPE_COLOR_OP)
 
 static void
 clutter_color_op_matrix_4x4_do_transform (ClutterColorOp *op,
@@ -1291,8 +1291,9 @@ struct _ClutterColorOpUnpremultiply
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE (ClutterColorOpUnpremultiply, clutter_color_op_unpremultiply,
-               CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE (ClutterColorOpUnpremultiply,
+                     clutter_color_op_unpremultiply,
+                     CLUTTER_TYPE_COLOR_OP)
 
 static char *
 clutter_color_op_unpremultiply_to_string (ClutterColorOp *op)
@@ -1341,8 +1342,8 @@ struct _ClutterColorOpPremultiply
   ClutterColorOp parent;
 };
 
-G_DEFINE_TYPE (ClutterColorOpPremultiply, clutter_color_op_premultiply,
-               CLUTTER_TYPE_COLOR_OP)
+G_DEFINE_FINAL_TYPE (ClutterColorOpPremultiply, clutter_color_op_premultiply,
+                     CLUTTER_TYPE_COLOR_OP)
 
 static char *
 clutter_color_op_premultiply_to_string (ClutterColorOp *op)

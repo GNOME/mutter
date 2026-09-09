@@ -296,8 +296,8 @@ static ClutterAnimatableInterface *parent_animatable_iface = NULL;
 
 G_DECLARE_FINAL_TYPE (ClutterTextInputFocus, clutter_text_input_focus,
                       CLUTTER, TEXT_INPUT_FOCUS, ClutterInputFocus)
-G_DEFINE_TYPE (ClutterTextInputFocus, clutter_text_input_focus,
-               CLUTTER_TYPE_INPUT_FOCUS)
+G_DEFINE_FINAL_TYPE (ClutterTextInputFocus, clutter_text_input_focus,
+                     CLUTTER_TYPE_INPUT_FOCUS)
 
 /* Utilities pango to (logical) pixels functions */
 static float

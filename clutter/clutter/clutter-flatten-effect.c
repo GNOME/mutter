@@ -38,9 +38,9 @@ struct _ClutterFlattenEffect
   ClutterOffscreenEffect parent;
 };
 
-G_DEFINE_TYPE (ClutterFlattenEffect,
-               _clutter_flatten_effect,
-               CLUTTER_TYPE_OFFSCREEN_EFFECT);
+G_DEFINE_FINAL_TYPE (ClutterFlattenEffect,
+                     _clutter_flatten_effect,
+                     CLUTTER_TYPE_OFFSCREEN_EFFECT);
 
 static void
 _clutter_flatten_effect_class_init (ClutterFlattenEffectClass *klass)

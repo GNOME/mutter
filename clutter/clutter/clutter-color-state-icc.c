@@ -54,9 +54,9 @@ static ClutterColorState * clutter_color_state_icc_new_full (ClutterContext     
                                                              uint32_t                    icc_length,
                                                              GError                    **error);
 
-G_DEFINE_TYPE (ClutterColorStateIcc,
-               clutter_color_state_icc,
-               CLUTTER_TYPE_COLOR_STATE)
+G_DEFINE_FINAL_TYPE (ClutterColorStateIcc,
+                     clutter_color_state_icc,
+                     CLUTTER_TYPE_COLOR_STATE)
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (cmsHPROFILE, cmsCloseProfile);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (cmsHTRANSFORM, cmsDeleteTransform);

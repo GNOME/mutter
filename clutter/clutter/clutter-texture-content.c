@@ -41,10 +41,10 @@ struct _ClutterTextureContent
 
 static void clutter_content_iface_init (ClutterContentInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (ClutterTextureContent, clutter_texture_content,
-                         G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTENT,
-                                                clutter_content_iface_init))
+G_DEFINE_FINAL_TYPE_WITH_CODE (ClutterTextureContent, clutter_texture_content,
+                               G_TYPE_OBJECT,
+                               G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTENT,
+                                                      clutter_content_iface_init))
 
 static void
 clutter_texture_content_finalize (GObject *gobject)

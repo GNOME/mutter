@@ -30,8 +30,8 @@ struct _ClutterInputOnlyActor
   ClutterActor parent;
 };
 
-G_DEFINE_TYPE (ClutterInputOnlyActor, clutter_input_only_actor,
-               CLUTTER_TYPE_ACTOR)
+G_DEFINE_FINAL_TYPE (ClutterInputOnlyActor, clutter_input_only_actor,
+                     CLUTTER_TYPE_ACTOR)
 
 static void
 clutter_input_only_actor_class_init (ClutterInputOnlyActorClass *klass)
