@@ -134,6 +134,8 @@ OPTIONS+=( "${DESTDIRS[@]/#/--destdir=}" )
 
 SCRIPTS_DIR="$(dirname $0)"
 
+pip_install ruff==0.16.4
+
 if ! pkgconf --atleast-version 1.48 wayland-protocols
 then
   ./$SCRIPTS_DIR/install-meson-project.sh \
