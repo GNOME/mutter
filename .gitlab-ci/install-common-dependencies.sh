@@ -44,7 +44,7 @@ pip_install() {
     then
       sudo pip3 install --ignore-installed \
         --root-user-action ignore \
-        --prefix $destdir/usr \
+        --prefix $(realpath --canonicalize-missing $destdir/usr) \
         $pkg
     fi
   done
