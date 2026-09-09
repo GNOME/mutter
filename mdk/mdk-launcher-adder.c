@@ -62,7 +62,7 @@ struct _MdkLauncherAdder
   char *search;
 };
 
-G_DEFINE_TYPE (MdkLauncherAdder, mdk_launcher_adder, ADW_TYPE_DIALOG)
+G_DEFINE_FINAL_TYPE (MdkLauncherAdder, mdk_launcher_adder, ADW_TYPE_DIALOG)
 
 static void
 mdk_launcher_adder_dispose (GObject *object)

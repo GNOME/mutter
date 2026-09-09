@@ -48,7 +48,7 @@ struct _MdkLauncherEntry
   GListStore *actions_list;
 };
 
-G_DEFINE_TYPE (MdkLauncherEntry, mdk_launcher_entry, ADW_TYPE_EXPANDER_ROW)
+G_DEFINE_FINAL_TYPE (MdkLauncherEntry, mdk_launcher_entry, ADW_TYPE_EXPANDER_ROW)
 
 static void
 on_action_selected (AdwComboRow      *actions,

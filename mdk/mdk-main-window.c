@@ -30,7 +30,7 @@ struct _MdkMainWindow
   GMenu *launchers;
 };
 
-G_DEFINE_TYPE (MdkMainWindow, mdk_main_window, MDK_TYPE_WINDOW)
+G_DEFINE_FINAL_TYPE (MdkMainWindow, mdk_main_window, MDK_TYPE_WINDOW)
 
 static void
 update_launchers_menu (MdkMainWindow *main_window)

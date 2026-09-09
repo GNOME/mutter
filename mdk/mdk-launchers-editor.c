@@ -47,7 +47,7 @@ struct _MdkLaunchersEditor
   GtkButton *add_launcher;
 };
 
-G_DEFINE_TYPE (MdkLaunchersEditor, mdk_launchers_editor, ADW_TYPE_DIALOG)
+G_DEFINE_FINAL_TYPE (MdkLaunchersEditor, mdk_launchers_editor, ADW_TYPE_DIALOG)
 
 static void
 update_launchers (MdkLaunchersEditor *launchers_editor)
