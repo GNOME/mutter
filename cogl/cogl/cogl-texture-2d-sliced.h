@@ -67,19 +67,12 @@
  * is also applied from top to bottom.
  */
 #define COGL_TYPE_TEXTURE_2D_SLICED            (cogl_texture_2d_sliced_get_type ())
-#define COGL_TEXTURE_2D_SLICED(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSliced))
-#define COGL_TEXTURE_2D_SLICED_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSliced const))
-#define COGL_TEXTURE_2D_SLICED_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSlicedClass))
-#define COGL_IS_TEXTURE_2D_SLICED(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_TEXTURE_2D_SLICED))
-#define COGL_IS_TEXTURE_2D_SLICED_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_TEXTURE_2D_SLICED))
-#define COGL_TEXTURE_2D_SLICED_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSlicedClass))
-
-typedef struct _CoglTexture2DSlicedClass CoglTexture2DSlicedClass;
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglTexture2DSliced, g_object_unref)
-
 COGL_EXPORT
-GType               cogl_texture_2d_sliced_get_type       (void);
+G_DECLARE_FINAL_TYPE (CoglTexture2DSliced,
+                      cogl_texture_2d_sliced,
+                      COGL,
+                      TEXTURE_2D_SLICED,
+                      CoglTexture)
 
 /**
  * cogl_texture_2d_sliced_new_with_size:

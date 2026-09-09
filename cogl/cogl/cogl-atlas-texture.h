@@ -64,19 +64,13 @@ G_BEGIN_DECLS
  * some limitations to be aware of.
  */
 #define COGL_TYPE_ATLAS_TEXTURE            (cogl_atlas_texture_get_type ())
-#define COGL_ATLAS_TEXTURE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_ATLAS_TEXTURE, CoglAtlasTexture))
-#define COGL_ATLAS_TEXTURE_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_ATLAS_TEXTURE, CoglAtlasTexture const))
-#define COGL_ATLAS_TEXTURE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_ATLAS_TEXTURE, CoglAtlasTextureClass))
-#define COGL_IS_ATLAS_TEXTURE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_ATLAS_TEXTURE))
-#define COGL_IS_ATLAS_TEXTURE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_ATLAS_TEXTURE))
-#define COGL_ATLAS_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_ATLAS_TEXTURE, CoglAtlasTextureClass))
-
-typedef struct _CoglAtlasTextureClass CoglAtlasTextureClass;
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglAtlasTexture, g_object_unref)
 
 COGL_EXPORT
-GType               cogl_atlas_texture_get_type       (void);
+G_DECLARE_FINAL_TYPE (CoglAtlasTexture,
+                      cogl_atlas_texture,
+                      COGL,
+                      ATLAS_TEXTURE,
+                      CoglTexture)
 
 /**
  * cogl_atlas_texture_new_with_size:

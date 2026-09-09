@@ -47,19 +47,12 @@ G_BEGIN_DECLS
  * can be used to implement custom texture atlasing schemes.
  */
 #define COGL_TYPE_SUB_TEXTURE            (cogl_sub_texture_get_type ())
-#define COGL_SUB_TEXTURE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_SUB_TEXTURE, CoglSubTexture))
-#define COGL_SUB_TEXTURE_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_SUB_TEXTURE, CoglSubTexture const))
-#define COGL_SUB_TEXTURE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_SUB_TEXTURE, CoglSubTextureClass))
-#define COGL_IS_SUB_TEXTURE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_SUB_TEXTURE))
-#define COGL_IS_SUB_TEXTURE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_SUB_TEXTURE))
-#define COGL_SUB_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_SUB_TEXTURE, CoglSubTextureClass))
-
-typedef struct _CoglSubTextureClass CoglSubTextureClass;
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglSubTexture, g_object_unref)
-
 COGL_EXPORT
-GType               cogl_sub_texture_get_type       (void);
+G_DECLARE_FINAL_TYPE (CoglSubTexture,
+                      cogl_sub_texture,
+                      COGL,
+                      SUB_TEXTURE,
+                      CoglTexture)
 /**
  * cogl_sub_texture_new:
  * @ctx: A #CoglContext pointer
