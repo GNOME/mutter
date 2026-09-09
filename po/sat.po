@@ -1,0 +1,900 @@
+# Santali translation for mutter.
+# Copyright (C) 2026 mutter's COPYRIGHT HOLDER
+# This file is distributed under the same license as the mutter package.
+# Prasanta Hembram <prasantahembram720@gmail.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: mutter main\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2026-08-12 20:19+0000\n"
+"PO-Revision-Date: 2026-09-09 23:59+0530\n"
+"Last-Translator: Prasanta Hembram <prasantahembram720@gmail.com>\n"
+"Language-Team: Santali\n"
+"Language: sat\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n==2 ? 1 : 2;\n"
+"X-Generator: Gtranslator 48.0\n"
+
+#: data/50-mutter-navigation.xml:6
+msgid "Navigation"
+msgstr "ᱱᱮᱵᱷᱤᱜᱮᱥᱚᱱ"
+
+#: data/50-mutter-navigation.xml:9
+msgid "Move window to workspace 1"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱑ ᱨᱮ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:12
+msgid "Move window to workspace 2"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱒ ᱨᱮ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:15
+msgid "Move window to workspace 3"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱓ ᱨᱮ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:18
+msgid "Move window to workspace 4"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱔ ᱨᱮ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:21
+msgid "Move window to last workspace"
+msgstr "ᱢᱩᱪᱟᱹᱫ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱨᱮ ᱡᱷᱚᱨᱠᱟ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱤᱫ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱞᱮᱸᱜᱟ ᱥᱮᱫ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱤᱫ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱡᱚᱡᱚᱢ ᱥᱮᱫ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱤᱫ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱪᱮᱛᱟᱱ ᱥᱮᱡ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱤᱫ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱞᱟᱛᱟᱨ ᱥᱮᱫ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:38
+msgid "Move window one monitor to the left"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱤᱫ ᱢᱚᱱᱤᱴᱚᱨ ᱞᱮᱸᱜᱟ ᱥᱮᱫ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:41
+msgid "Move window one monitor to the right"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱤᱫ ᱢᱚᱱᱤᱴᱚᱨ ᱡᱚᱡᱚᱢ ᱥᱮᱫ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:44
+msgid "Move window one monitor up"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱤᱫ ᱢᱚᱱᱤᱴᱚᱨ ᱪᱮᱛᱟᱱ ᱥᱟᱦᱟᱣ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:47
+msgid "Move window one monitor down"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱤᱫ ᱢᱚᱱᱤᱴᱚᱨ ᱞᱟᱛᱟᱨ ᱥᱟᱦᱟᱣ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:51
+msgid "Switch applications"
+msgstr "ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:56
+msgid "Switch to previous application"
+msgstr "ᱞᱟᱦᱟ ᱨᱮᱱᱟᱜ ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:60
+msgid "Switch windows"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:65
+msgid "Switch to previous window"
+msgstr "ᱞᱟᱦᱟ ᱨᱮᱱᱟᱜ ᱡᱷᱚᱨᱠᱟ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:69
+msgid "Switch windows of an application"
+msgstr "ᱢᱤᱫ ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱨᱮᱭᱟᱜ ᱣᱤᱱᱰᱚᱣ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:74
+msgid "Switch to previous window of an application"
+msgstr "ᱢᱤᱫ ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱨᱮᱭᱟᱜ ᱞᱟᱦᱟ ᱨᱮᱱᱟᱜ ᱣᱤᱱᱰᱚ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:78
+msgid "Switch system controls"
+msgstr "ᱥᱣᱤᱪ ᱥᱤᱥᱴᱚᱢ ᱠᱚᱱᱴᱨᱚᱞ"
+
+#: data/50-mutter-navigation.xml:83
+msgid "Switch to previous system control"
+msgstr "ᱞᱟᱦᱟ ᱨᱮᱱᱟᱜ ᱥᱤᱥᱴᱚᱢ ᱠᱚᱱᱴᱨᱚᱞ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:87
+msgid "Switch windows directly"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱥᱚᱡᱷᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:92
+msgid "Switch directly to previous window"
+msgstr "ᱥᱚᱡᱷᱮ ᱞᱟᱦᱟ ᱨᱮᱱᱟᱜ ᱡᱷᱚᱨᱠᱟ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:96
+msgid "Switch windows of an app directly"
+msgstr "ᱢᱤᱫ ᱮᱯ ᱨᱮᱭᱟᱜ ᱣᱤᱱᱰᱚᱣ ᱥᱚᱡᱷᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:101
+msgid "Switch directly to previous window of an app"
+msgstr "ᱮᱯ ᱨᱮᱭᱟᱜ ᱞᱟᱦᱟ ᱨᱮᱱᱟᱜ ᱣᱤᱱᱰᱚ ᱨᱮ ᱥᱚᱡᱷᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:105
+msgid "Switch system controls directly"
+msgstr "ᱥᱣᱤᱪ ᱥᱤᱥᱴᱚᱢ ᱥᱚᱡᱷᱮ ᱠᱚᱱᱴᱨᱚᱞ ᱮᱫᱟᱭ"
+
+#: data/50-mutter-navigation.xml:110
+msgid "Switch directly to previous system control"
+msgstr "ᱞᱟᱦᱟ ᱨᱮᱱᱟᱜ ᱥᱤᱥᱴᱚᱢ ᱠᱚᱱᱴᱨᱚᱞ ᱨᱮ ᱥᱚᱡᱷᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:113
+msgid "Hide all normal windows"
+msgstr "ᱥᱟᱱᱟᱢ ᱥᱟᱫᱷᱟᱨᱚᱱ ᱡᱷᱚᱨᱠᱟ ᱩᱠᱩᱭ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:116
+msgid "Switch to workspace 1"
+msgstr "ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱑ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:119
+msgid "Switch to workspace 2"
+msgstr "ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱒ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:122
+msgid "Switch to workspace 3"
+msgstr "ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱓ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:125
+msgid "Switch to workspace 4"
+msgstr "ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱔ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:128
+msgid "Switch to last workspace"
+msgstr "ᱢᱩᱪᱟᱹᱫ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:131
+msgid "Switch to workspace on the left"
+msgstr "ᱞᱮᱸᱜᱟ ᱯᱟᱦᱴᱟ ᱨᱮ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:134
+msgid "Switch to workspace on the right"
+msgstr "ᱡᱚᱡᱚᱢ ᱯᱟᱦᱴᱟ ᱨᱮ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Switch to workspace above"
+msgstr "ᱪᱮᱛᱟᱱ ᱨᱮ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Switch to workspace below"
+msgstr "ᱞᱟᱛᱟᱨ ᱨᱮ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
+msgid "System"
+msgstr "ᱥᱤᱥᱴᱚᱢ"
+
+#: data/50-mutter-system.xml:8
+msgid "Show the run command prompt"
+msgstr "ᱨᱟᱱ ᱠᱚᱢᱟᱱᱰ ᱯᱨᱚᱢᱯᱴ ᱩᱫᱩᱜ ᱢᱮ"
+
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "ᱠᱤᱵᱚᱨᱰ ᱥᱚᱴᱠᱟᱴ ᱫᱚᱦᱚᱭ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:6
+msgid "Windows"
+msgstr "ᱡᱷᱚᱨᱠᱟ"
+
+#: data/50-mutter-windows.xml:8
+msgid "Activate the window menu"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱢᱮᱱᱩ ᱮᱠᱴᱤᱵᱷᱮᱴ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:10
+msgid "Toggle fullscreen mode"
+msgstr "ᱯᱩᱨᱟᱹ ᱥᱠᱨᱤᱱ ᱢᱚᱰ ᱴᱚᱜᱽᱞ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:12
+msgid "Toggle maximization state"
+msgstr "ᱴᱚᱜᱽᱞ ᱢᱮᱠᱥᱤᱢᱟᱭᱡᱮᱥᱚᱱ ᱚᱵᱚᱥᱛᱟ"
+
+#: data/50-mutter-windows.xml:14
+msgid "Maximize window"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱰᱷᱮᱨ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:16
+msgid "Restore window"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱫᱚᱦᱚᱭ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:18
+msgid "Close window"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱵᱚᱱᱫᱚ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:20
+msgid "Hide window"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱩᱠᱩᱭ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:22
+msgid "Move window"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱚᱪᱚᱜᱽ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:24
+msgid "Resize window"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱨᱮᱭᱟᱜ ᱜᱚᱲᱦᱚᱱ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:27
+msgid "Toggle window on all workspaces or one"
+msgstr "ᱥᱟᱱᱟᱢ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱨᱮ ᱣᱤᱱᱰᱚ ᱴᱚᱜᱽᱞ ᱢᱮ ᱵᱟᱝᱠᱷᱟᱱ ᱢᱤᱫ"
+
+#: data/50-mutter-windows.xml:29
+msgid "Raise window if covered, otherwise lower it"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱫᱚ ᱩᱥᱩᱞ ᱢᱮ ᱡᱩᱫᱤ ᱯᱚᱴᱚᱢ ᱢᱮᱱᱟᱜᱼᱟ, ᱵᱟᱝᱠᱷᱟᱱ ᱞᱟᱛᱟᱨ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:31
+msgid "Raise window above other windows"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱮᱴᱟᱜ ᱡᱷᱚᱨᱠᱟ ᱠᱷᱚᱱ ᱪᱮᱛᱟᱱ ᱩᱥᱩᱞ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:33
+msgid "Lower window below other windows"
+msgstr "ᱞᱟᱛᱟᱨ ᱡᱷᱚᱨᱠᱟ ᱮᱴᱟᱜ ᱡᱷᱚᱨᱠᱟ ᱠᱚ ᱞᱟᱛᱟᱨ ᱨᱮ ᱫᱚᱦᱚᱭ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:35
+msgid "Maximize window vertically"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱪᱮᱛᱟᱱ ᱞᱮᱠᱟᱛᱮ ᱰᱷᱮᱨ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:37
+msgid "Maximize window horizontally"
+msgstr "ᱡᱷᱚᱨᱠᱟ ᱜᱟᱱᱟᱴ ᱞᱮᱠᱟᱛᱮ ᱰᱷᱮᱨ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
+msgid "View split on left"
+msgstr "ᱞᱮᱸᱜᱟ ᱥᱮᱫ ᱦᱟᱹᱴᱤᱧ ᱧᱮᱞ ᱢᱮ"
+
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
+msgid "View split on right"
+msgstr "ᱡᱚᱡᱚᱢ ᱯᱟᱦᱴᱟ ᱨᱮ ᱦᱟᱹᱴᱤᱧ ᱧᱮᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "ᱥᱟᱨᱟ ᱜᱷᱟᱹᱲᱤᱡ ᱯᱩᱥᱴᱟᱹᱣ ᱥᱚᱫᱚᱨᱤᱭᱟᱹ ᱠᱚ ᱥᱟᱶ ᱥᱠᱮᱱᱟᱣᱩᱴ ᱵᱟᱯᱷᱟᱨ ᱵᱷᱟᱵᱤᱛ ᱢᱮ"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"ᱡᱚᱠᱷᱚᱱ ᱥᱟᱹᱨᱤ ᱦᱩᱭᱩᱜᱼᱟ, ᱢᱩᱴᱟᱨ ᱫᱚ ᱥᱟᱨᱟ ᱜᱷᱟᱹᱲᱤᱡ ᱥᱠᱮᱱᱟᱣᱩᱴ ᱵᱟᱯᱷᱟᱨ ᱠᱚ ᱯᱩᱥᱴᱟᱹᱣ "
+"ᱥᱚᱫᱚᱨᱤᱭᱟᱹ ᱠᱚ ᱥᱟᱶᱛᱮ ᱮ ᱮᱢᱟᱭᱟ, ᱡᱩᱫᱤ ᱰᱨᱟᱭᱣᱚᱨ ᱦᱚᱛᱮᱛᱮ ᱥᱟᱯᱚᱨᱴ ᱧᱟᱢ ᱠᱷᱟᱱ ᱾ ᱱᱚᱣᱟ "
+"ᱵᱤᱠᱚᱞᱯᱚ ᱫᱚ ᱫᱚᱦᱲᱟ ᱪᱟᱹᱞᱩ ᱞᱟᱹᱠᱛᱤᱜ ᱠᱟᱱᱟ ᱾"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "ᱢᱩᱪᱟᱹᱫ ᱠᱞᱟᱭᱤᱱᱴ ᱪᱟᱞᱟᱣ ᱛᱟᱭᱚᱢ ᱟᱡ ᱛᱮ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱪᱟᱵᱟᱭ ᱢᱮ"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"ᱛᱤᱱᱨᱮ ᱥᱟᱹᱨᱤ ᱦᱩᱭᱩᱜᱼᱟ, ᱢᱩᱪᱟᱹᱫ ᱡᱚᱱᱚᱲᱟᱱᱟᱜ ᱠᱞᱟᱭᱤᱱᱴ ᱪᱟᱞᱟᱣ ᱛᱟᱭᱚᱢ ᱢᱩᱴᱟᱨ ᱟᱡ ᱛᱮ "
+"ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱪᱟᱵᱟᱭᱟᱭ ᱾ ᱱᱚᱣᱟ ᱵᱤᱠᱚᱞᱯᱚ ᱫᱚ ᱫᱚᱦᱲᱟ ᱪᱟᱹᱞᱩ ᱞᱟᱹᱠᱛᱤᱜ ᱠᱟᱱᱟ ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:15
+msgid "Modifier to use for extended window management operations"
+msgstr "ᱵᱟᱹᱲᱛᱤ ᱣᱤᱱᱰᱚ ᱢᱮᱱᱮᱡᱽᱢᱮᱱᱴ ᱚᱯᱟᱨᱮᱥᱚᱱ ᱞᱟᱹᱜᱤᱫ ᱵᱮᱵᱷᱟᱨ ᱞᱟᱹᱜᱤᱫ ᱥᱚᱫᱚᱨᱤᱭᱟᱹ"
+
+#: data/org.gnome.mutter.gschema.xml.in:16
+msgid ""
+"This key will initiate the “overlay”, which is a combination window overview "
+"and application launching system. The default is intended to be the “Windows "
+"key” on PC hardware. It’s expected that this binding either the default or "
+"set to the empty string."
+msgstr ""
+"ᱱᱚᱣᱟ ᱠᱟᱹᱴᱷᱤ ᱫᱚ “ᱚᱵᱷᱟᱨᱞᱮ” ᱮ ᱮᱦᱚᱵᱟ, ᱚᱠᱟ ᱫᱚ ᱢᱤᱫ ᱡᱚᱯᱚᱲᱟᱣ ᱣᱤᱱᱰᱚ ᱚᱵᱷᱟᱨᱵᱷᱤᱭᱩ ᱟᱨ "
+"ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱞᱚᱱᱪᱤᱝ ᱥᱤᱥᱴᱚᱢ ᱠᱟᱱᱟ᱾ ᱰᱤᱯᱷᱚᱞᱴ ᱫᱚ ᱯᱤ ᱥᱤ ᱦᱟᱨᱰᱣᱮᱭᱟᱨ ᱨᱮ \"ᱣᱤᱱᱰᱚᱣᱥ ᱠᱤ\" "
+"ᱦᱩᱭᱩᱜ ᱞᱟᱹᱜᱤᱫ ᱢᱮᱱᱟᱜᱼᱟ ᱾ ᱱᱚᱣᱟ ᱟᱥᱟ ᱢᱮᱱᱟᱜᱼᱟ ᱡᱮ ᱱᱚᱣᱟ ᱵᱟᱭᱤᱱᱰ ᱫᱚ ᱰᱤᱯᱷᱚᱞᱴ ᱥᱮ ᱠᱷᱟᱹᱞᱤ "
+"ᱥᱴᱨᱤᱝ ᱨᱮ ᱥᱮᱴ ᱦᱩᱭᱩᱜᱼᱟ ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:28
+msgid "Attach modal dialogs"
+msgstr "ᱢᱚᱰᱟᱞ ᱰᱟᱭᱞᱚᱜᱽ ᱞᱟᱴᱷᱟ ᱢᱮ"
+
+#: data/org.gnome.mutter.gschema.xml.in:29
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr ""
+"ᱡᱚᱠᱷᱚᱱ ᱥᱟᱹᱨᱤ ᱠᱟᱱᱟ, ᱯᱷᱩᱨᱜᱟᱹᱞ ᱴᱟᱭᱤᱴᱵᱟᱨ ᱠᱚ ᱛᱟᱦᱮᱱ ᱵᱚᱫᱚᱞ ᱛᱮ, ᱢᱚᱰᱟᱞ ᱰᱟᱭᱞᱚᱜᱽ ᱫᱚ "
+"ᱯᱟᱨᱚᱱ ᱣᱤᱱᱰᱚ ᱨᱮᱭᱟᱜ ᱴᱟᱭᱤᱴᱵᱟᱨ ᱨᱮ ᱡᱚᱯᱲᱟᱣ ᱧᱮᱞᱚᱜ-ᱟ ᱟᱨ ᱯᱟᱨᱚᱱ ᱣᱤᱱᱰᱚ ᱥᱟᱶ ᱢᱤᱫ ᱥᱟᱶᱛᱮ "
+"ᱪᱟᱞᱟᱜ-ᱟ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:38
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr "ᱥᱠᱨᱤᱱ ᱟᱲᱮ ᱨᱮ ᱡᱷᱚᱨᱠᱟ ᱧᱩᱨᱩᱜ ᱚᱠᱛᱚ ᱟᱲᱮ ᱴᱟᱭᱞᱤᱝ ᱪᱟᱹᱞᱩᱭ ᱢᱮ"
+
+#: data/org.gnome.mutter.gschema.xml.in:39
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr ""
+"ᱡᱩᱫᱤ ᱪᱟᱹᱞᱩ ᱞᱮᱱᱠᱷᱟᱱ, ᱩᱥᱩᱞ ᱥᱠᱨᱤᱱ ᱯᱟᱦᱴᱟ ᱨᱮ ᱣᱤᱱᱰᱚ ᱫᱚᱦᱚ ᱠᱟᱛᱮ ᱚᱱᱟ ᱩᱥᱩᱞ ᱞᱮᱠᱟ ᱰᱷᱮᱨᱚᱜ "
+"ᱠᱟᱱᱟ ᱟᱨ ᱢᱮᱱᱟᱜ ᱴᱚᱴᱷᱟ ᱨᱮᱭᱟᱜ ᱟᱫᱷᱟ ᱠᱚ ᱠᱚᱵᱚᱡᱽ ᱞᱟᱹᱜᱤᱫ ᱚᱱᱟ ᱫᱚ ᱜᱟᱱᱰᱷᱤ ᱞᱮᱠᱟ ᱫᱚᱦᱚ "
+"ᱠᱟᱱᱟ᱾ ᱪᱮᱛᱟᱱ ᱥᱠᱨᱤᱱ ᱟᱲᱮ ᱨᱮ ᱡᱷᱚᱨᱠᱟ ᱧᱩᱨᱩᱜ ᱠᱷᱟᱱ ᱚᱱᱟ ᱫᱚ ᱯᱩᱨᱟᱹ ᱰᱷᱮᱨᱚᱜᱼᱟ ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:48
+msgid "Workspaces are managed dynamically"
+msgstr "ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱠᱚ ᱫᱚ ᱞᱟᱲᱦᱟᱭ ᱞᱮᱠᱟᱛᱮ ᱪᱟᱞᱟᱣ ᱵᱟᱱᱟᱣ ᱦᱩᱭᱩᱜ ᱠᱟᱱᱟ"
+
+#: data/org.gnome.mutter.gschema.xml.in:49
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there’s a "
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
+msgstr ""
+"ᱠᱟᱹᱢᱤ ᱴᱷᱟᱺᱭ ᱫᱚ ᱰᱟᱭᱱᱟᱢᱤᱠ ᱞᱮᱠᱟ ᱵᱮᱵᱚᱦᱟᱨᱚᱜ ᱠᱟᱱᱟ ᱥᱮ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱺᱭ ᱨᱮᱭᱟᱜ ᱥᱴᱮᱴᱤᱠ ᱮᱞ "
+"ᱢᱮᱱᱟᱜ-ᱟ (org.gnome.desktop.wm.preferences ᱨᱮ num-workspaces key ᱛᱮ ᱴᱷᱟᱹᱣᱠᱟᱹ "
+"ᱟᱠᱟᱱᱟ)᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:58
+msgid "Workspaces only on primary"
+msgstr "ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱠᱚ ᱫᱚ ᱥᱩᱢᱩᱝ ᱯᱨᱟᱭᱢᱟᱨᱤ ᱨᱮ"
+
+#: data/org.gnome.mutter.gschema.xml.in:59
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr ""
+"ᱴᱷᱟᱹᱣᱠᱟᱹᱭ ᱢᱮ ᱡᱮ ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱵᱚᱫᱚᱞ ᱥᱟᱱᱟᱢ ᱢᱚᱱᱤᱴᱚᱨ ᱨᱮ ᱣᱤᱱᱰᱚᱣ ᱞᱟᱹᱜᱤᱫ ᱥᱮ ᱮᱠᱮᱱ "
+"ᱯᱨᱟᱭᱢᱟᱨᱤ ᱢᱚᱱᱤᱴᱚᱨ ᱨᱮ ᱣᱤᱱᱰᱚᱣ ᱞᱟᱹᱜᱤᱫ ᱦᱩᱭᱩᱜ ᱞᱟᱹᱠᱛᱤᱭᱟ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:67
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "ᱯᱚᱭᱮᱱᱴᱟᱨ ᱞᱟᱦᱟ ᱛᱷᱤᱨᱚᱜ ᱦᱟᱹᱵᱤᱡ ᱯᱷᱚᱠᱟᱥ ᱵᱚᱫᱚᱞ ᱵᱤᱞᱚᱢ ᱢᱮ"
+
+#: data/org.gnome.mutter.gschema.xml.in:68
+msgid ""
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+"focus will not be changed immediately when entering a window, but only after "
+"the pointer stops moving."
+msgstr ""
+"ᱡᱩᱫᱤ ᱥᱟᱹᱨᱤ ᱨᱮ ᱥᱮᱴ ᱢᱮᱱᱟᱜ-ᱟ, ᱟᱨ ᱯᱷᱚᱠᱟᱥ ᱢᱚᱰ ᱫᱚ “sloppy” ᱥᱮ “mouse” ᱠᱟᱱᱟ ᱮᱱᱠᱷᱟᱱ "
+"ᱣᱤᱱᱰᱚ ᱨᱮ ᱵᱚᱞᱚᱱ ᱛᱮ ᱯᱷᱚᱠᱟᱥ ᱫᱚ ᱵᱟᱝ ᱵᱚᱫᱚᱞᱚᱜ-ᱟ, ᱢᱮᱱᱠᱷᱟᱱ ᱯᱚᱭᱮᱱᱴᱟᱨ ᱫᱚ ᱵᱟᱝ ᱵᱚᱫᱚᱞᱚᱜ-ᱟ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:78
+msgid "Draggable border width"
+msgstr "ᱚᱨ ᱫᱟᱲᱮᱭᱟᱜ ᱥᱤᱢᱟᱹ ᱚᱥᱟᱨ"
+
+#: data/org.gnome.mutter.gschema.xml.in:79
+msgid ""
+"The amount of total draggable borders. If the theme’s visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr ""
+"ᱢᱩᱴ ᱚᱨ ᱫᱟᱲᱮᱭᱟᱜ ᱥᱤᱢᱟᱹ ᱨᱮᱭᱟᱜ ᱯᱚᱨᱤᱢᱟᱱ ᱾ ᱛᱷᱤᱢ ᱨᱮᱭᱟᱜ ᱧᱮᱞᱚᱜ ᱥᱤᱢᱟᱹ ᱫᱚ ᱵᱟᱝ ᱰᱷᱮᱨᱟ, "
+"ᱵᱟᱝ ᱧᱮᱞᱚᱜ ᱥᱤᱢᱟᱹ ᱫᱚ ᱱᱚᱣᱟ ᱜᱚᱱᱚᱝ ᱯᱩᱨᱟᱹᱣ ᱞᱟᱹᱜᱤᱫ ᱥᱮᱞᱮᱫᱚᱜᱼᱟ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:88
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "ᱢᱚᱱᱤᱴᱚᱨ ᱥᱟᱭᱤᱡᱽ ᱣᱤᱱᱰᱚᱣ ᱠᱚ ᱟᱡ ᱛᱮ ᱢᱮᱠᱥᱟᱭᱤᱡᱽ ᱢᱮ"
+
+#: data/org.gnome.mutter.gschema.xml.in:89
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr ""
+"ᱡᱩᱫᱤ ᱪᱟᱹᱞᱩ ᱛᱟᱦᱮᱱ ᱠᱷᱟᱱ, ᱱᱟᱶᱟ ᱣᱤᱱᱰᱚᱣ ᱚᱠᱟ ᱫᱚ ᱮᱛᱚᱦᱚᱵ ᱨᱮ ᱢᱚᱱᱤᱴᱚᱨ ᱨᱮᱭᱟᱜ ᱜᱚᱲᱦᱚᱱ ᱟᱡ "
+"ᱛᱮ ᱰᱷᱮᱨᱚᱜᱼᱟ ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:97
+msgid "Place new windows in the center"
+msgstr "ᱛᱟᱞᱟ ᱨᱮ ᱱᱟᱶᱟ ᱡᱷᱚᱨᱠᱟ ᱫᱚᱦᱚᱭ ᱢᱮ"
+
+#: data/org.gnome.mutter.gschema.xml.in:98
+msgid ""
+"When true, the new windows will always be put in the center of the active "
+"screen of the monitor."
+msgstr ""
+"ᱡᱚᱠᱷᱚᱱ ᱥᱟᱹᱨᱤ ᱦᱩᱭᱩᱜᱼᱟ, ᱱᱟᱶᱟ ᱣᱤᱱᱰᱚᱣ ᱫᱚ ᱥᱟᱨᱟ ᱜᱷᱟᱹᱲᱤᱡ ᱢᱚᱱᱤᱴᱚᱨ ᱨᱮᱭᱟᱜ ᱮᱠᱴᱤᱵᱷ ᱥᱠᱨᱤᱱ "
+"ᱨᱮᱭᱟᱜ ᱛᱟᱞᱟ ᱨᱮ ᱫᱚᱦᱚᱜᱼᱟ ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:106
+msgid "Modifier to use to locate the pointer"
+msgstr "ᱯᱚᱭᱮᱱᱴᱟᱨ ᱯᱟᱱᱛᱮ ᱧᱟᱢ ᱞᱟᱹᱜᱤᱫ ᱵᱮᱵᱷᱟᱨ ᱞᱟᱹᱜᱤᱫ ᱢᱚᱰᱤᱯᱷᱟᱭᱟᱨ"
+
+#: data/org.gnome.mutter.gschema.xml.in:107
+msgid "This key will initiate the “locate pointer” action."
+msgstr "ᱱᱚᱣᱟ ᱠᱟᱹᱴᱷᱤ ᱫᱚ “ᱞᱚᱠᱮᱴ ᱯᱚᱭᱮᱱᱴᱟᱨ” ᱠᱟᱹᱢᱤ ᱮ ᱮᱦᱚᱵᱟ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:114
+msgid "Timeout for check-alive ping"
+msgstr "ᱪᱮᱠ-ᱟᱞᱟᱭᱤᱵᱷ ᱯᱤᱝ ᱞᱟᱹᱜᱤᱫ ᱚᱠᱛᱚ ᱪᱟᱵᱟ ᱟᱠᱟᱱᱟ"
+
+#: data/org.gnome.mutter.gschema.xml.in:115
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"ᱯᱷᱨᱚᱡᱽᱱ ᱞᱮᱠᱟ ᱵᱟᱝ ᱵᱟᱰᱟᱭ ᱧᱟᱢ ᱞᱟᱹᱜᱤᱫ ᱢᱤᱫ ᱠᱞᱟᱭᱤᱱᱴ ᱯᱤᱝ ᱟᱨᱫᱟᱥ ᱨᱮᱭᱟᱜ ᱛᱮᱞᱟ ᱮᱢ ᱦᱩᱭᱩᱜ "
+"ᱛᱟᱭᱟ ᱢᱤᱞᱤᱥᱮᱠᱮᱱᱰ ᱨᱮᱭᱟᱜ ᱮᱞ ᱾ ᱐ ᱵᱮᱵᱷᱟᱨ ᱠᱟᱛᱮ ᱡᱤᱣᱤᱫ ᱪᱮᱠ ᱫᱚ ᱯᱩᱨᱟᱹ ᱚᱠᱟᱹᱡᱽᱣᱟᱹᱜᱼᱟ ᱾"
+
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:126
+msgid "Per output luminance settings"
+msgstr "ᱯᱨᱚᱛᱤ ᱟᱩᱴᱯᱩᱴ ᱞᱩᱢᱤᱱᱮᱱᱥ ᱥᱮᱴᱤᱝ"
+
+#: data/org.gnome.mutter.gschema.xml.in:127
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"ᱯᱨᱚᱛᱤ ᱟᱩᱴᱯᱩᱴ ᱟᱨ ᱨᱚᱝ ᱢᱚᱰ ᱞᱩᱢᱤᱱᱮᱱᱥ ᱥᱮᱴᱤᱝ ᱾ ᱡᱚᱛᱚ ᱵᱚᱞᱚᱱ ᱨᱮ ᱠᱟᱱᱮᱠᱴᱚᱨ, ᱵᱷᱮᱱᱰᱚᱨ, "
+"ᱯᱨᱚᱰᱟᱠᱴ, ᱥᱤᱨᱤᱭᱟᱞ, ᱟᱨ ᱨᱚᱝ ᱢᱚᱰ ᱥᱟᱶᱛᱮ ᱢᱤᱫ ᱴᱩᱯᱞ ᱢᱮᱱᱟᱜ-ᱟ, ᱚᱱᱟ ᱥᱟᱶᱛᱮ ᱢᱤᱫ ᱥᱟᱶᱛᱮ "
+"ᱯᱷᱞᱚᱴᱤᱝ ᱯᱚᱭᱮᱱᱴ ᱵᱷᱮᱞ ᱢᱮᱱᱟᱜ-ᱟ ᱚᱠᱟ ᱫᱚ ᱟᱩᱴᱯᱷᱩᱴ ᱞᱩᱢᱤᱱᱥ (%) ᱨᱮ ᱩᱫᱩᱜ ᱠᱟᱱᱟ᱾ ᱰᱤᱯᱷᱚᱞᱴ "
+"ᱡᱚᱠᱷᱚᱱ ᱵᱟᱝ ᱞᱟᱹᱭ ᱟᱠᱟᱱᱟ ᱑᱐᱐% ᱾"
+
+#: data/org.gnome.mutter.gschema.xml.in:152
+msgid "Switch monitor configurations"
+msgstr "ᱢᱚᱱᱤᱴᱚᱨ ᱨᱮᱭᱟᱜ ᱠᱚᱱᱯᱷᱤᱜᱟᱨᱮᱥᱚᱱ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.gschema.xml.in:157
+msgid "Rotates the built-in monitor configuration"
+msgstr "ᱵᱤᱞᱴ-ᱤᱱ ᱢᱚᱱᱤᱴᱚᱨ ᱠᱚᱱᱯᱷᱤᱜᱟᱨᱮᱥᱚᱱ ᱟᱹᱪᱩᱨᱚᱜ ᱠᱟᱱᱟ"
+
+#: data/org.gnome.mutter.gschema.xml.in:162
+msgid "Cancel any active input capture session"
+msgstr "ᱡᱟᱦᱟᱱ ᱮᱠᱴᱤᱵᱷ ᱤᱱᱯᱩᱴ ᱠᱮᱯᱪᱚᱨ ᱥᱮᱥᱚᱱ ᱨᱚᱫᱽ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
+msgid "Switch to VT 1"
+msgstr "ᱣᱤ ᱴᱤ ᱑ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
+msgid "Switch to VT 2"
+msgstr "ᱣᱤ ᱴᱤ ᱒ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
+msgid "Switch to VT 3"
+msgstr "ᱣᱤ ᱴᱤ ᱓ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
+msgid "Switch to VT 4"
+msgstr "ᱣᱤ ᱴᱤ ᱔ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
+msgid "Switch to VT 5"
+msgstr "ᱣᱤ ᱴᱤ ᱕ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
+msgid "Switch to VT 6"
+msgstr "ᱣᱤ ᱴᱤ ᱖ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
+msgid "Switch to VT 7"
+msgstr "ᱣᱤ ᱴᱤ ᱗ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
+msgid "Switch to VT 8"
+msgstr "ᱣᱤ ᱴᱤ ᱘ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
+msgid "Switch to VT 9"
+msgstr "ᱣᱤ ᱴᱤ ᱙ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
+msgid "Switch to VT 10"
+msgstr "ᱣᱤ ᱴᱤ ᱑᱐ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
+msgid "Switch to VT 11"
+msgstr "ᱣᱤ ᱴᱤ ᱑᱑ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
+msgid "Switch to VT 12"
+msgstr "ᱣᱤ ᱴᱤ ᱑᱒ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
+msgid "Re-enable shortcuts"
+msgstr "ᱥᱚᱴᱠᱟᱴ ᱫᱚᱦᱲᱟ ᱪᱟᱹᱞᱩᱭ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱥᱟᱶ ᱠᱤᱵᱚᱨᱰ ᱯᱷᱚᱠᱟᱥ ᱞᱚᱠ ᱞᱟᱹᱜᱤᱫ ᱮᱠᱥ᱑᱑ ᱜᱽᱨᱟᱵᱽ ᱨᱮᱭᱟᱜ ᱫᱟᱣ ᱮᱢᱚᱜ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
+msgid ""
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"allowed in key “xwayland-grab-access-rules”."
+msgstr ""
+"ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱨᱮ ᱪᱟᱹᱞᱩ ᱚᱠᱛᱚ ᱜᱽᱨᱟᱵᱽ ᱥᱟᱶᱛᱮ ᱮᱠᱥ᱑᱑ “ᱚᱵᱷᱟᱨᱟᱭᱤᱰ ᱨᱤᱰᱟᱭᱨᱮᱠᱴ” ᱣᱤᱱᱰᱚᱣ ᱨᱮ "
+"ᱥᱟᱱᱟᱢ ᱠᱤᱵᱚᱨᱰ ᱤᱵᱷᱮᱱᱴ ᱠᱚ ᱨᱟᱣᱴ ᱞᱟᱹᱜᱤᱫ ᱟᱱᱩᱢᱟᱛ ᱮᱢᱚᱜ ᱢᱮ᱾ ᱱᱚᱶᱟ ᱚᱯᱥᱚᱱ ᱫᱚ X11 ᱠᱞᱟᱭᱤᱱ "
+"ᱠᱚ ᱥᱟᱯᱚᱨᱴ ᱞᱟᱹᱜᱤᱫ ᱠᱟᱱᱟ ᱡᱟᱦᱟᱸ ᱫᱚ “override redirect” ᱣᱤᱱᱰᱚ ᱢᱮᱯ ᱠᱟᱱᱟ (ᱡᱟᱦᱟᱸ ᱫᱚ "
+"ᱠᱤᱵᱚᱨᱰ ᱯᱷᱚᱠᱟᱥ ᱵᱟᱝ ᱧᱟᱢ ᱠᱟᱱᱟ) ᱟᱨ ᱚᱱᱟ ᱣᱤᱱᱰᱚ ᱨᱮ ᱡᱚᱛᱚ ᱠᱤᱵᱚᱨᱰ ᱜᱷᱚᱴᱱᱟ ᱠᱚ ᱡᱚᱵᱽᱨᱟ "
+"ᱞᱟᱹᱜᱤᱫ ᱠᱤᱵᱚᱨᱰ ᱜᱽᱨᱟᱵᱽ ᱮᱢ ᱠᱟᱱᱟ᱾ ᱱᱚᱣᱟ ᱵᱤᱠᱚᱞᱯᱚ ᱫᱚ ᱵᱟᱝ ᱵᱮᱵᱷᱟᱨᱚᱜ ᱠᱟᱱᱟ ᱟᱨ ᱞᱮᱛᱟᱲ "
+"ᱮᱠᱥ᱑᱑ ᱣᱤᱱᱰᱚᱣ ᱨᱮ ᱪᱮᱫ ᱮᱥᱮᱨ ᱵᱟᱹᱱᱩᱜᱼᱟ ᱚᱠᱟ ᱫᱚ ᱥᱟᱫᱷᱟᱨᱚᱱ ᱚᱵᱚᱥᱛᱟ ᱨᱮ ᱠᱤᱵᱚᱨᱰ ᱯᱷᱚᱠᱟᱥ "
+"ᱧᱟᱢ ᱫᱟᱲᱮᱭᱟᱜᱼᱟ᱾ Wayland ᱞᱟᱛᱟᱨ ᱨᱮ ᱢᱤᱫ X11 ᱜᱽᱨᱟᱵᱽ ᱞᱟᱹᱜᱤᱫ, ᱠᱞᱟᱭᱤᱱ ᱦᱚᱸ ᱢᱤᱫ ᱠᱷᱟᱥ "
+"X11 ClientMessage ᱨᱩᱴ ᱣᱤᱱᱰᱚ ᱨᱮ ᱵᱷᱮᱡᱟ ᱞᱟᱹᱠᱛᱤᱭᱟ ᱥᱮ “xwayland-grab-access-"
+"rules” ᱨᱮ ᱟᱹᱭᱫᱟᱹᱨ ᱟᱠᱟᱱ ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱠᱚ ᱢᱩᱫᱽ ᱨᱮ ᱛᱟᱦᱮᱱ ᱞᱟᱹᱠᱛᱤᱭᱟ᱾"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
+msgid "Xwayland applications allowed to issue keyboard grabs"
+msgstr "ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱠᱚ ᱠᱤᱵᱚᱨᱰ ᱜᱽᱨᱟᱵᱽ ᱤᱥᱩ ᱞᱟᱹᱜᱤᱫ ᱟᱱᱫᱷᱟᱣ ᱮᱢ ᱟᱠᱟᱱᱟ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
+msgid ""
+"List the resource names or resource class of X11 windows either allowed or "
+"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command "
+"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
+"using the specific keyboard shortcut defined by the keybinding key “restore-"
+"shortcuts”."
+msgstr ""
+"ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱞᱟᱛᱟᱨ ᱨᱮ ᱮᱠᱥ᱑᱑ ᱠᱤᱵᱚᱨᱰ ᱜᱽᱨᱟᱵᱽ ᱮᱢ ᱞᱟᱹᱜᱤᱫ ᱮᱠᱥ᱑᱑ ᱣᱤᱱᱰᱚᱣ ᱨᱮᱭᱟᱜ ᱨᱤᱥᱚᱨᱥ "
+"ᱧᱩᱛᱩᱢ ᱥᱮ ᱨᱤᱥᱚᱨᱥ ᱪᱟᱱᱟᱪ ᱥᱩᱪᱤ ᱢᱮ ᱾ ᱮᱢ ᱟᱠᱟᱱ X11 ᱣᱤᱱᱰᱚ ᱨᱮᱭᱟᱜ ᱨᱤᱥᱚᱨᱥ ᱧᱩᱛᱩᱢ ᱥᱮ "
+"ᱨᱤᱥᱚᱨᱥ ᱪᱟᱱᱟᱪ “xprop WM_CLASS” ᱠᱚᱢᱟᱱᱰ ᱵᱮᱵᱷᱟᱨ ᱠᱟᱛᱮ ᱧᱟᱢ ᱫᱟᱲᱮᱭᱟᱜᱼᱟ᱾ ᱣᱟᱭᱤᱞᱰᱠᱟᱨᱰ "
+"“*” ᱟᱨ ᱡᱚᱠᱟᱨ “?” ᱜᱚᱱᱚᱝ ᱠᱚ ᱫᱚ ᱥᱟᱯᱚᱨᱴ ᱟᱠᱟᱱᱟ ᱾ ᱜᱚᱱᱚᱝ ᱠᱚ ᱫᱚ “!” ᱥᱟᱶ ᱮᱦᱚᱵᱚᱜᱼᱟ᱾ "
+"ᱵᱟᱝ ᱦᱩᱭᱩᱜ ᱠᱟᱱᱟ, ᱚᱠᱟ ᱫᱚ ᱫᱟᱣ ᱟᱠᱟᱱ ᱜᱚᱱᱚᱝ ᱠᱚ ᱛᱟᱞᱠᱟ ᱠᱷᱚᱱ ᱢᱟᱲᱟᱝ ᱢᱮᱱᱟᱜᱼᱟ, ᱰᱤᱯᱷᱚᱞᱴ "
+"ᱥᱤᱥᱴᱚᱢ ᱛᱟᱞᱠᱟ ᱠᱷᱚᱱ ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱠᱚ ᱨᱚᱲ ᱞᱟᱹᱜᱤᱫ᱾ ᱰᱤᱯᱷᱚᱞᱴ ᱥᱤᱥᱴᱚᱢ ᱛᱟᱞᱠᱟ ᱨᱮ ᱱᱚᱶᱟ ᱠᱚ "
+"ᱮᱯᱞᱤᱠᱮᱥᱚᱱ ᱢᱮᱱᱟᱜ-ᱟ: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” ᱵᱮᱵᱚᱦᱟᱨᱤᱭᱟᱹ ᱠᱚ ᱫᱚ "
+"ᱠᱤᱵᱟᱭᱤᱱᱰ ᱠᱤ “restore-shortcuts” ᱦᱚᱛᱮᱛᱮ ᱩᱫᱩᱜ ᱠᱟᱱ ᱠᱷᱟᱥ ᱠᱤᱵᱚᱨᱰ ᱥᱚᱴᱠᱟᱴ ᱵᱮᱵᱚᱦᱟᱨ "
+"ᱠᱟᱛᱮ ᱢᱮᱱᱟᱜ ᱜᱽᱨᱟᱵᱽ ᱠᱚ ᱵᱟᱹᱲᱤᱡ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ᱾"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱨᱮ ᱵᱟᱪᱷᱟᱣ ᱮᱠᱥ ᱮᱠᱥᱴᱮᱱᱥᱚᱱ ᱚᱠᱟᱹᱡᱽᱣᱟᱹ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"ᱱᱚᱶᱟ ᱵᱤᱠᱚᱞᱯ ᱫᱚ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱨᱮ ᱵᱟᱪᱷᱟᱣ ᱟᱠᱟᱱ ᱮᱠᱥ ᱮᱠᱥᱴᱮᱱᱥᱚᱱ ᱠᱚ ᱚᱠᱟᱹᱡᱽᱣᱟᱹ ᱫᱟᱲᱮᱭᱟᱜᱼᱟ "
+"ᱡᱩᱫᱤ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱚᱱᱟ ᱮᱠᱥ ᱮᱠᱥᱴᱮᱱᱥᱚᱱ ᱠᱚ ᱞᱟᱹᱜᱤᱫ ᱥᱟᱯᱚᱨᱴ ᱛᱮ ᱛᱮᱭᱟᱨ ᱞᱮᱱᱠᱷᱟᱱ ᱾ ᱱᱚᱣᱟ "
+"ᱵᱤᱠᱚᱞᱯ ᱨᱮᱱᱟᱜ ᱪᱮᱫ ᱮᱥᱮᱨ ᱵᱟᱝ ᱦᱩᱭᱩᱜᱼᱟ ᱡᱩᱫᱤ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱵᱤᱱᱟᱹ ᱥᱟᱯᱚᱨᱴ ᱛᱮ ᱵᱟᱪᱷᱟᱣ "
+"ᱮᱠᱥᱴᱮᱱᱥᱚᱱ ᱞᱟᱹᱜᱤᱫ ᱛᱮᱭᱟᱨ ᱞᱮᱱᱠᱷᱟᱱ ᱾ ᱱᱚᱣᱟ ᱥᱮᱴᱤᱝ ᱯᱨᱚᱵᱷᱟᱣ ᱞᱟᱹᱜᱤᱫ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱫᱚᱦᱲᱟ "
+"ᱪᱟᱹᱞᱩ ᱞᱟᱹᱠᱛᱤᱜ ᱠᱟᱱᱟ ᱾"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr ""
+"ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱥᱟᱶ ᱡᱚᱯᱲᱟᱣ ᱞᱟᱹᱜᱤᱫ ᱵᱷᱮᱜᱟᱨ ᱮᱱᱰᱤᱭᱟᱱᱱᱮᱥ ᱥᱟᱶ ᱮᱠᱥ᱑᱑ ᱠᱞᱟᱭᱤᱱᱴ ᱠᱚ ᱫᱟᱣ ᱮᱢᱟᱠᱚ "
+"ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱠᱷᱚᱱ ᱵᱷᱮᱜᱟᱨ ᱮᱱᱰᱤᱭᱟᱱᱱᱮᱥ ᱥᱟᱶ ᱠᱞᱟᱭᱤᱱᱴ ᱠᱷᱚᱱ ᱡᱚᱯᱲᱟᱣ ᱨᱮᱭᱟᱜ ᱫᱟᱣ ᱮᱢᱚᱜ ᱢᱮ᱾ "
+"ᱮᱠᱥ ᱥᱮᱨᱵᱷᱟᱨ ᱵᱟᱭᱤᱴ-ᱥᱣᱟᱯᱤᱝ ᱠᱚᱰ ᱫᱚ ᱢᱟᱨᱟᱝ ᱟᱴᱠᱟᱨ ᱥᱟᱨᱯᱷᱮᱥ ᱠᱟᱱᱟ, ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱨᱮ ᱚᱱᱟ "
+"ᱠᱚᱰ ᱨᱮᱭᱟᱜ ᱰᱷᱮᱨ ᱫᱚ ᱨᱩᱠᱷᱤᱭᱟᱹ ᱮᱴᱠᱮᱴᱚᱬᱮ ᱞᱟᱹᱜᱤᱫ ᱯᱨᱚᱱᱚᱱ ᱢᱮᱱᱟᱜᱼᱟ᱾ ᱵᱟᱭᱤᱴ-ᱥᱣᱮᱯᱰ "
+"ᱠᱞᱟᱭᱤᱱᱴ ᱠᱚᱣᱟᱜ ᱵᱮᱵᱷᱟᱨ ᱠᱮᱥ ᱟᱹᱰᱤ ᱱᱤᱪ ᱜᱮᱭᱟ, ᱟᱨ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱨᱮ ᱰᱤᱯᱷᱚᱞᱴ ᱞᱮᱠᱟᱛᱮ "
+"ᱚᱠᱟᱹᱡᱽᱣᱟᱹ ᱜᱮᱭᱟ ᱾ ᱱᱚᱣᱟ ᱵᱤᱠᱚᱞᱯ ᱪᱟᱹᱞᱩᱭ ᱢᱮ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱞᱟᱹᱭ ᱞᱟᱹᱜᱤᱫ ᱮᱠᱥ᱑᱑ ᱠᱞᱟᱭᱤᱱᱴ "
+"ᱠᱷᱚᱱ ᱡᱚᱯᱲᱟᱣ ᱟᱝᱜᱚᱪ ᱞᱟᱹᱜᱤᱫ ᱵᱷᱮᱜᱟᱨ ᱮᱱᱰᱤᱭᱟᱱᱱᱮᱥ ᱥᱟᱶ ᱾ ᱱᱚᱶᱟ ᱵᱤᱠᱚᱞᱯ ᱨᱮ ᱪᱮᱫ ᱦᱚᱸ ᱵᱟᱝ "
+"ᱮᱥᱮᱨ ᱦᱩᱭᱩᱜᱼᱟ ᱡᱩᱫᱤ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱠᱚᱢᱟᱱᱰ ᱞᱟᱭᱤᱱ ᱵᱤᱠᱚᱞᱯ +byteswappedclients/-"
+"byteswappedclients ᱚᱱᱟ ᱥᱮᱴᱤᱝ ᱠᱚᱱᱴᱨᱚᱞ ᱞᱟᱹᱜᱤᱫ ᱵᱟᱭ ᱥᱟᱯᱚᱨᱴ ᱮᱫᱟ᱾ ᱱᱚᱣᱟ ᱥᱮᱴᱤᱝ "
+"ᱯᱨᱚᱵᱷᱟᱣ ᱞᱟᱹᱜᱤᱫ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱫᱚᱦᱲᱟ ᱪᱟᱹᱞᱩ ᱞᱟᱹᱠᱛᱤᱜ ᱠᱟᱱᱟ ᱾"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱥᱠᱮᱞᱤᱝ ᱯᱷᱮᱠᱴᱚᱨ ᱠᱚᱱᱯᱷᱤᱜᱟᱨ ᱢᱮ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"ᱱᱚᱣᱟ ᱚᱡᱮ ᱞᱮᱠᱟᱛᱮ ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱠᱚᱣᱨᱰᱤᱱᱮᱴ ᱥᱯᱮᱥ ᱮᱥᱠᱮᱞ ᱢᱮ ᱾ ᱱᱚᱣᱟ ᱫᱚ ᱪᱮᱫ ᱥᱠᱮᱞ HiDPI "
+"ᱠᱮᱯᱮᱞ X11 ᱠᱞᱟᱭᱤᱱᱴ ᱠᱚ ᱟᱠᱚ ᱛᱮᱠᱚ ᱥᱚᱫᱚᱨᱚᱜᱼᱟ, ᱟᱨ ᱪᱮᱫ ᱞᱮᱠᱟ ᱠᱚᱢᱯᱚᱡᱤᱴᱚᱨ X11 ᱠᱞᱟᱭᱤᱱᱴ "
+"ᱣᱤᱱᱰᱚᱣ ᱠᱚ ᱥᱠᱮᱞᱟ᱾ ᱥᱠᱮᱞ ᱐ ᱨᱮ ᱥᱮᱴ ᱞᱮᱠᱷᱟᱱ ᱥᱠᱮᱞ ᱟᱡ ᱛᱮ ᱞᱮᱠᱷᱟᱜᱼᱟ ᱾ ᱥᱠᱮᱞ ᱫᱚ ᱱᱤᱛᱚᱜ "
+"ᱥᱩᱨ ᱨᱮᱭᱟᱜ ᱤᱱᱴᱤᱡᱟᱨ ᱛᱮ ᱜᱚᱞ ᱦᱩᱭᱩᱜᱼᱟ ᱾"
+
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "ᱮᱯᱞᱤᱠᱮᱥᱚᱱ"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "ᱮᱠᱡᱤᱠᱭᱩᱴᱮᱵᱚᱞ"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "ᱞᱚᱱᱪᱟᱨ ᱥᱮᱞᱮᱫ ᱢᱮ"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "ᱞᱚᱱᱪᱟᱨ"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "ᱴᱟᱭᱤᱯ"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "ᱥᱮᱞᱮᱫ ᱢᱮ"
+
+#: mdk/mdk-launcher-entry.c:204
+msgid "Run"
+msgstr "ᱫᱟᱹᱲ"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "ᱢᱮᱴᱟᱣ"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "ᱠᱟᱢᱤ"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "ᱞᱚᱱᱪᱟᱨ ᱠᱚ ᱥᱟᱥᱟᱯᱲᱟᱣ ᱢᱮ"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "ᱞᱚᱧᱪᱚᱨ"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_ᱤᱱᱯᱩᱴ"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_ᱮᱢᱩᱞᱮᱴ ᱴᱟᱪ"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_ᱥᱤᱥᱴᱚᱢ ᱥᱚᱴᱠᱟᱴ ᱵᱟᱨᱚᱱ ᱢᱮ"
+
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "ᱦᱚᱥᱴ _ᱠᱤᱢᱮᱯ ᱵᱮᱵᱷᱟᱨ ᱢᱮ"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "_ᱢᱳᱱᱤᱴᱚᱨᱥ"
+
+#: mdk/mdk-main-window.ui:26
+msgid "_Add monitor"
+msgstr "ᱢᱚᱱᱤᱴᱚᱨ ᱥᱮᱞᱮᱫ ᱢᱮ"
+
+#: mdk/mdk-main-window.ui:30
+msgid "_Emulate monitor modes"
+msgstr "_ᱮᱢᱩᱞᱮᱴ ᱢᱚᱱᱤᱴᱚᱨ ᱢᱚᱰᱥ"
+
+#: mdk/mdk-main-window.ui:37
+msgid "_Launchers"
+msgstr "_ᱞᱚᱱᱪᱟᱨ"
+
+#: mdk/mdk-main-window.ui:41
+msgid "_Edit launchers"
+msgstr "ᱞᱚᱱᱪᱟᱨ ᱠᱚ ᱥᱟᱥᱟᱯᱲᱟᱣ ᱢᱮ"
+
+#: mdk/mdk-main-window.ui:48
+msgid "_About Mutter Development Kit"
+msgstr "ᱢᱩᱴᱟᱨ ᱰᱮᱵᱷᱞᱚᱯᱢᱮᱱᱴ ᱠᱤᱴ ᱵᱟᱨᱮᱛᱮ"
+
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
+msgid "Mutter Development Kit"
+msgstr "ᱢᱩᱴᱟᱨ ᱩᱛᱱᱟᱹᱣ ᱠᱤᱴ"
+
+#: mdk/mdk-main-window.ui:64
+msgid "Main Menu"
+msgstr "ᱢᱩᱬᱩᱛ ᱢᱮᱱᱩ"
+
+#: mdk/mdk-main.c:53
+msgid "The Mutter Team"
+msgstr "ᱢᱩᱴᱟᱨ ᱴᱤᱢ"
+
+#: mdk/mdk-main.c:66
+msgid "Mutter software development kit"
+msgstr "ᱢᱩᱴᱟᱨ ᱥᱚᱯᱷᱴᱣᱮᱭᱟᱨ ᱰᱮᱵᱷᱞᱚᱯᱢᱮᱱᱴ ᱠᱤᱴ"
+
+#: mdk/mdk-main.c:69
+msgid "About Mutter Development Kit"
+msgstr "ᱢᱩᱴᱟᱨ ᱰᱮᱵᱷᱞᱚᱯᱢᱮᱱᱴ ᱠᱤᱴ ᱵᱟᱨᱮᱛᱮ"
+
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "ᱫᱮᱣᱠᱤᱴ ᱚᱯᱥᱚᱱ ᱠᱚ"
+
+#: mdk/mdk-monitor.c:561
+msgid "Failed to create monitor"
+msgstr "ᱢᱚᱱᱤᱴᱚᱨ ᱵᱮᱱᱟᱣ ᱨᱮ ᱵᱟᱝ ᱥᱟᱹᱛ ᱟᱠᱟᱱᱟ"
+
+#: src/backends/meta-monitor.c:283
+msgid "Built-in display"
+msgstr "ᱢᱟᱲᱟᱝ ᱛᱮᱭᱟᱜ ᱫᱮᱠᱷᱟᱣ"
+
+#: src/backends/meta-monitor.c:310
+msgid "Unknown"
+msgstr "ᱵᱟᱝ ᱵᱟᱰᱟᱭᱟᱜ"
+
+#: src/backends/meta-monitor.c:312
+msgid "Unknown Display"
+msgstr "ᱵᱟᱝ ᱵᱟᱰᱟᱭ ᱩᱱᱩᱫᱩᱜ"
+
+#: src/backends/meta-monitor.c:320
+#, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor.c:328
+#, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/core/bell.c:237
+msgid "Bell event"
+msgstr "ᱵᱮᱞ ᱤᱵᱷᱮᱱᱴ"
+
+#: src/core/display.c:603
+msgid "Privacy Screen Enabled"
+msgstr "ᱯᱨᱟᱭᱣᱮᱥᱤ ᱥᱠᱨᱤᱱ ᱪᱟᱹᱞᱩ ᱮᱱᱟ"
+
+#: src/core/display.c:604
+msgid "Privacy Screen Disabled"
+msgstr "ᱯᱨᱟᱭᱣᱮᱥᱤ ᱥᱠᱨᱤᱱ ᱚᱠᱟᱹᱡᱽᱣᱟᱹ ᱜᱮᱭᱟ"
+
+#: src/core/meta-context-main.c:344
+msgid "Run as a wayland compositor"
+msgstr "ᱢᱤᱫ ᱣᱮᱞᱮᱱᱰ ᱠᱚᱢᱯᱚᱡᱤᱴᱚᱨ ᱞᱮᱠᱟᱛᱮ ᱪᱟᱹᱞᱩᱭ ᱢᱮ"
+
+#: src/core/meta-context-main.c:351
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "ᱮᱠᱥᱣᱮᱞᱮᱱᱰ ᱵᱤᱱ ᱮᱦᱚᱵ ᱠᱟᱛᱮ ᱣᱮᱞᱮᱱᱰ ᱠᱚᱢᱯᱚᱡᱤᱴᱚᱨ ᱪᱟᱹᱞᱩᱭ ᱢᱮ"
+
+#: src/core/meta-context-main.c:358
+msgid "Specify Wayland display name to use"
+msgstr "ᱵᱮᱵᱷᱟᱨ ᱞᱟᱹᱜᱤᱫ ᱣᱮᱞᱮᱱᱰ ᱩᱫᱩᱜ ᱧᱩᱛᱩᱢ ᱩᱫᱩᱜ ᱢᱮ"
+
+#: src/core/meta-context-main.c:364
+msgid "Run as a full display server, rather than nested"
+msgstr "ᱱᱮᱥᱴᱮᱰ ᱵᱚᱫᱚᱞ ᱠᱟᱛᱮ, ᱯᱩᱨᱟᱹ ᱩᱱᱩᱫᱩᱜ ᱥᱮᱨᱵᱷᱟᱨ ᱞᱮᱠᱟᱛᱮ ᱪᱟᱹᱞᱩᱭ ᱢᱮ"
+
+#: src/core/meta-context-main.c:369
+msgid "Run as a headless display server"
+msgstr "ᱢᱤᱫ ᱦᱮᱰᱞᱮᱥ ᱰᱤᱥᱯᱞᱮ ᱥᱮᱨᱵᱷᱟᱨ ᱞᱮᱠᱟᱛᱮ ᱪᱟᱹᱞᱩᱭ ᱢᱮ"
+
+#: src/core/meta-context-main.c:374
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "ᱛᱷᱤᱨ ᱵᱷᱟᱨᱪᱩᱣᱟᱞ ᱢᱚᱱᱤᱴᱚᱨ ᱥᱮᱞᱮᱫ ᱢᱮ (WxH ᱵᱟᱝᱠᱷᱟᱱ WxH@R)"
+
+#: src/core/meta-context-main.c:380
+msgid "Run development kit"
+msgstr "ᱩᱛᱱᱟᱹᱣ ᱠᱤᱴ ᱪᱟᱹᱞᱩᱭ ᱢᱮ"
+
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "ᱩᱛᱱᱟᱹᱣ ᱠᱤᱴ ᱟᱨᱜᱩᱢᱮᱱᱴ"
+
+#: src/core/meta-context-main.c:396
+msgid "Profile performance using trace instrumentation"
+msgstr "ᱴᱨᱮᱥ ᱤᱱᱥᱴᱨᱩᱢᱮᱱᱴᱮᱥᱚᱱ ᱵᱮᱵᱷᱟᱨ ᱠᱟᱛᱮ ᱯᱨᱚᱯᱷᱟᱭᱤᱞ ᱯᱟᱨᱯᱷᱚᱨᱢᱮᱱᱥ"
+
+#: src/core/meta-context-main.c:402
+msgid "Enable debug control D-Bus interface"
+msgstr "ᱰᱤᱵᱟᱜᱽ ᱠᱚᱱᱴᱨᱚᱞ ᱰᱤ-ᱵᱟᱥ ᱤᱱᱴᱟᱨᱯᱷᱮᱥ ᱪᱟᱹᱞᱩᱭ ᱢᱮ"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes in that button group.
+#.
+#: src/core/meta-pad-action-mapper.c:617
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "ᱢᱚᱰ ᱥᱣᱤᱪ (ᱜᱟᱫᱮᱞ %d)"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:624
+#, c-format
+msgid "Mode Switch"
+msgstr "ᱢᱚᱰ ᱥᱣᱤᱪ"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:647
+msgid "Switch monitor"
+msgstr "ᱢᱚᱱᱤᱴᱚᱨ ᱥᱣᱤᱪ ᱢᱮ"
+
+#: src/core/meta-pad-action-mapper.c:649
+msgid "Show on-screen help"
+msgstr "ᱚᱱ-ᱥᱠᱨᱤᱱ ᱜᱚᱲᱚ ᱩᱫᱩᱜ ᱢᱮ"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:303
+msgid "Compositor"
+msgstr "ᱠᱚᱢᱯᱚᱡᱤᱴᱚᱨ"
+
+#: src/core/mutter.c:75
+msgid "Print version"
+msgstr "ᱪᱷᱟᱯᱟ ᱵᱷᱟᱨᱥᱚᱱ"
+
+#: src/core/mutter.c:81
+msgid "Mutter plugin to use"
+msgstr "ᱵᱮᱵᱷᱟᱨ ᱞᱟᱹᱜᱤᱫ ᱢᱩᱴᱟᱨ ᱯᱞᱟᱜᱤᱱ"
+
+#: src/core/prefs.c:1866
+#, c-format
+msgid "Workspace %d"
+msgstr "ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ %d"
+
+#: src/core/util.c:154
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "ᱢᱩᱴᱟᱨ ᱫᱚ ᱵᱷᱟᱨᱵᱚᱥ ᱢᱚᱰ ᱞᱟᱹᱜᱤᱫ ᱵᱤᱱᱟᱹ ᱜᱚᱲᱚ ᱛᱮ ᱠᱚᱢᱯᱟᱭᱤᱞ ᱞᱮᱱᱟ"
+
+#: src/core/workspace.c:510
+msgid "Workspace switched"
+msgstr "ᱠᱟᱹᱢᱤ ᱴᱷᱟᱶ ᱵᱚᱫᱚᱞ ᱮᱱᱟ"
+
+#: src/wayland/meta-wayland-tablet-pad.c:558
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "ᱢᱚᱰ ᱥᱣᱤᱪ: ᱢᱚᱰ %d"
+
+#: src/x11/meta-x11-display.c:729
+#, c-format
+msgid "Display “%s” already has a window manager"
+msgstr "ᱩᱫᱩᱜ ᱢᱮ “%s” ᱞᱟᱦᱟ ᱠᱷᱚᱱ ᱜᱮ ᱢᱤᱫ ᱣᱤᱱᱰᱚ ᱢᱮᱱᱮᱡᱟᱨ ᱢᱮᱱᱟᱭᱟ"
+
+#: src/x11/meta-x11-display.c:1092
+#, c-format
+msgid "Failed to open X Window System display “%s”"
+msgstr "ᱮᱠᱥ ᱣᱤᱱᱰᱚ ᱥᱤᱥᱴᱚᱢ ᱰᱤᱥᱯᱞᱮ “%s” ᱡᱷᱤᱡᱽ ᱨᱮ ᱵᱟᱝ ᱥᱟᱹᱛ ᱟᱠᱟᱱᱟ"
+
+#: src/x11/meta-x11-display.c:1236
+#, c-format
+msgid "Screen %d on display “%s” is invalid"
+msgstr "ᱥᱠᱨᱤᱱ %d ᱩᱫᱩᱜ ᱨᱮ “%s” ᱵᱟᱝ ᱴᱷᱤᱠᱟ"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2410
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"ᱮᱴᱟᱜ ᱠᱚᱢᱯᱚᱡᱤᱴᱤᱝ ᱢᱮᱱᱮᱡᱟᱨ ᱫᱚ ᱞᱟᱦᱟ ᱠᱷᱚᱱ ᱜᱮ ᱥᱠᱨᱤᱱ ᱨᱮ ᱪᱟᱹᱞᱩ ᱠᱟᱱᱟᱭ %i ᱩᱱᱩᱫᱩᱜ ᱨᱮ "
+"“%s”᱾"
+
+#: src/x11/meta-x11-selection-input-stream.c:475
+#, c-format
+msgid "Format %s not supported"
+msgstr "ᱯᱷᱚᱨᱢᱮᱴ %s ᱵᱟᱭ ᱥᱟᱯᱚᱨᱴ ᱮᱫᱟ"
+
+#: src/x11/window-props.c:562
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (%s ᱨᱮ)"
