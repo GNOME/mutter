@@ -535,17 +535,8 @@ static void
 meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
                                     ClutterCursor      *cursor)
 {
-  MetaCursorRendererPrivate *priv =
-    meta_cursor_renderer_get_instance_private (renderer);
-
   if (cursor)
-    {
-      float scale = find_highest_logical_monitor_scale (renderer, cursor);
-      clutter_cursor_prepare_at (cursor,
-                                 MAX (1, scale),
-                                 priv->current_x,
-                                 priv->current_y);
-    }
+    meta_cursor_renderer_prepare_cursor (renderer, cursor);
 
   META_CURSOR_RENDERER_GET_CLASS (renderer)->update_cursor (renderer, cursor);
 
@@ -639,4 +630,18 @@ meta_cursor_renderer_set_sprite (MetaCursorRenderer *renderer,
     {
       meta_cursor_renderer_set_cursor (renderer, NULL);
     }
+}
+
+void
+meta_cursor_renderer_prepare_cursor (MetaCursorRenderer *renderer,
+                                     ClutterCursor      *cursor)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  float scale = find_highest_logical_monitor_scale (renderer, cursor);
+
+  clutter_cursor_prepare_at (cursor,
+                             MAX (1, scale),
+                             priv->current_x,
+                             priv->current_y);
 }

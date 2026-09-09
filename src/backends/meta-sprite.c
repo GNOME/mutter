@@ -113,6 +113,9 @@ meta_sprite_update_cursor (ClutterSprite *sprite,
       pointer_visible =
         meta_cursor_tracker_get_pointer_visible (cursor_tracker);
 
+      if (cursor)
+        meta_cursor_renderer_prepare_cursor (cursor_renderer, cursor);
+
       meta_cursor_renderer_set_cursor (cursor_renderer,
                                        pointer_visible ? cursor : NULL);
       meta_cursor_tracker_set_current_cursor (cursor_tracker, cursor);

@@ -63,6 +63,9 @@ MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend *backend);
 void meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
                                       ClutterCursor      *cursor);
 
+void meta_cursor_renderer_prepare_cursor (MetaCursorRenderer *renderer,
+                                          ClutterCursor      *cursor);
+
 void meta_cursor_renderer_update_position (MetaCursorRenderer *renderer);
 void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
 
