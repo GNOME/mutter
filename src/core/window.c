@@ -3702,10 +3702,15 @@ static void
 apply_maximize_config (MetaWindow       *window,
                        MetaWindowConfig *config)
 {
-  if (meta_window_config_is_any_maximized (config))
-    maximize_window (window, config);
-  else
+  MetaMaximizeFlags old_flags =
+    meta_window_config_get_maximize_flags (window->config);
+  MetaMaximizeFlags new_flags =
+    meta_window_config_get_maximize_flags (config);
+
+  if ((old_flags & ~new_flags) != META_MAXIMIZE_NONE)
     unmaximize_window (window, config);
+  if ((new_flags & ~old_flags) != META_MAXIMIZE_NONE)
+    maximize_window (window, config);
 }
 
 void
