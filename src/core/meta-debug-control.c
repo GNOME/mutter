@@ -51,11 +51,11 @@ struct _MetaDebugControl
 
 static void meta_dbus_debug_control_iface_init (MetaDBusDebugControlIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaDebugControl,
-                         meta_debug_control,
-                         META_DBUS_TYPE_DEBUG_CONTROL_SKELETON,
-                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_DEBUG_CONTROL,
-                                                meta_dbus_debug_control_iface_init))
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaDebugControl,
+                               meta_debug_control,
+                               META_DBUS_TYPE_DEBUG_CONTROL_SKELETON,
+                               G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_DEBUG_CONTROL,
+                                                      meta_dbus_debug_control_iface_init))
 
 static void
 meta_dbus_debug_control_iface_init (MetaDBusDebugControlIface *iface)

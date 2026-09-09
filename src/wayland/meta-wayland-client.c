@@ -77,7 +77,7 @@ struct _MetaWaylandClient
   pid_t pid;
 };
 
-G_DEFINE_TYPE (MetaWaylandClient, meta_wayland_client, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaWaylandClient, meta_wayland_client, G_TYPE_OBJECT)
 
 static void
 meta_wayland_client_finalize (GObject *object)

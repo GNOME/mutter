@@ -26,7 +26,7 @@ struct _MetaFrameHeader
   GtkWidget parent_instance;
 };
 
-G_DEFINE_TYPE (MetaFrameHeader, meta_frame_header, GTK_TYPE_WIDGET)
+G_DEFINE_FINAL_TYPE (MetaFrameHeader, meta_frame_header, GTK_TYPE_WIDGET)
 
 static void
 meta_frame_header_dispose (GObject *object)

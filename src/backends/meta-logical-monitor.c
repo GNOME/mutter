@@ -51,9 +51,9 @@ typedef struct _MetaLogicalMonitorPrivate
   MetaLogicalMonitorId *id;
 } MetaLogicalMonitorPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaLogicalMonitor,
-                            meta_logical_monitor,
-                            G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (MetaLogicalMonitor,
+                                  meta_logical_monitor,
+                                  G_TYPE_OBJECT)
 
 typedef struct
 {

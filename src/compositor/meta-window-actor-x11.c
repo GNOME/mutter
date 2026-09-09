@@ -88,8 +88,8 @@ struct _MetaWindowActorX11
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaWindowActorX11, meta_window_actor_x11, META_TYPE_WINDOW_ACTOR,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init))
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaWindowActorX11, meta_window_actor_x11, META_TYPE_WINDOW_ACTOR,
+                               G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init))
 
 static void
 surface_repaint_scheduled (MetaSurfaceActor *actor,

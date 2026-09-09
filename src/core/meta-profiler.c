@@ -51,11 +51,11 @@ struct _MetaProfiler
 static void
 meta_sysprof_capturer_init_iface (MetaDBusSysprof3ProfilerIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaProfiler,
-                         meta_profiler,
-                         META_DBUS_TYPE_SYSPROF3_PROFILER_SKELETON,
-                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SYSPROF3_PROFILER,
-                                                meta_sysprof_capturer_init_iface))
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaProfiler,
+                               meta_profiler,
+                               META_DBUS_TYPE_SYSPROF3_PROFILER_SKELETON,
+                               G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SYSPROF3_PROFILER,
+                                                      meta_sysprof_capturer_init_iface))
 
 static void
 thread_info_free (ThreadInfo *thread_info)

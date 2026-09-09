@@ -59,8 +59,8 @@ struct _MetaCompositorViewNative
   gulong fullscreen_actor_destroy_id;
 };
 
-G_DEFINE_TYPE (MetaCompositorViewNative, meta_compositor_view_native,
-               META_TYPE_COMPOSITOR_VIEW)
+G_DEFINE_FINAL_TYPE (MetaCompositorViewNative, meta_compositor_view_native,
+                     META_TYPE_COMPOSITOR_VIEW)
 
 static void
 maybe_set_fullscreen_update_time (MetaSurfaceActor         *surface_actor,

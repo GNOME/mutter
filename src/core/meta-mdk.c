@@ -53,7 +53,7 @@ struct _MetaMdk
   GCancellable *devkit_process_cancellable;
 };
 
-G_DEFINE_TYPE (MetaMdk, meta_mdk, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaMdk, meta_mdk, G_TYPE_OBJECT)
 
 static void
 meta_mdk_finalize (GObject *object)

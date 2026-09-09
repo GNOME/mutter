@@ -77,7 +77,7 @@ struct _MetaStage
   GList *overlays;
 };
 
-G_DEFINE_TYPE (MetaStage, meta_stage, CLUTTER_TYPE_STAGE);
+G_DEFINE_FINAL_TYPE (MetaStage, meta_stage, CLUTTER_TYPE_STAGE);
 
 static MetaOverlay *
 meta_overlay_new (MetaStage *stage)

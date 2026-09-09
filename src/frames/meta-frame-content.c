@@ -35,7 +35,7 @@ enum {
 
 static GParamSpec *props[N_PROPS] = { 0, };
 
-G_DEFINE_TYPE (MetaFrameContent, meta_frame_content, GTK_TYPE_WIDGET)
+G_DEFINE_FINAL_TYPE (MetaFrameContent, meta_frame_content, GTK_TYPE_WIDGET)
 
 static void
 meta_frame_content_set_property (GObject      *object,

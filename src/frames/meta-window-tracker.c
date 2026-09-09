@@ -49,7 +49,7 @@ enum {
 
 static GParamSpec *props[N_PROPS] = { 0, };
 
-G_DEFINE_TYPE (MetaWindowTracker, meta_window_tracker, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaWindowTracker, meta_window_tracker, G_TYPE_OBJECT)
 
 static void
 meta_window_tracker_set_property (GObject      *object,

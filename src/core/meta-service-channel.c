@@ -59,10 +59,10 @@ struct _MetaServiceChannel
 
 static void meta_service_channel_init_iface (MetaDBusServiceChannelIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaServiceChannel, meta_service_channel,
-                         META_DBUS_TYPE_SERVICE_CHANNEL_SKELETON,
-                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SERVICE_CHANNEL,
-                                                meta_service_channel_init_iface))
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaServiceChannel, meta_service_channel,
+                               META_DBUS_TYPE_SERVICE_CHANNEL_SKELETON,
+                               G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SERVICE_CHANNEL,
+                                                      meta_service_channel_init_iface))
 
 static void
 meta_service_channel_data_free (MetaServiceChannelData *data)

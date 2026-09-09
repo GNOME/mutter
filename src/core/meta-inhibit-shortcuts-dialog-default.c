@@ -40,10 +40,10 @@ enum
 
 static void meta_inhibit_shortcuts_dialog_iface_init (MetaInhibitShortcutsDialogInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaInhibitShortcutsDialogDefault, meta_inhibit_shortcuts_dialog_default,
-                         G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_INHIBIT_SHORTCUTS_DIALOG,
-                                                meta_inhibit_shortcuts_dialog_iface_init))
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaInhibitShortcutsDialogDefault, meta_inhibit_shortcuts_dialog_default,
+                               G_TYPE_OBJECT,
+                               G_IMPLEMENT_INTERFACE (META_TYPE_INHIBIT_SHORTCUTS_DIALOG,
+                                                      meta_inhibit_shortcuts_dialog_iface_init))
 
 static void
 meta_inhibit_shortcuts_dialog_default_show (MetaInhibitShortcutsDialog *dialog)

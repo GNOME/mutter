@@ -50,7 +50,7 @@ struct _MetaIdleMonitor
   int64_t last_event_time;
 };
 
-G_DEFINE_TYPE (MetaIdleMonitor, meta_idle_monitor, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaIdleMonitor, meta_idle_monitor, G_TYPE_OBJECT)
 
 #define GSM_INHIBITOR_FLAG_IDLE 1 << 3
 

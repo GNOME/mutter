@@ -50,7 +50,7 @@ struct _MetaDnDActor
   int drag_start_y;
 };
 
-G_DEFINE_TYPE (MetaDnDActor, meta_dnd_actor, META_TYPE_FEEDBACK_ACTOR)
+G_DEFINE_FINAL_TYPE (MetaDnDActor, meta_dnd_actor, META_TYPE_FEEDBACK_ACTOR)
 
 static void
 meta_dnd_actor_set_property (GObject      *object,

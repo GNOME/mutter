@@ -58,7 +58,7 @@ struct _MetaLaters
   gulong before_update_handler_id;
 };
 
-G_DEFINE_TYPE (MetaLaters, meta_laters, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaLaters, meta_laters, G_TYPE_OBJECT)
 
 static MetaLater *
 meta_later_ref (MetaLater *later)

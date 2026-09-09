@@ -32,9 +32,9 @@ struct _MetaSelectionSourceMemory
   MtkAnonymousFile *content;
 };
 
-G_DEFINE_TYPE (MetaSelectionSourceMemory,
-               meta_selection_source_memory,
-               META_TYPE_SELECTION_SOURCE)
+G_DEFINE_FINAL_TYPE (MetaSelectionSourceMemory,
+                     meta_selection_source_memory,
+                     META_TYPE_SELECTION_SOURCE)
 
 struct _MetaUnixInputStream
 {

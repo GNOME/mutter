@@ -76,9 +76,9 @@ struct _MetaRemoteAccessController
   GList *session_managers;
 };
 
-G_DEFINE_TYPE (MetaRemoteAccessController,
-               meta_remote_access_controller,
-               G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaRemoteAccessController,
+                     meta_remote_access_controller,
+                     G_TYPE_OBJECT)
 
 /**
  * meta_remote_access_handle_stop:

@@ -125,9 +125,9 @@ struct _MetaShapedTexture
   MetaMultiTextureCoefficients coeffs;
 };
 
-G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTENT,
-                                                clutter_content_iface_init));
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, G_TYPE_OBJECT,
+                               G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTENT,
+                                                      clutter_content_iface_init));
 
 static void
 meta_shaped_texture_set_property (GObject      *object,

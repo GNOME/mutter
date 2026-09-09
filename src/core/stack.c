@@ -70,7 +70,7 @@ enum
 static GParamSpec *pspecs[N_PROPS] = { 0 };
 static guint signals[N_SIGNALS] = { 0 };
 
-G_DEFINE_TYPE (MetaStack, meta_stack, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaStack, meta_stack, G_TYPE_OBJECT)
 
 static void
 meta_stack_init (MetaStack *stack)

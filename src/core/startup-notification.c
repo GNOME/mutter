@@ -107,9 +107,9 @@ typedef struct
   uint completed : 1;
 } MetaStartupSequencePrivate;
 
-G_DEFINE_TYPE (MetaStartupNotification,
-               meta_startup_notification,
-               G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaStartupNotification,
+                     meta_startup_notification,
+                     G_TYPE_OBJECT)
 G_DEFINE_TYPE_WITH_PRIVATE (MetaStartupSequence,
                             meta_startup_sequence,
                             G_TYPE_OBJECT)

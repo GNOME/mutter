@@ -40,11 +40,11 @@ struct _MetaSurfaceContainerActorWayland
 
 static void surface_container_cullable_iface_init (MetaCullableInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaSurfaceContainerActorWayland,
-                         meta_surface_container_actor_wayland,
-                         CLUTTER_TYPE_ACTOR,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
-                                                surface_container_cullable_iface_init))
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaSurfaceContainerActorWayland,
+                               meta_surface_container_actor_wayland,
+                               CLUTTER_TYPE_ACTOR,
+                               G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
+                                                      surface_container_cullable_iface_init))
 
 struct _MetaWindowActorWayland
 {
@@ -57,10 +57,10 @@ struct _MetaWindowActorWayland
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaWindowActorWayland, meta_window_actor_wayland,
-                         META_TYPE_WINDOW_ACTOR,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
-                                                cullable_iface_init))
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaWindowActorWayland, meta_window_actor_wayland,
+                               META_TYPE_WINDOW_ACTOR,
+                               G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
+                                                      cullable_iface_init))
 
 typedef struct _SurfaceTreeTraverseData
 {

@@ -47,7 +47,7 @@ struct _MetaDnd
   GObject parent;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaDnd, meta_dnd, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (MetaDnd, meta_dnd, G_TYPE_OBJECT);
 
 enum
 {

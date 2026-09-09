@@ -27,8 +27,8 @@ struct _MetaCompositorNative
   MetaCompositorServer parent;
 };
 
-G_DEFINE_TYPE (MetaCompositorNative, meta_compositor_native,
-               META_TYPE_COMPOSITOR_SERVER)
+G_DEFINE_FINAL_TYPE (MetaCompositorNative, meta_compositor_native,
+                     META_TYPE_COMPOSITOR_SERVER)
 
 static void
 meta_compositor_native_before_paint (MetaCompositor     *compositor,

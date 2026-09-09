@@ -92,7 +92,7 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
-G_DEFINE_TYPE (MetaWaylandSurface, meta_wayland_surface, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (MetaWaylandSurface, meta_wayland_surface, G_TYPE_OBJECT);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWaylandSurfaceRole,
                                      meta_wayland_surface_role,

@@ -56,7 +56,7 @@ struct _MetaPadActionMapper
   } last_pad_action_info;
 };
 
-G_DEFINE_TYPE (MetaPadActionMapper, meta_pad_action_mapper, META_TYPE_TABLET_ACTION_MAPPER);
+G_DEFINE_FINAL_TYPE (MetaPadActionMapper, meta_pad_action_mapper, META_TYPE_TABLET_ACTION_MAPPER);
 
 static gboolean
 meta_pad_action_mapper_handle_event (MetaTabletActionMapper *mapper,

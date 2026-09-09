@@ -32,9 +32,9 @@ struct _MetaSelectionSourceRemote
   GList *mime_types;
 };
 
-G_DEFINE_TYPE (MetaSelectionSourceRemote,
-               meta_selection_source_remote,
-               META_TYPE_SELECTION_SOURCE)
+G_DEFINE_FINAL_TYPE (MetaSelectionSourceRemote,
+                     meta_selection_source_remote,
+                     META_TYPE_SELECTION_SOURCE)
 
 MetaSelectionSourceRemote *
 meta_selection_source_remote_new (MetaClipboardSession *session,

@@ -50,7 +50,7 @@ enum
 
 static guint signals[N_SIGNALS] = { 0 };
 
-G_DEFINE_TYPE (MetaSelection, meta_selection, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaSelection, meta_selection, G_TYPE_OBJECT)
 
 static void read_selection_source_async (GTask           *task,
                                          TransferRequest *request);

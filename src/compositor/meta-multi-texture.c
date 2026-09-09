@@ -55,7 +55,7 @@ struct _MetaMultiTexture
   CoglTexture **planes;
 };
 
-G_DEFINE_TYPE (MetaMultiTexture, meta_multi_texture, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (MetaMultiTexture, meta_multi_texture, G_TYPE_OBJECT);
 
 /**
  * meta_multi_texture_get_format:

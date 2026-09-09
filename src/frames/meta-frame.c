@@ -58,7 +58,7 @@ typedef struct
 #define MWM_FUNC_MAXIMIZE (1L << 4)
 #define MWM_FUNC_CLOSE (1L << 5)
 
-G_DEFINE_TYPE (MetaFrame, meta_frame, GTK_TYPE_WINDOW)
+G_DEFINE_FINAL_TYPE (MetaFrame, meta_frame, GTK_TYPE_WINDOW)
 
 static gboolean
 client_window_has_wm_protocol (MetaFrame *frame,

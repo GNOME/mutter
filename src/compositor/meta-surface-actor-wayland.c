@@ -44,9 +44,9 @@ struct _MetaSurfaceActorWayland
   MetaWaylandSurface *surface;
 };
 
-G_DEFINE_TYPE (MetaSurfaceActorWayland,
-               meta_surface_actor_wayland,
-               META_TYPE_SURFACE_ACTOR)
+G_DEFINE_FINAL_TYPE (MetaSurfaceActorWayland,
+                     meta_surface_actor_wayland,
+                     META_TYPE_SURFACE_ACTOR)
 
 static void
 meta_surface_actor_wayland_process_damage (MetaSurfaceActor   *actor,

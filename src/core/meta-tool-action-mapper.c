@@ -36,7 +36,8 @@ struct _MetaToolActionMapper
   MetaInputSettings *input_settings;
 };
 
-G_DEFINE_TYPE (MetaToolActionMapper, meta_tool_action_mapper, META_TYPE_TABLET_ACTION_MAPPER);
+G_DEFINE_FINAL_TYPE (MetaToolActionMapper, meta_tool_action_mapper,
+                     META_TYPE_TABLET_ACTION_MAPPER);
 
 static gboolean
 meta_tool_action_mapper_handle_event (MetaTabletActionMapper *mapper,

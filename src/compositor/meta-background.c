@@ -82,7 +82,7 @@ enum
 
 static GParamSpec *props[N_PROPS] = { 0, };
 
-G_DEFINE_TYPE (MetaBackground, meta_background, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaBackground, meta_background, G_TYPE_OBJECT)
 
 static gboolean texture_has_alpha (CoglTexture *texture);
 

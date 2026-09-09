@@ -38,8 +38,8 @@ struct _MetaLaunchContext
   uint32_t timestamp;
 };
 
-G_DEFINE_TYPE (MetaLaunchContext, meta_launch_context,
-               G_TYPE_APP_LAUNCH_CONTEXT)
+G_DEFINE_FINAL_TYPE (MetaLaunchContext, meta_launch_context,
+                     G_TYPE_APP_LAUNCH_CONTEXT)
 
 enum
 {

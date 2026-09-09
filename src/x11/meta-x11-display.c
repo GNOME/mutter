@@ -91,7 +91,7 @@ typedef struct _MetaX11DisplayPrivate
   guint dbus_name_id;
 } MetaX11DisplayPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaX11Display, meta_x11_display, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (MetaX11Display, meta_x11_display, G_TYPE_OBJECT)
 
 static char *get_screen_name (Display *xdisplay,
                               int      number);

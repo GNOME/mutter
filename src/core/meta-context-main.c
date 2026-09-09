@@ -71,7 +71,7 @@ struct _MetaContextMain
 #endif
 };
 
-G_DEFINE_TYPE (MetaContextMain, meta_context_main, META_TYPE_CONTEXT)
+G_DEFINE_FINAL_TYPE (MetaContextMain, meta_context_main, META_TYPE_CONTEXT)
 
 static gboolean
 check_configuration (MetaContextMain  *context_main,

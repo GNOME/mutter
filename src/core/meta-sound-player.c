@@ -64,7 +64,7 @@ const char * const cache_allow_list[] = {
   NULL
 };
 
-G_DEFINE_TYPE (MetaSoundPlayer, meta_sound_player, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaSoundPlayer, meta_sound_player, G_TYPE_OBJECT)
 
 static void
 meta_sound_player_finalize (GObject *object)

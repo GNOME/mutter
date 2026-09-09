@@ -34,7 +34,8 @@
 #include "meta/prefs.h"
 #include "meta/util.h"
 
-G_DEFINE_TYPE (MetaWorkspaceManager, meta_workspace_manager, G_TYPE_OBJECT)
+G_DEFINE_FINAL_TYPE (MetaWorkspaceManager, meta_workspace_manager,
+                     G_TYPE_OBJECT)
 
 enum
 {
