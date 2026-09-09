@@ -1082,12 +1082,11 @@ on_icc_create_bytes_read (GObject      *source_object,
   MetaWaylandCreatorIcc *creator_icc = user_data;
   MetaWaylandColorManager *color_manager = creator_icc->color_manager;
   ClutterContext *clutter_context = get_clutter_context (color_manager);
-  struct wl_resource *image_desc_resource = creator_icc->image_desc_resource;
+  MetaWaylandImageDescription *image_desc =
+    wl_resource_get_user_data (creator_icc->image_desc_resource);
   g_autoptr (ClutterColorState) color_state = NULL;
   g_autoptr (GError) error = NULL;
   g_autofree uint8_t *icc_bytes = NULL;
-  MetaWaylandImageDescription *old_image_desc;
-  MetaWaylandImageDescription *image_desc;
   uint32_t icc_length;
 
   if (meta_read_bytes_finish (result, &icc_bytes, &icc_length, &error))
@@ -1097,9 +1096,6 @@ on_icc_create_bytes_read (GObject      *source_object,
                                                  icc_length,
                                                  &error);
     }
-
-  image_desc = meta_wayland_image_description_new (color_manager,
-                                                   image_desc_resource);
 
   if (color_state)
     {
@@ -1113,10 +1109,6 @@ on_icc_create_bytes_read (GObject      *source_object,
                                                  WP_IMAGE_DESCRIPTION_V1_CAUSE_OPERATING_SYSTEM,
                                                  error->message);
     }
-
-  old_image_desc = wl_resource_get_user_data (image_desc_resource);
-  wl_resource_set_user_data (image_desc_resource, image_desc);
-  meta_wayland_image_description_free (old_image_desc);
 
   meta_wayland_creator_icc_unref (creator_icc);
 }
