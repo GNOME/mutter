@@ -1198,6 +1198,7 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
   g_autoptr (GArray) blob_ids = NULL;
   int fd;
   uint32_t commit_flags = 0;
+  gboolean retryable = FALSE;
   int ret;
 
   blob_ids = g_array_new (FALSE, TRUE, sizeof (uint32_t));
@@ -1288,6 +1289,9 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
   ret = drmModeAtomicCommit (fd, req, commit_flags, impl_device);
   if (ret < 0)
     {
+      retryable = ret == -EBUSY &&
+                  (commit_flags & DRM_MODE_ATOMIC_NONBLOCK) &&
+                  !(commit_flags & DRM_MODE_ATOMIC_TEST_ONLY);
       g_set_error (&error, G_IO_ERROR, g_io_error_from_errno (-ret),
                    "drmModeAtomicCommit: %s", g_strerror (-ret));
       goto err;
@@ -1316,7 +1320,13 @@ err:
 
   release_blob_ids (impl_device, blob_ids);
 
-  return meta_kms_feedback_new_failed (failed_planes, error);
+  {
+    MetaKmsFeedback *feedback;
+
+    feedback = meta_kms_feedback_new_failed (failed_planes, error);
+    feedback->retryable = retryable;
+    return feedback;
+  }
 }
 
 static void
