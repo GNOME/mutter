@@ -23,9 +23,14 @@
 #include "backends/meta-output.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-plane-private.h"
+#include "backends/native/meta-kms-preparation.h"
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-types-private.h"
 #include "backends/native/meta-kms-update.h"
+
+MetaKmsPreparation * meta_kms_update_get_preparation (MetaKmsUpdate *update);
+void meta_kms_update_set_preparation (MetaKmsUpdate      *update,
+                                      MetaKmsPreparation *preparation);
 
 typedef struct _MetaKmsCrtcColorUpdate
 {

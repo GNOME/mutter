@@ -28,6 +28,7 @@
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-preparation.h"
 #include "backends/native/meta-kms-private.h"
 
 struct _MetaKmsUpdate
@@ -51,6 +52,7 @@ struct _MetaKmsUpdate
   MetaKmsImplDevice *impl_device;
 
   int sync_fd;
+  MetaKmsPreparation *preparation;
 
   int64_t target_presentation_time_us;
 };
@@ -1150,6 +1152,9 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
 {
   g_return_if_fail (update->device == other_update->device);
 
+  g_clear_pointer (&update->preparation, meta_kms_preparation_free);
+  g_clear_pointer (&other_update->preparation, meta_kms_preparation_free);
+
   merge_mode_sets (update, other_update);
   merge_plane_assignments_from (update, other_update);
   merge_crtc_updates_from (update, other_update);
@@ -1203,7 +1208,25 @@ meta_kms_update_free (MetaKmsUpdate *update)
                     (GDestroyNotify) meta_kms_crtc_color_updates_free);
   g_clear_fd (&update->sync_fd, NULL);
 
+  g_clear_pointer (&update->preparation, meta_kms_preparation_free);
+
   g_free (update);
+}
+
+MetaKmsPreparation *
+meta_kms_update_get_preparation (MetaKmsUpdate *update)
+{
+  return update->preparation;
+}
+
+void
+meta_kms_update_set_preparation (MetaKmsUpdate      *update,
+                                 MetaKmsPreparation *preparation)
+{
+  if (update->preparation == preparation)
+    return;
+  g_clear_pointer (&update->preparation, meta_kms_preparation_free);
+  update->preparation = preparation;
 }
 
 void
