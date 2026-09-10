@@ -52,6 +52,8 @@ typedef struct _MetaKmsFeedback
   gatomicrefcount ref_count;
 
   MetaKmsFeedbackResult result;
+  /* A failed, unaccepted submission that can be retried unchanged. */
+  gboolean retryable;
   int64_t ready_time_us;
 
   GList *failed_planes;
