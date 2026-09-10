@@ -1664,6 +1664,31 @@ submit_update (MetaKmsImplDevice      *impl_device,
   return feedback;
 }
 
+static void
+finish_update (MetaKmsImplDevice      *impl_device,
+               MetaKmsUpdate          *update,
+               MetaKmsFeedback        *feedback,
+               MetaKmsResourceChanges  changes)
+{
+  if (update)
+    {
+      queue_result_feedback (impl_device, update, feedback);
+      meta_kms_update_free (update);
+    }
+
+  if (changes != META_KMS_RESOURCE_CHANGE_NONE)
+    {
+      MetaKmsImplDevicePrivate *priv =
+        meta_kms_impl_device_get_instance_private (impl_device);
+      MetaKms *kms = meta_kms_device_get_kms (priv->device);
+
+      meta_kms_queue_callback (kms,
+                               NULL,
+                               emit_resources_changed_callback,
+                               GUINT_TO_POINTER (changes), NULL);
+    }
+}
+
 static MetaKmsFeedback *
 do_process (MetaKmsImplDevice *impl_device,
             MetaKmsCrtc       *latch_crtc,
@@ -1708,23 +1733,7 @@ do_process (MetaKmsImplDevice *impl_device,
                                  &changes);
     }
 
-  if (update)
-    {
-      queue_result_feedback (impl_device, update, feedback);
-      meta_kms_update_free (update);
-    }
-
-  if (changes != META_KMS_RESOURCE_CHANGE_NONE)
-    {
-      MetaKmsImplDevicePrivate *priv =
-        meta_kms_impl_device_get_instance_private (impl_device);
-      MetaKms *kms = meta_kms_device_get_kms (priv->device);
-
-      meta_kms_queue_callback (kms,
-                               NULL,
-                               emit_resources_changed_callback,
-                               GUINT_TO_POINTER (changes), NULL);
-    }
+  finish_update (impl_device, update, feedback, changes);
 
   return feedback;
 }
