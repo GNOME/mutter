@@ -1700,7 +1700,8 @@ do_process (MetaKmsImplDevice *impl_device,
         }
     }
 
-  if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
+  if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY) &&
+      meta_kms_feedback_did_pass (feedback))
     changes = meta_kms_impl_device_predict_states (impl_device, update);
 
   queue_result_feedback (impl_device, update, feedback);
