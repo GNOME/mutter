@@ -1,10 +1,10 @@
 include:
   - project: 'Infrastructure/freedesktop-ci-templates'
     file: 'templates/fedora.yml'
-    ref: '145b1bc7ef1702d2bd71584010d7113c6786a506'
+    ref: 'd472159ceefa7d559a0586444469262882174c68'
   - project: 'Infrastructure/freedesktop-ci-templates'
     file: 'templates/ci-fairy.yml'
-    ref: 'aec7a6ce7bb38902c70641526f6611e27141784a'
+    ref: 'd472159ceefa7d559a0586444469262882174c68'
   - component: gitlab.gnome.org/GNOME/citemplates/release-service@master
     inputs:
       job-stage: deploy
