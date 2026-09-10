@@ -2736,6 +2736,7 @@ meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
         {
           g_source_set_ready_time (crtc_frame->ready_source, -1);
           cancel_retry (crtc_frame);
+          discard_submitted_update (crtc_frame);
           discard_update (impl_device, &crtc_frame->pending_update);
         }
 
