@@ -66,6 +66,7 @@ typedef struct _CrtcDeadline
   MetaKmsImplDevice *impl_device;
   MetaKmsCrtc *crtc;
   MetaKmsUpdate *pending_update;
+  GSource *ready_source;
   gboolean await_flush;
   gboolean cursor_enabled;
   gboolean cursor_moved_last_frame;
@@ -1482,8 +1483,6 @@ rearm_deadline_timer (MetaKmsImplDevice *impl_device,
 static void
 notify_crtc_frame_ready (CrtcFrame *crtc_frame)
 {
-  MetaKmsCrtc *crtc = crtc_frame->crtc;
-
   crtc_frame->pending_page_flip = FALSE;
   crtc_frame->deadline.is_deadline_page_flip = FALSE;
 
@@ -1493,7 +1492,7 @@ notify_crtc_frame_ready (CrtcFrame *crtc_frame)
   if (crtc_frame->await_flush)
     return;
 
-  meta_kms_impl_device_schedule_process (crtc_frame->impl_device, crtc);
+  g_source_set_ready_time (crtc_frame->ready_source, 0);
 }
 
 static void
@@ -1875,6 +1874,7 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
 static void
 crtc_frame_free (CrtcFrame *crtc_frame)
 {
+  g_clear_pointer (&crtc_frame->ready_source, g_source_destroy);
   g_clear_fd (&crtc_frame->deadline.timer_fd, NULL);
   g_clear_pointer (&crtc_frame->deadline.source, g_source_destroy);
   g_clear_pointer (&crtc_frame->pending_update, meta_kms_update_free);
@@ -1922,6 +1922,17 @@ is_using_deadline_timer (MetaKmsImplDevice *impl_device,
     }
 }
 
+static gboolean
+process_ready_frame (gpointer user_data)
+{
+  CrtcFrame *crtc_frame = user_data;
+
+  g_source_set_ready_time (crtc_frame->ready_source, -1);
+  meta_kms_impl_device_schedule_process (crtc_frame->impl_device,
+                                         crtc_frame->crtc);
+  return G_SOURCE_CONTINUE;
+}
+
 static CrtcFrame *
 ensure_crtc_frame (MetaKmsImplDevice *impl_device,
                    MetaKmsCrtc       *latch_crtc)
@@ -1944,6 +1955,11 @@ ensure_crtc_frame (MetaKmsImplDevice *impl_device,
       crtc_frame->crtc = latch_crtc;
       crtc_frame->deadline.timer_fd = -1;
       crtc_frame->await_flush = !crtc_state->is_active;
+      crtc_frame->ready_source =
+        meta_thread_impl_add_source (thread_impl, process_ready_frame,
+                                       crtc_frame, NULL);
+      g_source_set_ready_time (crtc_frame->ready_source, -1);
+      g_source_unref (crtc_frame->ready_source);
       g_hash_table_insert (priv->crtc_frames, latch_crtc, crtc_frame);
     }
 
@@ -2375,6 +2391,7 @@ disarm_all_frame_sources (MetaKmsImplDevice *impl_device)
   while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
     {
       crtc_frame->deadline.is_deadline_page_flip = FALSE;
+      g_source_set_ready_time (crtc_frame->ready_source, -1);
       crtc_frame->await_flush = FALSE;
       crtc_frame->pending_page_flip = FALSE;
       disarm_crtc_frame_deadline_timer (crtc_frame);
@@ -2498,7 +2515,10 @@ meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
 
       g_hash_table_iter_init (&iter, priv->crtc_frames);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
-        discard_update (impl_device, &crtc_frame->pending_update);
+        {
+          g_source_set_ready_time (crtc_frame->ready_source, -1);
+          discard_update (impl_device, &crtc_frame->pending_update);
+        }
 
       l = priv->inhibited_updates;
       while (l)
