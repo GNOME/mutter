@@ -656,7 +656,11 @@ can-run-gnome-kiosk@x86_64:
     - sudo meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-kiosk.sh
-    - meson setup gnome-kiosk gnome-kiosk/build --prefix /usr -Dbuildtype=debugoptimized --werror
+    - meson setup gnome-kiosk gnome-kiosk/build
+        --prefix /usr
+        --werror
+        -Dbuildtype=debugoptimized
+        -Db_sanitize='["address"]'
     - sudo meson install -C gnome-kiosk/build
     - mkdir -p -m 1777 /tmp/.X11-unix
     - dbus-run-session -- meson test -C gnome-kiosk/build --timeout-multiplier 5
