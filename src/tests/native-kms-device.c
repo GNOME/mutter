@@ -18,6 +18,11 @@
 
 #include "config.h"
 
+#include <fcntl.h>
+#include <unistd.h>
+#include <xf86drm.h>
+
+#include "backends/native/meta-drm-preparation.h"
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-input-thread.h"
@@ -35,6 +40,7 @@
 #include "backends/native/meta-thread-impl.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/drm-mock/drm-mock.h"
+#include "tests/drm-mock/drm-mock-preparation.h"
 #include "tests/meta-kms-test-utils.h"
 #include "tests/meta-test-utils.h"
 
@@ -1064,6 +1070,123 @@ meta_test_kms_device_busy_update (gconstpointer user_data)
   g_assert_true (meta_kms_feedback_did_pass (feedback));
 }
 
+typedef enum
+{
+  PREPARATION_RELEASE,
+  PREPARATION_CANCEL,
+  PREPARATION_HANGUP,
+} PreparationScenario;
+
+typedef struct
+{
+  PreparationScenario scenario;
+  MetaKmsImplDevice *impl_device;
+  MetaKmsUpdate *update;
+  int action_done;
+} PreparationUpdate;
+
+static gboolean
+finish_preparation_action (gpointer user_data)
+{
+  PreparationUpdate *pending = user_data;
+
+  g_assert_true (drm_mock_preparation_was_issued ());
+  g_assert_false (drm_mock_preparation_was_closed ());
+  switch (pending->scenario)
+    {
+    case PREPARATION_RELEASE:
+      drm_mock_preparation_release ();
+      break;
+    case PREPARATION_CANCEL:
+      meta_kms_impl_device_discard_pending_page_flips (pending->impl_device);
+      g_assert_true (drm_mock_preparation_was_closed ());
+      break;
+    case PREPARATION_HANGUP:
+      drm_mock_preparation_hangup ();
+      break;
+    }
+  g_atomic_int_set (&pending->action_done, TRUE);
+  g_main_context_wakeup (g_main_context_default ());
+  return G_SOURCE_REMOVE;
+}
+
+static gpointer
+queue_preparation_update (MetaThreadImpl  *thread_impl,
+                           gpointer         user_data,
+                           GError         **error)
+{
+  PreparationUpdate *pending = user_data;
+  g_autoptr (GSource) source = NULL;
+
+  drm_mock_preparation_delay_next ();
+  meta_kms_impl_device_handle_update (pending->impl_device, pending->update,
+                                      META_KMS_UPDATE_FLAG_NONE);
+  source = meta_thread_impl_add_source (thread_impl, finish_preparation_action,
+                                        pending, NULL);
+  g_source_set_ready_time (source, g_get_monotonic_time () + 150 * 1000);
+  return NULL;
+}
+
+static gpointer
+clear_preparation_mock (MetaThreadImpl  *thread_impl,
+                        gpointer         user_data,
+                        GError         **error)
+{
+  drm_mock_preparation_clear ();
+  return NULL;
+}
+
+static void
+meta_test_kms_device_preparation (gconstpointer user_data)
+{
+  PreparationScenario scenario = GPOINTER_TO_INT (user_data);
+  MetaKmsDevice *device = meta_get_test_kms_device (test_context);
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  MetaKmsCrtc *crtc = meta_get_test_kms_crtc (device);
+  MetaKmsConnector *connector = meta_get_test_kms_connector (device);
+  MetaKmsMode *mode = meta_kms_connector_get_preferred_mode (connector);
+  g_autoptr (MetaDrmBuffer) buffer = NULL;
+  UpdateResultData result = {
+    .expected_error = scenario == PREPARATION_CANCEL ? ECANCELED :
+                      scenario == PREPARATION_HANGUP ? ENOTTY : 0,
+  };
+  PreparationUpdate pending = { .scenario = scenario, .impl_device = impl_device };
+  uint64_t capability = 0;
+  int fd;
+  int64_t started_us;
+
+  fd = open (meta_kms_device_get_path (device), O_RDWR | O_CLOEXEC);
+  g_assert_cmpint (fd, >=, 0);
+  drmGetCap (fd, DRM_CAP_ATOMIC_PREPARATION, &capability);
+  close (fd);
+  if (!capability || META_IS_KMS_IMPL_DEVICE_SIMPLE (impl_device))
+    {
+      g_test_skip ("Requires atomic preparation on the virtual device");
+      return;
+    }
+
+  meta_test_kms_device_mode_set ();
+  buffer = meta_create_test_mode_dumb_buffer (device, mode);
+  pending.update = meta_kms_update_new (device);
+  meta_kms_update_assign_plane (pending.update, crtc,
+                                meta_get_primary_test_plane_for (device, crtc), buffer,
+                                meta_get_mode_fixed_rect_16 (mode), meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  meta_kms_update_add_result_listener (pending.update, &update_result_listener_vtable,
+                                       NULL, &result, update_result_destroy);
+  started_us = g_get_monotonic_time ();
+  meta_thread_run_impl_task_sync (META_THREAD (meta_kms_device_get_kms (device)),
+                                  queue_preparation_update, &pending, NULL);
+  g_clear_object (&buffer);
+  while (!result.destroy_count || !g_atomic_int_get (&pending.action_done))
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpint (g_get_monotonic_time () - started_us, >=, 150 * 1000);
+  g_assert_cmpuint (result.feedback_count, ==, 1);
+  g_assert_cmpuint (result.destroy_count, ==, 1);
+  meta_thread_run_impl_task_sync (META_THREAD (meta_kms_device_get_kms (device)),
+                                  clear_preparation_mock, NULL, NULL);
+}
+
 static void
 init_tests (void)
 {
@@ -1095,6 +1218,12 @@ init_tests (void)
                         GINT_TO_POINTER (BUSY_UPDATE_INHIBIT), meta_test_kms_device_busy_update);
   g_test_add_data_func ("/backends/native/kms/device/busy-update/terminal-error",
                         GINT_TO_POINTER (BUSY_UPDATE_TERMINAL_ERROR), meta_test_kms_device_busy_update);
+  g_test_add_data_func ("/backends/native/kms/device/preparation/release",
+                        GINT_TO_POINTER (PREPARATION_RELEASE), meta_test_kms_device_preparation);
+  g_test_add_data_func ("/backends/native/kms/device/preparation/cancel",
+                        GINT_TO_POINTER (PREPARATION_CANCEL), meta_test_kms_device_preparation);
+  g_test_add_data_func ("/backends/native/kms/device/preparation/hangup",
+                        GINT_TO_POINTER (PREPARATION_HANGUP), meta_test_kms_device_preparation);
 }
 
 int
