@@ -2025,8 +2025,8 @@ crtc_frame_free (CrtcFrame *crtc_frame)
   g_clear_fd (&crtc_frame->deadline.timer_fd, NULL);
   g_clear_pointer (&crtc_frame->deadline.source, g_source_destroy);
   g_clear_pointer (&crtc_frame->pending_update, meta_kms_update_free);
-  g_clear_pointer (&crtc_frame->submitted_update.kms_update, meta_kms_update_free);
   g_clear_pointer (&crtc_frame->submitted_update.source, g_source_destroy);
+  g_clear_pointer (&crtc_frame->submitted_update.kms_update, meta_kms_update_free);
   g_free (crtc_frame);
 }
 
