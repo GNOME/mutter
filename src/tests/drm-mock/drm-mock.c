@@ -141,6 +141,13 @@ drm_mock_queue_error (DrmMockCall call,
                                        GINT_TO_POINTER (error_number));
 }
 
+unsigned int
+drm_mock_count_errors (DrmMockCall call)
+{
+  g_return_val_if_fail (call < DRM_MOCK_N_CALLS, 0);
+  return g_list_length (queued_errors[call]);
+}
+
 void
 drm_mock_set_resource_filter (DrmMockCallFilter         call_filter,
                               DrmMockResourceFilterFunc filter_func,
