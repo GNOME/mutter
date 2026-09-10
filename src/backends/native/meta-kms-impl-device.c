@@ -2327,30 +2327,22 @@ meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
   if (crtc_frame->await_flush)
     return;
 
+  if (crtc_frame->pending_page_flip)
+    return;
+
   if (is_using_deadline_timer (impl_device, crtc))
     {
-      if (crtc_frame->pending_page_flip)
-        return;
-
       if (ensure_deadline_timer_armed (impl_device, crtc_frame))
         return;
-
-      if (crtc_frame->pending_update)
-        {
-          meta_kms_impl_device_do_process_update (impl_device, crtc_frame,
-                                                  crtc_frame->crtc,
-                                                  crtc_frame->pending_update,
-                                                  META_KMS_UPDATE_FLAG_NONE);
-        }
     }
 
   if (crtc_frame->pending_update)
     {
-      MetaKmsImplDevicePrivate *priv =
-        meta_kms_impl_device_get_instance_private (impl_device);
-
-      g_warning_once ("crtc_frame->pending_update=%p, deadline_timer_state=%d",
-                      crtc_frame->pending_update, priv->deadline_timer_state);
+      meta_kms_impl_device_do_process_update (impl_device, crtc_frame,
+                                              crtc_frame->crtc,
+                                              crtc_frame->pending_update,
+                                              META_KMS_UPDATE_FLAG_NONE);
+      return;
     }
 
   if (!crtc_frame->submitted_update.kms_update)
