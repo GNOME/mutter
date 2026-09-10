@@ -322,6 +322,41 @@ meta_test_kms_device_mode_set (void)
   release_connector_state (&connector_state);
 }
 
+typedef struct
+{
+  int expected_error;
+  unsigned int feedback_count;
+  unsigned int destroy_count;
+} RejectedUpdateResult;
+
+static void
+rejected_update_feedback (const MetaKmsFeedback *feedback,
+                          gpointer               user_data)
+{
+  RejectedUpdateResult *result = user_data;
+
+  result->feedback_count++;
+  g_assert_cmpuint (result->destroy_count, ==, 0);
+  g_assert_cmpuint (result->feedback_count, ==, 1);
+  g_assert_false (meta_kms_feedback_did_pass (feedback));
+  g_assert_error (meta_kms_feedback_get_error (feedback), G_IO_ERROR,
+                  g_io_error_from_errno (result->expected_error));
+}
+
+static void
+rejected_update_result_destroy (gpointer user_data)
+{
+  RejectedUpdateResult *result = user_data;
+
+  result->destroy_count++;
+  g_assert_cmpuint (result->feedback_count, ==, 1);
+  g_assert_cmpuint (result->destroy_count, ==, 1);
+}
+
+static const MetaKmsResultListenerVtable rejected_update_listener_vtable = {
+  .feedback = rejected_update_feedback,
+};
+
 static void
 meta_test_kms_device_rejected_mode_set (void)
 {
@@ -348,8 +383,14 @@ meta_test_kms_device_rejected_mode_set (void)
     {
       MetaKmsUpdate *update = meta_kms_update_new (device);
       g_autoptr (MetaKmsFeedback) feedback = NULL;
+      RejectedUpdateResult result = { .expected_error = errors[i] };
 
       meta_kms_update_mode_set (update, crtc, NULL, NULL);
+      meta_kms_update_add_result_listener (update,
+                                           &rejected_update_listener_vtable,
+                                           NULL,
+                                           &result,
+                                           rejected_update_result_destroy);
       drm_mock_queue_error (DRM_MOCK_CALL_ATOMIC_COMMIT, errors[i]);
       feedback = meta_kms_device_process_update_sync (device, update,
                                                       META_KMS_UPDATE_FLAG_MODE_SET);
@@ -366,6 +407,11 @@ meta_test_kms_device_rejected_mode_set (void)
                                 meta_kms_crtc_get_current_state (crtc));
       assert_connector_state_equals (&connector_state,
                                      meta_kms_connector_get_current_state (connector));
+
+      while (!result.destroy_count)
+        g_main_context_iteration (NULL, TRUE);
+      g_assert_cmpuint (result.feedback_count, ==, 1);
+      g_assert_cmpuint (result.destroy_count, ==, 1);
     }
 
   release_crtc_state (&crtc_state);
