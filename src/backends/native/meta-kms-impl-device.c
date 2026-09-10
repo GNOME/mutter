@@ -1620,60 +1620,18 @@ queue_result_feedback (MetaKmsImplDevice *impl_device,
     }
 }
 
+/* The caller retains the update and decides when to deliver result feedback. */
 static MetaKmsFeedback *
-do_process (MetaKmsImplDevice *impl_device,
-            MetaKmsCrtc       *latch_crtc,
-            MetaKmsUpdate     *update,
-            MetaKmsUpdateFlag  flags)
+submit_update (MetaKmsImplDevice      *impl_device,
+               CrtcFrame              *crtc_frame,
+               MetaKmsUpdate          *update,
+               MetaKmsUpdateFlag       flags,
+               MetaKmsResourceChanges *changes)
 {
-  MetaKmsImplDevicePrivate *priv =
-    meta_kms_impl_device_get_instance_private (impl_device);
-  MetaKms *kms = meta_kms_device_get_kms (priv->device);
-  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
-  MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
-  CrtcFrame *crtc_frame = NULL;
   MetaKmsFeedback *feedback;
-  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
 
-  COGL_TRACE_BEGIN_SCOPED (MetaKmsImplDeviceProcess,
-                           "Meta::KmsImplDevice::do_process()");
-
-  if (!update || meta_kms_update_is_empty (update))
-    {
-      GError *error = NULL;
-
-      error = g_error_new (META_KMS_ERROR,
-                           META_KMS_ERROR_EMPTY_UPDATE,
-                           "Empty update");
-      feedback = meta_kms_feedback_new_failed (NULL, error);
-
-      if (update)
-        {
-          queue_result_feedback (impl_device, update, feedback);
-          meta_kms_update_free (update);
-        }
-
-      return feedback;
-    }
-
-  if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
-    {
-      if (latch_crtc)
-        crtc_frame = get_crtc_frame (impl_device, latch_crtc);
-
-      if (crtc_frame)
-        {
-          GMainContext *thread_context =
-            meta_thread_impl_get_main_context (thread_impl);
-
-          meta_kms_update_add_page_flip_listener (update,
-                                                  crtc_frame->crtc,
-                                                  &crtc_page_flip_listener_vtable,
-                                                  thread_context,
-                                                  crtc_frame, NULL);
-        }
-    }
+  *changes = META_KMS_RESOURCE_CHANGE_NONE;
 
   feedback = klass->process_update (impl_device, update, flags);
 
@@ -1687,7 +1645,7 @@ do_process (MetaKmsImplDevice *impl_device,
                                            crtc_frame->kms_ready_time_us);
 
       cursor_assignment =
-        meta_kms_update_get_cursor_plane_assignment (update, latch_crtc);
+        meta_kms_update_get_cursor_plane_assignment (update, crtc_frame->crtc);
       if (cursor_assignment)
         {
           crtc_frame->cursor_enabled = cursor_assignment->buffer != NULL;
@@ -1702,19 +1660,73 @@ do_process (MetaKmsImplDevice *impl_device,
 
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY) &&
       meta_kms_feedback_did_pass (feedback))
-    changes = meta_kms_impl_device_predict_states (impl_device, update);
+    *changes = meta_kms_impl_device_predict_states (impl_device, update);
 
-  queue_result_feedback (impl_device, update, feedback);
+  return feedback;
+}
 
-  meta_kms_update_free (update);
+static MetaKmsFeedback *
+do_process (MetaKmsImplDevice *impl_device,
+            MetaKmsCrtc       *latch_crtc,
+            MetaKmsUpdate     *update,
+            MetaKmsUpdateFlag  flags)
+{
+  CrtcFrame *crtc_frame = NULL;
+  MetaKmsFeedback *feedback;
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaKmsImplDeviceProcess,
+                           "Meta::KmsImplDevice::do_process()");
+
+  if (!update || meta_kms_update_is_empty (update))
+    {
+      GError *error;
+
+      error = g_error_new (META_KMS_ERROR,
+                           META_KMS_ERROR_EMPTY_UPDATE,
+                           "Empty update");
+      feedback = meta_kms_feedback_new_failed (NULL, error);
+    }
+  else
+    {
+      if (latch_crtc && !(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
+        crtc_frame = get_crtc_frame (impl_device, latch_crtc);
+
+      if (crtc_frame)
+        {
+          MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
+          GMainContext *thread_context =
+            meta_thread_impl_get_main_context (META_THREAD_IMPL (impl));
+
+          meta_kms_update_add_page_flip_listener (update,
+                                                  crtc_frame->crtc,
+                                                  &crtc_page_flip_listener_vtable,
+                                                  thread_context,
+                                                  crtc_frame, NULL);
+        }
+
+      feedback = submit_update (impl_device, crtc_frame, update, flags,
+                                 &changes);
+    }
+
+  if (update)
+    {
+      queue_result_feedback (impl_device, update, feedback);
+      meta_kms_update_free (update);
+    }
 
   if (changes != META_KMS_RESOURCE_CHANGE_NONE)
     {
+      MetaKmsImplDevicePrivate *priv =
+        meta_kms_impl_device_get_instance_private (impl_device);
+      MetaKms *kms = meta_kms_device_get_kms (priv->device);
+
       meta_kms_queue_callback (kms,
                                NULL,
                                emit_resources_changed_callback,
                                GUINT_TO_POINTER (changes), NULL);
     }
+
   return feedback;
 }
 
