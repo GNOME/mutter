@@ -38,6 +38,7 @@ typedef enum _MetaKmsFlags
 } MetaKmsFlags;
 
 #define META_KMS_ERROR meta_kms_error_quark ()
+META_EXPORT_TEST
 GQuark meta_kms_error_quark (void);
 
 #define META_TYPE_KMS (meta_kms_get_type ())

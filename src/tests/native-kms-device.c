@@ -327,34 +327,47 @@ typedef struct
   int expected_error;
   unsigned int feedback_count;
   unsigned int destroy_count;
-} RejectedUpdateResult;
+} UpdateResultData;
 
 static void
-rejected_update_feedback (const MetaKmsFeedback *feedback,
+update_result_feedback (const MetaKmsFeedback *feedback,
                           gpointer               user_data)
 {
-  RejectedUpdateResult *result = user_data;
+  UpdateResultData *result = user_data;
 
   result->feedback_count++;
   g_assert_cmpuint (result->destroy_count, ==, 0);
   g_assert_cmpuint (result->feedback_count, ==, 1);
-  g_assert_false (meta_kms_feedback_did_pass (feedback));
-  g_assert_error (meta_kms_feedback_get_error (feedback), G_IO_ERROR,
-                  g_io_error_from_errno (result->expected_error));
+  if (result->expected_error == ECANCELED)
+    {
+      g_assert_false (meta_kms_feedback_did_pass (feedback));
+      g_assert_error (meta_kms_feedback_get_error (feedback), META_KMS_ERROR,
+                      META_KMS_ERROR_DISCARDED);
+    }
+  else if (result->expected_error)
+    {
+      g_assert_false (meta_kms_feedback_did_pass (feedback));
+      g_assert_error (meta_kms_feedback_get_error (feedback), G_IO_ERROR,
+                      g_io_error_from_errno (result->expected_error));
+    }
+  else
+    {
+      g_assert_true (meta_kms_feedback_did_pass (feedback));
+    }
 }
 
 static void
-rejected_update_result_destroy (gpointer user_data)
+update_result_destroy (gpointer user_data)
 {
-  RejectedUpdateResult *result = user_data;
+  UpdateResultData *result = user_data;
 
   result->destroy_count++;
   g_assert_cmpuint (result->feedback_count, ==, 1);
   g_assert_cmpuint (result->destroy_count, ==, 1);
 }
 
-static const MetaKmsResultListenerVtable rejected_update_listener_vtable = {
-  .feedback = rejected_update_feedback,
+static const MetaKmsResultListenerVtable update_result_listener_vtable = {
+  .feedback = update_result_feedback,
 };
 
 static void
@@ -383,14 +396,14 @@ meta_test_kms_device_rejected_mode_set (void)
     {
       MetaKmsUpdate *update = meta_kms_update_new (device);
       g_autoptr (MetaKmsFeedback) feedback = NULL;
-      RejectedUpdateResult result = { .expected_error = errors[i] };
+      UpdateResultData result = { .expected_error = errors[i] };
 
       meta_kms_update_mode_set (update, crtc, NULL, NULL);
       meta_kms_update_add_result_listener (update,
-                                           &rejected_update_listener_vtable,
+                                           &update_result_listener_vtable,
                                            NULL,
                                            &result,
-                                           rejected_update_result_destroy);
+                                           update_result_destroy);
       drm_mock_queue_error (DRM_MOCK_CALL_ATOMIC_COMMIT, errors[i]);
       feedback = meta_kms_device_process_update_sync (device, update,
                                                       META_KMS_UPDATE_FLAG_MODE_SET);
@@ -812,6 +825,193 @@ meta_test_kms_device_empty_update (void)
   g_main_loop_run (loop);
 }
 
+typedef enum
+{
+  BUSY_UPDATE_TRANSIENT,
+  BUSY_UPDATE_PERSISTENT,
+  BUSY_UPDATE_CANCEL,
+  BUSY_UPDATE_SUCCESSOR,
+  BUSY_UPDATE_MODE_SET,
+  BUSY_UPDATE_INHIBIT,
+  BUSY_UPDATE_TERMINAL_ERROR,
+} BusyUpdateScenario;
+
+typedef struct
+{
+  BusyUpdateScenario scenario;
+  MetaKmsCrtc *crtc;
+  MetaKmsUpdate *first;
+  MetaKmsUpdate *successor;
+  GSource *action_source;
+} BusyUpdates;
+
+static gboolean
+finish_busy_action (gpointer user_data)
+{
+  BusyUpdates *updates = user_data;
+  MetaKmsUpdate *update;
+  MetaKmsCrtc *crtc = updates->crtc;
+  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
+  MetaKmsImplDevice *impl_device =
+    meta_kms_device_get_impl_device (device);
+
+  if (drm_mock_count_errors (DRM_MOCK_CALL_ATOMIC_COMMIT) == 1000)
+    {
+      g_source_set_ready_time (updates->action_source,
+                               g_get_monotonic_time () + 1000);
+      return G_SOURCE_CONTINUE;
+    }
+
+  g_assert_cmpuint (drm_mock_clear_errors (DRM_MOCK_CALL_ATOMIC_COMMIT), >, 0);
+  if (updates->successor)
+    {
+      drm_mock_queue_error (DRM_MOCK_CALL_ATOMIC_COMMIT, EBUSY);
+      drm_mock_queue_error (DRM_MOCK_CALL_ATOMIC_COMMIT, EBUSY);
+      meta_kms_impl_device_handle_update (impl_device, updates->successor,
+                                          META_KMS_UPDATE_FLAG_NONE);
+    }
+  else
+    {
+      if (updates->scenario == BUSY_UPDATE_MODE_SET)
+        {
+          g_autoptr (MetaKmsFeedback) feedback = NULL;
+
+          update = meta_kms_update_new (device);
+          meta_kms_update_mode_set (update, crtc, NULL, NULL);
+          feedback = meta_kms_impl_device_process_update (impl_device, update,
+                                                          META_KMS_UPDATE_FLAG_MODE_SET);
+          g_assert_true (meta_kms_feedback_did_pass (feedback));
+        }
+      else if (updates->scenario == BUSY_UPDATE_INHIBIT)
+        {
+          meta_kms_impl_device_set_updates_inhibited (impl_device,
+                                                      META_KMS_INHIBIT_ALL);
+          meta_kms_impl_device_set_updates_inhibited (impl_device,
+                                                      META_KMS_INHIBIT_NONE);
+        }
+      else
+        {
+          meta_kms_impl_device_discard_pending_page_flips (impl_device);
+        }
+    }
+  return G_SOURCE_REMOVE;
+}
+
+static gpointer
+queue_busy_updates_in_impl (MetaThreadImpl  *thread_impl,
+                            gpointer         user_data,
+                            GError         **error)
+{
+  BusyUpdates *updates = user_data;
+  MetaKmsImplDevice *impl_device =
+    meta_kms_device_get_impl_device (meta_kms_crtc_get_device (updates->crtc));
+
+  meta_kms_impl_device_handle_update (impl_device, updates->first,
+                                      META_KMS_UPDATE_FLAG_NONE);
+  updates->action_source =
+    meta_thread_impl_add_source (thread_impl, finish_busy_action, updates, NULL);
+  g_source_set_priority (updates->action_source, G_PRIORITY_HIGH);
+  g_source_unref (updates->action_source);
+  return NULL;
+}
+
+static void
+meta_test_kms_device_busy_update (gconstpointer user_data)
+{
+  BusyUpdateScenario scenario = GPOINTER_TO_INT (user_data);
+  gboolean persistent = scenario == BUSY_UPDATE_PERSISTENT;
+  gboolean cancel = scenario == BUSY_UPDATE_CANCEL ||
+                    scenario == BUSY_UPDATE_MODE_SET ||
+                    scenario == BUSY_UPDATE_INHIBIT;
+  gboolean successor = scenario == BUSY_UPDATE_SUCCESSOR;
+  MetaKmsDevice *device = meta_get_test_kms_device (test_context);
+  MetaKmsCrtc *crtc = meta_get_test_kms_crtc (device);
+  MetaKmsConnector *connector = meta_get_test_kms_connector (device);
+  MetaKmsMode *mode = meta_kms_connector_get_preferred_mode (connector);
+  g_autoptr (MetaDrmBuffer) buffer = NULL;
+  g_autoptr (MetaKmsFeedback) feedback = NULL;
+  UpdateResultData result = {
+    .expected_error = cancel ? ECANCELED : persistent ? EBUSY :
+                      scenario == BUSY_UPDATE_TERMINAL_ERROR ? EINVAL : 0,
+  };
+  UpdateResultData successor_result = { 0 };
+  BusyUpdates updates = { .scenario = scenario, .crtc = crtc };
+  MetaKmsUpdate *update;
+  unsigned int i, remaining;
+  int64_t started_us;
+
+  if (META_IS_KMS_IMPL_DEVICE_SIMPLE (meta_kms_device_get_impl_device (device)))
+    {
+      g_test_skip ("Busy retry requires an atomic KMS device");
+      return;
+    }
+
+  meta_test_kms_device_mode_set ();
+  buffer = meta_create_test_mode_dumb_buffer (device, mode);
+  update = meta_kms_update_new (device);
+  meta_kms_update_assign_plane (update, crtc,
+                                meta_get_primary_test_plane_for (device, crtc),
+                                buffer,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  meta_kms_update_add_result_listener (update,
+                                       &update_result_listener_vtable,
+                                       NULL, &result,
+                                       update_result_destroy);
+
+  updates.first = update;
+  if (successor)
+    {
+      updates.successor = meta_kms_update_new (device);
+      meta_kms_update_assign_plane (updates.successor, crtc,
+                                    meta_get_primary_test_plane_for (device, crtc),
+                                    buffer,
+                                    meta_get_mode_fixed_rect_16 (mode),
+                                    meta_get_mode_rect (mode),
+                                    META_KMS_ASSIGN_PLANE_FLAG_NONE);
+      meta_kms_update_add_result_listener (updates.successor,
+                                           &update_result_listener_vtable,
+                                           NULL, &successor_result,
+                                           update_result_destroy);
+    }
+
+  for (i = 0; i < (persistent || cancel || successor ? 1000 : 3); i++)
+    drm_mock_queue_error (DRM_MOCK_CALL_ATOMIC_COMMIT, EBUSY);
+  if (scenario == BUSY_UPDATE_TERMINAL_ERROR)
+    drm_mock_queue_error (DRM_MOCK_CALL_ATOMIC_COMMIT, EINVAL);
+
+  started_us = g_get_monotonic_time ();
+  if (cancel || successor)
+    meta_thread_run_impl_task_sync (META_THREAD (meta_kms_device_get_kms (device)),
+                                    queue_busy_updates_in_impl, &updates, NULL);
+  else
+    meta_kms_device_post_update (device, update, META_KMS_UPDATE_FLAG_NONE);
+  g_clear_object (&buffer);
+  while (!result.destroy_count || (successor && !successor_result.destroy_count))
+    g_main_context_iteration (NULL, TRUE);
+
+  remaining = drm_mock_clear_errors (DRM_MOCK_CALL_ATOMIC_COMMIT);
+  if (persistent)
+    {
+      g_assert_cmpuint (remaining, >, 0);
+      g_assert_cmpuint (remaining, <, 999);
+      g_assert_cmpint (g_get_monotonic_time () - started_us, >=, 100 * 1000);
+    }
+  else
+    {
+      g_assert_cmpuint (remaining, ==, 0);
+    }
+  g_assert_cmpuint (result.feedback_count, ==, 1);
+  g_assert_cmpuint (result.destroy_count, ==, 1);
+
+  update = meta_kms_update_new (device);
+  meta_kms_update_mode_set (update, crtc, NULL, NULL);
+  feedback = meta_kms_device_process_update_sync (device, update,
+                                                  META_KMS_UPDATE_FLAG_MODE_SET);
+  g_assert_true (meta_kms_feedback_did_pass (feedback));
+}
+
 static void
 init_tests (void)
 {
@@ -827,6 +1027,20 @@ init_tests (void)
                    meta_test_kms_device_discard_disabled);
   g_test_add_func ("/backends/native/kms/device/empty-update",
                    meta_test_kms_device_empty_update);
+  g_test_add_data_func ("/backends/native/kms/device/busy-update/transient",
+                        GINT_TO_POINTER (BUSY_UPDATE_TRANSIENT), meta_test_kms_device_busy_update);
+  g_test_add_data_func ("/backends/native/kms/device/busy-update/persistent",
+                        GINT_TO_POINTER (BUSY_UPDATE_PERSISTENT), meta_test_kms_device_busy_update);
+  g_test_add_data_func ("/backends/native/kms/device/busy-update/cancel",
+                        GINT_TO_POINTER (BUSY_UPDATE_CANCEL), meta_test_kms_device_busy_update);
+  g_test_add_data_func ("/backends/native/kms/device/busy-update/successor",
+                        GINT_TO_POINTER (BUSY_UPDATE_SUCCESSOR), meta_test_kms_device_busy_update);
+  g_test_add_data_func ("/backends/native/kms/device/busy-update/mode-set",
+                        GINT_TO_POINTER (BUSY_UPDATE_MODE_SET), meta_test_kms_device_busy_update);
+  g_test_add_data_func ("/backends/native/kms/device/busy-update/inhibit",
+                        GINT_TO_POINTER (BUSY_UPDATE_INHIBIT), meta_test_kms_device_busy_update);
+  g_test_add_data_func ("/backends/native/kms/device/busy-update/terminal-error",
+                        GINT_TO_POINTER (BUSY_UPDATE_TERMINAL_ERROR), meta_test_kms_device_busy_update);
 }
 
 int

@@ -190,6 +190,7 @@ void meta_kms_impl_device_update_prop_table (MetaKmsImplDevice *impl_device,
                                              MetaKmsProp       *props,
                                              int                n_props);
 
+META_EXPORT_TEST
 MetaKmsFeedback * meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
                                                        MetaKmsUpdate     *update,
                                                        MetaKmsUpdateFlag  flags)
@@ -199,6 +200,7 @@ META_EXPORT_TEST
 void meta_kms_impl_device_set_updates_inhibited (MetaKmsImplDevice    *impl_device,
                                                  MetaKmsInhibitSubset  inhibited_subset);
 
+META_EXPORT_TEST
 void meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
                                          MetaKmsUpdate     *update,
                                          MetaKmsUpdateFlag  flags);
@@ -213,6 +215,7 @@ void meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
 void meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
                                                      MetaKmsPageFlipData *page_flip_data);
 
+META_EXPORT_TEST
 void meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device);
 
 gboolean meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
