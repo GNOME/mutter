@@ -622,7 +622,9 @@ meta_cast_kms_grant_broker_dispose (GObject *object)
     g_clear_signal_handler (&broker->prepare_shutdown_handler_id,
                             broker->backend_native);
   broker->backend_native = NULL;
-  g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (broker));
+  if (g_dbus_interface_skeleton_get_connection (
+        G_DBUS_INTERFACE_SKELETON (broker)))
+    g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (broker));
   g_clear_handle_id (&broker->dbus_name_id, g_bus_unown_name);
   g_clear_handle_id (&broker->pronk_name_watch_id, g_bus_unwatch_name);
   g_clear_pointer (&broker->pronk_name_owner, g_free);
