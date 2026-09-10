@@ -1,6 +1,7 @@
 drm_mock = shared_library('drm-mock',
   sources: [
     'drm-mock.c',
+    'drm-mock-preparation.c',
   ],
   dependencies: [
     glib_dep,
