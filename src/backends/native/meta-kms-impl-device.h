@@ -91,6 +91,9 @@ struct _MetaKmsImplDeviceClass
   MetaKmsFeedback * (* process_update) (MetaKmsImplDevice *impl_device,
                                         MetaKmsUpdate     *update,
                                         MetaKmsUpdateFlag  flags);
+  gboolean (* prepare_update) (MetaKmsImplDevice  *impl_device,
+                               MetaKmsUpdate      *update,
+                               GError            **error);
   void (* disable) (MetaKmsImplDevice *impl_device);
   void (* handle_page_flip_callback) (MetaKmsImplDevice   *impl_device,
                                       MetaKmsPageFlipData *page_flip_data);

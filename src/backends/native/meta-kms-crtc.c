@@ -628,6 +628,12 @@ init_properties (MetaKmsCrtc       *crtc,
           .name = "ACTIVE",
           .type = DRM_MODE_PROP_RANGE,
         },
+      [META_KMS_CRTC_PROP_PREPARE_FD] =
+        {
+          .name = "PREPARE_FD",
+          .type = DRM_MODE_PROP_SIGNED_RANGE,
+          .default_value = UINT64_MAX,
+        },
       [META_KMS_CRTC_PROP_DEGAMMA_LUT] =
         {
           .name = "DEGAMMA_LUT",

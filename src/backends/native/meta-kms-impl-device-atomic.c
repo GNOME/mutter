@@ -20,6 +20,7 @@
 #include "backends/native/meta-kms-impl-device-atomic.h"
 
 #include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-drm-preparation.h"
 #include "backends/native/meta-kms-connector-private.h"
 #include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-device-private.h"
@@ -41,6 +42,7 @@ struct _MetaKmsImplDeviceAtomic
   MetaKmsImplDevice parent;
 
   GHashTable *page_flip_datas;
+  gboolean preparation_enabled;
 };
 
 static GInitableIface *initable_parent_iface;
@@ -1187,6 +1189,98 @@ disable_planes_and_connectors (MetaKmsImplDevice  *impl_device,
   return TRUE;
 }
 
+static gboolean
+meta_kms_impl_device_atomic_prepare_update (MetaKmsImplDevice  *impl_device,
+                                            MetaKmsUpdate      *update,
+                                            GError            **error)
+{
+  MetaKmsImplDeviceAtomic *atomic = META_KMS_IMPL_DEVICE_ATOMIC (impl_device);
+  g_autoptr (GArray) ids = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+  MetaKmsPreparation *preparation;
+  const GArray *previous_ids;
+  GList *l;
+
+  if (!atomic->preparation_enabled)
+    return TRUE;
+
+  if (meta_kms_update_get_needs_modeset (update) ||
+      !meta_kms_update_get_latch_crtc (update))
+    {
+      for (l = meta_kms_impl_device_peek_crtcs (impl_device); l; l = l->next)
+        {
+          uint32_t id = meta_kms_crtc_get_id (l->data);
+
+          g_array_append_val (ids, id);
+        }
+    }
+  else
+    {
+      MetaKmsCrtc *crtc = meta_kms_update_get_latch_crtc (update);
+      uint32_t id;
+
+      id = meta_kms_crtc_get_id (crtc);
+      g_array_append_val (ids, id);
+    }
+
+  preparation = meta_kms_update_get_preparation (update);
+  if (preparation)
+    {
+      previous_ids = meta_kms_preparation_get_crtc_ids (preparation);
+      if (previous_ids->len == ids->len &&
+          memcmp (previous_ids->data, ids->data, ids->len * sizeof (uint32_t)) == 0)
+        return TRUE;
+      meta_kms_update_set_preparation (update, NULL);
+    }
+
+  preparation = meta_kms_preparation_create (meta_kms_impl_device_get_fd (impl_device),
+                                             (uint32_t *) ids->data, ids->len,
+                                             error);
+  if (!preparation)
+    return FALSE;
+  meta_kms_update_set_preparation (update, preparation);
+  return TRUE;
+}
+
+static gboolean
+add_preparation (MetaKmsImplDevice  *impl_device,
+                  MetaKmsPreparation *preparation,
+                  drmModeAtomicReq   *req,
+                  GError            **error)
+{
+  const GArray *ids;
+  unsigned int i;
+
+  if (!preparation)
+    return TRUE;
+  ids = meta_kms_preparation_get_crtc_ids (preparation);
+  for (i = 0; i < ids->len; i++)
+    {
+      uint32_t id = g_array_index (ids, uint32_t, i);
+      GList *l;
+
+      for (l = meta_kms_impl_device_peek_crtcs (impl_device); l; l = l->next)
+        {
+          MetaKmsCrtc *crtc = l->data;
+
+          if (meta_kms_crtc_get_id (crtc) == id)
+            {
+              if (!add_crtc_property (impl_device, crtc, req,
+                                       META_KMS_CRTC_PROP_PREPARE_FD,
+                                       meta_kms_preparation_get_fd (preparation), error))
+                return FALSE;
+              break;
+            }
+        }
+      if (!l)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                       "Prepared CRTC %u no longer exists", id);
+          return FALSE;
+        }
+    }
+  return TRUE;
+}
+
 static MetaKmsFeedback *
 meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
                                             MetaKmsUpdate     *update,
@@ -1199,12 +1293,14 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
   int fd;
   uint32_t commit_flags = 0;
   gboolean retryable = FALSE;
+  int64_t preparation_retry_deadline = g_get_monotonic_time () + 100 * 1000;
   int ret;
 
   blob_ids = g_array_new (FALSE, TRUE, sizeof (uint32_t));
 
   meta_topic (META_DEBUG_KMS, "[atomic] Processing update");
 
+retry:
   req = drmModeAtomicAlloc ();
   if (!req)
     {
@@ -1212,6 +1308,30 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
                    "Failed to create atomic transaction request: %s",
                    g_strerror (errno));
       goto err;
+    }
+
+  if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
+    {
+      MetaKmsPreparation *preparation;
+
+      if (!meta_kms_impl_device_atomic_prepare_update (impl_device, update, &error))
+        goto err;
+      preparation = meta_kms_update_get_preparation (update);
+      if (preparation)
+        {
+          if (!meta_kms_update_get_needs_modeset (update) &&
+              meta_kms_preparation_is_pending (preparation))
+            {
+              retryable = TRUE;
+              g_set_error (&error, G_IO_ERROR, G_IO_ERROR_PENDING,
+                           "Display preparation is pending");
+              goto err;
+            }
+          if (!meta_kms_preparation_wait (preparation, &error))
+            goto err;
+          if (!add_preparation (impl_device, preparation, req, &error))
+            goto err;
+        }
     }
 
   if (meta_kms_update_get_mode_sets (update))
@@ -1289,9 +1409,23 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
   ret = drmModeAtomicCommit (fd, req, commit_flags, impl_device);
   if (ret < 0)
     {
-      retryable = ret == -EBUSY &&
+      retryable = (ret == -EBUSY || ret == -ESTALE) &&
                   (commit_flags & DRM_MODE_ATOMIC_NONBLOCK) &&
                   !(commit_flags & DRM_MODE_ATOMIC_TEST_ONLY);
+      if (ret == -ESTALE)
+        {
+          meta_kms_update_set_preparation (update, NULL);
+          if (META_KMS_IMPL_DEVICE_ATOMIC (impl_device)->preparation_enabled &&
+              !(commit_flags & (DRM_MODE_ATOMIC_NONBLOCK |
+                                DRM_MODE_ATOMIC_TEST_ONLY)) &&
+              g_get_monotonic_time () < preparation_retry_deadline)
+            {
+              drmModeAtomicFree (req);
+              release_blob_ids (impl_device, blob_ids);
+              g_array_set_size (blob_ids, 0);
+              goto retry;
+            }
+        }
       g_set_error (&error, G_IO_ERROR, g_io_error_from_errno (-ret),
                    "drmModeAtomicCommit: %s", g_strerror (-ret));
       goto err;
@@ -1333,13 +1467,16 @@ static void
 meta_kms_impl_device_atomic_disable (MetaKmsImplDevice *impl_device)
 {
   g_autoptr (GError) error = NULL;
+  MetaKmsPreparation *preparation = NULL;
   drmModeAtomicReq *req;
+  int64_t preparation_retry_deadline = g_get_monotonic_time () + 100 * 1000;
   int fd;
   int ret;
 
   meta_topic (META_DEBUG_KMS, "[atomic] Disabling '%s'",
               meta_kms_impl_device_get_path (impl_device));
 
+retry:
   req = drmModeAtomicAlloc ();
   if (!req)
     {
@@ -1356,11 +1493,35 @@ meta_kms_impl_device_atomic_disable (MetaKmsImplDevice *impl_device)
   if (!disable_crtcs (impl_device, req, &error))
     goto err;
 
+  if (META_KMS_IMPL_DEVICE_ATOMIC (impl_device)->preparation_enabled)
+    {
+      g_autoptr (GArray) ids = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+      GList *l;
+
+      for (l = meta_kms_impl_device_peek_crtcs (impl_device); l; l = l->next)
+        {
+          uint32_t id = meta_kms_crtc_get_id (l->data);
+
+          g_array_append_val (ids, id);
+        }
+      preparation = meta_kms_preparation_create (meta_kms_impl_device_get_fd (impl_device),
+                                                 (uint32_t *) ids->data, ids->len,
+                                                 &error);
+      if (!preparation || !meta_kms_preparation_wait (preparation, &error) ||
+          !add_preparation (impl_device, preparation, req, &error))
+        goto err;
+    }
+
   meta_topic (META_DEBUG_KMS, "[atomic] Committing disable-device transaction");
 
   fd = meta_kms_impl_device_get_fd (impl_device);
   ret = drmModeAtomicCommit (fd, req, DRM_MODE_ATOMIC_ALLOW_MODESET, impl_device);
-  drmModeAtomicFree (req);
+  g_clear_pointer (&req, drmModeAtomicFree);
+  g_clear_pointer (&preparation, meta_kms_preparation_free);
+  if (ret == -ESTALE &&
+      META_KMS_IMPL_DEVICE_ATOMIC (impl_device)->preparation_enabled &&
+      g_get_monotonic_time () < preparation_retry_deadline)
+    goto retry;
   if (ret < 0)
     {
       g_set_error (&error, G_IO_ERROR, g_io_error_from_errno (-ret),
@@ -1371,6 +1532,8 @@ meta_kms_impl_device_atomic_disable (MetaKmsImplDevice *impl_device)
   return;
 
 err:
+  g_clear_pointer (&req, drmModeAtomicFree);
+  g_clear_pointer (&preparation, meta_kms_preparation_free);
   g_warning ("[atomic] Failed to disable device '%s': %s",
              meta_kms_impl_device_get_path (impl_device),
              error->message);
@@ -1486,6 +1649,22 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
                             META_DEVICE_FILE_TAG_KMS,
                             META_KMS_DEVICE_FILE_TAG_ATOMIC);
     }
+
+  {
+    MetaKmsImplDeviceAtomic *atomic = META_KMS_IMPL_DEVICE_ATOMIC (impl_device);
+    uint64_t supported = 0;
+    int fd = meta_device_file_get_fd (device_file);
+
+    atomic->preparation_enabled =
+      drmGetCap (fd, DRM_CAP_ATOMIC_PREPARATION, &supported) == 0 && supported;
+    if (atomic->preparation_enabled &&
+        drmSetClientCap (fd, DRM_CLIENT_CAP_ATOMIC_PREPARATION, 1) != 0)
+      {
+        g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                     "Enabling display preparation: %s", g_strerror (errno));
+        return NULL;
+      }
+  }
 
   return g_steal_pointer (&device_file);
 }
@@ -1603,6 +1782,8 @@ meta_kms_impl_device_atomic_class_init (MetaKmsImplDeviceAtomicClass *klass)
     meta_kms_impl_device_atomic_setup_drm_event_context;
   impl_device_class->process_update =
     meta_kms_impl_device_atomic_process_update;
+  impl_device_class->prepare_update =
+    meta_kms_impl_device_atomic_prepare_update;
   impl_device_class->disable =
     meta_kms_impl_device_atomic_disable;
   impl_device_class->handle_page_flip_callback =
