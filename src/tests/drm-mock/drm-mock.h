@@ -54,6 +54,9 @@ void drm_mock_queue_error (DrmMockCall call,
                            int         error_number);
 
 DRM_MOCK_EXPORT
+unsigned int drm_mock_clear_errors (DrmMockCall call);
+
+DRM_MOCK_EXPORT
 unsigned int drm_mock_count_errors (DrmMockCall call);
 
 DRM_MOCK_EXPORT

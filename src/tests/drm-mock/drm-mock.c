@@ -148,6 +148,18 @@ drm_mock_count_errors (DrmMockCall call)
   return g_list_length (queued_errors[call]);
 }
 
+unsigned int
+drm_mock_clear_errors (DrmMockCall call)
+{
+  unsigned int count;
+
+  g_return_val_if_fail (call < DRM_MOCK_N_CALLS, 0);
+
+  count = g_list_length (queued_errors[call]);
+  g_clear_pointer (&queued_errors[call], g_list_free);
+  return count;
+}
+
 void
 drm_mock_set_resource_filter (DrmMockCallFilter         call_filter,
                               DrmMockResourceFilterFunc filter_func,
