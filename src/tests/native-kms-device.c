@@ -34,6 +34,7 @@
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-thread-impl.h"
 #include "meta-test/meta-context-test.h"
+#include "tests/drm-mock/drm-mock.h"
 #include "tests/meta-kms-test-utils.h"
 #include "tests/meta-test-utils.h"
 
@@ -316,6 +317,56 @@ meta_test_kms_device_mode_set (void)
                             meta_kms_crtc_get_current_state (crtc));
   assert_connector_state_equals (&connector_state,
                                  meta_kms_connector_get_current_state (connector));
+
+  release_crtc_state (&crtc_state);
+  release_connector_state (&connector_state);
+}
+
+static void
+meta_test_kms_device_rejected_mode_set (void)
+{
+  MetaKmsDevice *device = meta_get_test_kms_device (test_context);
+  MetaKmsCrtc *crtc = meta_get_test_kms_crtc (device);
+  MetaKmsConnector *connector = meta_get_test_kms_connector (device);
+  MetaKmsCrtcState crtc_state;
+  MetaKmsConnectorState connector_state;
+  const int errors[] = { EINVAL, EBUSY };
+  size_t i;
+
+  if (META_IS_KMS_IMPL_DEVICE_SIMPLE (meta_kms_device_get_impl_device (device)))
+    {
+      g_test_skip ("Atomic rejection requires an atomic KMS device");
+      return;
+    }
+
+  meta_test_kms_device_mode_set ();
+  crtc_state = copy_crtc_state (meta_kms_crtc_get_current_state (crtc));
+  connector_state =
+    copy_connector_state (meta_kms_connector_get_current_state (connector));
+
+  for (i = 0; i < G_N_ELEMENTS (errors); i++)
+    {
+      MetaKmsUpdate *update = meta_kms_update_new (device);
+      g_autoptr (MetaKmsFeedback) feedback = NULL;
+
+      meta_kms_update_mode_set (update, crtc, NULL, NULL);
+      drm_mock_queue_error (DRM_MOCK_CALL_ATOMIC_COMMIT, errors[i]);
+      feedback = meta_kms_device_process_update_sync (device, update,
+                                                      META_KMS_UPDATE_FLAG_MODE_SET);
+      g_assert_false (meta_kms_feedback_did_pass (feedback));
+      g_assert_error (meta_kms_feedback_get_error (feedback), G_IO_ERROR,
+                      g_io_error_from_errno (errors[i]));
+      assert_crtc_state_equals (&crtc_state,
+                                meta_kms_crtc_get_current_state (crtc));
+      assert_connector_state_equals (&connector_state,
+                                     meta_kms_connector_get_current_state (connector));
+
+      meta_kms_update_states_sync (meta_kms_device_get_kms (device));
+      assert_crtc_state_equals (&crtc_state,
+                                meta_kms_crtc_get_current_state (crtc));
+      assert_connector_state_equals (&connector_state,
+                                     meta_kms_connector_get_current_state (connector));
+    }
 
   release_crtc_state (&crtc_state);
   release_connector_state (&connector_state);
@@ -722,6 +773,8 @@ init_tests (void)
                    meta_test_kms_device_sanity);
   g_test_add_func ("/backends/native/kms/device/mode-set",
                    meta_test_kms_device_mode_set);
+  g_test_add_func ("/backends/native/kms/device/rejected-mode-set",
+                   meta_test_kms_device_rejected_mode_set);
   g_test_add_func ("/backends/native/kms/device/power-save",
                    meta_test_kms_device_power_save);
   g_test_add_func ("/backends/native/kms/device/discard-disabled",

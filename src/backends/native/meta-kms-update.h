@@ -84,8 +84,10 @@ void meta_kms_feedback_unref (MetaKmsFeedback *feedback);
 
 MetaKmsFeedbackResult meta_kms_feedback_get_result (const MetaKmsFeedback *feedback);
 
+META_EXPORT_TEST
 gboolean meta_kms_feedback_did_pass (const MetaKmsFeedback *feedback);
 
+META_EXPORT_TEST
 const GError * meta_kms_feedback_get_error (const MetaKmsFeedback *feedback);
 
 int64_t meta_kms_feedback_get_ready_time_us (const MetaKmsFeedback *feedback);
