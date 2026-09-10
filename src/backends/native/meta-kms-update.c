@@ -182,6 +182,7 @@ meta_kms_fb_damage_free (MetaKmsFbDamage *fb_damage)
 static void
 meta_kms_plane_assignment_free (MetaKmsPlaneAssignment *plane_assignment)
 {
+  g_clear_object (&plane_assignment->buffer);
   g_clear_pointer (&plane_assignment->fb_damage, meta_kms_fb_damage_free);
   g_free (plane_assignment);
 }
@@ -273,6 +274,9 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
   g_assert (meta_kms_plane_get_plane_type (plane) !=
             META_KMS_PLANE_TYPE_PRIMARY ||
             !(flags & META_KMS_ASSIGN_PLANE_FLAG_ALLOW_FAIL));
+
+  if (buffer)
+    g_object_ref (buffer);
 
   if (drop_plane_assignment (update, plane, &old_flags))
     {
