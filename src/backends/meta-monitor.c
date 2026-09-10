@@ -3045,8 +3045,6 @@ meta_monitor_is_for_lease (MetaMonitor *monitor)
 gboolean
 meta_monitor_update_outputs (MetaMonitor *monitor)
 {
-  meta_monitor_set_logical_monitor (monitor, NULL);
-
   return META_MONITOR_GET_CLASS (monitor)->update_outputs (monitor);
 }
 

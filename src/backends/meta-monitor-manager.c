@@ -220,6 +220,9 @@ meta_monitor_manager_update_logical_monitors (MetaMonitorManager *manager,
   logical_monitor_configs =
     config ? g_list_copy (config->logical_monitor_configs) : NULL;
 
+  g_list_foreach (manager->monitors,
+                  (GFunc) meta_monitor_set_logical_monitor, NULL);
+
   old_logical_monitors = g_steal_pointer (&manager->logical_monitors);
 
   l_logical = old_logical_monitors;

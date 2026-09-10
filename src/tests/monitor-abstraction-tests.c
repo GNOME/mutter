@@ -627,6 +627,11 @@ meta_test_monitor_rebuild_disable (void)
   logical_monitor_1 = META_LOGICAL_MONITOR (logical_monitors->data);
   logical_monitor_2 = META_LOGICAL_MONITOR (logical_monitors->next->data);
 
+  g_assert_true (meta_monitor_get_logical_monitor (monitor_1) ==
+                 logical_monitor_1);
+  g_assert_true (meta_monitor_get_logical_monitor (monitor_2) ==
+                 logical_monitor_2);
+
   g_object_add_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
   g_object_add_weak_pointer (G_OBJECT (monitor_2), (gpointer *) &monitor_2);
   g_object_add_weak_pointer (G_OBJECT (logical_monitor_1),
@@ -652,6 +657,10 @@ meta_test_monitor_rebuild_disable (void)
                                meta_monitor_get_current_mode (monitor_1));
   g_assert_null (meta_monitor_get_current_mode (monitor_2));
 
+  g_assert_null (meta_monitor_get_logical_monitor (monitor_2));
+  g_assert_true (meta_monitor_get_logical_monitor (monitor_1) ==
+                 logical_monitor_1);
+
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
@@ -672,6 +681,10 @@ meta_test_monitor_rebuild_disable (void)
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+
+  g_assert_null (meta_monitor_get_logical_monitor (monitor_1));
+  g_assert_true (meta_monitor_get_logical_monitor (monitor_2) ==
+                 logical_monitors->data);
 
   g_object_remove_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
   g_object_remove_weak_pointer (G_OBJECT (monitor_2), (gpointer *) &monitor_2);
