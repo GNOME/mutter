@@ -399,7 +399,7 @@ set_stream_parameters (MetaScreenCastStream *screen_cast_stream,
       int width, height;
 
       width = meta_stream_window_get_width (META_STREAM_WINDOW (stream));
-      height = meta_stream_window_get_width (META_STREAM_WINDOW (stream));
+      height = meta_stream_window_get_height (META_STREAM_WINDOW (stream));
       g_variant_builder_add (parameters_builder, "{sv}",
                              "size",
                              g_variant_new ("(ii)", width, height));
