@@ -81,6 +81,7 @@ typedef struct _CrtcDeadline
     MetaKmsUpdate *update;
     GSource *source;
     int64_t deadline_us;
+    gboolean waiting_for_preparation;
   } retry;
 
   struct {
@@ -98,6 +99,7 @@ typedef struct _CrtcDeadline
     MetaKmsUpdateFlag flags;
     MetaKmsCrtc *latch_crtc;
     GSource *source;
+    gboolean rendering_ready;
   } submitted_update;
 } CrtcFrame;
 
@@ -1715,6 +1717,8 @@ cancel_retry (CrtcFrame *crtc_frame)
   discard_update (crtc_frame->impl_device, &crtc_frame->retry.update);
 }
 
+static void arm_retry (CrtcFrame *crtc_frame);
+
 static gboolean
 retry_update (gpointer user_data)
 {
@@ -1725,14 +1729,21 @@ retry_update (gpointer user_data)
   MetaKmsUpdate *update = crtc_frame->retry.update;
   gboolean passed;
 
+  if (crtc_frame->retry.waiting_for_preparation)
+    {
+      crtc_frame->retry.waiting_for_preparation = FALSE;
+      crtc_frame->retry.deadline_us = g_get_monotonic_time () +
+                                    KMS_BUSY_RETRY_TIMEOUT_US;
+    }
+
   feedback = submit_update (impl_device, crtc_frame, update,
                              META_KMS_UPDATE_FLAG_NONE, &changes);
   if (feedback->retryable &&
-      g_get_monotonic_time () < crtc_frame->retry.deadline_us)
+      ((meta_kms_update_get_preparation (update) &&
+        meta_kms_preparation_is_pending (meta_kms_update_get_preparation (update))) ||
+       g_get_monotonic_time () < crtc_frame->retry.deadline_us))
     {
-      g_source_set_ready_time (crtc_frame->retry.source,
-                               g_get_monotonic_time () +
-                               KMS_BUSY_RETRY_INTERVAL_US);
+      arm_retry (crtc_frame);
       return G_SOURCE_CONTINUE;
     }
 
@@ -1750,26 +1761,57 @@ retry_update (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
+static gpointer
+retry_prepared_update (MetaThreadImpl  *impl,
+                       gpointer         user_data,
+                       GError         **error)
+{
+  retry_update (user_data);
+  return GINT_TO_POINTER (TRUE);
+}
+
+static void
+arm_retry (CrtcFrame *crtc_frame)
+{
+  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (crtc_frame->impl_device);
+  MetaKmsPreparation *preparation =
+    meta_kms_update_get_preparation (crtc_frame->retry.update);
+  GSource *source;
+
+  g_clear_pointer (&crtc_frame->retry.source, g_source_destroy);
+
+  crtc_frame->retry.waiting_for_preparation =
+    preparation && meta_kms_preparation_is_pending (preparation);
+  if (crtc_frame->retry.waiting_for_preparation)
+    {
+      source = meta_thread_impl_register_fd (
+        META_THREAD_IMPL (impl), meta_kms_preparation_get_fd (preparation),
+        retry_prepared_update, crtc_frame);
+      g_source_set_name (source, "[mutter] KMS preparation retry");
+    }
+  else
+    {
+      /* An ordinary busy commit has no general readiness descriptor. */
+      source = meta_thread_impl_add_source (META_THREAD_IMPL (impl),
+                                             retry_update, crtc_frame, NULL);
+      g_source_set_name (source, "[mutter] KMS busy update retry");
+      g_source_set_ready_time (source, g_get_monotonic_time () +
+                                       KMS_BUSY_RETRY_INTERVAL_US);
+    }
+  crtc_frame->retry.source = source;
+  g_source_unref (source);
+}
+
 static void
 defer_update (CrtcFrame     *crtc_frame,
                MetaKmsUpdate *update)
 {
-  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (crtc_frame->impl_device);
-  GSource *source;
-
   g_assert (!crtc_frame->retry.update);
 
-  /* DRM has no general readiness fd for a rejected nonblocking commit. */
-  source = meta_thread_impl_add_source (META_THREAD_IMPL (impl),
-                                         retry_update, crtc_frame, NULL);
-  g_source_set_name (source, "[mutter] KMS busy update retry");
-  g_source_set_ready_time (source, g_get_monotonic_time () +
-                                   KMS_BUSY_RETRY_INTERVAL_US);
   crtc_frame->retry.update = update;
   crtc_frame->retry.deadline_us = g_get_monotonic_time () +
                                 KMS_BUSY_RETRY_TIMEOUT_US;
-  crtc_frame->retry.source = source;
-  g_source_unref (source);
+  arm_retry (crtc_frame);
 }
 
 static MetaKmsFeedback *
@@ -2209,6 +2251,27 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
 
   g_clear_pointer (&crtc_frame->submitted_update.source, g_source_destroy);
 
+  update = crtc_frame->submitted_update.kms_update;
+  if (!crtc_frame->submitted_update.rendering_ready)
+    {
+      crtc_frame->submitted_update.rendering_ready = TRUE;
+      maybe_set_kms_ready_time (crtc_frame, update);
+    }
+  if (meta_kms_update_get_preparation (update) &&
+      meta_kms_preparation_is_pending (meta_kms_update_get_preparation (update)))
+    {
+      GSource *source;
+
+      source = meta_thread_impl_register_fd (
+        impl,
+        meta_kms_preparation_get_fd (meta_kms_update_get_preparation (update)),
+        meta_kms_impl_device_update_ready, crtc_frame);
+      g_source_set_name (source, "[mutter] KMS update preparation");
+      crtc_frame->submitted_update.source = source;
+      g_source_unref (source);
+      return GINT_TO_POINTER (TRUE);
+    }
+
   update = g_steal_pointer (&crtc_frame->submitted_update.kms_update);
   meta_kms_update_realize (update, impl_device);
 
@@ -2217,8 +2280,6 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
   want_deadline_timer =
     !crtc_frame->await_flush &&
     is_using_deadline_timer (impl_device, latch_crtc);
-
-  maybe_set_kms_ready_time (crtc_frame, update);
 
   if ((want_deadline_timer || crtc_frame->pending_page_flip ||
        crtc_frame->retry.update) &&
@@ -2261,6 +2322,25 @@ do_handle_update (MetaKmsImplDevice *impl_device,
   int sync_fd = -1;
   g_autoptr (GSource) source = NULL;
   g_autofree char *name = NULL;
+
+  if (!(crtc_frame->submitted_update.flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
+    {
+      MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+      g_autoptr (GError) error = NULL;
+
+      if (klass->prepare_update && !klass->prepare_update (impl_device, update, &error))
+        {
+          MetaKmsFeedback *feedback;
+
+          crtc_frame->submitted_update.kms_update = NULL;
+          crtc_frame->submitted_update.latch_crtc = NULL;
+          feedback = meta_kms_feedback_new_failed (NULL, g_steal_pointer (&error));
+          queue_result_feedback (impl_device, update, feedback);
+          meta_kms_feedback_unref (feedback);
+          meta_kms_update_free (update);
+          return;
+        }
+    }
 
   sync_fd = meta_kms_update_get_sync_fd (update);
   if (sync_fd >= 0)
@@ -2420,6 +2500,7 @@ meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
   crtc_frame->submitted_update.kms_update = update;
   crtc_frame->submitted_update.flags = flags;
   crtc_frame->submitted_update.latch_crtc = latch_crtc;
+  crtc_frame->submitted_update.rendering_ready = FALSE;
 
   do_handle_update (impl_device, crtc_frame);
 
