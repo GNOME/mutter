@@ -2343,12 +2343,13 @@ meta_kms_impl_device_set_updates_inhibited (MetaKmsImplDevice    *impl_device,
     {
       GList *l_next = l->next;
       InhibitedUpdate *inhibited_update = l->data;
-      MetaKmsUpdate *update = g_steal_pointer (&inhibited_update->update);
 
       if ((inhibited_update->flags & META_KMS_UPDATE_FLAG_TEST_ONLY &&
            inhibited_subset == META_KMS_INHIBIT_NON_TEST_ONLY) ||
           inhibited_subset == META_KMS_INHIBIT_NONE)
         {
+          MetaKmsUpdate *update = g_steal_pointer (&inhibited_update->update);
+
           meta_kms_impl_device_handle_update (impl_device,
                                               update,
                                               inhibited_update->flags);
