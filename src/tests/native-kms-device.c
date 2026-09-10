@@ -825,6 +825,58 @@ meta_test_kms_device_empty_update (void)
   g_main_loop_run (loop);
 }
 
+static gpointer
+change_inhibition_in_impl (MetaThreadImpl  *thread_impl,
+                           gpointer         user_data,
+                           GError         **error)
+{
+  MetaKmsUpdate *update = user_data;
+  MetaKmsImplDevice *impl_device =
+    meta_kms_device_get_impl_device (meta_kms_update_get_device (update));
+
+  meta_kms_impl_device_set_updates_inhibited (impl_device, META_KMS_INHIBIT_ALL);
+  meta_kms_impl_device_handle_update (impl_device, update,
+                                      META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_impl_device_set_updates_inhibited (impl_device,
+                                              META_KMS_INHIBIT_NON_TEST_ONLY);
+  meta_kms_impl_device_set_updates_inhibited (impl_device, META_KMS_INHIBIT_NONE);
+
+  return NULL;
+}
+
+static void
+meta_test_kms_device_inhibition_transition (void)
+{
+  MetaKmsDevice *device = meta_get_test_kms_device (test_context);
+  MetaKmsCrtc *crtc = meta_get_test_kms_crtc (device);
+  MetaKmsConnector *connector = meta_get_test_kms_connector (device);
+  MetaKmsMode *mode = meta_kms_connector_get_preferred_mode (connector);
+  g_autoptr (MetaDrmBuffer) buffer = NULL;
+  MetaKmsUpdate *update;
+  UpdateResultData result = { 0 };
+
+  meta_test_kms_device_mode_set ();
+  buffer = meta_create_test_mode_dumb_buffer (device, mode);
+  update = meta_kms_update_new (device);
+  meta_kms_update_assign_plane (update, crtc,
+                                meta_get_primary_test_plane_for (device, crtc),
+                                buffer,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  meta_kms_update_add_result_listener (update,
+                                       &update_result_listener_vtable,
+                                       NULL, &result,
+                                       update_result_destroy);
+  g_clear_object (&buffer);
+  meta_thread_run_impl_task_sync (META_THREAD (meta_kms_device_get_kms (device)),
+                                  change_inhibition_in_impl, update, NULL);
+  while (!result.destroy_count)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpuint (result.feedback_count, ==, 1);
+  g_assert_cmpuint (result.destroy_count, ==, 1);
+}
+
 typedef enum
 {
   BUSY_UPDATE_TRANSIENT,
@@ -1027,6 +1079,8 @@ init_tests (void)
                    meta_test_kms_device_discard_disabled);
   g_test_add_func ("/backends/native/kms/device/empty-update",
                    meta_test_kms_device_empty_update);
+  g_test_add_func ("/backends/native/kms/device/inhibition-transition",
+                   meta_test_kms_device_inhibition_transition);
   g_test_add_data_func ("/backends/native/kms/device/busy-update/transient",
                         GINT_TO_POINTER (BUSY_UPDATE_TRANSIENT), meta_test_kms_device_busy_update);
   g_test_add_data_func ("/backends/native/kms/device/busy-update/persistent",
