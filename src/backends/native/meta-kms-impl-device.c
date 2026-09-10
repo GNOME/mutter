@@ -1717,6 +1717,16 @@ cancel_retry (CrtcFrame *crtc_frame)
   discard_update (crtc_frame->impl_device, &crtc_frame->retry.update);
 }
 
+static void
+discard_submitted_update (CrtcFrame *crtc_frame)
+{
+  g_clear_pointer (&crtc_frame->submitted_update.source, g_source_destroy);
+  crtc_frame->submitted_update.latch_crtc = NULL;
+  crtc_frame->submitted_update.rendering_ready = FALSE;
+  discard_update (crtc_frame->impl_device,
+                   &crtc_frame->submitted_update.kms_update);
+}
+
 static void arm_retry (CrtcFrame *crtc_frame);
 
 static gboolean
@@ -2606,8 +2616,7 @@ disarm_all_frame_sources (MetaKmsImplDevice *impl_device)
       disarm_crtc_frame_deadline_timer (crtc_frame);
 
       discard_update (impl_device, &crtc_frame->pending_update);
-      discard_update (impl_device, &crtc_frame->submitted_update.kms_update);
-      g_clear_pointer (&crtc_frame->submitted_update.source, g_source_destroy);
+      discard_submitted_update (crtc_frame);
     }
 }
 
