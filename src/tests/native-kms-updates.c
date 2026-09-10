@@ -215,6 +215,43 @@ meta_test_kms_update_plane_assignments (void)
 }
 
 static void
+meta_test_kms_update_reassign_owned_buffer (void)
+{
+  MetaKmsDevice *device = meta_get_test_kms_device (test_context);
+  MetaKmsCrtc *crtc = meta_get_test_kms_crtc (device);
+  MetaKmsConnector *connector = meta_get_test_kms_connector (device);
+  MetaKmsMode *mode = meta_kms_connector_get_preferred_mode (connector);
+  MetaKmsPlane *plane = meta_get_primary_test_plane_for (device, crtc);
+  g_autoptr (MetaDrmBuffer) buffer = NULL;
+  MetaDrmBuffer *retained_buffer;
+  MetaKmsPlaneAssignment *assignment;
+  MetaKmsUpdate *update = meta_kms_update_new (device);
+
+  buffer = meta_create_test_mode_dumb_buffer (device, mode);
+  retained_buffer = buffer;
+  g_object_add_weak_pointer (G_OBJECT (buffer), (gpointer *) &retained_buffer);
+  assignment = meta_kms_update_assign_plane (update, crtc, plane, buffer,
+                                              meta_get_mode_fixed_rect_16 (mode),
+                                              meta_get_mode_rect (mode),
+                                              META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  g_clear_object (&buffer);
+  g_assert_nonnull (retained_buffer);
+
+  assignment = meta_kms_update_assign_plane (update, crtc, plane,
+                                              assignment->buffer,
+                                              assignment->src_rect,
+                                              assignment->dst_rect,
+                                              assignment->flags);
+  g_assert_nonnull (retained_buffer);
+  g_assert_true (assignment->buffer == retained_buffer);
+  g_assert_cmpuint (g_list_length (meta_kms_update_get_plane_assignments (update)),
+                    ==, 1);
+
+  meta_kms_update_free (update);
+  g_assert_null (retained_buffer);
+}
+
+static void
 meta_test_kms_update_fixed16 (void)
 {
   MetaFixed16Rectangle rect16;
@@ -860,6 +897,8 @@ init_tests (void)
                    meta_test_kms_update_fixed16);
   g_test_add_func ("/backends/native/kms/update/plane-assignments",
                    meta_test_kms_update_plane_assignments);
+  g_test_add_func ("/backends/native/kms/update/reassign-owned-buffer",
+                   meta_test_kms_update_reassign_owned_buffer);
   g_test_add_func ("/backends/native/kms/update/mode-sets",
                    meta_test_kms_update_mode_sets);
   g_test_add_func ("/backends/native/kms/update/page-flip",
