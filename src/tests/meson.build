@@ -1413,6 +1413,7 @@ stacking_tests = [
   'barrier-race',
   'unmaximize-headless',
   'map-after-headless',
+  'partial-unmaximize',
 ]
 
 foreach stacking_test: stacking_tests
