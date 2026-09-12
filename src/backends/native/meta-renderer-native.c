@@ -983,8 +983,6 @@ maybe_detach_onscreens (MetaRenderer *renderer)
   GList *l;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode != META_POWER_SAVE_ON)
-    return;
 
   views = meta_renderer_get_views (renderer);
   for (l = views; l; l = l->next)
@@ -997,9 +995,12 @@ maybe_detach_onscreens (MetaRenderer *renderer)
 
       meta_onscreen_native_detach (META_ONSCREEN_NATIVE (onscreen));
 
-      renderer_native->detached_onscreens =
-        g_list_prepend (renderer_native->detached_onscreens,
-                        g_object_ref (onscreen));
+      if (power_save_mode == META_POWER_SAVE_ON)
+        {
+          renderer_native->detached_onscreens =
+            g_list_prepend (renderer_native->detached_onscreens,
+                            g_object_ref (onscreen));
+        }
     }
 }
 

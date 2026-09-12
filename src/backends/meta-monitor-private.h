@@ -299,6 +299,7 @@ size_t meta_monitor_get_gamma_lut_size (MetaMonitor *monitor);
 META_EXPORT_TEST
 gboolean meta_monitor_supports_gamma_lut (MetaMonitor *monitor);
 
+META_EXPORT_TEST
 void meta_monitor_set_gamma_lut (MetaMonitor        *monitor,
                                  const MetaGammaLut *lut);
 

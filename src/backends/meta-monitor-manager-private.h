@@ -287,6 +287,7 @@ void                meta_monitor_manager_get_screen_size   (MetaMonitorManager *
                                                             int                *width,
                                                             int                *height);
 
+META_EXPORT_TEST
 MetaPowerSave       meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager);
 
 META_EXPORT_TEST
