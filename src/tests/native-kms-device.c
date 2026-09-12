@@ -18,6 +18,9 @@
 
 #include "config.h"
 
+#include "backends/meta-crtc.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-monitor-private.h"
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-input-thread.h"
@@ -34,7 +37,9 @@
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-thread-impl.h"
 #include "meta-test/meta-context-test.h"
+#include "meta/meta-backend.h"
 #include "tests/meta-kms-test-utils.h"
+#include "tests/meta-monitor-test-utils.h"
 #include "tests/meta-test-utils.h"
 
 static MetaContext *test_context;
@@ -407,6 +412,45 @@ meta_test_kms_device_power_save (void)
 }
 
 static void
+meta_test_kms_device_power_save_gamma_rebuild (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  GList *monitors;
+  MetaMonitor *monitor;
+  size_t gamma_lut_size;
+  g_autoptr (MetaGammaLut) lut = NULL;
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  g_assert_nonnull (monitors);
+  monitor = META_MONITOR (monitors->data);
+
+  gamma_lut_size = meta_monitor_get_gamma_lut_size (monitor);
+  g_assert_cmpint (gamma_lut_size, >, 0);
+
+  meta_wait_for_paint (test_context);
+
+  meta_monitor_manager_set_power_save_mode (monitor_manager,
+                                            META_POWER_SAVE_OFF);
+  g_assert_cmpint (meta_monitor_manager_get_power_save_mode (monitor_manager),
+                   ==,
+                   META_POWER_SAVE_OFF);
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+  meta_wait_for_update (test_context);
+
+  meta_fake_hotplug (test_context);
+
+  lut = meta_gamma_lut_new_sized (gamma_lut_size);
+  meta_monitor_set_gamma_lut (monitor, lut);
+
+  meta_monitor_manager_set_power_save_mode (monitor_manager,
+                                            META_POWER_SAVE_ON);
+}
+
+static void
 done_update_result_feedback (const MetaKmsFeedback *feedback,
                              gpointer               user_data)
 {
@@ -724,6 +768,8 @@ init_tests (void)
                    meta_test_kms_device_mode_set);
   g_test_add_func ("/backends/native/kms/device/power-save",
                    meta_test_kms_device_power_save);
+  g_test_add_func ("/backends/native/kms/device/power-save-gamma-rebuild",
+                   meta_test_kms_device_power_save_gamma_rebuild);
   g_test_add_func ("/backends/native/kms/device/discard-disabled",
                    meta_test_kms_device_discard_disabled);
   g_test_add_func ("/backends/native/kms/device/empty-update",
