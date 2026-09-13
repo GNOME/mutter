@@ -18,6 +18,7 @@
 
 #include "config.h"
 
+#include <drm_fourcc.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <xf86drm.h>
@@ -134,6 +135,59 @@ meta_test_kms_device_sanity (void)
   g_assert_cmpint (meta_kms_plane_get_plane_type (cursor_plane),
                    ==,
                    META_KMS_PLANE_TYPE_CURSOR);
+}
+
+static void
+meta_test_kms_device_host_display (void)
+{
+  MetaBackendNative *backend =
+    META_BACKEND_NATIVE (meta_context_get_backend (test_context));
+  MetaKms *kms = meta_backend_native_get_kms (backend);
+  gboolean found_host = FALSE;
+
+  for (GList *l = meta_kms_get_devices (kms); l; l = l->next)
+    {
+      MetaKmsDevice *device = l->data;
+
+      for (GList *c = meta_kms_device_get_connectors (device); c; c = c->next)
+        {
+          const MetaKmsConnectorState *state =
+            meta_kms_connector_get_current_state (c->data);
+
+          if (!state || state->execution.kind != META_KMS_EXECUTION_HOST)
+            continue;
+
+          found_host = TRUE;
+          for (unsigned int frame = 0; frame < 4; frame++)
+            {
+              drmModeCrtc *crtc;
+              drmModeFB2 *fb;
+              int fd;
+
+              meta_wait_for_presented (test_context);
+              state = meta_kms_connector_get_current_state (c->data);
+              g_assert_cmpuint (state->current_crtc_id, !=, 0);
+              fd = open (meta_kms_device_get_path (device), O_RDONLY | O_CLOEXEC);
+              g_assert_cmpint (fd, >=, 0);
+              crtc = drmModeGetCrtc (fd, state->current_crtc_id);
+              g_assert_nonnull (crtc);
+              g_assert_true (crtc->mode_valid);
+              g_assert_cmpuint (crtc->buffer_id, !=, 0);
+              fb = drmModeGetFB2 (fd, crtc->buffer_id);
+              g_assert_nonnull (fb);
+              g_assert_cmpuint (fb->pixel_format, ==, DRM_FORMAT_XRGB8888);
+              g_assert_cmpuint (fb->modifier, ==, DRM_FORMAT_MOD_LINEAR);
+              g_assert_cmpuint (fb->width, ==, crtc->width);
+              g_assert_cmpuint (fb->height, ==, crtc->height);
+              g_assert_cmpuint (fb->pitches[0] % 4, ==, 0);
+              drmModeFreeFB2 (fb);
+              drmModeFreeCrtc (crtc);
+              close (fd);
+            }
+        }
+    }
+  if (!found_host)
+    g_test_skip ("No output with the native host execution profile");
 }
 
 static void
@@ -1226,6 +1280,8 @@ init_tests (void)
 {
   g_test_add_func ("/backends/native/kms/device/execution",
                    meta_test_kms_device_execution);
+  g_test_add_func ("/backends/native/kms/device/host-display",
+                   meta_test_kms_device_host_display);
   g_test_add_func ("/backends/native/kms/device/sanity",
                    meta_test_kms_device_sanity);
   g_test_add_func ("/backends/native/kms/device/mode-set",
