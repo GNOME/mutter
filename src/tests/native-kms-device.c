@@ -47,6 +47,40 @@
 static MetaContext *test_context;
 
 static void
+meta_test_kms_device_execution (void)
+{
+  MetaBackendNative *backend =
+    META_BACKEND_NATIVE (meta_context_get_backend (test_context));
+  MetaKms *kms = meta_backend_native_get_kms (backend);
+  GList *devices = meta_kms_get_devices (kms);
+
+  g_assert_nonnull (devices);
+  for (GList *l = devices; l; l = l->next)
+    {
+      MetaKmsDevice *device = l->data;
+      gboolean is_castkms =
+        g_str_equal (meta_kms_device_get_driver_name (device), "castkms");
+      GList *connectors = meta_kms_device_get_connectors (device);
+
+      g_assert_nonnull (connectors);
+      for (GList *c = connectors; c; c = c->next)
+        {
+          const MetaKmsConnectorState *state =
+            meta_kms_connector_get_current_state (c->data);
+
+          g_assert_nonnull (state);
+          g_assert_cmpint (state->execution.kind, ==,
+                           is_castkms ? META_KMS_EXECUTION_HOST :
+                                        META_KMS_EXECUTION_DEFAULT);
+          g_assert_cmpuint (state->execution.generation, ==, is_castkms ? 1 : 0);
+          g_test_message ("%s execution profile %u generation %" G_GUINT64_FORMAT,
+                           meta_kms_device_get_driver_name (device),
+                           state->execution.kind, state->execution.generation);
+        }
+    }
+}
+
+static void
 meta_test_kms_device_sanity (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -1190,6 +1224,8 @@ meta_test_kms_device_preparation (gconstpointer user_data)
 static void
 init_tests (void)
 {
+  g_test_add_func ("/backends/native/kms/device/execution",
+                   meta_test_kms_device_execution);
   g_test_add_func ("/backends/native/kms/device/sanity",
                    meta_test_kms_device_sanity);
   g_test_add_func ("/backends/native/kms/device/mode-set",

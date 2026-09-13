@@ -22,6 +22,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/meta-output.h"
+#include "backends/native/meta-kms-execution.h"
 #include "backends/native/meta-kms-types.h"
 
 #define META_TYPE_KMS_CONNECTOR (meta_kms_connector_get_type ())
@@ -31,6 +32,7 @@ G_DECLARE_FINAL_TYPE (MetaKmsConnector, meta_kms_connector,
 
 typedef struct _MetaKmsConnectorState
 {
+  MetaKmsExecution execution;
   uint32_t current_crtc_id;
 
   uint32_t common_possible_crtcs;
