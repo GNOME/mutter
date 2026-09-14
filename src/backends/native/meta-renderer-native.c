@@ -1568,6 +1568,8 @@ on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaPowerSave power_save_mode;
+  ClutterFrameClockPowerState power_state;
+  GList *l;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode == META_POWER_SAVE_ON &&
@@ -1579,6 +1581,20 @@ on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
     {
       clear_detached_onscreens (renderer_native);
       meta_kms_discard_pending_page_flips (kms);
+    }
+
+  if (power_save_mode == META_POWER_SAVE_ON)
+    power_state = CLUTTER_FRAME_CLOCK_POWER_STATE_ON;
+  else
+    power_state = CLUTTER_FRAME_CLOCK_POWER_STATE_OFF;
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      ClutterFrameClock *frame_clock =
+        clutter_stage_view_get_frame_clock (stage_view);
+
+      clutter_frame_clock_set_power_state (frame_clock, power_state);
     }
 }
 
