@@ -1,3 +1,33 @@
+51.0
+====
+* Fix giving some X11 clients a wrong empty input mask [Jonas; !5296]
+* Return correct xdg-shell error for illegal size requests [cfmc30; !5303]
+* Improve backlight detection [Sebastian, W.; !5258]
+* Fix dma-buf screencasting with primary GPU FBO path [Michel; !5277]
+* Support custom acceleration profiles [Dallas; !4296]
+* Add builtin key controller to handle binding pools [Carlos; !5304]
+* Fix background blur in offscreen and clone paints [Jonas, Kristof; !5220]
+* Fix invisible cursor when magnified [Carlos; !5311]
+* Fix assigning some X11 clients a wrong initial size [Jonas; !5290]
+* Fix partial unmaximization [Aleksandr, Jonas; !5314]
+* Make WindowConfig maximize flag setters public [Aleksandr; !5323]
+* Fixed crashes [Pavel, Jonas; !5298, !5316, !5324]
+* Plugged leaks [Michel, Sebastian K.; !5285, !5275]
+* Misc. bug fixes and cleanups [Michel, Pavel, Renjith, Conn, Jonas, Florian,
+  Olivier, Sebastian W.; !5292, !5274, !5294, !5278, !5297, !5286, !5283,
+  !5310, !5312, !5317, !5301, !5319, !5313, !5315, !5320, !5327]
+
+Contributors:
+  cfmc30, Michel Dänzer, Olivier Fourdan, Carlos Garnacho, Prasanta Hembram,
+  Kristof Imeri, Sebastian Keller, Aleksandr Mezin, Florian Müllner,
+  Conn O'Griofa, Pavel Ondračka, Renjith Pananchikkal, Dallas Strouse,
+  Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Salvatore Cocuzza [it], Artur S0 [ru], acey dot [sr], Balázs Úr [hu],
+  Daniel Mustieles [es], Ask Hjorth Larsen [da], Prasanta Hembram [sat],
+  Roy-Magne Mo [nn]
+
 51.rc
 =====
 * Hook up stylus eraser button configuration [Peter; !4819]
