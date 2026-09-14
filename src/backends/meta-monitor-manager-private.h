@@ -308,6 +308,10 @@ void                meta_monitor_manager_get_screen_size   (MetaMonitorManager *
 
 MetaPowerSave       meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
+void                meta_monitor_manager_set_power_save_mode (MetaMonitorManager *monitor_manager,
+                                                              MetaPowerSave       mode);
+
 void                meta_monitor_manager_power_save_mode_changed (MetaMonitorManager        *manager,
                                                                   MetaPowerSave              mode,
                                                                   MetaPowerSaveChangeReason  reason);

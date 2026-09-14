@@ -494,6 +494,23 @@ meta_monitor_manager_power_save_mode_changed (MetaMonitorManager        *manager
     meta_orientation_manager_uninhibit_tracking (orientation_manager);
 }
 
+void
+meta_monitor_manager_set_power_save_mode (MetaMonitorManager *monitor_manager,
+                                          MetaPowerSave       mode)
+{
+  MetaPowerSaveChangeReason reason;
+  MetaMonitorManagerClass *klass;
+
+  klass = META_MONITOR_MANAGER_GET_CLASS (monitor_manager);
+  if (klass->set_power_save_mode)
+    klass->set_power_save_mode (monitor_manager, mode);
+
+  reason = META_POWER_SAVE_CHANGE_REASON_MODE_CHANGE;
+  meta_monitor_manager_power_save_mode_changed (monitor_manager,
+                                                mode,
+                                                reason);
+}
+
 static void
 power_save_mode_changed (MetaMonitorManager *manager,
                          GParamSpec         *pspec,
@@ -501,9 +518,7 @@ power_save_mode_changed (MetaMonitorManager *manager,
 {
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
-  MetaMonitorManagerClass *klass;
   int mode = meta_dbus_display_config_get_power_save_mode (manager->display_config);
-  MetaPowerSaveChangeReason reason;
 
   if (mode == META_POWER_SAVE_UNSUPPORTED)
     return;
@@ -515,12 +530,7 @@ power_save_mode_changed (MetaMonitorManager *manager,
       return;
     }
 
-  klass = META_MONITOR_MANAGER_GET_CLASS (manager);
-  if (klass->set_power_save_mode)
-    klass->set_power_save_mode (manager, mode);
-
-  reason = META_POWER_SAVE_CHANGE_REASON_MODE_CHANGE;
-  meta_monitor_manager_power_save_mode_changed (manager, mode, reason);
+  meta_monitor_manager_set_power_save_mode (manager, mode);
 }
 
 void
