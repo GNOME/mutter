@@ -176,12 +176,7 @@ test_case_dispatch (TestCase *test,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
-  if (meta_monitor_manager_is_headless (monitor_manager))
-    {
-      while (g_main_context_iteration (NULL, FALSE))
-        ;
-    }
-  else
+  if (!meta_monitor_manager_is_headless (monitor_manager))
     {
       /* Wait until we've done any outstanding queued up work.
        * Though we add this as BEFORE_REDRAW, the iteration that runs the
@@ -196,6 +191,9 @@ test_case_dispatch (TestCase *test,
       clutter_stage_schedule_update (CLUTTER_STAGE (stage));
       g_main_loop_run (test->loop);
     }
+
+  while (g_main_context_iteration (NULL, FALSE))
+    ;
 
   return TRUE;
 }
