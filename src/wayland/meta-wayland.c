@@ -779,9 +779,12 @@ on_client_created (struct wl_listener *listener,
   wayland_client = meta_wayland_client_new_from_wl (context, client);
 }
 
-void
-meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor)
+static void
+on_prepare_compositor_shutdown (MetaContext *context,
+                                gpointer     user_data)
 {
+  MetaWaylandCompositor *compositor = user_data;
+
   g_signal_emit (compositor, signals[PREPARE_SHUTDOWN], 0, NULL);
 
   if (compositor->wayland_display)
@@ -947,6 +950,9 @@ meta_wayland_compositor_new (MetaContext *context)
 
   compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
   compositor->context = context;
+
+  g_signal_connect (context, "prepare-compositor-shutdown",
+                    G_CALLBACK (on_prepare_compositor_shutdown), compositor);
 
   wl_display_set_default_max_buffer_size (compositor->wayland_display,
                                           1024 * 1024);
