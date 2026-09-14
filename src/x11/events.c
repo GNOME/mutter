@@ -1206,9 +1206,9 @@ close_display_idle_cb (gpointer user_data)
   MetaDisplay *display = x11_display->display;
   MetaContext *context = meta_display_get_context (display);
 
+  x11_display->display_close_idle = 0;
   meta_display_close (display,
                       x11_display->xselectionclear_timestamp);
-  x11_display->display_close_idle = 0;
   meta_context_terminate (context);
 }
 
