@@ -53,6 +53,7 @@ enum
 {
   STARTED,
   PREPARE_SHUTDOWN,
+  PREPARE_COMPOSITOR_SHUTDOWN,
 
   N_SIGNALS
 };
@@ -799,7 +800,10 @@ meta_context_dispose (GObject *object)
   g_clear_object (&priv->service_channel);
 
   if (priv->wayland_compositor)
-    meta_wayland_compositor_prepare_shutdown (priv->wayland_compositor);
+    {
+      g_signal_emit (context, signals[PREPARE_COMPOSITOR_SHUTDOWN], 0);
+      meta_wayland_compositor_prepare_shutdown (priv->wayland_compositor);
+    }
 
   g_signal_emit (context, signals[PREPARE_SHUTDOWN], 0);
 
@@ -882,6 +886,13 @@ meta_context_class_init (MetaContextClass *klass)
                   G_TYPE_NONE, 0);
   signals[PREPARE_SHUTDOWN] =
     g_signal_new ("prepare-shutdown",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[PREPARE_COMPOSITOR_SHUTDOWN] =
+    g_signal_new ("prepare-compositor-shutdown",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0,
