@@ -323,7 +323,7 @@ meta_cast_kms_brokered_grant_new (MetaCastKmsGrantBroker  *broker,
 
   /*
    * Observe kernel revocation before replying. Consumer close does not revoke
-   * the grant; caller disappearance does.
+   * the grant; explicit session release or caller disappearance does.
    */
   brokered_grant->control_source =
     g_unix_fd_source_new (control_fd,
@@ -505,10 +505,42 @@ handle_create_capture_grant (MetaDBusCastKms       *object,
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
+static gboolean
+handle_release_capture_grant (MetaDBusCastKms       *object,
+                              GDBusMethodInvocation *invocation,
+                              uint64_t               session_id)
+{
+  MetaCastKmsGrantBroker *broker = META_CAST_KMS_GRANT_BROKER (object);
+  const char *sender = g_dbus_method_invocation_get_sender (invocation);
+  GHashTableIter iter;
+  MetaCastKmsBrokeredGrant *grant;
+
+  if (broker->grants && session_id != 0)
+    {
+      g_hash_table_iter_init (&iter, broker->grants);
+      while (g_hash_table_iter_next (&iter, (gpointer *) &grant, NULL))
+        {
+          if (grant->session_id != session_id ||
+              g_strcmp0 (grant->sender, sender) != 0)
+            continue;
+
+          request_grant_revoke (grant);
+          meta_dbus_cast_kms_complete_release_capture_grant (object, invocation);
+          return G_DBUS_METHOD_INVOCATION_HANDLED;
+        }
+    }
+
+  g_dbus_method_invocation_return_error_literal (
+    invocation, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+    "No capture session belongs to that caller and identifier");
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
 static void
 meta_cast_kms_grant_broker_init_iface (MetaDBusCastKmsIface *iface)
 {
   iface->handle_create_capture_grant = handle_create_capture_grant;
+  iface->handle_release_capture_grant = handle_release_capture_grant;
 }
 
 static void

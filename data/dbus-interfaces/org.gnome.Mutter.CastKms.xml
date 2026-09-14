@@ -25,8 +25,8 @@
         output and checks authority again when capture operations are attempted.
         Issuance does not guarantee an active image offer.
 
-        Closing capture_fd does not notify the broker. Caller disconnection,
-        loss of the Pronk bus name,
+        The caller must release the session explicitly; closing capture_fd does
+        not notify the broker. Caller disconnection, loss of the Pronk bus name,
         broker shutdown or kernel revocation also ends the session. Session IDs
         are never reused during a broker lifetime and are not kernel grant IDs.
         Clients must associate them with the unique D-Bus owner of the broker,
@@ -40,6 +40,19 @@
       <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
       <arg name="capture_fd" type="h" direction="out" />
       <arg name="session_id" type="t" direction="out" />
+    </method>
+    <!--
+        ReleaseCaptureGrant:
+        @session_id: session returned to the same unique caller
+
+        Revokes capture and requests release of the issuing file hold. Unknown,
+        already-ended and other callers' sessions return an error. A successful
+        reply confirms revocation was requested, not completion of admitted
+        writes or revocation of previously exported storage. The broker retains
+        a revoked session while retrying any failed device-file release.
+    -->
+    <method name="ReleaseCaptureGrant">
+      <arg name="session_id" type="t" direction="in" />
     </method>
   </interface>
 </node>

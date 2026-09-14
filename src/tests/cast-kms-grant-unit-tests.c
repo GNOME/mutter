@@ -31,7 +31,7 @@ build_argument_signature (GDBusArgInfo **arguments)
   g_autoptr (GString) signature = g_string_new (NULL);
   int i;
 
-  for (i = 0; arguments[i]; i++)
+  for (i = 0; arguments && arguments[i]; i++)
     g_string_append (signature, arguments[i]->signature);
 
   return g_string_free (g_steal_pointer (&signature), FALSE);
@@ -206,7 +206,8 @@ test_dbus_contract (void)
   g_assert_cmpstr (interface_info->name, ==, "org.gnome.Mutter.CastKms");
   g_assert_nonnull (interface_info->methods);
   g_assert_nonnull (interface_info->methods[0]);
-  g_assert_null (interface_info->methods[1]);
+  g_assert_nonnull (interface_info->methods[1]);
+  g_assert_null (interface_info->methods[2]);
   g_assert_null (interface_info->signals);
   g_assert_null (interface_info->properties);
 
@@ -222,6 +223,15 @@ test_dbus_contract (void)
   g_assert_cmpstr (method_info->out_args[1]->name, ==, "session_id");
   g_assert_null (method_info->out_args[2]);
 
+  method_info = interface_info->methods[1];
+  g_assert_cmpstr (method_info->name, ==, "ReleaseCaptureGrant");
+  g_clear_pointer (&in_signature, g_free);
+  g_clear_pointer (&out_signature, g_free);
+  in_signature = build_argument_signature (method_info->in_args);
+  out_signature = build_argument_signature (method_info->out_args);
+  g_assert_cmpstr (in_signature, ==, "t");
+  g_assert_cmpstr (out_signature, ==, "");
+
   interface = g_type_default_interface_ref (META_DBUS_TYPE_CAST_KMS);
   signal_id = g_signal_lookup ("handle-create-capture-grant",
                                G_TYPE_FROM_INTERFACE (interface));
@@ -232,6 +242,14 @@ test_dbus_contract (void)
                     ==,
                     G_TYPE_DBUS_METHOD_INVOCATION);
   g_assert_cmpuint (signal_query.param_types[1], ==, G_TYPE_UNIX_FD_LIST);
+  signal_id = g_signal_lookup ("handle-release-capture-grant",
+                               G_TYPE_FROM_INTERFACE (interface));
+  g_assert_cmpuint (signal_id, !=, 0);
+  g_signal_query (signal_id, &signal_query);
+  g_assert_cmpuint (signal_query.n_params, ==, 2);
+  g_assert_cmpuint (signal_query.param_types[0],
+                    ==, G_TYPE_DBUS_METHOD_INVOCATION);
+  g_assert_cmpuint (signal_query.param_types[1], ==, G_TYPE_UINT64);
   g_type_default_interface_unref (interface);
 }
 
