@@ -645,6 +645,20 @@ remote_desktop_tests_client = executable('mutter-remote-desktop-tests-client',
 )
 
 # Native backend tests
+capture_files_test = executable('mutter-kms-capture-files',
+  sources: [
+    'kms-capture-files-unit-tests.c',
+    '../backends/native/meta-kms-capture-files.c',
+  ],
+  include_directories: tests_includes,
+  c_args: tests_c_args,
+  dependencies: [gio_dep, libdrm_dep],
+  link_args: ['-Wl,--wrap=ioctl', '-Wl,--wrap=drmGetCap'],
+)
+test('kms-capture-files', capture_files_test,
+  suite: ['core', 'mutter/backends/native'],
+)
+
 test_cases += [
   {
     'name': 'cast-kms-grant',
