@@ -75,6 +75,12 @@ typedef enum _ClutterFrameClockMode
   CLUTTER_FRAME_CLOCK_MODE_PASSIVE,
 } ClutterFrameClockMode;
 
+typedef enum _ClutterFrameClockPowerState
+{
+  CLUTTER_FRAME_CLOCK_POWER_STATE_OFF,
+  CLUTTER_FRAME_CLOCK_POWER_STATE_ON,
+} ClutterFrameClockPowerState;
+
 CLUTTER_EXPORT
 ClutterFrameClock * clutter_frame_clock_new (float                            refresh_rate,
                                              int64_t                          vblank_duration_us,
@@ -130,6 +136,10 @@ void clutter_frame_clock_remove_timeline (ClutterFrameClock *frame_clock,
 
 CLUTTER_EXPORT
 float clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock);
+
+CLUTTER_EXPORT
+void clutter_frame_clock_set_power_state (ClutterFrameClock           *frame_clock,
+                                          ClutterFrameClockPowerState  power_save_mode);
 
 void clutter_frame_clock_record_flip_time (ClutterFrameClock *frame_clock,
                                            int64_t            flip_time_us);

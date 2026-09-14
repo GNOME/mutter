@@ -120,6 +120,7 @@ struct _ClutterFrameClock
 
   ClutterFrameClockState state;
   ClutterFrameClockMode mode;
+  ClutterFrameClockPowerState power_state;
 
   int64_t next_update_time_us;
 
@@ -255,6 +256,13 @@ clutter_frame_clock_set_refresh_rate (ClutterFrameClock *frame_clock,
   frame_clock->refresh_rate = refresh_rate;
   frame_clock->refresh_interval_us =
     (int64_t) (0.5 + G_USEC_PER_SEC / refresh_rate);
+}
+
+void
+clutter_frame_clock_set_power_state (ClutterFrameClock           *frame_clock,
+                                     ClutterFrameClockPowerState  power_state)
+{
+  frame_clock->power_state = power_state;
 }
 
 static Frame *
@@ -1199,6 +1207,9 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                                                  refresh_interval_us / 2,
                                                  now_us),
                                             refresh_interval_us);
+
+  if (frame_clock->power_state != CLUTTER_FRAME_CLOCK_POWER_STATE_ON)
+    throttle = TRUE;
 
   if (!throttle &&
       should_update_now (frame_clock,
@@ -2248,6 +2259,7 @@ clutter_frame_clock_init (ClutterFrameClock *frame_clock)
 {
   frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_INIT;
   frame_clock->mode = CLUTTER_FRAME_CLOCK_MODE_FIXED;
+  frame_clock->power_state = CLUTTER_FRAME_CLOCK_POWER_STATE_ON;
 }
 
 static void
