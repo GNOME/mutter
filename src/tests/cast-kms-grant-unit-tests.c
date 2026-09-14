@@ -214,12 +214,13 @@ test_dbus_contract (void)
   g_assert_cmpstr (method_info->name, ==, "CreateCaptureGrant");
   in_signature = build_argument_signature (method_info->in_args);
   out_signature = build_argument_signature (method_info->out_args);
-  g_assert_cmpstr (in_signature, ==, "uuuq");
-  g_assert_cmpstr (out_signature, ==, "huuuuuqq");
-  g_assert_cmpstr (method_info->out_args[0]->name, ==, "holder_fd");
-  g_assert_cmpstr (method_info->out_args[1]->name, ==, "grant_id");
-  g_assert_cmpstr (method_info->out_args[2]->name, ==, "output_index");
-  g_assert_null (method_info->out_args[8]);
+  g_assert_cmpstr (in_signature, ==, "uuuu");
+  g_assert_cmpstr (out_signature, ==, "ht");
+  g_assert_cmpstr (method_info->in_args[2]->name, ==, "crtc_id");
+  g_assert_cmpstr (method_info->in_args[3]->name, ==, "connector_id");
+  g_assert_cmpstr (method_info->out_args[0]->name, ==, "capture_fd");
+  g_assert_cmpstr (method_info->out_args[1]->name, ==, "session_id");
+  g_assert_null (method_info->out_args[2]);
 
   interface = g_type_default_interface_ref (META_DBUS_TYPE_CAST_KMS);
   signal_id = g_signal_lookup ("handle-create-capture-grant",
