@@ -106,8 +106,8 @@ on_started (MetaContext       *context,
 }
 
 static void
-on_prepare_shutdown (MetaContext       *context,
-                     MetaPluginManager *plugin_mgr)
+on_prepare_compositor_shutdown (MetaContext       *context,
+                                MetaPluginManager *plugin_mgr)
 {
   plugin_mgr->state = PLUGIN_MANAGER_STATE_STOPPING;
 }
@@ -149,8 +149,8 @@ meta_plugin_manager_new (MetaCompositor *compositor,
   context = meta_display_get_context (display);
   g_signal_connect (context, "started",
                     G_CALLBACK (on_started), plugin_mgr);
-  g_signal_connect (context, "prepare-shutdown",
-                    G_CALLBACK (on_prepare_shutdown), plugin_mgr);
+  g_signal_connect (context, "prepare-compositor-shutdown",
+                    G_CALLBACK (on_prepare_compositor_shutdown), plugin_mgr);
 
   return plugin_mgr;
 }
