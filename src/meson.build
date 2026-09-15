@@ -732,6 +732,8 @@ mutter_sources += [
   'backends/native/meta-kms-capture-files.h',
   'backends/native/meta-kms-capture-grant.c',
   'backends/native/meta-kms-capture-grant.h',
+  'backends/native/meta-kms-monitor-control.c',
+  'backends/native/meta-kms-monitor-control.h',
   'backends/native/meta-kms-impl-device-atomic.c',
   'backends/native/meta-kms-impl-device-atomic.h',
   'backends/native/meta-kms-impl-device-dummy.c',
