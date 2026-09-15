@@ -216,13 +216,14 @@ test_dbus_contract (void)
   in_signature = build_argument_signature (method_info->in_args);
   out_signature = build_argument_signature (method_info->out_args);
   g_assert_cmpstr (in_signature, ==, "uuuu");
-  g_assert_cmpstr (out_signature, ==, "hht");
+  g_assert_cmpstr (out_signature, ==, "hhht");
   g_assert_cmpstr (method_info->in_args[2]->name, ==, "crtc_id");
   g_assert_cmpstr (method_info->in_args[3]->name, ==, "connector_id");
   g_assert_cmpstr (method_info->out_args[0]->name, ==, "monitor_fd");
-  g_assert_cmpstr (method_info->out_args[1]->name, ==, "capture_fd");
-  g_assert_cmpstr (method_info->out_args[2]->name, ==, "session_id");
-  g_assert_null (method_info->out_args[3]);
+  g_assert_cmpstr (method_info->out_args[1]->name, ==, "renderer_fd");
+  g_assert_cmpstr (method_info->out_args[2]->name, ==, "capture_fd");
+  g_assert_cmpstr (method_info->out_args[3]->name, ==, "session_id");
+  g_assert_null (method_info->out_args[4]);
 
   method_info = interface_info->methods[1];
   g_assert_cmpstr (method_info->name, ==, "ReleaseDisplaySession");

@@ -31,6 +31,7 @@
 #include "backends/native/meta-kms-capture-grant.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-monitor-control.h"
+#include "backends/native/meta-kms-renderer-control.h"
 #include "backends/native/meta-kms.h"
 #include "core/util-private.h"
 
@@ -57,6 +58,7 @@ struct _MetaCastKmsDisplaySession
   MetaCastKmsGrantBroker *broker;
   MetaKmsCaptureGrant *capture_grant;
   MetaKmsMonitorControl *monitor_control;
+  MetaKmsRendererControl *renderer_control;
   uint64_t session_id;
   char *sender;
   /* The capture grant pins this device while this object exists. */
@@ -266,6 +268,8 @@ meta_cast_kms_display_session_free (MetaCastKmsDisplaySession *session)
   if (session->name_watch_id)
     g_bus_unwatch_name (session->name_watch_id);
 
+  g_clear_pointer (&session->renderer_control,
+                   meta_kms_renderer_control_free);
   g_clear_pointer (&session->monitor_control,
                    meta_kms_monitor_control_free);
   g_clear_object (&session->capture_grant);
@@ -279,6 +283,8 @@ request_session_revoke (MetaCastKmsDisplaySession *session)
   g_autoptr (GError) error = NULL;
 
   clear_source (&session->capture_control_source);
+  g_clear_pointer (&session->renderer_control,
+                   meta_kms_renderer_control_free);
   g_clear_pointer (&session->monitor_control,
                    meta_kms_monitor_control_free);
 
@@ -312,7 +318,8 @@ meta_cast_kms_display_session_new (MetaCastKmsGrantBroker  *broker,
                                    uint32_t                 connector_id,
                                    uint64_t                 session_id,
                                    MetaKmsCaptureGrant     *capture_grant,
-                                   MetaKmsMonitorControl   *monitor_control)
+                                   MetaKmsMonitorControl   *monitor_control,
+                                   MetaKmsRendererControl  *renderer_control)
 {
   MetaCastKmsDisplaySession *session;
   int control_fd;
@@ -321,6 +328,7 @@ meta_cast_kms_display_session_new (MetaCastKmsGrantBroker  *broker,
   session->broker = broker;
   session->capture_grant = g_object_ref (capture_grant);
   session->monitor_control = monitor_control;
+  session->renderer_control = renderer_control;
   session->sender = g_strdup (sender);
   session->kms_device = kms_device;
   session->connector_id = connector_id;
@@ -386,13 +394,16 @@ create_display_session (MetaCastKmsGrantBroker *broker,
     g_dbus_method_invocation_get_connection (invocation);
   g_autoptr (MetaKmsCaptureGrant) capture_grant = NULL;
   g_autoptr (MetaKmsMonitorControl) monitor_control = NULL;
+  g_autoptr (MetaKmsRendererControl) renderer_control = NULL;
   g_autoptr (GUnixFDList) out_fd_list = NULL;
   g_autoptr (GError) error = NULL;
   g_autofd int monitor_fd = -1;
+  g_autofd int renderer_fd = -1;
   g_autofd int capture_fd = -1;
   MetaKmsDevice *kms_device;
   MetaCastKmsDisplaySession *session;
   int monitor_index;
+  int renderer_index;
   int capture_index;
   uint64_t session_id;
 
@@ -434,6 +445,17 @@ create_display_session (MetaCastKmsGrantBroker *broker,
       return;
     }
 
+  renderer_control =
+    meta_kms_renderer_control_new (kms_device,
+                                   crtc_id,
+                                   connector_id,
+                                   &error);
+  if (!renderer_control)
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return;
+    }
+
   monitor_control =
     meta_kms_monitor_control_new (kms_device, connector_id, &error);
   if (!monitor_control)
@@ -451,11 +473,18 @@ create_display_session (MetaCastKmsGrantBroker *broker,
     }
 
   monitor_fd = meta_kms_monitor_control_steal_fd (monitor_control);
+  renderer_fd = meta_kms_renderer_control_steal_fd (renderer_control);
   capture_fd = meta_kms_capture_grant_steal_capture_fd (capture_grant);
 
   out_fd_list = g_unix_fd_list_new ();
   monitor_index = g_unix_fd_list_append (out_fd_list, monitor_fd, &error);
   if (monitor_index == -1)
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return;
+    }
+  renderer_index = g_unix_fd_list_append (out_fd_list, renderer_fd, &error);
+  if (renderer_index == -1)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
       return;
@@ -475,7 +504,9 @@ create_display_session (MetaCastKmsGrantBroker *broker,
                                                session_id,
                                                capture_grant,
                                                g_steal_pointer (
-                                                 &monitor_control));
+                                                 &monitor_control),
+                                               g_steal_pointer (
+                                                 &renderer_control));
   g_hash_table_add (broker->sessions, session);
 
   meta_topic (META_DEBUG_DBUS,
@@ -487,6 +518,7 @@ create_display_session (MetaCastKmsGrantBroker *broker,
     invocation,
     out_fd_list,
     g_variant_new_handle (monitor_index),
+    g_variant_new_handle (renderer_index),
     g_variant_new_handle (capture_index),
     session_id);
 }
