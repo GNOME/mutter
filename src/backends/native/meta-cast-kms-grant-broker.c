@@ -30,6 +30,7 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-kms-capture-grant.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-monitor-control.h"
 #include "backends/native/meta-kms.h"
 #include "core/util-private.h"
 
@@ -48,20 +49,21 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
-typedef struct _MetaCastKmsBrokeredGrant MetaCastKmsBrokeredGrant;
+typedef struct _MetaCastKmsDisplaySession MetaCastKmsDisplaySession;
 
-struct _MetaCastKmsBrokeredGrant
+struct _MetaCastKmsDisplaySession
 {
-  /* The broker owns every grant in its hash set. */
+  /* The broker owns every session in its hash set. */
   MetaCastKmsGrantBroker *broker;
-  MetaKmsCaptureGrant *grant;
+  MetaKmsCaptureGrant *capture_grant;
+  MetaKmsMonitorControl *monitor_control;
   uint64_t session_id;
   char *sender;
-  /* The grant pins this device for at least as long as this object exists. */
+  /* The capture grant pins this device while this object exists. */
   MetaKmsDevice *kms_device;
   uint32_t connector_id;
 
-  GSource *control_source;
+  GSource *capture_control_source;
   GSource *revoke_retry_source;
   guint name_watch_id;
 };
@@ -75,7 +77,7 @@ struct _MetaCastKmsGrantBroker
    */
   MetaBackendNative *backend_native;
   MetaDbusAccessChecker *access_checker;
-  GHashTable *grants;
+  GHashTable *sessions;
   uint64_t last_session_id;
   char *pronk_name_owner;
   guint pronk_name_watch_id;
@@ -165,25 +167,25 @@ find_cast_kms_device (MetaCastKmsGrantBroker  *broker,
   return NULL;
 }
 
-static void request_grant_revoke (MetaCastKmsBrokeredGrant *brokered_grant);
+static void request_session_revoke (MetaCastKmsDisplaySession *session);
 
 static void
-revoke_grants_for_sender (MetaCastKmsGrantBroker *broker,
-                          const char             *sender)
+revoke_sessions_for_sender (MetaCastKmsGrantBroker *broker,
+                            const char             *sender)
 {
-  g_autoptr (GList) grants = NULL;
+  g_autoptr (GList) sessions = NULL;
   GList *l;
 
   if (!sender)
     return;
 
-  grants = g_hash_table_get_keys (broker->grants);
-  for (l = grants; l; l = l->next)
+  sessions = g_hash_table_get_keys (broker->sessions);
+  for (l = sessions; l; l = l->next)
     {
-      MetaCastKmsBrokeredGrant *brokered_grant = l->data;
+      MetaCastKmsDisplaySession *session = l->data;
 
-      if (g_strcmp0 (brokered_grant->sender, sender) == 0)
-        request_grant_revoke (brokered_grant);
+      if (g_strcmp0 (session->sender, sender) == 0)
+        request_session_revoke (session);
     }
 }
 
@@ -198,7 +200,7 @@ on_pronk_name_appeared (GDBusConnection *connection,
   if (g_strcmp0 (broker->pronk_name_owner, name_owner) == 0)
     return;
 
-  revoke_grants_for_sender (broker, broker->pronk_name_owner);
+  revoke_sessions_for_sender (broker, broker->pronk_name_owner);
   g_set_str (&broker->pronk_name_owner, name_owner);
 }
 
@@ -209,7 +211,7 @@ on_pronk_name_vanished (GDBusConnection *connection,
 {
   MetaCastKmsGrantBroker *broker = user_data;
 
-  revoke_grants_for_sender (broker, broker->pronk_name_owner);
+  revoke_sessions_for_sender (broker, broker->pronk_name_owner);
   g_clear_pointer (&broker->pronk_name_owner, g_free);
 }
 
@@ -228,20 +230,20 @@ on_control_fd_hangup (int          fd,
                       GIOCondition condition,
                       gpointer     user_data)
 {
-  MetaCastKmsBrokeredGrant *brokered_grant = user_data;
+  MetaCastKmsDisplaySession *session = user_data;
 
-  request_grant_revoke (brokered_grant);
+  request_session_revoke (session);
   return G_SOURCE_REMOVE;
 }
 
 static gboolean
 on_revoke_retry (gpointer user_data)
 {
-  MetaCastKmsBrokeredGrant *brokered_grant = user_data;
+  MetaCastKmsDisplaySession *session = user_data;
 
   /* The main context keeps the source alive while its callback is running. */
-  g_clear_pointer (&brokered_grant->revoke_retry_source, g_source_unref);
-  request_grant_revoke (brokered_grant);
+  g_clear_pointer (&session->revoke_retry_source, g_source_unref);
+  request_session_revoke (session);
   return G_SOURCE_REMOVE;
 }
 
@@ -250,115 +252,121 @@ on_client_name_vanished (GDBusConnection *connection,
                          const char      *name,
                          gpointer         user_data)
 {
-  MetaCastKmsBrokeredGrant *brokered_grant = user_data;
+  MetaCastKmsDisplaySession *session = user_data;
 
-  g_clear_handle_id (&brokered_grant->name_watch_id, g_bus_unwatch_name);
-  request_grant_revoke (brokered_grant);
+  g_clear_handle_id (&session->name_watch_id, g_bus_unwatch_name);
+  request_session_revoke (session);
 }
 
 static void
-meta_cast_kms_brokered_grant_free (MetaCastKmsBrokeredGrant *brokered_grant)
+meta_cast_kms_display_session_free (MetaCastKmsDisplaySession *session)
 {
-  clear_source (&brokered_grant->control_source);
-  clear_source (&brokered_grant->revoke_retry_source);
-  if (brokered_grant->name_watch_id)
-    g_bus_unwatch_name (brokered_grant->name_watch_id);
+  clear_source (&session->capture_control_source);
+  clear_source (&session->revoke_retry_source);
+  if (session->name_watch_id)
+    g_bus_unwatch_name (session->name_watch_id);
 
-  g_clear_object (&brokered_grant->grant);
-  g_clear_pointer (&brokered_grant->sender, g_free);
-  g_free (brokered_grant);
+  g_clear_pointer (&session->monitor_control,
+                   meta_kms_monitor_control_free);
+  g_clear_object (&session->capture_grant);
+  g_clear_pointer (&session->sender, g_free);
+  g_free (session);
 }
 
 static void
-request_grant_revoke (MetaCastKmsBrokeredGrant *brokered_grant)
+request_session_revoke (MetaCastKmsDisplaySession *session)
 {
   g_autoptr (GError) error = NULL;
 
-  clear_source (&brokered_grant->control_source);
+  clear_source (&session->capture_control_source);
+  g_clear_pointer (&session->monitor_control,
+                   meta_kms_monitor_control_free);
 
-  if (!meta_kms_capture_grant_revoke (brokered_grant->grant, &error))
+  if (!meta_kms_capture_grant_revoke (session->capture_grant, &error))
     {
-      g_warning ("CastKMS capture session %" G_GUINT64_FORMAT
+      g_warning ("CastKMS display session %" G_GUINT64_FORMAT
                  " was revoked, but its device fd could not "
                  "be released; will retry: %s",
-                 brokered_grant->session_id,
+                 session->session_id,
                  error ? error->message : "unknown error");
-      if (!brokered_grant->revoke_retry_source)
+      if (!session->revoke_retry_source)
         {
-          brokered_grant->revoke_retry_source = g_timeout_source_new_seconds (1);
-          g_source_set_callback (brokered_grant->revoke_retry_source,
+          session->revoke_retry_source = g_timeout_source_new_seconds (1);
+          g_source_set_callback (session->revoke_retry_source,
                                  on_revoke_retry,
-                                 brokered_grant,
+                                 session,
                                  NULL);
-          g_source_attach (brokered_grant->revoke_retry_source, NULL);
+          g_source_attach (session->revoke_retry_source, NULL);
         }
       return;
     }
 
-  g_hash_table_remove (brokered_grant->broker->grants, brokered_grant);
+  g_hash_table_remove (session->broker->sessions, session);
 }
 
-static MetaCastKmsBrokeredGrant *
-meta_cast_kms_brokered_grant_new (MetaCastKmsGrantBroker  *broker,
-                                  GDBusConnection         *connection,
-                                  const char              *sender,
-                                  MetaKmsDevice           *kms_device,
-                                  uint32_t                 connector_id,
-                                  uint64_t                 session_id,
-                                  MetaKmsCaptureGrant     *grant)
+static MetaCastKmsDisplaySession *
+meta_cast_kms_display_session_new (MetaCastKmsGrantBroker  *broker,
+                                   GDBusConnection         *connection,
+                                   const char              *sender,
+                                   MetaKmsDevice           *kms_device,
+                                   uint32_t                 connector_id,
+                                   uint64_t                 session_id,
+                                   MetaKmsCaptureGrant     *capture_grant,
+                                   MetaKmsMonitorControl   *monitor_control)
 {
-  MetaCastKmsBrokeredGrant *brokered_grant;
+  MetaCastKmsDisplaySession *session;
   int control_fd;
 
-  brokered_grant = g_new0 (MetaCastKmsBrokeredGrant, 1);
-  brokered_grant->broker = broker;
-  brokered_grant->grant = g_object_ref (grant);
-  brokered_grant->sender = g_strdup (sender);
-  brokered_grant->kms_device = kms_device;
-  brokered_grant->connector_id = connector_id;
-  brokered_grant->session_id = session_id;
+  session = g_new0 (MetaCastKmsDisplaySession, 1);
+  session->broker = broker;
+  session->capture_grant = g_object_ref (capture_grant);
+  session->monitor_control = monitor_control;
+  session->sender = g_strdup (sender);
+  session->kms_device = kms_device;
+  session->connector_id = connector_id;
+  session->session_id = session_id;
 
-  control_fd = meta_kms_capture_grant_get_control_fd (grant);
+  control_fd = meta_kms_capture_grant_get_control_fd (capture_grant);
   g_assert (control_fd >= 0);
 
   /*
    * Observe kernel revocation before replying. Consumer close does not revoke
    * the grant; explicit session release or caller disappearance does.
    */
-  brokered_grant->control_source =
+  session->capture_control_source =
     g_unix_fd_source_new (control_fd,
                           G_IO_HUP | G_IO_ERR | G_IO_NVAL);
-  g_source_set_callback (brokered_grant->control_source,
+  g_source_set_callback (session->capture_control_source,
                          G_SOURCE_FUNC (on_control_fd_hangup),
-                         brokered_grant,
+                         session,
                          NULL);
-  g_source_attach (brokered_grant->control_source, NULL);
+  g_source_attach (session->capture_control_source, NULL);
 
-  brokered_grant->name_watch_id =
+  session->name_watch_id =
     g_bus_watch_name_on_connection (connection,
                                     sender,
                                     G_BUS_NAME_WATCHER_FLAGS_NONE,
                                     NULL,
                                     on_client_name_vanished,
-                                    brokered_grant,
+                                    session,
                                     NULL);
 
-  return brokered_grant;
+  return session;
 }
 
 static gboolean
-has_grant_for_connector (MetaCastKmsGrantBroker *broker,
-                         MetaKmsDevice          *kms_device,
-                         uint32_t                connector_id)
+has_session_for_connector (MetaCastKmsGrantBroker *broker,
+                           MetaKmsDevice          *kms_device,
+                           uint32_t                connector_id)
 {
   GHashTableIter iter;
-  MetaCastKmsBrokeredGrant *brokered_grant;
+  MetaCastKmsDisplaySession *session;
 
-  g_hash_table_iter_init (&iter, broker->grants);
-  while (g_hash_table_iter_next (&iter, (gpointer *) &brokered_grant, NULL))
+  g_hash_table_iter_init (&iter, broker->sessions);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &session, NULL))
     {
-      if (brokered_grant->kms_device == kms_device &&
-          brokered_grant->connector_id == connector_id)
+      if (session->kms_device == kms_device &&
+          session->connector_id == connector_id)
         return TRUE;
     }
 
@@ -366,23 +374,26 @@ has_grant_for_connector (MetaCastKmsGrantBroker *broker,
 }
 
 static void
-create_capture_grant (MetaCastKmsGrantBroker *broker,
-                      GDBusMethodInvocation  *invocation,
-                      const char             *sender,
-                      uint32_t                device_major,
-                      uint32_t                device_minor,
-                      uint32_t                crtc_id,
-                      uint32_t                connector_id)
+create_display_session (MetaCastKmsGrantBroker *broker,
+                        GDBusMethodInvocation  *invocation,
+                        const char             *sender,
+                        uint32_t                device_major,
+                        uint32_t                device_minor,
+                        uint32_t                crtc_id,
+                        uint32_t                connector_id)
 {
   GDBusConnection *connection =
     g_dbus_method_invocation_get_connection (invocation);
-  g_autoptr (MetaKmsCaptureGrant) grant = NULL;
+  g_autoptr (MetaKmsCaptureGrant) capture_grant = NULL;
+  g_autoptr (MetaKmsMonitorControl) monitor_control = NULL;
   g_autoptr (GUnixFDList) out_fd_list = NULL;
   g_autoptr (GError) error = NULL;
-  g_autofd int holder_fd = -1;
+  g_autofd int monitor_fd = -1;
+  g_autofd int capture_fd = -1;
   MetaKmsDevice *kms_device;
-  MetaCastKmsBrokeredGrant *brokered_grant;
-  int holder_index;
+  MetaCastKmsDisplaySession *session;
+  int monitor_index;
+  int capture_index;
   uint64_t session_id;
 
   if (!broker->backend_native)
@@ -405,13 +416,13 @@ create_capture_grant (MetaCastKmsGrantBroker *broker,
       return;
     }
 
-  if (has_grant_for_connector (broker, kms_device, connector_id))
+  if (has_session_for_connector (broker, kms_device, connector_id))
     {
       g_dbus_method_invocation_return_error_literal (
         invocation,
         G_IO_ERROR,
         G_IO_ERROR_BUSY,
-        "CastKMS connector already has a capture grant");
+        "CastKMS connector already has a display session");
       return;
     }
 
@@ -419,56 +430,75 @@ create_capture_grant (MetaCastKmsGrantBroker *broker,
     {
       g_dbus_method_invocation_return_error_literal (
         invocation, G_IO_ERROR, G_IO_ERROR_NO_SPACE,
-        "Capture session identifiers exhausted");
+        "Display session identifiers exhausted");
       return;
     }
 
-  grant = meta_kms_capture_grant_new (kms_device, crtc_id, connector_id, &error);
-  if (!grant)
+  monitor_control =
+    meta_kms_monitor_control_new (kms_device, connector_id, &error);
+  if (!monitor_control)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
       return;
     }
 
-  holder_fd = meta_kms_capture_grant_steal_capture_fd (grant);
+  capture_grant =
+    meta_kms_capture_grant_new (kms_device, crtc_id, connector_id, &error);
+  if (!capture_grant)
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return;
+    }
+
+  monitor_fd = meta_kms_monitor_control_steal_fd (monitor_control);
+  capture_fd = meta_kms_capture_grant_steal_capture_fd (capture_grant);
 
   out_fd_list = g_unix_fd_list_new ();
-  holder_index = g_unix_fd_list_append (out_fd_list, holder_fd, &error);
-  if (holder_index == -1)
+  monitor_index = g_unix_fd_list_append (out_fd_list, monitor_fd, &error);
+  if (monitor_index == -1)
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return;
+    }
+  capture_index = g_unix_fd_list_append (out_fd_list, capture_fd, &error);
+  if (capture_index == -1)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
       return;
     }
   session_id = ++broker->last_session_id;
-  brokered_grant = meta_cast_kms_brokered_grant_new (broker,
-                                                     connection,
-                                                     sender,
-                                                     kms_device,
-                                                     connector_id,
-                                                     session_id,
-                                                     grant);
-  g_hash_table_add (broker->grants, brokered_grant);
+  session = meta_cast_kms_display_session_new (broker,
+                                               connection,
+                                               sender,
+                                               kms_device,
+                                               connector_id,
+                                               session_id,
+                                               capture_grant,
+                                               g_steal_pointer (
+                                                 &monitor_control));
+  g_hash_table_add (broker->sessions, session);
 
   meta_topic (META_DEBUG_DBUS,
-              "Created CastKMS capture session %" G_GUINT64_FORMAT " for %s",
+              "Created CastKMS display session %" G_GUINT64_FORMAT " for %s",
               session_id,
               sender);
-  meta_dbus_cast_kms_complete_create_capture_grant (
+  meta_dbus_cast_kms_complete_create_display_session (
     META_DBUS_CAST_KMS (broker),
     invocation,
     out_fd_list,
-    g_variant_new_handle (holder_index),
+    g_variant_new_handle (monitor_index),
+    g_variant_new_handle (capture_index),
     session_id);
 }
 
 static gboolean
-handle_create_capture_grant (MetaDBusCastKms       *object,
-                             GDBusMethodInvocation *invocation,
-                             GUnixFDList           *in_fd_list,
-                             uint32_t               device_major,
-                             uint32_t               device_minor,
-                             uint32_t               crtc_id,
-                             uint32_t               connector_id)
+handle_create_display_session (MetaDBusCastKms       *object,
+                               GDBusMethodInvocation *invocation,
+                               GUnixFDList           *in_fd_list,
+                               uint32_t               device_major,
+                               uint32_t               device_minor,
+                               uint32_t               crtc_id,
+                               uint32_t               connector_id)
 {
   MetaCastKmsGrantBroker *broker = META_CAST_KMS_GRANT_BROKER (object);
   const char *sender;
@@ -489,58 +519,59 @@ handle_create_capture_grant (MetaDBusCastKms       *object,
         invocation,
         G_DBUS_ERROR,
         G_DBUS_ERROR_INVALID_ARGS,
-        "Invalid CastKMS grant request");
+        "Invalid CastKMS display session request");
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   sender = g_dbus_method_invocation_get_sender (invocation);
-  create_capture_grant (broker,
-                        invocation,
-                        sender,
-                        device_major,
-                        device_minor,
-                        crtc_id,
-                        connector_id);
+  create_display_session (broker,
+                          invocation,
+                          sender,
+                          device_major,
+                          device_minor,
+                          crtc_id,
+                          connector_id);
 
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
-handle_release_capture_grant (MetaDBusCastKms       *object,
-                              GDBusMethodInvocation *invocation,
-                              uint64_t               session_id)
+handle_release_display_session (MetaDBusCastKms       *object,
+                                GDBusMethodInvocation *invocation,
+                                uint64_t               session_id)
 {
   MetaCastKmsGrantBroker *broker = META_CAST_KMS_GRANT_BROKER (object);
   const char *sender = g_dbus_method_invocation_get_sender (invocation);
   GHashTableIter iter;
-  MetaCastKmsBrokeredGrant *grant;
+  MetaCastKmsDisplaySession *session;
 
-  if (broker->grants && session_id != 0)
+  if (broker->sessions && session_id != 0)
     {
-      g_hash_table_iter_init (&iter, broker->grants);
-      while (g_hash_table_iter_next (&iter, (gpointer *) &grant, NULL))
+      g_hash_table_iter_init (&iter, broker->sessions);
+      while (g_hash_table_iter_next (&iter, (gpointer *) &session, NULL))
         {
-          if (grant->session_id != session_id ||
-              g_strcmp0 (grant->sender, sender) != 0)
+          if (session->session_id != session_id ||
+              g_strcmp0 (session->sender, sender) != 0)
             continue;
 
-          request_grant_revoke (grant);
-          meta_dbus_cast_kms_complete_release_capture_grant (object, invocation);
+          request_session_revoke (session);
+          meta_dbus_cast_kms_complete_release_display_session (object,
+                                                               invocation);
           return G_DBUS_METHOD_INVOCATION_HANDLED;
         }
     }
 
   g_dbus_method_invocation_return_error_literal (
     invocation, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-    "No capture session belongs to that caller and identifier");
+    "No display session belongs to that caller and identifier");
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
 meta_cast_kms_grant_broker_init_iface (MetaDBusCastKmsIface *iface)
 {
-  iface->handle_create_capture_grant = handle_create_capture_grant;
-  iface->handle_release_capture_grant = handle_release_capture_grant;
+  iface->handle_create_display_session = handle_create_display_session;
+  iface->handle_release_display_session = handle_release_display_session;
 }
 
 static void
@@ -592,23 +623,23 @@ on_name_lost (GDBusConnection *connection,
               gpointer         user_data)
 {
   MetaCastKmsGrantBroker *broker = user_data;
-  g_autoptr (GList) grants = NULL;
+  g_autoptr (GList) sessions = NULL;
   GList *l;
 
   meta_topic (META_DEBUG_DBUS, "Lost or failed to acquire name %s", name);
-  if (!broker->grants)
+  if (!broker->sessions)
     return;
 
-  grants = g_hash_table_get_keys (broker->grants);
-  for (l = grants; l; l = l->next)
-    request_grant_revoke (l->data);
+  sessions = g_hash_table_get_keys (broker->sessions);
+  for (l = sessions; l; l = l->next)
+    request_session_revoke (l->data);
 }
 
 static void
 on_prepare_shutdown (MetaBackend            *backend,
                      MetaCastKmsGrantBroker *broker)
 {
-  /* Stop serving requests and revoke grants while the KMS thread is alive. */
+  /* Stop serving requests and revoke sessions while the KMS thread is alive. */
   g_object_run_dispose (G_OBJECT (broker));
 }
 
@@ -623,10 +654,10 @@ meta_cast_kms_grant_broker_constructed (GObject *object)
   g_signal_connect (broker, "g-authorize-method",
                     G_CALLBACK (check_access), broker);
 
-  broker->grants =
+  broker->sessions =
     g_hash_table_new_full (g_direct_hash,
                            g_direct_equal,
-                           (GDestroyNotify) meta_cast_kms_brokered_grant_free,
+                           (GDestroyNotify) meta_cast_kms_display_session_free,
                            NULL);
   broker->prepare_shutdown_handler_id =
     g_signal_connect (broker->backend_native,
@@ -659,7 +690,7 @@ meta_cast_kms_grant_broker_dispose (GObject *object)
   g_clear_handle_id (&broker->dbus_name_id, g_bus_unown_name);
   g_clear_handle_id (&broker->pronk_name_watch_id, g_bus_unwatch_name);
   g_clear_pointer (&broker->pronk_name_owner, g_free);
-  g_clear_pointer (&broker->grants, g_hash_table_unref);
+  g_clear_pointer (&broker->sessions, g_hash_table_unref);
   g_clear_object (&broker->access_checker);
 
   G_OBJECT_CLASS (meta_cast_kms_grant_broker_parent_class)->dispose (object);

@@ -4,54 +4,60 @@
 <node>
   <!--
       org.gnome.Mutter.CastKms:
-      @short_description: restricted CastKMS capture channel
+      @short_description: restricted CastKMS display sessions
 
       This private development interface authorizes only the unique owner of
-      io.github.pronkproject.Pronk1 on the session bus. It passes final-image
-      capture authority, not display management, audio, CEC or raw plane access.
+      io.github.pronkproject.Pronk1 on the session bus. It passes separate
+      monitor-control and final-image capture capabilities. Neither descriptor
+      provides primary-node access, audio, CEC or raw plane access.
   -->
   <interface name="org.gnome.Mutter.CastKms">
     <!--
-        CreateCaptureGrant:
+        CreateDisplaySession:
         @device_major: major number of the CastKMS primary node
         @device_minor: minor number of the CastKMS primary node
         @crtc_id: nonzero DRM CRTC object ID
         @connector_id: nonzero DRM connector object ID on the same device
+        @monitor_fd: anonymous monitor attachment descriptor
         @capture_fd: anonymous final-image capture descriptor
         @session_id: nonzero broker-local session identifier
 
-        Mutter retains the issuing DRM file and a private revocation descriptor.
-        One session is permitted per connector. The kernel validates the exact
-        output and checks authority again when capture operations are attempted.
-        Issuance does not guarantee an active image offer.
+        Mutter retains separate revocation authority for monitor attachment and
+        capture. It also retains the DRM file that issued the capture grant. One
+        session is permitted per connector. The kernel validates the exact
+        output and checks authority again when operations are attempted.
+        Issuance does not attach a monitor or guarantee an active image offer.
 
-        The caller must release the session explicitly; closing capture_fd does
-        not notify the broker. Caller disconnection, loss of the Pronk bus name,
-        broker shutdown or kernel revocation also ends the session. Session IDs
-        are never reused during a broker lifetime and are not kernel grant IDs.
-        Clients must associate them with the unique D-Bus owner of the broker,
-        not reuse them after the service restarts.
+        The caller must release the session explicitly. Closing monitor_fd
+        detaches the monitor but does not release capture; closing capture_fd
+        does not notify the broker. Caller disconnection, loss of the Pronk bus
+        name, broker shutdown or kernel revocation ends both capabilities.
+        Session IDs are never reused during a broker lifetime and are not kernel
+        identifiers. Clients must associate them with the unique D-Bus owner of
+        the broker, not reuse them after the service restarts.
     -->
-    <method name="CreateCaptureGrant">
+    <method name="CreateDisplaySession">
       <arg name="device_major" type="u" direction="in" />
       <arg name="device_minor" type="u" direction="in" />
       <arg name="crtc_id" type="u" direction="in" />
       <arg name="connector_id" type="u" direction="in" />
       <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
+      <arg name="monitor_fd" type="h" direction="out" />
       <arg name="capture_fd" type="h" direction="out" />
       <arg name="session_id" type="t" direction="out" />
     </method>
     <!--
-        ReleaseCaptureGrant:
+        ReleaseDisplaySession:
         @session_id: session returned to the same unique caller
 
-        Revokes capture and requests release of the issuing file hold. Unknown,
-        already-ended and other callers' sessions return an error. A successful
-        reply confirms revocation was requested, not completion of admitted
-        writes or revocation of previously exported storage. The broker retains
-        a revoked session while retrying any failed device-file release.
+        Revokes monitor control and capture, then requests release of the issuing
+        file hold. Unknown, already-ended and other callers' sessions return an
+        error. A successful reply confirms revocation was requested, not
+        completion of admitted writes or revocation of previously exported
+        storage. The broker retains a revoked session while retrying any failed
+        device-file release.
     -->
-    <method name="ReleaseCaptureGrant">
+    <method name="ReleaseDisplaySession">
       <arg name="session_id" type="t" direction="in" />
     </method>
   </interface>
