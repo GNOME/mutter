@@ -672,6 +672,20 @@ test('kms-capture-files', capture_files_test,
   suite: ['core', 'mutter/backends/native'],
 )
 
+monitor_control_test = executable('mutter-kms-monitor-control',
+  sources: [
+    'kms-monitor-control-unit-tests.c',
+    '../backends/native/meta-kms-monitor-control.c',
+  ],
+  include_directories: tests_includes,
+  c_args: tests_c_args,
+  dependencies: [mutter_deps, libmutter_clutter_dep, gvdb_dep],
+  link_args: ['-Wl,--wrap=drmIoctl', '-Wl,--wrap=ioctl'],
+)
+test('kms-monitor-control', monitor_control_test,
+  suite: ['core', 'mutter/backends/native'],
+)
+
 test_cases += [
   {
     'name': 'cast-kms-grant',
