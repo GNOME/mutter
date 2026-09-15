@@ -212,19 +212,20 @@ test_dbus_contract (void)
   g_assert_null (interface_info->properties);
 
   method_info = interface_info->methods[0];
-  g_assert_cmpstr (method_info->name, ==, "CreateCaptureGrant");
+  g_assert_cmpstr (method_info->name, ==, "CreateDisplaySession");
   in_signature = build_argument_signature (method_info->in_args);
   out_signature = build_argument_signature (method_info->out_args);
   g_assert_cmpstr (in_signature, ==, "uuuu");
-  g_assert_cmpstr (out_signature, ==, "ht");
+  g_assert_cmpstr (out_signature, ==, "hht");
   g_assert_cmpstr (method_info->in_args[2]->name, ==, "crtc_id");
   g_assert_cmpstr (method_info->in_args[3]->name, ==, "connector_id");
-  g_assert_cmpstr (method_info->out_args[0]->name, ==, "capture_fd");
-  g_assert_cmpstr (method_info->out_args[1]->name, ==, "session_id");
-  g_assert_null (method_info->out_args[2]);
+  g_assert_cmpstr (method_info->out_args[0]->name, ==, "monitor_fd");
+  g_assert_cmpstr (method_info->out_args[1]->name, ==, "capture_fd");
+  g_assert_cmpstr (method_info->out_args[2]->name, ==, "session_id");
+  g_assert_null (method_info->out_args[3]);
 
   method_info = interface_info->methods[1];
-  g_assert_cmpstr (method_info->name, ==, "ReleaseCaptureGrant");
+  g_assert_cmpstr (method_info->name, ==, "ReleaseDisplaySession");
   g_clear_pointer (&in_signature, g_free);
   g_clear_pointer (&out_signature, g_free);
   in_signature = build_argument_signature (method_info->in_args);
@@ -233,7 +234,7 @@ test_dbus_contract (void)
   g_assert_cmpstr (out_signature, ==, "");
 
   interface = g_type_default_interface_ref (META_DBUS_TYPE_CAST_KMS);
-  signal_id = g_signal_lookup ("handle-create-capture-grant",
+  signal_id = g_signal_lookup ("handle-create-display-session",
                                G_TYPE_FROM_INTERFACE (interface));
   g_assert_cmpuint (signal_id, !=, 0);
   g_signal_query (signal_id, &signal_query);
@@ -242,7 +243,7 @@ test_dbus_contract (void)
                     ==,
                     G_TYPE_DBUS_METHOD_INVOCATION);
   g_assert_cmpuint (signal_query.param_types[1], ==, G_TYPE_UNIX_FD_LIST);
-  signal_id = g_signal_lookup ("handle-release-capture-grant",
+  signal_id = g_signal_lookup ("handle-release-display-session",
                                G_TYPE_FROM_INTERFACE (interface));
   g_assert_cmpuint (signal_id, !=, 0);
   g_signal_query (signal_id, &signal_query);
