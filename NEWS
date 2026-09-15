@@ -1,3 +1,27 @@
+50.5
+====
+* Make software cursor overlay visibility per-view [Victor; !5207]
+* Fix multiple monitors being reported as primary [liuyingjie; !5228]
+* Fix desaturated SDR content in HDR mode [Boogie61; !5230]
+* Fix offscreen effect glitches on resource scale changes [Victor; !5233]
+* Fix hang on external monitor hotplug [Michel; !5255]
+* Fix direct scanout handling for captures without dma-buf [Michel; !5276]
+* Prevent modifier release from stopping key repeat [muzaffarmhd; !4974]
+* Do not require EDID to generate device color profile [Christian; !4961]
+* Handle cross GPU buffer scanout [Tyler; !5219]
+* Fix listing all supported fallback resolutions [Yella; !5238]
+* Fixed crashes [Michel, Jonas; !5249, !5226, !5324]
+* Plugged leaks [Toluwaleke, Michel, mohansur, Nathan, Gamblit, Sebastian K.,
+  Jonas; !5235, !5239, !5222, !5041, !5197, !5237, !5275, !4934, !5225, !5285]
+* Misc. bug fixes and cleanups [Leonhard, Michel, Sebastian W., Jonas, Tyler,
+  Pavel, Conn; !5291, !5229, !5208, !5256, !5313, !5250, !5292, !5274, !5278]
+
+Contributors:
+  Boogie61, Victor C., Michel Dänzer, Gamblit, Christian Glombek,
+  Leonhard Kargl, Sebastian Keller, liuyingjie, mohansur, muzaffarmhd,
+  Conn O'Griofa, Toluwaleke Ogundipe, Pavel Ondračka, Yella Ramya Krishna,
+  Nathan Saslavsky, Tyler Schicke, Sebastian Wick, Jonas Ådahl
+
 50.4
 ====
 * Fix blurred rendering with non-pixel-aligned monitors [James; !5115]
