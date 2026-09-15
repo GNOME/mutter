@@ -686,6 +686,20 @@ test('kms-monitor-control', monitor_control_test,
   suite: ['core', 'mutter/backends/native'],
 )
 
+renderer_control_test = executable('mutter-kms-renderer-control',
+  sources: [
+    'kms-renderer-control-unit-tests.c',
+    '../backends/native/meta-kms-renderer-control.c',
+  ],
+  include_directories: tests_includes,
+  c_args: tests_c_args,
+  dependencies: [mutter_deps, libmutter_clutter_dep, gvdb_dep],
+  link_args: ['-Wl,--wrap=drmIoctl', '-Wl,--wrap=ioctl'],
+)
+test('kms-renderer-control', renderer_control_test,
+  suite: ['core', 'mutter/backends/native'],
+)
+
 test_cases += [
   {
     'name': 'cast-kms-grant',
