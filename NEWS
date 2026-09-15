@@ -1,3 +1,29 @@
+49.8
+====
+* Fix blurred rendering with non-pixel-aligned monitors [James; !5115]
+* Do not add unsupported fallback monitor modes [ramyayella; !5110]
+* Fix invalid redraw clips on rotated monitors [Marco; !5203]
+* Make software cursor overlay visibility per-view [Victor; !5207]
+* Fix multiple monitors being reported as primary [liuyingjie; !5228]
+* Fix offscreen effect glitches on resource scale changes [Victor; !5233]
+* Fix direct scanout handling for captures without dma-buf [Michel; !5276]
+* Prevent modifier release from stopping key repeat [muzaffarmhd; !4974]
+* Do not require EDID to generate device color profile [Christian; !4961]
+* Handle cross GPU buffer scanout [Tyler; !5219]
+* Fix listing all supported fallback resolutions [Yella; !5238]
+* Fixed crashes [cong, Michel, Jonas; !4918, !5170, !5249, !5226, !5324, !5063]
+* Plugged leaks [Toluwaleke, Michel, mohansur, Nathan, Gamblit, Sebastian K.,
+  Jonas; !5235, !5239, !5222, !5041, !5197, !5275, !4934, !5225, !5285]
+* Misc. bug fixes and cleanups [Michel, Leonhard, Sebastian W., Jonas, Tyler,
+  Pavel, Conn; !5159, !5291, !5208, !5256, !5313, !5250, !5292, !5274, !5278]
+
+Contributors:
+  Victor C., cong, Michel Dänzer, Gamblit, Christian Glombek, Leonhard Kargl,
+  Sebastian Keller, liuyingjie, mohansur, muzaffarmhd, Conn O'Griofa,
+  Toluwaleke Ogundipe, Pavel Ondračka, James Railton, Yella Ramya Krishna,
+  ramyayella, Nathan Saslavsky, Tyler Schicke, Marco Trevisan (Treviño),
+  Sebastian Wick, Jonas Ådahl
+
 49.7
 ====
 * Fix erroneous stack order changes on workspace switches [AnonymouX47; !4992]
