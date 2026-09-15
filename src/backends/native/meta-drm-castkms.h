@@ -5,7 +5,7 @@
 
 #define DRM_CASTKMS_MONITOR_CONTROL_VERSION 1
 #define DRM_CASTKMS_MONITOR_MAX_EDID_SIZE (256U * 128U)
-#define DRM_CASTKMS_RENDERER_VERSION 4
+#define DRM_CASTKMS_RENDERER_VERSION 5
 
 struct drm_castkms_create_monitor_control
 {
