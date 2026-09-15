@@ -951,8 +951,9 @@ meta_wayland_compositor_new (MetaContext *context)
   compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
   compositor->context = context;
 
-  g_signal_connect (context, "prepare-compositor-shutdown",
-                    G_CALLBACK (on_prepare_compositor_shutdown), compositor);
+  g_signal_connect_after (context, "prepare-compositor-shutdown",
+                          G_CALLBACK (on_prepare_compositor_shutdown),
+                          compositor);
 
   wl_display_set_default_max_buffer_size (compositor->wayland_display,
                                           1024 * 1024);
