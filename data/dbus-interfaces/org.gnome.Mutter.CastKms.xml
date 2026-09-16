@@ -21,6 +21,7 @@
         @connector_id: nonzero DRM connector object ID on the same device
         @monitor_fd: anonymous monitor attachment descriptor
         @renderer_fd: anonymous renderer descriptor
+        @renderer_id: session-local identity for releasing renderer authority
         @capture_fd: anonymous final-image capture descriptor
         @render_node: DRM render node for importing the compositor's images
         @session_id: nonzero broker-local session identifier
@@ -49,6 +50,7 @@
       <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
       <arg name="monitor_fd" type="h" direction="out" />
       <arg name="renderer_fd" type="h" direction="out" />
+      <arg name="renderer_id" type="t" direction="out" />
       <arg name="capture_fd" type="h" direction="out" />
       <arg name="render_node" type="s" direction="out" />
       <arg name="session_id" type="t" direction="out" />
@@ -66,6 +68,38 @@
     <method name="InstallRendererTransition">
       <arg name="session_id" type="t" direction="in" />
       <arg name="transition" type="t" direction="in" />
+    </method>
+    <!--
+        AcquireRenderer:
+        @session_id: session returned to the same unique caller
+        @renderer_fd: fresh anonymous renderer descriptor
+        @renderer_id: session-local identity for releasing renderer authority
+
+        Issues another renderer endpoint for an existing display session.
+        Replacement and orderly return to the built-in renderer use a fresh
+        endpoint while the previous endpoint drains admitted source reads.
+        The session retains independent revocation authority for every issued
+        endpoint.
+    -->
+    <method name="AcquireRenderer">
+      <arg name="session_id" type="t" direction="in" />
+      <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
+      <arg name="renderer_fd" type="h" direction="out" />
+      <arg name="renderer_id" type="t" direction="out" />
+    </method>
+    <!--
+        ReleaseRenderer:
+        @session_id: session returned to the same unique caller
+        @renderer_id: renderer identity returned by this session
+
+        Revokes and releases one issued renderer endpoint. Call this after its
+        admitted source reads have drained. Releasing the display session also
+        releases every renderer endpoint that remains registered. Repeating a
+        successful release for the same session and endpoint succeeds.
+    -->
+    <method name="ReleaseRenderer">
+      <arg name="session_id" type="t" direction="in" />
+      <arg name="renderer_id" type="t" direction="in" />
     </method>
     <!--
         ReleaseDisplaySession:
