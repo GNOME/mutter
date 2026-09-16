@@ -18,7 +18,8 @@
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-private.h"
 
-G_STATIC_ASSERT (sizeof (struct drm_castkms_create_monitor_control) == 20);
+G_STATIC_ASSERT (sizeof (struct drm_castkms_monitor_files) == 8);
+G_STATIC_ASSERT (sizeof (struct drm_castkms_create_monitor_control) == 32);
 G_STATIC_ASSERT (sizeof (struct drm_castkms_monitor_query) == 16);
 
 struct _MetaKmsMonitorControl
@@ -120,10 +121,13 @@ create_in_impl (MetaThreadImpl  *thread_impl,
   MetaKmsImplDevice *impl_device =
     meta_kms_device_get_impl_device (data->device);
   MetaKmsConnector *connector;
-  struct drm_castkms_create_monitor_control request = {
-    .connector_id = data->connector_id,
+  struct drm_castkms_monitor_files files = {
     .control_fd = -1,
     .revoke_fd = -1,
+  };
+  struct drm_castkms_create_monitor_control request = {
+    .connector_id = data->connector_id,
+    .files = (uintptr_t) &files,
   };
   g_autoptr (MetaKmsMonitorControl) control = NULL;
 
@@ -164,8 +168,8 @@ create_in_impl (MetaThreadImpl  *thread_impl,
     }
 
   control = g_new0 (MetaKmsMonitorControl, 1);
-  control->control_fd = request.control_fd;
-  control->revoke_fd = request.revoke_fd;
+  control->control_fd = files.control_fd;
+  control->revoke_fd = files.revoke_fd;
   if (control->control_fd < 0 ||
       control->revoke_fd < 0 ||
       control->control_fd == control->revoke_fd)

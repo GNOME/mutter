@@ -3,7 +3,7 @@
 
 #include <drm.h>
 
-#define DRM_CASTKMS_MONITOR_CONTROL_VERSION 1
+#define DRM_CASTKMS_MONITOR_CONTROL_VERSION 2
 #define DRM_CASTKMS_MONITOR_MAX_EDID_SIZE (256U * 128U)
 #define DRM_CASTKMS_RENDERER_VERSION 5
 
@@ -12,9 +12,14 @@ struct drm_castkms_create_monitor_control
 {
   __u32 connector_id;
   __u32 flags;
+  __u64 files;
+  __u64 reserved[2];
+};
+
+struct drm_castkms_monitor_files
+{
   __s32 control_fd;
   __s32 revoke_fd;
-  __u32 reserved;
 };
 
 struct drm_castkms_monitor_query
@@ -55,8 +60,8 @@ struct drm_castkms_renderer_query
 #define DRM_CASTKMS_RENDERER_QUERY 0x04
 
 #define DRM_IOCTL_CASTKMS_CREATE_MONITOR_CONTROL \
-  DRM_IOWR (DRM_COMMAND_BASE + DRM_CASTKMS_CREATE_MONITOR_CONTROL, \
-            struct drm_castkms_create_monitor_control)
+  DRM_IOW (DRM_COMMAND_BASE + DRM_CASTKMS_CREATE_MONITOR_CONTROL, \
+           struct drm_castkms_create_monitor_control)
 #define DRM_IOCTL_CASTKMS_CREATE_RENDERER_CONTROL \
   DRM_IOW (DRM_COMMAND_BASE + DRM_CASTKMS_CREATE_RENDERER_CONTROL, \
            struct drm_castkms_create_renderer_control)

@@ -147,6 +147,8 @@ __wrap_drmIoctl (int            fd,
                  void          *data)
 {
   struct drm_castkms_create_monitor_control *request = data;
+  struct drm_castkms_monitor_files *files =
+    (void *) (uintptr_t) request->files;
   int pipe_fds[2];
 
   g_assert_true (in_impl);
@@ -155,15 +157,15 @@ __wrap_drmIoctl (int            fd,
                     DRM_IOCTL_CASTKMS_CREATE_MONITOR_CONTROL);
   g_assert_cmpuint (request->connector_id, ==, 11);
   g_assert_cmpuint (request->flags, ==, 0);
-  g_assert_cmpint (request->control_fd, ==, -1);
-  g_assert_cmpint (request->revoke_fd, ==, -1);
-  g_assert_cmpuint (request->reserved, ==, 0);
+  g_assert_cmpuint (request->reserved[0], ==, 0);
+  g_assert_cmpuint (request->reserved[1], ==, 0);
+  g_assert_nonnull (files);
+  g_assert_cmpint (files->control_fd, ==, -1);
+  g_assert_cmpint (files->revoke_fd, ==, -1);
   create_calls++;
 
   if (create_reply == CREATE_FAIL)
     {
-      request->control_fd = issuer_fd;
-      request->revoke_fd = issuer_fd;
       errno = EIO;
       return -1;
     }
@@ -171,21 +173,21 @@ __wrap_drmIoctl (int            fd,
   g_assert_cmpint (pipe2 (pipe_fds, O_CLOEXEC), ==, 0);
   issued_control = pipe_fds[0];
   issued_revoke = pipe_fds[1];
-  request->control_fd = issued_control;
-  request->revoke_fd = issued_revoke;
+  files->control_fd = issued_control;
+  files->revoke_fd = issued_revoke;
   switch (create_reply)
     {
     case CREATE_DUPLICATE:
       g_clear_fd (&issued_revoke, NULL);
-      request->revoke_fd = issued_control;
+      files->revoke_fd = issued_control;
       break;
     case CREATE_MISSING_CONTROL:
       g_clear_fd (&issued_control, NULL);
-      request->control_fd = -1;
+      files->control_fd = -1;
       break;
     case CREATE_MISSING_REVOKE:
       g_clear_fd (&issued_revoke, NULL);
-      request->revoke_fd = -1;
+      files->revoke_fd = -1;
       break;
     case CREATE_INHERITABLE_CONTROL:
       g_assert_cmpint (fcntl (issued_control, F_SETFD, 0), ==, 0);
