@@ -22,6 +22,7 @@
         @monitor_fd: anonymous monitor attachment descriptor
         @renderer_fd: anonymous renderer descriptor
         @capture_fd: anonymous final-image capture descriptor
+        @render_node: DRM render node for importing the compositor's images
         @session_id: nonzero broker-local session identifier
 
         Mutter retains separate revocation authority for monitor attachment,
@@ -49,6 +50,7 @@
       <arg name="monitor_fd" type="h" direction="out" />
       <arg name="renderer_fd" type="h" direction="out" />
       <arg name="capture_fd" type="h" direction="out" />
+      <arg name="render_node" type="s" direction="out" />
       <arg name="session_id" type="t" direction="out" />
     </method>
     <!--

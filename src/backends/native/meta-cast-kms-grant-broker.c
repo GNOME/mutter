@@ -24,15 +24,18 @@
 #include <glib/gstdio.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
+#include <xf86drm.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-dbus-access-checker.h"
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-capture-grant.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-monitor-control.h"
 #include "backends/native/meta-kms-renderer-control.h"
 #include "backends/native/meta-kms.h"
+#include "backends/native/meta-renderer-native.h"
 #include "core/util-private.h"
 
 #define META_CAST_KMS_DBUS_SERVICE "org.gnome.Mutter.CastKms"
@@ -397,10 +400,13 @@ create_display_session (MetaCastKmsGrantBroker *broker,
   g_autoptr (MetaKmsRendererControl) renderer_control = NULL;
   g_autoptr (GUnixFDList) out_fd_list = NULL;
   g_autoptr (GError) error = NULL;
+  g_autofree char *render_node = NULL;
   g_autofd int monitor_fd = -1;
   g_autofd int renderer_fd = -1;
   g_autofd int capture_fd = -1;
   MetaKmsDevice *kms_device;
+  MetaRenderer *renderer;
+  MetaDeviceFile *render_device_file;
   MetaCastKmsDisplaySession *session;
   int monitor_index;
   int renderer_index;
@@ -424,6 +430,21 @@ create_display_session (MetaCastKmsGrantBroker *broker,
   if (!kms_device)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
+      return;
+    }
+
+  renderer = meta_backend_get_renderer (META_BACKEND (broker->backend_native));
+  render_device_file = meta_renderer_native_get_primary_device_file (
+    META_RENDERER_NATIVE (renderer));
+  render_node = drmGetRenderDeviceNameFromFd (
+    meta_device_file_get_fd (render_device_file));
+  if (!render_node)
+    {
+      g_dbus_method_invocation_return_error_literal (
+        invocation,
+        G_IO_ERROR,
+        G_IO_ERROR_NOT_SUPPORTED,
+        "The compositor GPU has no DRM render node");
       return;
     }
 
@@ -520,6 +541,7 @@ create_display_session (MetaCastKmsGrantBroker *broker,
     g_variant_new_handle (monitor_index),
     g_variant_new_handle (renderer_index),
     g_variant_new_handle (capture_index),
+    render_node,
     session_id);
 }
 
