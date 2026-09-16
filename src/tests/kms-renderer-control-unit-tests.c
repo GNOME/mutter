@@ -31,6 +31,7 @@ typedef enum
   QUERY_VALID,
   QUERY_FAIL,
   QUERY_INTERRUPT_ONCE,
+  QUERY_GPU,
   QUERY_BAD_VERSION,
   QUERY_BAD_FLAGS,
   QUERY_BAD_PROFILE,
@@ -240,7 +241,10 @@ __wrap_ioctl (int            fd,
       query->flags = 1;
       break;
     case QUERY_BAD_PROFILE:
-      query->profile++;
+      query->profile = UINT32_MAX;
+      break;
+    case QUERY_GPU:
+      query->profile = DRM_CASTKMS_EXECUTION_GPU_V1;
       break;
     case QUERY_BAD_RESERVED:
       query->reserved = 1;
@@ -325,6 +329,21 @@ test_query_interruption (void)
   g_assert_no_error (error);
   g_assert_nonnull (control);
   g_assert_cmpuint (query_calls, ==, 2);
+  end_case ();
+}
+
+static void
+test_gpu_query_reply (void)
+{
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsRendererControl) control = NULL;
+
+  begin_case ();
+  query_reply = QUERY_GPU;
+  control = meta_kms_renderer_control_new ((MetaKmsDevice *) device_object,
+                                           7, 11, &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (control);
   end_case ();
 }
 
@@ -434,6 +453,8 @@ main (int    argc,
                    test_ownership);
   g_test_add_func ("/backends/native/kms-renderer-control/query-interruption",
                    test_query_interruption);
+  g_test_add_func ("/backends/native/kms-renderer-control/gpu-query",
+                   test_gpu_query_reply);
   g_test_add_func ("/backends/native/kms-renderer-control/create-replies",
                    test_invalid_create_reply);
   g_test_add_func ("/backends/native/kms-renderer-control/query-replies",

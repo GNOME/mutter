@@ -96,7 +96,8 @@ validate_contract (int      fd,
     return set_errno_error (error, errno, "Querying CastKMS renderer control");
   if (query.version != DRM_CASTKMS_RENDERER_VERSION ||
       query.flags != 0 ||
-      query.profile != DRM_CASTKMS_EXECUTION_HOST_V1 ||
+      (query.profile != DRM_CASTKMS_EXECUTION_HOST_V1 &&
+       query.profile != DRM_CASTKMS_EXECUTION_GPU_V1) ||
       query.reserved != 0 ||
       query.generation == 0)
     {
