@@ -153,6 +153,11 @@ typedef struct _MetaKmsCrtcUpdate
     gboolean has_update;
     gboolean is_enabled;
   } vrr;
+
+  struct {
+    gboolean has_update;
+    uint64_t token;
+  } castkms_transition;
 } MetaKmsCrtcUpdate;
 
 typedef struct _MetaKmsPageFlipListener
