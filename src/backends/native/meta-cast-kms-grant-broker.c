@@ -34,6 +34,7 @@
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-monitor-control.h"
 #include "backends/native/meta-kms-renderer-control.h"
+#include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "core/util-private.h"
@@ -66,6 +67,7 @@ struct _MetaCastKmsDisplaySession
   char *sender;
   /* The capture grant pins this device while this object exists. */
   MetaKmsDevice *kms_device;
+  uint32_t crtc_id;
   uint32_t connector_id;
 
   GSource *capture_control_source;
@@ -318,6 +320,7 @@ meta_cast_kms_display_session_new (MetaCastKmsGrantBroker  *broker,
                                    GDBusConnection         *connection,
                                    const char              *sender,
                                    MetaKmsDevice           *kms_device,
+                                   uint32_t                 crtc_id,
                                    uint32_t                 connector_id,
                                    uint64_t                 session_id,
                                    MetaKmsCaptureGrant     *capture_grant,
@@ -334,6 +337,7 @@ meta_cast_kms_display_session_new (MetaCastKmsGrantBroker  *broker,
   session->renderer_control = renderer_control;
   session->sender = g_strdup (sender);
   session->kms_device = kms_device;
+  session->crtc_id = crtc_id;
   session->connector_id = connector_id;
   session->session_id = session_id;
 
@@ -521,6 +525,7 @@ create_display_session (MetaCastKmsGrantBroker *broker,
                                                connection,
                                                sender,
                                                kms_device,
+                                               crtc_id,
                                                connector_id,
                                                session_id,
                                                capture_grant,
@@ -590,6 +595,83 @@ handle_create_display_session (MetaDBusCastKms       *object,
 }
 
 static gboolean
+handle_install_renderer_transition (MetaDBusCastKms       *object,
+                                    GDBusMethodInvocation *invocation,
+                                    uint64_t               session_id,
+                                    uint64_t               transition)
+{
+  MetaCastKmsGrantBroker *broker = META_CAST_KMS_GRANT_BROKER (object);
+  const char *sender = g_dbus_method_invocation_get_sender (invocation);
+  MetaCastKmsDisplaySession *session = NULL;
+  MetaKmsCrtc *crtc = NULL;
+  GHashTableIter iter;
+  GList *l;
+  g_autoptr (MetaKmsUpdate) update = NULL;
+  g_autoptr (MetaKmsFeedback) feedback = NULL;
+  const GError *error;
+
+  if (broker->sessions && session_id != 0 && transition != 0)
+    {
+      g_hash_table_iter_init (&iter, broker->sessions);
+      while (g_hash_table_iter_next (&iter, (gpointer *) &session, NULL))
+        {
+          if (session->session_id == session_id &&
+              g_strcmp0 (session->sender, sender) == 0)
+            break;
+          session = NULL;
+        }
+    }
+
+  if (!session)
+    {
+      g_dbus_method_invocation_return_error_literal (
+        invocation, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+        "Invalid renderer transition request");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  for (l = meta_kms_device_get_crtcs (session->kms_device); l; l = l->next)
+    {
+      MetaKmsCrtc *candidate = l->data;
+
+      if (meta_kms_crtc_get_id (candidate) == session->crtc_id)
+        {
+          crtc = candidate;
+          break;
+        }
+    }
+
+  if (!crtc)
+    {
+      g_dbus_method_invocation_return_error_literal (
+        invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
+        "The display session CRTC is no longer available");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  update = meta_kms_update_new (session->kms_device);
+  meta_kms_update_set_castkms_transition (update, crtc, transition);
+  feedback = meta_kms_device_process_update_sync (session->kms_device,
+                                                  g_steal_pointer (&update),
+                                                  META_KMS_UPDATE_FLAG_NONE);
+  if (!meta_kms_feedback_did_pass (feedback))
+    {
+      error = meta_kms_feedback_get_error (feedback);
+      g_dbus_method_invocation_return_error (
+        invocation,
+        G_DBUS_ERROR,
+        G_DBUS_ERROR_FAILED,
+        "Failed to install renderer transition: %s",
+        error ? error->message : "unknown KMS error");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  meta_dbus_cast_kms_complete_install_renderer_transition (object,
+                                                           invocation);
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
 handle_release_display_session (MetaDBusCastKms       *object,
                                 GDBusMethodInvocation *invocation,
                                 uint64_t               session_id)
@@ -625,6 +707,8 @@ static void
 meta_cast_kms_grant_broker_init_iface (MetaDBusCastKmsIface *iface)
 {
   iface->handle_create_display_session = handle_create_display_session;
+  iface->handle_install_renderer_transition =
+    handle_install_renderer_transition;
   iface->handle_release_display_session = handle_release_display_session;
 }
 
