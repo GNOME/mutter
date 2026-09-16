@@ -82,6 +82,14 @@ void meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_na
 void meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,
                                                  MetaKmsUpdate      *new_kms_update);
 
+void meta_renderer_native_queue_crtc_update (MetaRendererNative *renderer_native,
+                                             MetaKmsCrtc        *kms_crtc,
+                                             MetaKmsUpdate      *new_kms_update);
+
+void meta_renderer_native_merge_crtc_update (MetaRendererNative *renderer_native,
+                                             MetaKmsCrtc        *kms_crtc,
+                                             MetaKmsUpdate      *kms_update);
+
 void meta_renderer_native_queue_power_save_page_flip (MetaRendererNative *renderer_native,
                                                       CoglOnscreen       *onscreen);
 

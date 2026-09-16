@@ -102,6 +102,7 @@ struct _MetaRendererNative
   guint power_save_page_flip_source_id;
 
   GHashTable *mode_set_updates;
+  GHashTable *crtc_updates;
 };
 
 static void
@@ -640,6 +641,46 @@ meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,
 }
 
 void
+meta_renderer_native_queue_crtc_update (MetaRendererNative *renderer_native,
+                                        MetaKmsCrtc        *kms_crtc,
+                                        MetaKmsUpdate      *new_kms_update)
+{
+  MetaKmsUpdate *kms_update;
+
+  g_return_if_fail (meta_kms_update_get_device (new_kms_update) ==
+                    meta_kms_crtc_get_device (kms_crtc));
+
+  kms_update = g_hash_table_lookup (renderer_native->crtc_updates, kms_crtc);
+  if (!kms_update)
+    {
+      g_hash_table_insert (renderer_native->crtc_updates,
+                           kms_crtc,
+                           new_kms_update);
+      return;
+    }
+
+  meta_kms_update_merge_from (kms_update, new_kms_update);
+  meta_kms_update_free (new_kms_update);
+}
+
+void
+meta_renderer_native_merge_crtc_update (MetaRendererNative *renderer_native,
+                                        MetaKmsCrtc        *kms_crtc,
+                                        MetaKmsUpdate      *kms_update)
+{
+  MetaKmsUpdate *pending_update;
+
+  pending_update = g_hash_table_lookup (renderer_native->crtc_updates,
+                                        kms_crtc);
+  if (!pending_update)
+    return;
+
+  g_hash_table_steal (renderer_native->crtc_updates, kms_crtc);
+  meta_kms_update_merge_from (kms_update, pending_update);
+  meta_kms_update_free (pending_update);
+}
+
+void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
@@ -1036,6 +1077,7 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
   discard_pending_swaps (renderer);
   meta_kms_discard_pending_page_flips (kms);
   g_hash_table_remove_all (renderer_native->mode_set_updates);
+  g_hash_table_remove_all (renderer_native->crtc_updates);
 
   maybe_detach_onscreens (renderer);
 
@@ -1846,6 +1888,7 @@ meta_renderer_native_finalize (GObject *object)
 
   g_list_free (renderer_native->pending_mode_set_views);
   g_hash_table_unref (renderer_native->mode_set_updates);
+  g_hash_table_unref (renderer_native->crtc_updates);
 
   g_clear_handle_id (&renderer_native->release_unused_gpus_idle_id,
                      mtk_source_remove);
@@ -1885,6 +1928,10 @@ meta_renderer_native_init (MetaRendererNative *renderer_native)
                            NULL,
                            (GDestroyNotify) meta_renderer_native_gpu_data_free);
   renderer_native->mode_set_updates =
+    g_hash_table_new_full (NULL, NULL,
+                           NULL,
+                           (GDestroyNotify) meta_kms_update_free);
+  renderer_native->crtc_updates =
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) meta_kms_update_free);

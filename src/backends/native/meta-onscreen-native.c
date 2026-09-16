@@ -2014,6 +2014,9 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
                                        (GDestroyNotify) clutter_frame_unref);
 
   ensure_crtc_modes (onscreen, kms_update);
+  meta_renderer_native_merge_crtc_update (renderer_native,
+                                          kms_crtc,
+                                          kms_update);
   if (!meta_onscreen_native_flip_crtc (onscreen,
                                        frame,
                                        onscreen_native->view,
