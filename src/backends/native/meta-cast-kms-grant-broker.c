@@ -36,7 +36,7 @@
 #include "backends/native/meta-kms-renderer-control.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
-#include "backends/native/meta-renderer-native.h"
+#include "backends/native/meta-renderer-native-private.h"
 #include "core/util-private.h"
 
 #define META_CAST_KMS_DBUS_SERVICE "org.gnome.Mutter.CastKms"
@@ -56,6 +56,8 @@ enum
 static GParamSpec *obj_props[N_PROPS];
 
 typedef struct _MetaCastKmsDisplaySession MetaCastKmsDisplaySession;
+typedef struct _MetaCastKmsRendererTransitionRequest
+  MetaCastKmsRendererTransitionRequest;
 
 typedef struct
 {
@@ -78,6 +80,7 @@ struct _MetaCastKmsDisplaySession
   uint32_t crtc_id;
   uint32_t connector_id;
   gboolean revoking;
+  MetaCastKmsRendererTransitionRequest *pending_transition_request;
 
   GSource *capture_control_source;
   GSource *revoke_retry_source;
@@ -99,6 +102,15 @@ struct _MetaCastKmsGrantBroker
   guint pronk_name_watch_id;
   guint dbus_name_id;
   gulong prepare_shutdown_handler_id;
+};
+
+struct _MetaCastKmsRendererTransitionRequest
+{
+  MetaCastKmsGrantBroker *broker;
+  GDBusMethodInvocation *invocation;
+  uint64_t session_id;
+  char *sender;
+  gboolean replied;
 };
 
 static void
@@ -672,6 +684,64 @@ handle_create_display_session (MetaDBusCastKms       *object,
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
+static void
+renderer_transition_feedback (const MetaKmsFeedback *feedback,
+                              gpointer               user_data)
+{
+  MetaCastKmsRendererTransitionRequest *request = user_data;
+  const GError *error;
+
+  if (meta_kms_feedback_did_pass (feedback))
+    {
+      meta_dbus_cast_kms_complete_install_renderer_transition (
+        META_DBUS_CAST_KMS (request->broker),
+        request->invocation);
+    }
+  else
+    {
+      error = meta_kms_feedback_get_error (feedback);
+      g_dbus_method_invocation_return_error (
+        request->invocation,
+        G_DBUS_ERROR,
+        G_DBUS_ERROR_FAILED,
+        "Failed to install renderer transition: %s",
+        error ? error->message : "unknown KMS error");
+    }
+
+  request->replied = TRUE;
+}
+
+static const MetaKmsResultListenerVtable renderer_transition_listener_vtable = {
+  .feedback = renderer_transition_feedback,
+};
+
+static void
+meta_cast_kms_renderer_transition_request_free (
+  MetaCastKmsRendererTransitionRequest *request)
+{
+  MetaCastKmsDisplaySession *session;
+
+  session = find_session_for_sender (request->broker,
+                                     request->sender,
+                                     request->session_id);
+  if (session && session->pending_transition_request == request)
+    session->pending_transition_request = NULL;
+
+  if (!request->replied)
+    {
+      g_dbus_method_invocation_return_error_literal (
+        request->invocation,
+        G_DBUS_ERROR,
+        G_DBUS_ERROR_FAILED,
+        "Renderer transition was discarded before submission");
+    }
+
+  g_clear_object (&request->invocation);
+  g_clear_object (&request->broker);
+  g_clear_pointer (&request->sender, g_free);
+  g_free (request);
+}
+
 static gboolean
 handle_install_renderer_transition (MetaDBusCastKms       *object,
                                     GDBusMethodInvocation *invocation,
@@ -681,11 +751,12 @@ handle_install_renderer_transition (MetaDBusCastKms       *object,
   MetaCastKmsGrantBroker *broker = META_CAST_KMS_GRANT_BROKER (object);
   const char *sender = g_dbus_method_invocation_get_sender (invocation);
   MetaCastKmsDisplaySession *session;
+  MetaCastKmsRendererTransitionRequest *request;
+  MetaRenderer *renderer;
+  MetaRendererNative *renderer_native;
   MetaKmsCrtc *crtc = NULL;
   GList *l;
   g_autoptr (MetaKmsUpdate) update = NULL;
-  g_autoptr (MetaKmsFeedback) feedback = NULL;
-  const GError *error;
 
   session = transition != 0 ?
     find_session_for_sender (broker, sender, session_id) : NULL;
@@ -695,6 +766,14 @@ handle_install_renderer_transition (MetaDBusCastKms       *object,
       g_dbus_method_invocation_return_error_literal (
         invocation, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
         "Invalid renderer transition request");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  if (session->pending_transition_request)
+    {
+      g_dbus_method_invocation_return_error_literal (
+        invocation, G_IO_ERROR, G_IO_ERROR_BUSY,
+        "A renderer transition is already pending for the display session");
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
@@ -717,25 +796,31 @@ handle_install_renderer_transition (MetaDBusCastKms       *object,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
+  request = g_new0 (MetaCastKmsRendererTransitionRequest, 1);
+  request->broker = g_object_ref (broker);
+  request->invocation = g_object_ref (invocation);
+  request->session_id = session_id;
+  request->sender = g_strdup (sender);
+  session->pending_transition_request = request;
+
   update = meta_kms_update_new (session->kms_device);
   meta_kms_update_set_castkms_transition (update, crtc, transition);
-  feedback = meta_kms_device_process_update_sync (session->kms_device,
-                                                  g_steal_pointer (&update),
-                                                  META_KMS_UPDATE_FLAG_NONE);
-  if (!meta_kms_feedback_did_pass (feedback))
-    {
-      error = meta_kms_feedback_get_error (feedback);
-      g_dbus_method_invocation_return_error (
-        invocation,
-        G_DBUS_ERROR,
-        G_DBUS_ERROR_FAILED,
-        "Failed to install renderer transition: %s",
-        error ? error->message : "unknown KMS error");
-      return G_DBUS_METHOD_INVOCATION_HANDLED;
-    }
+  meta_kms_update_add_result_listener (
+    update,
+    &renderer_transition_listener_vtable,
+    NULL,
+    request,
+    (GDestroyNotify) meta_cast_kms_renderer_transition_request_free);
 
-  meta_dbus_cast_kms_complete_install_renderer_transition (object,
-                                                           invocation);
+  renderer = meta_backend_get_renderer (META_BACKEND (broker->backend_native));
+  renderer_native = META_RENDERER_NATIVE (renderer);
+  meta_renderer_native_queue_crtc_update (renderer_native,
+                                          crtc,
+                                          g_steal_pointer (&update));
+  clutter_actor_queue_redraw (
+    CLUTTER_ACTOR (meta_backend_get_stage (META_BACKEND (
+      broker->backend_native))));
+
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
