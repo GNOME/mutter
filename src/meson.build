@@ -640,15 +640,6 @@ mutter_sources += [
   'wayland/meta-window-wayland.h',
 ]
 
-cast_kms_grant_policy_sources = [
-  'backends/native/meta-cast-kms-grant-policy.c',
-  'backends/native/meta-cast-kms-grant-policy.h',
-]
-
-cast_kms_grant_policy_files = files(cast_kms_grant_policy_sources)
-
-mutter_sources += cast_kms_grant_policy_sources
-
 mutter_sources += [
   'wayland/meta-wayland-drm-lease.c',
   'wayland/meta-wayland-drm-lease.h',
@@ -724,9 +715,6 @@ mutter_sources += [
   'backends/native/meta-kms-device-private.h',
   'backends/native/meta-kms-device.c',
   'backends/native/meta-kms-device.h',
-  'backends/native/meta-kms-cast-grant.c',
-  'backends/native/meta-kms-cast-grant.h',
-  'backends/native/meta-kms-cast-uapi.h',
   'backends/native/meta-drm-capture.h',
   'backends/native/meta-kms-capture-files.c',
   'backends/native/meta-kms-capture-files.h',
