@@ -20,6 +20,7 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-crtc-private.h"
 
+#include "backends/native/meta-drm-castkms.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-impl-device-atomic.h"
@@ -633,6 +634,12 @@ init_properties (MetaKmsCrtc       *crtc,
           .name = "PREPARE_FD",
           .type = DRM_MODE_PROP_SIGNED_RANGE,
           .default_value = UINT64_MAX,
+        },
+      [META_KMS_CRTC_PROP_CASTKMS_TRANSITION] =
+        {
+          .name = DRM_CASTKMS_TRANSITION_PROPERTY,
+          .type = DRM_MODE_PROP_RANGE,
+          .default_value = 0,
         },
       [META_KMS_CRTC_PROP_DEGAMMA_LUT] =
         {

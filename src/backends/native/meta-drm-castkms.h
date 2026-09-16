@@ -7,6 +7,7 @@
 #define DRM_CASTKMS_MONITOR_MAX_EDID_SIZE (256U * 128U)
 #define DRM_CASTKMS_RENDERER_VERSION 5
 
+#define DRM_CASTKMS_TRANSITION_PROPERTY "CASTKMS_TRANSITION"
 struct drm_castkms_create_monitor_control
 {
   __u32 connector_id;
