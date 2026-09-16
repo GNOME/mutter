@@ -26,6 +26,8 @@ meta_kms_execution_parse (const void *data,
   result.generation = description.generation;
   if (description.profile == DRM_CASTKMS_EXECUTION_HOST_V1)
     result.kind = META_KMS_EXECUTION_HOST;
+  else if (description.profile == DRM_CASTKMS_EXECUTION_GPU_V1)
+    result.kind = META_KMS_EXECUTION_GPU;
 
   return result;
 }

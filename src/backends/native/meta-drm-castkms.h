@@ -8,6 +8,8 @@
 #define DRM_CASTKMS_RENDERER_VERSION 8
 
 #define DRM_CASTKMS_TRANSITION_PROPERTY "CASTKMS_TRANSITION"
+#define DRM_CASTKMS_EXECUTION_PROPERTY "CASTKMS_EXECUTION"
+
 struct drm_castkms_create_monitor_control
 {
   __u32 connector_id;
@@ -72,11 +74,9 @@ struct drm_castkms_renderer_query
   DRM_IOR (DRM_COMMAND_BASE + DRM_CASTKMS_RENDERER_QUERY, \
            struct drm_castkms_renderer_query)
 
-#define DRM_CASTKMS_EXECUTION_PROPERTY "CASTKMS_EXECUTION"
-
-/* Experimental connector description, shared with the development kernel. */
 #define DRM_CASTKMS_EXECUTION_VERSION 1
 #define DRM_CASTKMS_EXECUTION_HOST_V1 1
+#define DRM_CASTKMS_EXECUTION_GPU_V1 2
 
 struct drm_castkms_execution
 {

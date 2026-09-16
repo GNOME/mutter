@@ -26,6 +26,21 @@ test_host_description (void)
 }
 
 static void
+test_gpu_description (void)
+{
+  struct drm_castkms_execution description = {
+    .version = DRM_CASTKMS_EXECUTION_VERSION,
+    .profile = DRM_CASTKMS_EXECUTION_GPU_V1,
+    .generation = 19,
+  };
+  MetaKmsExecution execution;
+
+  execution = meta_kms_execution_parse (&description, sizeof (description));
+  g_assert_cmpint (execution.kind, ==, META_KMS_EXECUTION_GPU);
+  g_assert_cmpuint (execution.generation, ==, 19);
+}
+
+static void
 test_invalid_description (void)
 {
   struct drm_castkms_execution description = {
@@ -73,6 +88,7 @@ main (int argc, char **argv)
 {
   g_test_init (&argc, &argv, NULL);
   g_test_add_func ("/backends/native/kms/execution/host", test_host_description);
+  g_test_add_func ("/backends/native/kms/execution/gpu", test_gpu_description);
   g_test_add_func ("/backends/native/kms/execution/invalid", test_invalid_description);
   g_test_add_func ("/backends/native/kms/execution/unknown", test_unknown_description);
   return g_test_run ();
