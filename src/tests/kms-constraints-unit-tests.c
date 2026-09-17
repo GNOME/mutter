@@ -24,6 +24,7 @@
 
 #include "backends/native/meta-drm-constraints.h"
 #include "backends/native/meta-kms-constraints-decoder.h"
+#include "backends/native/meta-kms-constraints-ioctl.h"
 #include "backends/native/meta-kms-constraints-list.h"
 #include "backends/native/meta-kms-constraints-query.h"
 #include "backends/native/meta-kms-constraints.h"
@@ -200,6 +201,66 @@ typedef struct _TestConstraintsQuery
   int result;
   unsigned int calls;
 } TestConstraintsQuery;
+
+typedef struct _TestConstraintsIoctl
+{
+  const void *snapshot;
+  uint32_t snapshot_size;
+  uint64_t generation;
+  int error_number;
+  gboolean malformed_result;
+  unsigned int calls;
+} TestConstraintsIoctl;
+
+static TestConstraintsIoctl constraints_ioctl;
+
+int __wrap_drmIoctl (int fd, unsigned long command, void *data);
+
+int
+__wrap_drmIoctl (int            fd,
+                 unsigned long  command,
+                 void          *data)
+{
+  struct drm_mode_list_constraints *request = data;
+
+  g_assert_cmpint (fd, ==, 41);
+  g_assert_cmpuint (command, ==, DRM_IOCTL_MODE_LIST_CONSTRAINTS);
+  g_assert_cmpuint (request->crtc_id, ==, 19);
+  g_assert_cmpuint (request->flags, ==, 0);
+  g_assert_cmpuint (request->pad, ==, 0);
+  g_assert_cmpuint (request->reserved[0], ==, 0);
+  g_assert_cmpuint (request->reserved[1], ==, 0);
+  constraints_ioctl.calls++;
+
+  if (constraints_ioctl.malformed_result)
+    return -2;
+
+  if (constraints_ioctl.error_number != 0)
+    {
+      errno = constraints_ioctl.error_number;
+      return -1;
+    }
+
+  if (request->data == 0)
+    {
+      g_assert_cmpuint (request->generation, ==, 0);
+      g_assert_cmpuint (request->size, ==, 0);
+    }
+  else
+    {
+      g_assert_cmpuint (request->generation, ==,
+                        constraints_ioctl.generation);
+      g_assert_cmpuint (request->size, >=,
+                        constraints_ioctl.snapshot_size);
+      memcpy ((void *) (uintptr_t) request->data,
+              constraints_ioctl.snapshot,
+              constraints_ioctl.snapshot_size);
+    }
+
+  request->generation = constraints_ioctl.generation;
+  request->size = constraints_ioctl.snapshot_size;
+  return 0;
+}
 
 static int
 query_constraints (gpointer  user_data,
@@ -1113,6 +1174,45 @@ meta_test_kms_constraints_query_rejects_bad_transport (void)
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
 }
 
+static void
+meta_test_kms_constraints_query_ioctl (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  constraints_ioctl = (TestConstraintsIoctl) {
+    .snapshot = &blob,
+    .snapshot_size = sizeof (blob),
+    .generation = blob.list.generation,
+  };
+  list = meta_kms_constraints_query_fd (41, 19, &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+  g_assert_cmpuint (constraints_ioctl.calls, ==, 2);
+  g_assert_cmpuint (meta_kms_constraints_list_get_generation (list), ==,
+                    blob.list.generation);
+
+  g_clear_pointer (&list, meta_kms_constraints_list_unref);
+  constraints_ioctl = (TestConstraintsIoctl) {
+    .error_number = EACCES,
+  };
+  list = meta_kms_constraints_query_fd (41, 19, &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED);
+
+  g_clear_error (&error);
+  constraints_ioctl = (TestConstraintsIoctl) {
+    .malformed_result = TRUE,
+  };
+  errno = EACCES;
+  list = meta_kms_constraints_query_fd (41, 19, &error);
+  g_assert_null (list);
+  g_assert_error (error,
+                  G_IO_ERROR,
+                  g_io_error_from_errno (EPROTO));
+}
+
 int
 main (int    argc,
       char **argv)
@@ -1152,5 +1252,7 @@ main (int    argc,
                    meta_test_kms_constraints_query_retries_changes);
   g_test_add_func ("/backends/native/kms/constraints/query-rejects-transport",
                    meta_test_kms_constraints_query_rejects_bad_transport);
+  g_test_add_func ("/backends/native/kms/constraints/query-ioctl",
+                   meta_test_kms_constraints_query_ioctl);
   return g_test_run ();
 }
