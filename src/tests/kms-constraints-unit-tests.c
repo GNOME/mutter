@@ -1071,6 +1071,45 @@ meta_test_kms_constraints_decode_skip_unsupported (void)
 }
 
 static void
+assert_constraints_decode_result_is_coherent (const void *data,
+                                              size_t      size)
+{
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  list = meta_kms_constraints_decode (data, size, &error);
+  if (list)
+    g_assert_no_error (error);
+  else
+    g_assert_nonnull (error);
+}
+
+static void
+meta_test_kms_constraints_decode_mutations (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  size_t offset;
+
+  for (offset = 0; offset < sizeof (blob); offset++)
+    {
+      unsigned int bit;
+
+      for (bit = 0; bit < 8; bit++)
+        {
+          TestConstraintsBlob mutated = blob;
+          uint8_t *bytes = (uint8_t *) &mutated;
+
+          bytes[offset] ^= 1U << bit;
+          assert_constraints_decode_result_is_coherent (&mutated,
+                                                        sizeof (mutated));
+        }
+    }
+
+  for (offset = 0; offset < sizeof (blob); offset++)
+    assert_constraints_decode_result_is_coherent (&blob, offset);
+}
+
+static void
 meta_test_kms_constraints_query (void)
 {
   TestConstraintsBlob blob = create_constraints_blob ();
@@ -1339,6 +1378,8 @@ main (int    argc,
   g_test_add_func (
     "/backends/native/kms/constraints/decode-skip-unsupported",
     meta_test_kms_constraints_decode_skip_unsupported);
+  g_test_add_func ("/backends/native/kms/constraints/decode-mutations",
+                   meta_test_kms_constraints_decode_mutations);
   g_test_add_func ("/backends/native/kms/constraints/query",
                    meta_test_kms_constraints_query);
   g_test_add_func ("/backends/native/kms/constraints/query-retries-changes",
