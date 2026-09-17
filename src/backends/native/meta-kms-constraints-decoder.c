@@ -290,8 +290,9 @@ decode_description (const uint8_t                *data,
             if (n_properties == property_capacity)
               goto invalid;
             memcpy (&wire, data + offset, sizeof (wire));
-            if (wire.pad != 0)
-              goto invalid;
+            if (wire.applicability_flags &
+                ~DRM_MODE_CONSTRAINTS_PROPERTY_PLANE_YUV)
+              return DECODE_RESULT_UNSUPPORTED;
             if (wire.type != DRM_MODE_PROP_RANGE &&
                 wire.type != DRM_MODE_PROP_SIGNED_RANGE &&
                 wire.type != DRM_MODE_PROP_ENUM &&
@@ -301,6 +302,9 @@ decode_description (const uint8_t                *data,
               .object_id = wire.object_id,
               .property_id = wire.property_id,
               .type = wire.type,
+              .applies_to_yuv_plane =
+                !!(wire.applicability_flags &
+                   DRM_MODE_CONSTRAINTS_PROPERTY_PLANE_YUV),
               .minimum = wire.minimum,
               .maximum = wire.maximum,
               .mask = wire.mask,

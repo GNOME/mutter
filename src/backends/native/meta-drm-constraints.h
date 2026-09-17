@@ -28,6 +28,7 @@
 #define DRM_MODE_CONSTRAINTS_GEOMETRY_CROP (1U << 0)
 #define DRM_MODE_CONSTRAINTS_GEOMETRY_FRACTIONAL_SOURCE (1U << 1)
 #define DRM_MODE_CONSTRAINTS_GEOMETRY_POSITION (1U << 2)
+#define DRM_MODE_CONSTRAINTS_PROPERTY_PLANE_YUV (1U << 0)
 
 #define DRM_CLIENT_CAP_KMS_CONSTRAINTS 9
 
@@ -139,7 +140,7 @@ struct drm_mode_constraints_property
   __u32 object_id;
   __u32 property_id;
   __u32 type;
-  __u32 pad;
+  __u32 applicability_flags;
   __aligned_u64 minimum;
   __aligned_u64 maximum;
   __aligned_u64 mask;

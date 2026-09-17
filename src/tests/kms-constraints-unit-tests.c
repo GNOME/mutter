@@ -1247,6 +1247,7 @@ meta_test_kms_constraints_decode (void)
   g_assert_cmpuint (decoded_properties[0].object_id, ==, 7);
   g_assert_cmpuint (decoded_properties[0].property_id, ==, 8);
   g_assert_cmpuint (decoded_properties[0].type, ==, DRM_MODE_PROP_RANGE);
+  g_assert_false (decoded_properties[0].applies_to_yuv_plane);
   g_assert_true (meta_kms_constraints_property_matches (&decoded_properties[0],
                                                         1));
   g_assert_true (meta_kms_constraints_property_matches (&decoded_properties[0],
@@ -1386,6 +1387,13 @@ meta_test_kms_constraints_decode_reject_malformed (void)
   g_clear_error (&error);
   blob = create_constraints_blob ();
   blob.property.type = G_MAXUINT32;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.property.applicability_flags = 2;
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
   g_assert_null (list);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
@@ -1702,6 +1710,8 @@ meta_test_kms_constraints_target (void)
   };
 
   blob.payloads[1].extension.flags = 0;
+  blob.payloads[1].property.applicability_flags =
+    DRM_MODE_CONSTRAINTS_PROPERTY_PLANE_YUV;
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
   g_assert_no_error (error);
   g_assert_nonnull (list);
@@ -1767,14 +1777,22 @@ meta_test_kms_constraints_target (void)
   g_assert_true (meta_kms_constraints_target_allows_property (target,
                                                               7,
                                                               8,
+                                                              TRUE,
                                                               2));
   g_assert_false (meta_kms_constraints_target_allows_property (target,
                                                                7,
                                                                8,
+                                                               TRUE,
                                                                5));
   g_assert_true (meta_kms_constraints_target_allows_property (target,
                                                               7,
+                                                              8,
+                                                              FALSE,
+                                                              5));
+  g_assert_true (meta_kms_constraints_target_allows_property (target,
+                                                              7,
                                                               99,
+                                                              FALSE,
                                                               G_MAXUINT64));
   g_assert_true (meta_kms_constraints_target_allows_active_planes (
                    target,

@@ -87,6 +87,7 @@ gboolean meta_kms_constraints_target_allows_property (
   const MetaKmsConstraintsTarget *target,
   uint32_t                        object_id,
   uint32_t                        property_id,
+  gboolean                        uses_yuv_framebuffer,
   uint64_t                        value);
 
 gboolean meta_kms_constraints_target_allows_active_planes (

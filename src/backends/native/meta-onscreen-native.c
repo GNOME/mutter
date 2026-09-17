@@ -214,10 +214,13 @@ get_constraints_description (MetaOnscreenNative *onscreen_native)
 static gboolean
 constraints_allow_drm_plane_property (MetaOnscreenNative *onscreen_native,
                                       MetaKmsPlane       *plane,
+                                      MetaDrmBuffer      *buffer,
                                       MetaKmsPlaneProp    property,
                                       uint64_t            value)
 {
+  const MetaFormatInfo *format_info;
   uint32_t property_id;
+  gboolean uses_yuv_framebuffer;
 
   if (!onscreen_native->constraints_target)
     return TRUE;
@@ -226,10 +229,22 @@ constraints_allow_drm_plane_property (MetaOnscreenNative *onscreen_native,
   if (property_id == 0)
     return TRUE;
 
+  uses_yuv_framebuffer = TRUE;
+  if (buffer)
+    {
+      format_info = meta_format_info_from_drm_format (
+        meta_drm_buffer_get_format (buffer));
+      if (format_info)
+        uses_yuv_framebuffer =
+          format_info->multi_texture_format != META_MULTI_TEXTURE_FORMAT_INVALID &&
+          format_info->multi_texture_format != META_MULTI_TEXTURE_FORMAT_SIMPLE;
+    }
+
   return meta_kms_constraints_target_allows_property (
     onscreen_native->constraints_target,
     meta_kms_plane_get_id (plane),
     property_id,
+    uses_yuv_framebuffer,
     value);
 }
 
@@ -878,7 +893,8 @@ apply_transform (MetaOnscreenNative     *onscreen_native,
 
 static gboolean
 color_encoding_is_compatible (MetaOnscreenNative *onscreen_native,
-                              MetaKmsPlane       *kms_plane)
+                              MetaKmsPlane       *kms_plane,
+                              MetaDrmBuffer      *buffer)
 {
   if (!meta_kms_plane_is_color_encoding_handled (
         kms_plane,
@@ -888,6 +904,7 @@ color_encoding_is_compatible (MetaOnscreenNative *onscreen_native,
   return constraints_allow_drm_plane_property (
     onscreen_native,
     kms_plane,
+    buffer,
     META_KMS_PLANE_PROP_YCBCR_COLOR_ENCODING,
     meta_kms_plane_get_prop_drm_value (
       kms_plane,
@@ -898,11 +915,12 @@ color_encoding_is_compatible (MetaOnscreenNative *onscreen_native,
 static void
 apply_color_encoding (MetaOnscreenNative     *onscreen_native,
                       MetaKmsPlaneAssignment *kms_plane_assignment,
-                      MetaKmsPlane           *kms_plane)
+                      MetaKmsPlane           *kms_plane,
+                      MetaDrmBuffer          *buffer)
 {
   if (!meta_kms_plane_is_color_encoding_handled (kms_plane,
                                                  META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT709) ||
-      !color_encoding_is_compatible (onscreen_native, kms_plane))
+      !color_encoding_is_compatible (onscreen_native, kms_plane, buffer))
     return;
 
   meta_kms_plane_update_set_color_encoding (kms_plane,
@@ -912,7 +930,8 @@ apply_color_encoding (MetaOnscreenNative     *onscreen_native,
 
 static gboolean
 color_range_is_compatible (MetaOnscreenNative *onscreen_native,
-                           MetaKmsPlane       *kms_plane)
+                           MetaKmsPlane       *kms_plane,
+                           MetaDrmBuffer      *buffer)
 {
   if (!meta_kms_plane_is_color_range_handled (
         kms_plane,
@@ -922,6 +941,7 @@ color_range_is_compatible (MetaOnscreenNative *onscreen_native,
   return constraints_allow_drm_plane_property (
     onscreen_native,
     kms_plane,
+    buffer,
     META_KMS_PLANE_PROP_YCBCR_COLOR_RANGE,
     meta_kms_plane_get_prop_drm_value (
       kms_plane,
@@ -932,11 +952,12 @@ color_range_is_compatible (MetaOnscreenNative *onscreen_native,
 static void
 apply_color_range (MetaOnscreenNative     *onscreen_native,
                    MetaKmsPlaneAssignment *kms_plane_assignment,
-                   MetaKmsPlane           *kms_plane)
+                   MetaKmsPlane           *kms_plane,
+                   MetaDrmBuffer          *buffer)
 {
   if (!meta_kms_plane_is_color_range_handled (kms_plane,
                                               META_KMS_PLANE_YCBCR_COLOR_RANGE_LIMITED) ||
-      !color_range_is_compatible (onscreen_native, kms_plane))
+      !color_range_is_compatible (onscreen_native, kms_plane, buffer))
     return;
 
   meta_kms_plane_update_set_color_range (kms_plane,
@@ -996,10 +1017,12 @@ assign_primary_plane (MetaCrtcKms            *crtc_kms,
                    primary_kms_plane);
   apply_color_encoding (onscreen_native,
                         plane_assignment,
-                        primary_kms_plane);
+                        primary_kms_plane,
+                        buffer);
   apply_color_range (onscreen_native,
                      plane_assignment,
-                     primary_kms_plane);
+                     primary_kms_plane,
+                     buffer);
 
   return plane_assignment;
 }
@@ -2437,9 +2460,11 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
   if (!meta_onscreen_native_is_transform_handled (onscreen_native,
                                                    crtc_config->transform))
     return FALSE;
-  if (!color_encoding_is_compatible (onscreen_native, primary_plane))
+
+  buffer = META_DRM_BUFFER (cogl_scanout_get_buffer (scanout));
+  if (!color_encoding_is_compatible (onscreen_native, primary_plane, buffer))
     return FALSE;
-  if (!color_range_is_compatible (onscreen_native, primary_plane))
+  if (!color_range_is_compatible (onscreen_native, primary_plane, buffer))
     return FALSE;
 
   test_update = meta_kms_update_new (kms_device);
@@ -2448,7 +2473,6 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
   cogl_scanout_get_src_rect (scanout, &src_rect);
   cogl_scanout_get_dst_rect (scanout, &dst_rect);
 
-  buffer = META_DRM_BUFFER (cogl_scanout_get_buffer (scanout));
   if (onscreen_native->constraints_target &&
       (!onscreen_native->constraints_allow_imported_storage ||
        !constraints_allow_buffer_layout (
@@ -4066,6 +4090,7 @@ meta_onscreen_native_is_transform_handled (
 
   return constraints_allow_drm_plane_property (onscreen_native,
                                                plane,
+                                               NULL,
                                                META_KMS_PLANE_PROP_ROTATION,
                                                drm_rotation);
 }

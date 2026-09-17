@@ -60,6 +60,7 @@ typedef struct _MetaKmsConstraintsProperty
   uint32_t object_id;
   uint32_t property_id;
   uint32_t type;
+  gboolean applies_to_yuv_plane;
   uint64_t minimum;
   uint64_t maximum;
   uint64_t mask;
