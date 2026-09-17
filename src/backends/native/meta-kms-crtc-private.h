@@ -49,6 +49,9 @@ MetaKmsResourceChanges meta_kms_crtc_refresh_constraints_in_impl (
   uint64_t     generation,
   gboolean     is_closed);
 
+MetaKmsResourceChanges meta_kms_crtc_reload_constraints_in_impl (
+  MetaKmsCrtc *crtc);
+
 void meta_kms_crtc_disable_in_impl (MetaKmsCrtc *crtc);
 
 void meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,

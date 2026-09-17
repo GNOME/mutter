@@ -573,32 +573,15 @@ out:
 }
 
 MetaKmsResourceChanges
-meta_kms_crtc_refresh_constraints_in_impl (MetaKmsCrtc *crtc,
-                                           uint64_t     generation,
-                                           gboolean     is_closed)
+meta_kms_crtc_reload_constraints_in_impl (MetaKmsCrtc *crtc)
 {
   MetaKmsImplDevice *impl_device;
   g_autoptr (MetaKmsConstraintsList) constraints_list = NULL;
   g_autoptr (GError) error = NULL;
-  uint64_t old_generation = 0;
 
   impl_device = meta_kms_device_get_impl_device (crtc->device);
 
   if (!crtc->current_state.constraints.supported)
-    return META_KMS_RESOURCE_CHANGE_NONE;
-
-  if (crtc->constraints_list)
-    old_generation =
-      meta_kms_constraints_list_get_generation (crtc->constraints_list);
-
-  if (is_closed)
-    {
-      g_clear_pointer (&crtc->constraints_list,
-                       meta_kms_constraints_list_unref);
-      return META_KMS_RESOURCE_CHANGE_FULL;
-    }
-
-  if (generation <= old_generation)
     return META_KMS_RESOURCE_CHANGE_NONE;
 
   constraints_list =
@@ -621,6 +604,33 @@ meta_kms_crtc_refresh_constraints_in_impl (MetaKmsCrtc *crtc,
   crtc->constraints_list = g_steal_pointer (&constraints_list);
 
   return META_KMS_RESOURCE_CHANGE_FULL;
+}
+
+MetaKmsResourceChanges
+meta_kms_crtc_refresh_constraints_in_impl (MetaKmsCrtc *crtc,
+                                           uint64_t     generation,
+                                           gboolean     is_closed)
+{
+  uint64_t old_generation = 0;
+
+  if (!crtc->current_state.constraints.supported)
+    return META_KMS_RESOURCE_CHANGE_NONE;
+
+  if (crtc->constraints_list)
+    old_generation =
+      meta_kms_constraints_list_get_generation (crtc->constraints_list);
+
+  if (is_closed)
+    {
+      g_clear_pointer (&crtc->constraints_list,
+                       meta_kms_constraints_list_unref);
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
+
+  if (generation <= old_generation)
+    return META_KMS_RESOURCE_CHANGE_NONE;
+
+  return meta_kms_crtc_reload_constraints_in_impl (crtc);
 }
 
 void
