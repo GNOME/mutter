@@ -458,8 +458,12 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
                       crtc->id,
                       error->message);
           if (crtc->constraints_list)
-            constraints_list =
-              meta_kms_constraints_list_ref (crtc->constraints_list);
+            {
+              constraints_list =
+                meta_kms_constraints_list_ref (crtc->constraints_list);
+              crtc_state.constraints.id =
+                meta_kms_constraints_list_get_selected_id (constraints_list);
+            }
         }
     }
 
