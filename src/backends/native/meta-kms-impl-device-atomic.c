@@ -1694,7 +1694,7 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
       {
         caps->constraints_enabled = TRUE;
       }
-    else if (errno != EOPNOTSUPP)
+    else if (errno != EINVAL && errno != EOPNOTSUPP)
       {
         g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
                      "Enabling KMS constraints: %s", g_strerror (errno));
