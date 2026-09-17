@@ -1192,6 +1192,16 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
 {
   g_return_if_fail (update->device == other_update->device);
 
+  if (!other_update->is_latchable)
+    {
+      update->is_latchable = FALSE;
+      update->latch_crtc = NULL;
+    }
+  else if (other_update->latch_crtc)
+    {
+      update_latch_crtc (update, other_update->latch_crtc);
+    }
+
   g_clear_pointer (&update->preparation, meta_kms_preparation_free);
   g_clear_pointer (&other_update->preparation, meta_kms_preparation_free);
 
