@@ -59,6 +59,11 @@ meta_kms_constraints_description_new (
   size_t                            n_properties,
   GError                          **error);
 
+MetaKmsConstraintsDescription *
+meta_kms_constraints_description_copy (
+  const MetaKmsConstraintsDescription *description,
+  GError                             **error);
+
 void meta_kms_constraints_description_free (
   MetaKmsConstraintsDescription *description);
 

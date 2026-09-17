@@ -707,6 +707,7 @@ test_cases += [
     'sources': [
       'kms-constraints-unit-tests.c',
       '../backends/native/meta-kms-constraints.c',
+      '../backends/native/meta-kms-constraints-list.c',
     ],
   },
   {

@@ -215,6 +215,19 @@ meta_kms_constraints_description_new (
   return description;
 }
 
+MetaKmsConstraintsDescription *
+meta_kms_constraints_description_copy (
+  const MetaKmsConstraintsDescription *description,
+  GError                             **error)
+{
+  return meta_kms_constraints_description_new (&description->output,
+                                                description->formats,
+                                                description->n_formats,
+                                                description->properties,
+                                                description->n_properties,
+                                                error);
+}
+
 void
 meta_kms_constraints_description_free (
   MetaKmsConstraintsDescription *description)

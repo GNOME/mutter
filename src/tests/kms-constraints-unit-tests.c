@@ -21,6 +21,7 @@
 #include <gio/gio.h>
 #include <xf86drmMode.h>
 
+#include "backends/native/meta-kms-constraints-list.h"
 #include "backends/native/meta-kms-constraints.h"
 
 #define TEST_FORMAT_MODIFIER UINT64_C (1)
@@ -376,6 +377,126 @@ meta_test_kms_constraints_reject_invalid (void)
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
 }
 
+static void
+meta_test_kms_constraints_list (void)
+{
+  g_autoptr (MetaKmsConstraintsDescription) first =
+    create_description (NULL, 0);
+  g_autoptr (MetaKmsConstraintsDescription) second =
+    create_description (NULL, 0);
+  MetaKmsConstraintsListEntrySpec entries[] = {
+    {
+      .id = 5,
+      .selectable = FALSE,
+      .description = first,
+    },
+    {
+      .id = 9,
+      .selectable = TRUE,
+      .description = second,
+    },
+  };
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+  const MetaKmsConstraintsListEntry *stored_entry;
+
+  list = meta_kms_constraints_list_new (17,
+                                        5,
+                                        9,
+                                        entries,
+                                        G_N_ELEMENTS (entries),
+                                        &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+
+  g_clear_pointer (&first, meta_kms_constraints_description_free);
+  g_clear_pointer (&second, meta_kms_constraints_description_free);
+
+  g_assert_cmpuint (meta_kms_constraints_list_get_generation (list), ==, 17);
+  g_assert_cmpuint (meta_kms_constraints_list_get_selected_id (list), ==, 5);
+  g_assert_cmpuint (meta_kms_constraints_list_get_suggested_id (list), ==, 9);
+
+  g_assert_cmpuint (meta_kms_constraints_list_get_n_entries (list), ==, 2);
+  stored_entry = meta_kms_constraints_list_get_entry (list, 0);
+  g_assert_cmpuint (meta_kms_constraints_list_entry_get_id (stored_entry),
+                    ==,
+                    5);
+  g_assert_false (meta_kms_constraints_list_entry_is_selectable (stored_entry));
+  g_assert_cmpuint (
+    meta_kms_constraints_description_get_output (
+      meta_kms_constraints_list_entry_get_description (
+        stored_entry))->max_width,
+    ==,
+    output_size.max_width);
+
+  stored_entry = meta_kms_constraints_list_find_entry (list, 9);
+  g_assert_true (meta_kms_constraints_list_entry_is_selectable (stored_entry));
+  g_assert_null (meta_kms_constraints_list_find_entry (list, 10));
+}
+
+static void
+meta_test_kms_constraints_list_reject_invalid (void)
+{
+  g_autoptr (MetaKmsConstraintsDescription) first =
+    create_description (NULL, 0);
+  g_autoptr (MetaKmsConstraintsDescription) second =
+    create_description (NULL, 0);
+  MetaKmsConstraintsListEntrySpec entries[] = {
+    {
+      .id = 5,
+      .selectable = TRUE,
+      .description = first,
+    },
+    {
+      .id = 9,
+      .selectable = FALSE,
+      .description = second,
+    },
+  };
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  list = meta_kms_constraints_list_new (0,
+                                        5,
+                                        0,
+                                        entries,
+                                        G_N_ELEMENTS (entries),
+                                        &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  list = meta_kms_constraints_list_new (1,
+                                        7,
+                                        0,
+                                        entries,
+                                        G_N_ELEMENTS (entries),
+                                        &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  list = meta_kms_constraints_list_new (1,
+                                        5,
+                                        9,
+                                        entries,
+                                        G_N_ELEMENTS (entries),
+                                        &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  entries[1].id = 5;
+  g_clear_error (&error);
+  list = meta_kms_constraints_list_new (1,
+                                        5,
+                                        0,
+                                        entries,
+                                        G_N_ELEMENTS (entries),
+                                        &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -391,5 +512,9 @@ main (int    argc,
                    meta_test_kms_constraints_owns_description);
   g_test_add_func ("/backends/native/kms/constraints/reject-invalid",
                    meta_test_kms_constraints_reject_invalid);
+  g_test_add_func ("/backends/native/kms/constraints/list",
+                   meta_test_kms_constraints_list);
+  g_test_add_func ("/backends/native/kms/constraints/list-reject-invalid",
+                   meta_test_kms_constraints_list_reject_invalid);
   return g_test_run ();
 }
