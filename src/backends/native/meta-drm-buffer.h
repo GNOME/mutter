@@ -73,3 +73,5 @@ int meta_drm_buffer_get_offset_for_plane (MetaDrmBuffer *buffer,
                                           int            plane);
 
 uint64_t meta_drm_buffer_get_modifier (MetaDrmBuffer *buffer);
+
+gboolean meta_drm_buffer_uses_explicit_modifiers (MetaDrmBuffer *buffer);

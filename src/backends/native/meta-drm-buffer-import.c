@@ -171,33 +171,88 @@ import_gbm_buffer (MetaDrmBufferImport  *buffer_import,
   MetaDrmFbArgs fb_args = { 0, };
   struct gbm_bo *primary_bo;
   struct gbm_bo *imported_bo;
-  int dmabuf_fd;
+  int dmabuf_fds[GBM_MAX_PLANES] = { -1, -1, -1, -1 };
+  int n_planes;
+  int i;
+  gboolean use_modifiers;
   gboolean ret;
 
   primary_bo = meta_drm_buffer_gbm_get_bo (buffer_import->importee);
-
-  dmabuf_fd = gbm_bo_get_fd (primary_bo);
-  if (dmabuf_fd == -1)
+  n_planes = gbm_bo_get_plane_count (primary_bo);
+  if (n_planes < 1 || n_planes > GBM_MAX_PLANES)
     {
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "getting dmabuf fd failed");
+      g_set_error_literal (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_SUPPORTED,
+                           "Unsupported DMA buffer plane count");
+      return FALSE;
+    }
+  use_modifiers = meta_drm_buffer_uses_explicit_modifiers (
+    META_DRM_BUFFER (buffer_import->importee));
+  if (!use_modifiers && n_planes != 1)
+    {
+      g_set_error_literal (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_SUPPORTED,
+                           "Implicit DMA buffer has multiple planes");
       return FALSE;
     }
 
-  fb_args.strides[0] = gbm_bo_get_stride (primary_bo);
   fb_args.width = gbm_bo_get_width (primary_bo);
   fb_args.height = gbm_bo_get_height (primary_bo);
   fb_args.format = gbm_bo_get_format (primary_bo);
-  fb_args.handle = gbm_bo_get_handle (primary_bo).u32;
+  for (i = 0; i < n_planes; i++)
+    {
+      dmabuf_fds[i] = use_modifiers ?
+        gbm_bo_get_fd_for_plane (primary_bo, i) :
+        gbm_bo_get_fd (primary_bo);
+      if (dmabuf_fds[i] < 0)
+        {
+          g_set_error (error,
+                       G_IO_ERROR,
+                       G_IO_ERROR_FAILED,
+                       "getting DMA buffer plane %d fd failed",
+                       i);
+          ret = FALSE;
+          goto out_close;
+        }
 
-  imported_bo = dmabuf_to_gbm_bo (importer,
-                                  dmabuf_fd,
-                                  fb_args.width,
-                                  fb_args.height,
-                                  fb_args.strides[0],
-                                  fb_args.format);
+      fb_args.strides[i] = gbm_bo_get_stride_for_plane (primary_bo, i);
+      fb_args.offsets[i] = gbm_bo_get_offset (primary_bo, i);
+      fb_args.modifiers[i] = gbm_bo_get_modifier (primary_bo);
+    }
+
+  if (use_modifiers)
+    {
+      struct gbm_import_fd_modifier_data data = {
+        .width = fb_args.width,
+        .height = fb_args.height,
+        .format = fb_args.format,
+        .num_fds = n_planes,
+        .modifier = fb_args.modifiers[0],
+      };
+
+      for (i = 0; i < n_planes; i++)
+        {
+          data.fds[i] = dmabuf_fds[i];
+          data.strides[i] = fb_args.strides[i];
+          data.offsets[i] = fb_args.offsets[i];
+        }
+
+      imported_bo = gbm_bo_import (importer,
+                                   GBM_BO_IMPORT_FD_MODIFIER,
+                                   &data,
+                                   GBM_BO_USE_SCANOUT);
+    }
+  else
+    {
+      imported_bo = dmabuf_to_gbm_bo (importer,
+                                      dmabuf_fds[0],
+                                      fb_args.width,
+                                      fb_args.height,
+                                      fb_args.strides[0],
+                                      fb_args.format);
+    }
   if (!imported_bo)
     {
       g_set_error (error,
@@ -208,7 +263,11 @@ import_gbm_buffer (MetaDrmBufferImport  *buffer_import,
       goto out_close;
     }
 
-  fb_args.handles[0] = gbm_bo_get_handle (imported_bo).u32;
+  for (i = 0; i < n_planes; i++)
+    fb_args.handles[i] = use_modifiers ?
+      gbm_bo_get_handle_for_plane (imported_bo, i).u32 :
+      gbm_bo_get_handle (imported_bo).u32;
+  fb_args.handle = fb_args.handles[0];
 
   ret = meta_drm_buffer_do_ensure_fb_id (META_DRM_BUFFER (buffer_import),
                                          &fb_args,
@@ -217,7 +276,11 @@ import_gbm_buffer (MetaDrmBufferImport  *buffer_import,
   gbm_bo_destroy (imported_bo);
 
 out_close:
-  close (dmabuf_fd);
+  for (i = 0; i < n_planes; i++)
+    {
+      if (dmabuf_fds[i] >= 0)
+        close (dmabuf_fds[i]);
+    }
 
   return ret;
 }
@@ -232,7 +295,11 @@ meta_drm_buffer_import_new (MetaDeviceFile     *device_file,
 
   buffer_import = g_object_new (META_TYPE_DRM_BUFFER_IMPORT,
                                 "device-file", device_file,
-                                "flags", META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS,
+                                "flags",
+                                meta_drm_buffer_uses_explicit_modifiers (
+                                  META_DRM_BUFFER (buffer_gbm)) ?
+                                  META_DRM_BUFFER_FLAG_NONE :
+                                  META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS,
                                 NULL);
   g_set_object (&buffer_import->importee, buffer_gbm);
 

@@ -283,6 +283,14 @@ meta_drm_buffer_get_modifier (MetaDrmBuffer *buffer)
   return META_DRM_BUFFER_GET_CLASS (buffer)->get_modifier (buffer);
 }
 
+gboolean
+meta_drm_buffer_uses_explicit_modifiers (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
+
+  return !(priv->flags & META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS);
+}
+
 static void
 meta_drm_buffer_get_property (GObject    *object,
                               guint       prop_id,
