@@ -1214,8 +1214,7 @@ meta_kms_impl_device_atomic_prepare_update (MetaKmsImplDevice  *impl_device,
   if (!atomic->preparation_enabled)
     return TRUE;
 
-  if (meta_kms_update_get_needs_modeset (update) ||
-      !meta_kms_update_get_latch_crtc (update))
+  if (!meta_kms_update_get_latch_crtc (update))
     {
       for (l = meta_kms_impl_device_peek_crtcs (impl_device); l; l = l->next)
         {
