@@ -88,3 +88,8 @@ gboolean meta_kms_constraints_target_allows_property (
   uint32_t                        object_id,
   uint32_t                        property_id,
   uint64_t                        value);
+
+gboolean meta_kms_constraints_target_allows_active_planes (
+  const MetaKmsConstraintsTarget *target,
+  const uint32_t                 *plane_ids,
+  size_t                          n_plane_ids);

@@ -247,3 +247,55 @@ meta_kms_constraints_target_allows_property (
                                                               property_id);
   return !property || meta_kms_constraints_property_matches (property, value);
 }
+
+static gboolean
+plane_id_is_active (const uint32_t *plane_ids,
+                    size_t          n_plane_ids,
+                    uint32_t        plane_id)
+{
+  size_t i;
+
+  for (i = 0; i < n_plane_ids; i++)
+    {
+      if (plane_ids[i] == plane_id)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+gboolean
+meta_kms_constraints_target_allows_active_planes (
+  const MetaKmsConstraintsTarget *target,
+  const uint32_t                 *plane_ids,
+  size_t                          n_plane_ids)
+{
+  const MetaKmsConstraintsDescription *description =
+    meta_kms_constraints_target_get_description (target);
+  const MetaKmsConstraintsPlaneLimit *limits;
+  size_t n_limits;
+  size_t i;
+
+  g_return_val_if_fail (n_plane_ids == 0 || plane_ids != NULL, FALSE);
+
+  limits = meta_kms_constraints_description_get_plane_limits (description,
+                                                               &n_limits);
+  for (i = 0; i < n_limits; i++)
+    {
+      size_t n_active = 0;
+      size_t j;
+
+      for (j = 0; j < limits[i].n_plane_ids; j++)
+        {
+          if (plane_id_is_active (plane_ids,
+                                  n_plane_ids,
+                                  limits[i].plane_ids[j]))
+            n_active++;
+        }
+
+      if (n_active > limits[i].max_active)
+        return FALSE;
+    }
+
+  return TRUE;
+}

@@ -1547,6 +1547,9 @@ meta_test_kms_constraints_target (void)
     TEST_FORMAT_MODIFIER,
     UINT64_C (2),
   };
+  const uint32_t primary_plane[] = { 7 };
+  const uint32_t primary_and_cursor_planes[] = { 7, 9 };
+  const uint32_t unrelated_planes[] = { 11, 12 };
 
   blob.payloads[1].extension.flags = 0;
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
@@ -1618,6 +1621,18 @@ meta_test_kms_constraints_target (void)
                                                               7,
                                                               99,
                                                               G_MAXUINT64));
+  g_assert_true (meta_kms_constraints_target_allows_active_planes (
+                   target,
+                   primary_plane,
+                   G_N_ELEMENTS (primary_plane)));
+  g_assert_false (meta_kms_constraints_target_allows_active_planes (
+                    target,
+                    primary_and_cursor_planes,
+                    G_N_ELEMENTS (primary_and_cursor_planes)));
+  g_assert_true (meta_kms_constraints_target_allows_active_planes (
+                   target,
+                   unrelated_planes,
+                   G_N_ELEMENTS (unrelated_planes)));
 
   g_clear_pointer (&target, meta_kms_constraints_target_free);
   blob.entries[1].flags = 0;

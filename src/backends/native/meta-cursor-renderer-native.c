@@ -655,8 +655,31 @@ create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
 }
 
 static gboolean
+constraints_target_allows_cursor_plane_set (
+  MetaKmsConstraintsTarget *target,
+  MetaCrtcKms              *crtc_kms)
+{
+  MetaKmsPlane *primary_plane;
+  MetaKmsPlane *cursor_plane;
+  uint32_t plane_ids[2];
+
+  primary_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+  cursor_plane = meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
+  if (!primary_plane || !cursor_plane)
+    return FALSE;
+
+  plane_ids[0] = meta_kms_plane_get_id (primary_plane);
+  plane_ids[1] = meta_kms_plane_get_id (cursor_plane);
+
+  return meta_kms_constraints_target_allows_active_planes (
+    target,
+    plane_ids,
+    G_N_ELEMENTS (plane_ids));
+}
+
+static gboolean
 constraints_target_allows_cursor_buffer (MetaKmsConstraintsList *list,
-                                         MetaKmsPlane           *kms_plane,
+                                         MetaCrtcKms            *crtc_kms,
                                          uint64_t                target_id,
                                          uint32_t                format,
                                          MetaKmsConstraintsStorage storage,
@@ -665,6 +688,11 @@ constraints_target_allows_cursor_buffer (MetaKmsConstraintsList *list,
 {
   g_autoptr (MetaKmsConstraintsTarget) target = NULL;
   g_autoptr (GError) error = NULL;
+  MetaKmsPlane *cursor_plane;
+
+  cursor_plane = meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
+  if (!cursor_plane)
+    return FALSE;
 
   target = meta_kms_constraints_target_new (list, target_id, &error);
   if (!target)
@@ -677,39 +705,45 @@ constraints_target_allows_cursor_buffer (MetaKmsConstraintsList *list,
 
   return meta_kms_constraints_target_allows_format (
            target,
-           meta_kms_plane_get_id (kms_plane),
+           meta_kms_plane_get_id (cursor_plane),
            format,
            storage,
            width,
            height) &&
          meta_kms_constraints_target_allows_implicit_layout (
            target,
-           meta_kms_plane_get_id (kms_plane),
+           meta_kms_plane_get_id (cursor_plane),
            format,
            storage,
            width,
-           height);
+           height) &&
+         constraints_target_allows_cursor_plane_set (target, crtc_kms);
 }
 
 static gboolean
 constraints_target_allows_cursor_layout (MetaKmsConstraintsList   *list,
-                                         MetaKmsPlane             *kms_plane,
+                                         MetaCrtcKms              *crtc_kms,
                                          uint64_t                  target_id,
                                          MetaDrmBuffer            *buffer,
                                          MetaKmsConstraintsStorage storage)
 {
   g_autoptr (MetaKmsConstraintsTarget) target = NULL;
   g_autoptr (GError) error = NULL;
+  MetaKmsPlane *cursor_plane;
+
+  cursor_plane = meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
+  if (!cursor_plane)
+    return FALSE;
 
   target = meta_kms_constraints_target_new (list, target_id, &error);
   if (!target)
     return FALSE;
 
-  return meta_kms_constraints_target_allows_drm_buffer (
-    target,
-    kms_plane,
-    buffer,
-    storage);
+  return meta_kms_constraints_target_allows_drm_buffer (target,
+                                                         cursor_plane,
+                                                         buffer,
+                                                         storage) &&
+         constraints_target_allows_cursor_plane_set (target, crtc_kms);
 }
 
 static gboolean
@@ -732,7 +766,7 @@ constraints_allow_cursor_layout (MetaCrtcKms             *crtc_kms,
 
   selected_id = meta_kms_constraints_list_get_selected_id (list);
   if (!constraints_target_allows_cursor_layout (list,
-                                                kms_plane,
+                                                crtc_kms,
                                                 selected_id,
                                                 buffer,
                                                 storage))
@@ -742,7 +776,7 @@ constraints_allow_cursor_layout (MetaCrtcKms             *crtc_kms,
   return (suggested_id == 0 ||
           suggested_id == selected_id ||
           constraints_target_allows_cursor_layout (list,
-                                                   kms_plane,
+                                                   crtc_kms,
                                                    suggested_id,
                                                    buffer,
                                                    storage));
@@ -770,7 +804,7 @@ constraints_allow_cursor_buffer (MetaCrtcKms *crtc_kms,
 
   selected_id = meta_kms_constraints_list_get_selected_id (list);
   if (!constraints_target_allows_cursor_buffer (list,
-                                                kms_plane,
+                                                crtc_kms,
                                                 selected_id,
                                                 format,
                                                 storage,
@@ -782,7 +816,7 @@ constraints_allow_cursor_buffer (MetaCrtcKms *crtc_kms,
   return (suggested_id == 0 ||
           suggested_id == selected_id ||
           constraints_target_allows_cursor_buffer (list,
-                                                   kms_plane,
+                                                   crtc_kms,
                                                    suggested_id,
                                                    format,
                                                    storage,
