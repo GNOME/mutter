@@ -42,6 +42,9 @@
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-frame-native.h"
+#include "backends/native/meta-kms-constraints-list.h"
+#include "backends/native/meta-kms-constraints-target.h"
+#include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
@@ -651,6 +654,51 @@ create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
 }
 
 static gboolean
+selected_constraints_allow_cursor_buffer (MetaCrtcKms *crtc_kms,
+                                           uint32_t     format,
+                                           uint32_t     width,
+                                           uint32_t     height)
+{
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaKmsPlane *kms_plane =
+    meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
+  g_autoptr (MetaKmsConstraintsList) list =
+    meta_kms_crtc_ref_constraints_list (kms_crtc);
+  g_autoptr (MetaKmsConstraintsTarget) target = NULL;
+  g_autoptr (GError) error = NULL;
+
+  if (!list)
+    return TRUE;
+  if (!kms_plane)
+    return FALSE;
+
+  target = meta_kms_constraints_target_new (
+    list,
+    meta_kms_constraints_list_get_selected_id (list),
+    &error);
+  if (!target)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "Selected constraints cannot be used for a cursor: %s",
+                  error->message);
+      return FALSE;
+    }
+
+  return meta_kms_constraints_target_allows_format (
+           target,
+           meta_kms_plane_get_id (kms_plane),
+           format,
+           width,
+           height) &&
+         meta_kms_constraints_target_allows_implicit_layout (
+           target,
+           meta_kms_plane_get_id (kms_plane),
+           format,
+           width,
+           height);
+}
+
+static gboolean
 get_optimal_cursor_size (MetaCrtcKms *crtc_kms,
                          int          required_width,
                          int          required_height,
@@ -776,6 +824,12 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
       g_warning_once ("Can't handle cursor size %ux%u", width, height);
       return FALSE;
     }
+
+  if (!selected_constraints_allow_cursor_buffer (crtc_kms,
+                                                  gbm_format,
+                                                  cursor_width,
+                                                  cursor_height))
+    return FALSE;
 
   device_file = meta_device_pool_open (device_pool,
                                        meta_gpu_kms_get_file_path (gpu_kms),
@@ -1220,6 +1274,13 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
           gbm_bo_destroy (bo);
           return FALSE;
         }
+
+      if (!selected_constraints_allow_cursor_buffer (
+            crtc_kms,
+            meta_drm_buffer_get_format (META_DRM_BUFFER (buffer_gbm)),
+            meta_drm_buffer_get_width (META_DRM_BUFFER (buffer_gbm)),
+            meta_drm_buffer_get_height (META_DRM_BUFFER (buffer_gbm))))
+        return FALSE;
 
       kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
       meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
