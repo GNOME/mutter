@@ -711,6 +711,7 @@ test_cases += [
       '../backends/native/meta-kms-constraints-ioctl.c',
       '../backends/native/meta-kms-constraints-list.c',
       '../backends/native/meta-kms-constraints-query.c',
+      '../backends/native/meta-kms-constraints-target.c',
     ],
     'link_args': ['-Wl,--wrap=drmIoctl'],
   },

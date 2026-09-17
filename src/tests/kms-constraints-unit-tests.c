@@ -27,6 +27,7 @@
 #include "backends/native/meta-kms-constraints-ioctl.h"
 #include "backends/native/meta-kms-constraints-list.h"
 #include "backends/native/meta-kms-constraints-query.h"
+#include "backends/native/meta-kms-constraints-target.h"
 #include "backends/native/meta-kms-constraints.h"
 
 #define TEST_FORMAT_MODIFIER UINT64_C (1)
@@ -1213,6 +1214,98 @@ meta_test_kms_constraints_query_ioctl (void)
                   g_io_error_from_errno (EPROTO));
 }
 
+static void
+meta_test_kms_constraints_target (void)
+{
+  TestTwoEntryConstraintsBlob blob = create_two_entry_constraints_blob ();
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+  g_autoptr (MetaKmsConstraintsTarget) target = NULL;
+  g_autoptr (GArray) candidate_array = NULL;
+  g_autoptr (GArray) modifiers = NULL;
+  const MetaKmsConstraintsDescription *description;
+  const MetaKmsConstraintsSize *output;
+  const uint64_t candidate_modifiers[] = {
+    DRM_FORMAT_MOD_LINEAR,
+    TEST_FORMAT_MODIFIER,
+    UINT64_C (2),
+  };
+
+  blob.payloads[1].extension.flags = 0;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+
+  target = meta_kms_constraints_target_new (
+    list,
+    meta_kms_constraints_list_get_suggested_id (list),
+    &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (target);
+  g_assert_cmpuint (meta_kms_constraints_target_get_generation (target),
+                    ==,
+                    blob.list.generation);
+  g_assert_cmpuint (meta_kms_constraints_target_get_id (target), ==, 9);
+
+  g_clear_pointer (&list, meta_kms_constraints_list_unref);
+  description = meta_kms_constraints_target_get_description (target);
+  output = meta_kms_constraints_description_get_output (description);
+  g_assert_cmpuint (output->max_width, ==,
+                    blob.payloads[1].output.max_width);
+  g_assert_true (meta_kms_constraints_target_allows_format (
+                   target,
+                   7,
+                   DRM_FORMAT_XRGB8888,
+                   1920,
+                   1080));
+  g_assert_false (meta_kms_constraints_target_allows_format (
+                    target,
+                    8,
+                    DRM_FORMAT_XRGB8888,
+                    1920,
+                    1080));
+  g_assert_false (meta_kms_constraints_target_allows_implicit_layout (
+                    target,
+                    7,
+                    DRM_FORMAT_XRGB8888,
+                    1920,
+                    1080));
+  candidate_array = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+  g_array_append_vals (candidate_array,
+                       candidate_modifiers,
+                       G_N_ELEMENTS (candidate_modifiers));
+  modifiers = meta_kms_constraints_target_filter_explicit_modifiers (
+    target,
+    7,
+    DRM_FORMAT_XRGB8888,
+    1920,
+    1080,
+    candidate_array);
+  g_assert_cmpuint (modifiers->len, ==, 1);
+  g_assert_cmphex (g_array_index (modifiers, uint64_t, 0),
+                   ==,
+                   TEST_FORMAT_MODIFIER);
+
+  g_clear_pointer (&target, meta_kms_constraints_target_free);
+  blob.entries[1].flags = 0;
+  blob.list.suggested_id = 0;
+  g_clear_pointer (&list, meta_kms_constraints_list_unref);
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_no_error (error);
+  target = meta_kms_constraints_target_new (list, 9, &error);
+  g_assert_null (target);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  target = meta_kms_constraints_target_new (
+    list,
+    meta_kms_constraints_list_get_selected_id (list),
+    &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (target);
+  g_assert_cmpuint (meta_kms_constraints_target_get_id (target), ==, 5);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -1254,5 +1347,7 @@ main (int    argc,
                    meta_test_kms_constraints_query_rejects_bad_transport);
   g_test_add_func ("/backends/native/kms/constraints/query-ioctl",
                    meta_test_kms_constraints_query_ioctl);
+  g_test_add_func ("/backends/native/kms/constraints/target",
+                   meta_test_kms_constraints_target);
   return g_test_run ();
 }
