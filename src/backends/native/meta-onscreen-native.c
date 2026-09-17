@@ -3626,6 +3626,8 @@ meta_onscreen_native_bind_selected_constraints (
   const MetaCrtcModeInfo *mode_info;
   MetaKmsCrtc *kms_crtc =
     meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+  const MetaKmsCrtcState *kms_crtc_state =
+    meta_kms_crtc_get_current_state (kms_crtc);
   g_autoptr (MetaKmsConstraintsList) list =
     meta_kms_crtc_ref_constraints_list (kms_crtc);
   const MetaKmsConstraintsDescription *description;
@@ -3636,7 +3638,16 @@ meta_onscreen_native_bind_selected_constraints (
     return TRUE;
 
   if (!list)
-    return TRUE;
+    {
+      if (!kms_crtc_state->constraints.supported)
+        return TRUE;
+
+      g_set_error_literal (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_SUPPORTED,
+                           "KMS constraints are unavailable");
+      return FALSE;
+    }
 
   if (!crtc_config || !crtc_config->mode)
     {
