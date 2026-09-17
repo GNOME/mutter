@@ -251,6 +251,7 @@ void meta_kms_result_listener_free (MetaKmsResultListener *listener);
 void meta_kms_update_realize (MetaKmsUpdate     *update,
                               MetaKmsImplDevice *impl_device);
 
+META_EXPORT_TEST
 gboolean meta_kms_update_get_needs_modeset (MetaKmsUpdate *update);
 
 MetaKmsCrtc * meta_kms_update_get_latch_crtc (MetaKmsUpdate *update);

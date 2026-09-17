@@ -101,6 +101,31 @@ meta_test_kms_update_sanity (void)
 }
 
 static void
+meta_test_kms_update_constraints_need_modeset (void)
+{
+  MetaKmsDevice *device;
+  MetaKmsCrtc *crtc;
+  MetaKmsUpdate *update;
+  MetaKmsUpdate *constraints_update;
+
+  device = meta_get_test_kms_device (test_context);
+  crtc = meta_get_test_kms_crtc (device);
+
+  update = meta_kms_update_new (device);
+  g_assert_false (meta_kms_update_get_needs_modeset (update));
+
+  constraints_update = meta_kms_update_new (device);
+  meta_kms_update_select_constraints (constraints_update, crtc, 7);
+  g_assert_true (meta_kms_update_get_needs_modeset (constraints_update));
+
+  meta_kms_update_merge_from (update, constraints_update);
+  g_assert_true (meta_kms_update_get_needs_modeset (update));
+
+  meta_kms_update_free (constraints_update);
+  meta_kms_update_free (update);
+}
+
+static void
 meta_test_kms_update_plane_assignments (void)
 {
   MetaKmsDevice *device;
@@ -902,6 +927,8 @@ init_tests (void)
 {
   g_test_add_func ("/backends/native/kms/update/sanity",
                    meta_test_kms_update_sanity);
+  g_test_add_func ("/backends/native/kms/update/constraints-need-modeset",
+                   meta_test_kms_update_constraints_need_modeset);
   g_test_add_func ("/backends/native/kms/update/fixed16",
                    meta_test_kms_update_fixed16);
   g_test_add_func ("/backends/native/kms/update/plane-assignments",

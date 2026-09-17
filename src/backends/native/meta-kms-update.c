@@ -534,6 +534,7 @@ meta_kms_update_select_constraints (MetaKmsUpdate *update,
   crtc_update->constraints.has_update = TRUE;
   crtc_update->constraints.id = constraints_id;
 
+  update->needs_modeset = TRUE;
   update_latch_crtc (update, crtc);
 }
 
@@ -1202,6 +1203,7 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
   merge_page_flip_listeners_from (update, other_update);
   merge_result_listeners_from (update, other_update);
 
+  update->needs_modeset |= other_update->needs_modeset;
   meta_kms_update_set_sync_fd (update, g_steal_fd (&other_update->sync_fd));
   update->target_presentation_time_us =
     MAX (update->target_presentation_time_us,
