@@ -764,12 +764,6 @@ init_properties (MetaKmsCrtc       *crtc,
           .type = DRM_MODE_PROP_RANGE,
           .default_value = 0,
         },
-      [META_KMS_CRTC_PROP_CASTKMS_TRANSITION] =
-        {
-          .name = DRM_CASTKMS_TRANSITION_PROPERTY,
-          .type = DRM_MODE_PROP_RANGE,
-          .default_value = 0,
-        },
       [META_KMS_CRTC_PROP_DEGAMMA_LUT] =
         {
           .name = "DEGAMMA_LUT",

@@ -550,7 +550,6 @@ meta_test_kms_update_merge (void)
                            crtc,
                            TRUE);
   meta_kms_update_select_constraints (update1, crtc, 7);
-  meta_kms_update_set_castkms_transition (update1, crtc, 7);
 
   meta_kms_update_set_underscanning (update1,
                                      connector,
@@ -565,7 +564,6 @@ meta_test_kms_update_merge (void)
   update2 = meta_kms_update_new (device);
 
   meta_kms_update_select_constraints (update2, crtc, 11);
-  meta_kms_update_set_castkms_transition (update2, crtc, 11);
 
   meta_kms_update_mode_set (update2,
                             crtc,
@@ -694,8 +692,6 @@ meta_test_kms_update_merge (void)
   g_assert_true (crtc_update->vrr.is_enabled);
   g_assert_true (crtc_update->constraints.has_update);
   g_assert_cmpuint (crtc_update->constraints.id, ==, 11);
-  g_assert_true (crtc_update->castkms_transition.has_update);
-  g_assert_cmpuint (crtc_update->castkms_transition.token, ==, 11);
 
   connector_updates = meta_kms_update_get_connector_updates (update1);
   g_assert_cmpuint (g_list_length (connector_updates), ==, 1);

@@ -154,11 +154,6 @@ void meta_kms_update_select_constraints (MetaKmsUpdate *update,
                                          MetaKmsCrtc   *crtc,
                                          uint64_t       constraints_id);
 
-META_EXPORT_TEST
-void meta_kms_update_set_castkms_transition (MetaKmsUpdate *update,
-                                             MetaKmsCrtc   *crtc,
-                                             uint64_t       token);
-
 void meta_kms_update_set_crtc_degamma (MetaKmsUpdate      *update,
                                        MetaKmsCrtc        *crtc,
                                        const MetaGammaLut *degamma);

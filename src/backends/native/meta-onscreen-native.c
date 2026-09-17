@@ -86,8 +86,6 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   MetaGpuKms *gpu_kms;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  gboolean requires_native_buffers;
-
   struct {
     MetaDrmBufferGbm *buffer_gbm[2];
   } gbm;
@@ -177,17 +175,6 @@ struct _MetaOnscreenNative
 G_DEFINE_TYPE (MetaOnscreenNative, meta_onscreen_native,
                COGL_TYPE_ONSCREEN_EGL)
 
-static MetaKmsExecutionKind
-get_execution_kind (MetaOnscreenNative *onscreen_native)
-{
-  MetaKmsConnector *connector =
-    meta_output_kms_get_kms_connector (META_OUTPUT_KMS (onscreen_native->output));
-  const MetaKmsConnectorState *state =
-    meta_kms_connector_get_current_state (connector);
-
-  return state ? state->execution.kind : META_KMS_EXECUTION_UNSUPPORTED;
-}
-
 static void
 select_constraints_target (MetaOnscreenNative *onscreen_native,
                            MetaKmsUpdate      *kms_update,
@@ -274,15 +261,6 @@ constraints_allow_implicit_layout (MetaOnscreenNative *onscreen_native,
     format,
     width,
     height);
-}
-
-static MetaSharedFramebufferCopyMode
-get_secondary_copy_mode (MetaOnscreenNativeSecondaryGpuState *state)
-{
-  if (state->requires_native_buffers)
-    return META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
-
-  return state->renderer_gpu_data->secondary.copy_mode;
 }
 
 static void
@@ -1556,7 +1534,7 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen    *onscreen,
 
       renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
       render_device = renderer_gpu_data->render_device;
-      switch (get_secondary_copy_mode (secondary_gpu_state))
+      switch (renderer_gpu_data->secondary.copy_mode)
         {
         case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
           /* Done after eglSwapBuffers. */
@@ -1633,7 +1611,7 @@ acquire_front_buffer (CoglOnscreen     *onscreen,
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
                                        secondary_gpu_state->gpu_kms);
-  switch (get_secondary_copy_mode (secondary_gpu_state))
+  switch (secondary_gpu_state->renderer_gpu_data->secondary.copy_mode)
     {
     case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
       imported_fb = import_shared_framebuffer (onscreen,
@@ -3789,14 +3767,6 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
   if (!meta_onscreen_native_bind_constraints_target (onscreen_native, error))
     return FALSE;
 
-  if (!onscreen_native->constraints_target &&
-      get_execution_kind (onscreen_native) == META_KMS_EXECUTION_UNSUPPORTED)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "Unsupported display execution profile");
-      return FALSE;
-    }
-
   if (META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc)) !=
       onscreen_native->render_gpu)
     {
@@ -4206,9 +4176,6 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
       G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs),
       width,
       height);
-  secondary_gpu_state->requires_native_buffers =
-    get_execution_kind (onscreen_native) == META_KMS_EXECUTION_HOST;
-
   for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
     {
       MetaDrmBuffer *dumb_buffer;
@@ -4250,15 +4217,6 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          META_GPU_KMS (gpu));
-
-  if (get_execution_kind (onscreen_native) == META_KMS_EXECUTION_HOST)
-    {
-      meta_topic (META_DEBUG_KMS, "Using native display buffers for the host renderer");
-      return init_secondary_gpu_state_cpu_copy_mode (renderer_native,
-                                                      onscreen,
-                                                      renderer_gpu_data,
-                                                      error);
-    }
 
   switch (renderer_gpu_data->secondary.copy_mode)
     {

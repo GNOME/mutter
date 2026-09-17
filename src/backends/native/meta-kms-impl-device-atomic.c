@@ -397,16 +397,6 @@ process_crtc_update (MetaKmsImplDevice  *impl_device,
         return FALSE;
     }
 
-  if (crtc_update->castkms_transition.has_update)
-    {
-      if (!add_crtc_property (impl_device,
-                              crtc, req,
-                              META_KMS_CRTC_PROP_CASTKMS_TRANSITION,
-                              crtc_update->castkms_transition.token,
-                              error))
-        return FALSE;
-    }
-
   return TRUE;
 }
 

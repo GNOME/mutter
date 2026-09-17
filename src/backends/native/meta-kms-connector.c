@@ -756,26 +756,6 @@ out:
 }
 
 static void
-state_set_execution (MetaKmsConnectorState *state,
-                     MetaKmsImplDevice     *impl_device,
-                     uint64_t               blob_id)
-{
-  drmModePropertyBlobRes *blob;
-  int fd = meta_kms_impl_device_get_fd (impl_device);
-
-  state->execution.kind = META_KMS_EXECUTION_UNSUPPORTED;
-  if (!blob_id || blob_id > UINT32_MAX)
-    return;
-
-  blob = drmModeGetPropertyBlob (fd, blob_id);
-  if (!blob)
-    return;
-
-  state->execution = meta_kms_execution_parse (blob->data, blob->length);
-  drmModeFreePropertyBlob (blob);
-}
-
-static void
 state_set_blobs (MetaKmsConnectorState *state,
                  MetaKmsConnector      *connector,
                  MetaKmsImplDevice     *impl_device,
@@ -796,9 +776,6 @@ state_set_blobs (MetaKmsConnectorState *state,
   if (prop->prop_id)
     state_set_hdr_output_metadata (state, connector, impl_device, prop->value);
 
-  prop = &props[META_KMS_CONNECTOR_PROP_CASTKMS_EXECUTION];
-  if (prop->prop_id)
-    state_set_execution (state, impl_device, prop->value);
 }
 
 static void
@@ -1041,13 +1018,6 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
   if (state->hotplug_mode_update != new_state->hotplug_mode_update)
     {
       meta_topic (META_DEBUG_KMS, "hotplug_mode_update changed");
-      return META_KMS_RESOURCE_CHANGE_FULL;
-    }
-
-  if (state->execution.kind != new_state->execution.kind ||
-      state->execution.generation != new_state->execution.generation)
-    {
-      meta_topic (META_DEBUG_KMS, "Display execution profile changed");
       return META_KMS_RESOURCE_CHANGE_FULL;
     }
 
@@ -1625,11 +1595,6 @@ init_properties (MetaKmsConnector  *connector,
         {
           .name = "vrr_capable",
           .type = DRM_MODE_PROP_RANGE,
-        },
-      [META_KMS_CONNECTOR_PROP_CASTKMS_EXECUTION] =
-        {
-          .name = DRM_CASTKMS_EXECUTION_PROPERTY,
-          .type = DRM_MODE_PROP_BLOB,
         },
     },
     .dpms_enum = {

@@ -56,28 +56,14 @@
       <arg name="session_id" type="t" direction="out" />
     </method>
     <!--
-        InstallRendererTransition:
-        @session_id: session returned to the same unique caller
-        @transition: nonzero token returned by renderer profile registration
-
-        Atomically tags the session CRTC's current scene with the registered
-        renderer transition. A successful reply means that the kernel accepted
-        the tagged scene; it does not activate the renderer. The caller must
-        commit renderer takeover separately after its startup work completes.
-    -->
-    <method name="InstallRendererTransition">
-      <arg name="session_id" type="t" direction="in" />
-      <arg name="transition" type="t" direction="in" />
-    </method>
-    <!--
         AcquireRenderer:
         @session_id: session returned to the same unique caller
         @renderer_fd: fresh anonymous renderer descriptor
         @renderer_id: session-local identity for releasing renderer authority
 
         Issues another renderer endpoint for an existing display session.
-        Replacement and orderly return to the built-in renderer use a fresh
-        endpoint while the previous endpoint drains admitted source reads.
+        Each renderer generation uses a fresh endpoint while the previous
+        endpoint drains admitted source reads.
         The session retains independent revocation authority for every issued
         endpoint.
     -->

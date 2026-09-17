@@ -159,10 +159,6 @@ typedef struct _MetaKmsCrtcUpdate
     uint64_t id;
   } constraints;
 
-  struct {
-    gboolean has_update;
-    uint64_t token;
-  } castkms_transition;
 } MetaKmsCrtcUpdate;
 
 typedef struct _MetaKmsPageFlipListener

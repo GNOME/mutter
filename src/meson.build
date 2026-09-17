@@ -752,8 +752,6 @@ mutter_sources += [
   'backends/native/meta-drm-lease.h',
   'backends/native/meta-drm-preparation.h',
   'backends/native/meta-drm-castkms.h',
-  'backends/native/meta-kms-execution.c',
-  'backends/native/meta-kms-execution.h',
   'backends/native/meta-kms-mode.c',
   'backends/native/meta-kms-mode.h',
   'backends/native/meta-kms-page-flip.c',

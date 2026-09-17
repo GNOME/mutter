@@ -722,14 +722,6 @@ test_cases += [
     'sources': [ 'kms-utils-unit-tests.c', ],
   },
   {
-    'name': 'kms-execution',
-    'suite': 'backends/native',
-    'sources': [
-      'kms-execution-unit-tests.c',
-      '../backends/native/meta-kms-execution.c',
-    ],
-  },
-  {
     'name': 'secondary-gpu-copy-state',
     'suite': 'backends/native',
     'sources': [

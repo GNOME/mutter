@@ -19,7 +19,7 @@
 
 G_STATIC_ASSERT (sizeof (struct drm_castkms_renderer_files) == 8);
 G_STATIC_ASSERT (sizeof (struct drm_castkms_create_renderer_control) == 32);
-G_STATIC_ASSERT (sizeof (struct drm_castkms_renderer_query) == 24);
+G_STATIC_ASSERT (sizeof (struct drm_castkms_renderer_query) == 32);
 
 struct _MetaKmsRendererControl
 {
@@ -95,11 +95,10 @@ validate_contract (int      fd,
   if (ioctl_nointr (fd, DRM_IOCTL_CASTKMS_RENDERER_QUERY, &query) == -1)
     return set_errno_error (error, errno, "Querying CastKMS renderer control");
   if (query.version != DRM_CASTKMS_RENDERER_VERSION ||
-      query.flags != 0 ||
-      (query.profile != DRM_CASTKMS_EXECUTION_HOST_V1 &&
-       query.profile != DRM_CASTKMS_EXECUTION_GPU_V1) ||
-      query.reserved != 0 ||
-      query.generation == 0)
+      query.state != DRM_CASTKMS_RENDERER_STATE_EMPTY ||
+      query.constraints_id != 0 ||
+      query.reserved[0] != 0 ||
+      query.reserved[1] != 0)
     {
       g_set_error_literal (error,
                            G_IO_ERROR,

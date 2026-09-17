@@ -539,23 +539,6 @@ meta_kms_update_select_constraints (MetaKmsUpdate *update,
   update_latch_crtc (update, crtc);
 }
 
-void
-meta_kms_update_set_castkms_transition (MetaKmsUpdate *update,
-                                        MetaKmsCrtc   *crtc,
-                                        uint64_t       token)
-{
-  MetaKmsCrtcUpdate *crtc_update;
-
-  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
-  g_assert (token != 0);
-
-  crtc_update = ensure_crtc_update (update, crtc);
-  crtc_update->castkms_transition.has_update = TRUE;
-  crtc_update->castkms_transition.token = token;
-
-  update_latch_crtc (update, crtc);
-}
-
 static MetaKmsCrtcColorUpdate *
 ensure_color_update (MetaKmsUpdate *update,
                      MetaKmsCrtc   *crtc)
@@ -1079,9 +1062,6 @@ merge_crtc_updates_from (MetaKmsUpdate *update,
             crtc_update->vrr = other_crtc_update->vrr;
           if (other_crtc_update->constraints.has_update)
             crtc_update->constraints = other_crtc_update->constraints;
-          if (other_crtc_update->castkms_transition.has_update)
-            crtc_update->castkms_transition =
-              other_crtc_update->castkms_transition;
         }
       else
         {
