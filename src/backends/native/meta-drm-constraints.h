@@ -13,6 +13,7 @@
 #define DRM_MODE_CONSTRAINTS_MAX_PROPERTIES 64U
 #define DRM_MODE_CONSTRAINTS_MAX_PLANE_LIMITS 64U
 #define DRM_MODE_CONSTRAINTS_MAX_PLANES_PER_LIMIT 64U
+#define DRM_MODE_CONSTRAINTS_MAX_PLANE_GEOMETRIES 64U
 
 #define DRM_MODE_CONSTRAINTS_SELECTABLE (1U << 0)
 #define DRM_MODE_CONSTRAINTS_RECORD_REQUIRED (1U << 0)
@@ -20,9 +21,13 @@
 #define DRM_MODE_CONSTRAINTS_RECORD_PLANE_FORMAT 2U
 #define DRM_MODE_CONSTRAINTS_RECORD_PROPERTY 3U
 #define DRM_MODE_CONSTRAINTS_RECORD_PLANE_LIMIT 4U
+#define DRM_MODE_CONSTRAINTS_RECORD_PLANE_GEOMETRY 5U
 #define DRM_MODE_CONSTRAINTS_LAYOUT_IMPLICIT (1U << 0)
 #define DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_NATIVE (1U << 0)
 #define DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_IMPORTED (1U << 1)
+#define DRM_MODE_CONSTRAINTS_GEOMETRY_CROP (1U << 0)
+#define DRM_MODE_CONSTRAINTS_GEOMETRY_FRACTIONAL_SOURCE (1U << 1)
+#define DRM_MODE_CONSTRAINTS_GEOMETRY_POSITION (1U << 2)
 
 #define DRM_CLIENT_CAP_KMS_CONSTRAINTS 9
 
@@ -117,6 +122,15 @@ struct drm_mode_constraints_plane_format
   __u32 pitch_alignment;
   __u32 offset_alignment;
   __u32 max_pitch;
+};
+
+struct drm_mode_constraints_plane_geometry
+{
+  struct drm_mode_constraints_record header;
+  __u32 plane_id;
+  __u32 flags;
+  __u32 min_scale;
+  __u32 max_scale;
 };
 
 struct drm_mode_constraints_property

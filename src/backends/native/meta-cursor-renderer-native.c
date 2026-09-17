@@ -730,6 +730,10 @@ constraints_target_allows_cursor_layout (MetaKmsConstraintsList   *list,
   g_autoptr (MetaKmsConstraintsTarget) target = NULL;
   g_autoptr (GError) error = NULL;
   MetaKmsPlane *cursor_plane;
+  uint32_t width;
+  uint32_t height;
+  MetaFixed16Rectangle source;
+  MtkRectangle destination;
 
   cursor_plane = meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
   if (!cursor_plane)
@@ -739,10 +743,31 @@ constraints_target_allows_cursor_layout (MetaKmsConstraintsList   *list,
   if (!target)
     return FALSE;
 
+  width = meta_drm_buffer_get_width (buffer);
+  height = meta_drm_buffer_get_height (buffer);
+  source = (MetaFixed16Rectangle) {
+    .width = meta_fixed_16_from_int (width),
+    .height = meta_fixed_16_from_int (height),
+  };
+  /* A hardware cursor must remain usable away from the output origin. */
+  destination = (MtkRectangle) {
+    .x = 1,
+    .y = 1,
+    .width = width,
+    .height = height,
+  };
+
   return meta_kms_constraints_target_allows_drm_buffer (target,
                                                          cursor_plane,
                                                          buffer,
                                                          storage) &&
+         meta_kms_constraints_target_allows_plane_geometry (
+           target,
+           meta_kms_plane_get_id (cursor_plane),
+           width,
+           height,
+           source,
+           destination) &&
          constraints_target_allows_cursor_plane_set (target, crtc_kms);
 }
 

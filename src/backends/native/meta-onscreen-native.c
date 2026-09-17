@@ -349,6 +349,25 @@ constraints_allow_buffer_layout (MetaOnscreenNative       *onscreen_native,
 }
 
 static gboolean
+constraints_allow_plane_geometry (MetaOnscreenNative  *onscreen_native,
+                                  MetaKmsPlane        *plane,
+                                  MetaDrmBuffer       *buffer,
+                                  MetaFixed16Rectangle source,
+                                  MtkRectangle         destination)
+{
+  if (!onscreen_native->constraints_target)
+    return TRUE;
+
+  return meta_kms_constraints_target_allows_plane_geometry (
+    onscreen_native->constraints_target,
+    meta_kms_plane_get_id (plane),
+    meta_drm_buffer_get_width (buffer),
+    meta_drm_buffer_get_height (buffer),
+    source,
+    destination);
+}
+
+static gboolean
 constraints_allow_primary_buffer_layout (MetaOnscreenNative *onscreen_native,
                                          MetaKmsPlane       *plane,
                                          MetaDrmBuffer      *buffer)
@@ -957,6 +976,13 @@ assign_primary_plane (MetaCrtcKms            *crtc_kms,
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   primary_kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+  if (!constraints_allow_plane_geometry (onscreen_native,
+                                         primary_kms_plane,
+                                         buffer,
+                                         src_rect_fixed16,
+                                         *dst_rect))
+    return NULL;
+
   plane_assignment = meta_kms_update_assign_plane (kms_update,
                                                    kms_crtc,
                                                    primary_kms_plane,
@@ -1053,6 +1079,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
                                                flags,
                                                &src_rect,
                                                &dst_rect);
+      if (!plane_assignment)
+        return FALSE;
 
       if (region && !mtk_region_is_empty (region))
         meta_kms_plane_assignment_set_fb_damage (plane_assignment, region);
@@ -2433,13 +2461,17 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
       return FALSE;
     }
 
-  assign_primary_plane (crtc_kms,
-                        onscreen_native,
-                        buffer,
-                        test_update,
-                        META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC,
-                        &src_rect,
-                        &dst_rect);
+  if (!assign_primary_plane (crtc_kms,
+                             onscreen_native,
+                             buffer,
+                             test_update,
+                             META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC,
+                             &src_rect,
+                             &dst_rect))
+    {
+      meta_kms_update_free (test_update);
+      return FALSE;
+    }
 
   meta_topic (META_DEBUG_KMS,
               "Posting direct scanout test update for CRTC %u (%s) synchronously",

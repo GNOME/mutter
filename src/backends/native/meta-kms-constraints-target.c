@@ -299,3 +299,21 @@ meta_kms_constraints_target_allows_active_planes (
 
   return TRUE;
 }
+
+gboolean
+meta_kms_constraints_target_allows_plane_geometry (
+  const MetaKmsConstraintsTarget *target,
+  uint32_t                        plane_id,
+  uint32_t                        framebuffer_width,
+  uint32_t                        framebuffer_height,
+  MetaFixed16Rectangle            source,
+  MtkRectangle                    destination)
+{
+  return meta_kms_constraints_description_allows_plane_geometry (
+    meta_kms_constraints_target_get_description (target),
+    plane_id,
+    framebuffer_width,
+    framebuffer_height,
+    source,
+    destination);
+}

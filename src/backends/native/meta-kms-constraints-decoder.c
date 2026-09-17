@@ -31,6 +31,7 @@ G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_description) == 16);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_record) == 16);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_output_size) == 32);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_plane_format) == 72);
+G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_plane_geometry) == 32);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_property) == 56);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_plane_limit) == 24);
 G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_mode_constraints_list,
@@ -126,15 +127,18 @@ decode_description (const uint8_t                *data,
   struct drm_mode_constraints_description description;
   MetaKmsConstraintsSize output = {0};
   g_autofree MetaKmsConstraintsFormat *formats = NULL;
+  g_autofree MetaKmsConstraintsPlaneGeometry *plane_geometries = NULL;
   g_autofree MetaKmsConstraintsProperty *properties = NULL;
   g_autofree MetaKmsConstraintsPlaneLimit *plane_limits = NULL;
   g_autoptr (GPtrArray) plane_id_arrays = NULL;
   size_t description_end;
   size_t offset;
   size_t n_formats = 0;
+  size_t n_plane_geometries = 0;
   size_t n_properties = 0;
   size_t n_plane_limits = 0;
   size_t format_capacity;
+  size_t plane_geometry_capacity;
   size_t property_capacity;
   size_t plane_limit_capacity;
   gboolean has_output = FALSE;
@@ -176,16 +180,21 @@ decode_description (const uint8_t                *data,
 
   format_capacity = MIN (description.record_count,
                          DRM_MODE_CONSTRAINTS_MAX_FORMATS);
+  plane_geometry_capacity = MIN (
+    description.record_count,
+    DRM_MODE_CONSTRAINTS_MAX_PLANE_GEOMETRIES);
   property_capacity = MIN (description.record_count,
                            DRM_MODE_CONSTRAINTS_MAX_PROPERTIES);
   plane_limit_capacity = MIN (description.record_count,
                               DRM_MODE_CONSTRAINTS_MAX_PLANE_LIMITS);
   formats = g_try_new0 (MetaKmsConstraintsFormat, format_capacity);
+  plane_geometries = g_try_new0 (MetaKmsConstraintsPlaneGeometry,
+                                 plane_geometry_capacity);
   properties = g_try_new0 (MetaKmsConstraintsProperty, property_capacity);
   plane_limits = g_try_new0 (MetaKmsConstraintsPlaneLimit,
                              plane_limit_capacity);
   if (description.record_count != 0 &&
-      (!formats || !properties || !plane_limits))
+      (!formats || !plane_geometries || !properties || !plane_limits))
     {
       g_set_error_literal (error,
                            G_IO_ERROR,
@@ -298,6 +307,35 @@ decode_description (const uint8_t                *data,
             };
             break;
           }
+        case DRM_MODE_CONSTRAINTS_RECORD_PLANE_GEOMETRY:
+          {
+            struct drm_mode_constraints_plane_geometry wire;
+
+            if (record.length != sizeof (wire))
+              return DECODE_RESULT_UNSUPPORTED;
+            if (n_plane_geometries == plane_geometry_capacity)
+              goto invalid;
+            memcpy (&wire, data + offset, sizeof (wire));
+            if ((wire.flags &
+                 ~(DRM_MODE_CONSTRAINTS_GEOMETRY_CROP |
+                   DRM_MODE_CONSTRAINTS_GEOMETRY_FRACTIONAL_SOURCE |
+                   DRM_MODE_CONSTRAINTS_GEOMETRY_POSITION)) != 0)
+              return DECODE_RESULT_UNSUPPORTED;
+            plane_geometries[n_plane_geometries++] =
+              (MetaKmsConstraintsPlaneGeometry) {
+                .plane_id = wire.plane_id,
+                .permits_crop = !!(wire.flags &
+                                    DRM_MODE_CONSTRAINTS_GEOMETRY_CROP),
+                .permits_fractional_source =
+                  !!(wire.flags &
+                     DRM_MODE_CONSTRAINTS_GEOMETRY_FRACTIONAL_SOURCE),
+                .permits_position =
+                  !!(wire.flags & DRM_MODE_CONSTRAINTS_GEOMETRY_POSITION),
+                .min_scale = wire.min_scale,
+                .max_scale = wire.max_scale,
+              };
+            break;
+          }
         case DRM_MODE_CONSTRAINTS_RECORD_PLANE_LIMIT:
           {
             struct drm_mode_constraints_plane_limit wire;
@@ -360,6 +398,8 @@ decode_description (const uint8_t                *data,
   *out_description = meta_kms_constraints_description_new (&output,
                                                             formats,
                                                             n_formats,
+                                                            plane_geometries,
+                                                            n_plane_geometries,
                                                             properties,
                                                             n_properties,
                                                             plane_limits,

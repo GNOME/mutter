@@ -30,6 +30,8 @@ struct _MetaKmsConstraintsDescription
   MetaKmsConstraintsSize output;
   MetaKmsConstraintsFormat *formats;
   size_t n_formats;
+  MetaKmsConstraintsPlaneGeometry *plane_geometries;
+  size_t n_plane_geometries;
   MetaKmsConstraintsProperty *properties;
   size_t n_properties;
   MetaKmsConstraintsPlaneLimit *plane_limits;
@@ -61,6 +63,14 @@ format_is_valid (const MetaKmsConstraintsFormat *format)
          (format->offset_alignment & (format->offset_alignment - 1)) == 0 &&
          format->max_pitch >= format->pitch_alignment &&
          size_is_valid (&format->size);
+}
+
+static gboolean
+plane_geometry_is_valid (const MetaKmsConstraintsPlaneGeometry *geometry)
+{
+  return geometry->plane_id != 0 &&
+         geometry->min_scale != 0 &&
+         geometry->min_scale <= geometry->max_scale;
 }
 
 static gboolean
@@ -150,6 +160,8 @@ meta_kms_constraints_description_new (
   const MetaKmsConstraintsSize     *output,
   const MetaKmsConstraintsFormat   *formats,
   size_t                            n_formats,
+  const MetaKmsConstraintsPlaneGeometry *plane_geometries,
+  size_t                            n_plane_geometries,
   const MetaKmsConstraintsProperty *properties,
   size_t                            n_properties,
   const MetaKmsConstraintsPlaneLimit *plane_limits,
@@ -157,6 +169,7 @@ meta_kms_constraints_description_new (
   GError                          **error)
 {
   g_autofree MetaKmsConstraintsFormat *formats_copy = NULL;
+  g_autofree MetaKmsConstraintsPlaneGeometry *plane_geometries_copy = NULL;
   g_autofree MetaKmsConstraintsProperty *properties_copy = NULL;
   MetaKmsConstraintsPlaneLimit *plane_limits_copy = NULL;
   MetaKmsConstraintsDescription *description;
@@ -167,6 +180,8 @@ meta_kms_constraints_description_new (
       !formats ||
       n_formats == 0 ||
       !size_is_valid (output) ||
+      (n_plane_geometries != 0 && !plane_geometries) ||
+      n_plane_geometries > DRM_MODE_CONSTRAINTS_MAX_PLANE_GEOMETRIES ||
       (n_properties != 0 && !properties) ||
       (n_plane_limits != 0 && !plane_limits) ||
       n_plane_limits > DRM_MODE_CONSTRAINTS_MAX_PLANE_LIMITS)
@@ -176,6 +191,30 @@ meta_kms_constraints_description_new (
                            G_IO_ERROR_INVALID_DATA,
                            "Invalid KMS constraints description");
       return NULL;
+    }
+
+  for (i = 0; i < n_plane_geometries; i++)
+    {
+      if (!plane_geometry_is_valid (&plane_geometries[i]))
+        {
+          g_set_error_literal (error,
+                               G_IO_ERROR,
+                               G_IO_ERROR_INVALID_DATA,
+                               "Invalid KMS constraints plane geometry");
+          return NULL;
+        }
+
+      for (j = 0; j < i; j++)
+        {
+          if (plane_geometries[i].plane_id == plane_geometries[j].plane_id)
+            {
+              g_set_error_literal (error,
+                                   G_IO_ERROR,
+                                   G_IO_ERROR_INVALID_DATA,
+                                   "Duplicate KMS constraints plane geometry");
+              return NULL;
+            }
+        }
     }
 
   for (i = 0; i < n_plane_limits; i++)
@@ -249,6 +288,23 @@ meta_kms_constraints_description_new (
     }
   memcpy (formats_copy, formats, sizeof (*formats) * n_formats);
 
+  if (n_plane_geometries != 0)
+    {
+      plane_geometries_copy = g_try_new (MetaKmsConstraintsPlaneGeometry,
+                                         n_plane_geometries);
+      if (!plane_geometries_copy)
+        {
+          g_set_error_literal (error,
+                               G_IO_ERROR,
+                               G_IO_ERROR_NO_SPACE,
+                               "Allocate KMS constraints plane geometries");
+          return NULL;
+        }
+      memcpy (plane_geometries_copy,
+              plane_geometries,
+              sizeof (*plane_geometries) * n_plane_geometries);
+    }
+
   if (n_properties != 0)
     {
       properties_copy = g_try_new (MetaKmsConstraintsProperty, n_properties);
@@ -318,6 +374,8 @@ meta_kms_constraints_description_new (
   description->output = *output;
   description->formats = g_steal_pointer (&formats_copy);
   description->n_formats = n_formats;
+  description->plane_geometries = g_steal_pointer (&plane_geometries_copy);
+  description->n_plane_geometries = n_plane_geometries;
   description->properties = g_steal_pointer (&properties_copy);
   description->n_properties = n_properties;
   description->plane_limits = plane_limits_copy;
@@ -344,6 +402,7 @@ meta_kms_constraints_description_unref (
     return;
 
   g_free (description->formats);
+  g_free (description->plane_geometries);
   g_free (description->properties);
   free_plane_limits (description->plane_limits,
                      description->n_plane_limits);
@@ -375,6 +434,15 @@ meta_kms_constraints_description_get_properties (
   return description->properties;
 }
 
+const MetaKmsConstraintsPlaneGeometry *
+meta_kms_constraints_description_get_plane_geometries (
+  const MetaKmsConstraintsDescription *description,
+  size_t                              *n_plane_geometries)
+{
+  *n_plane_geometries = description->n_plane_geometries;
+  return description->plane_geometries;
+}
+
 const MetaKmsConstraintsPlaneLimit *
 meta_kms_constraints_description_get_plane_limits (
   const MetaKmsConstraintsDescription *description,
@@ -393,6 +461,61 @@ meta_kms_constraints_size_contains (const MetaKmsConstraintsSize *size,
          width <= size->max_width &&
          height >= size->min_height &&
          height <= size->max_height;
+}
+
+gboolean
+meta_kms_constraints_description_allows_plane_geometry (
+  const MetaKmsConstraintsDescription *description,
+  uint32_t                             plane_id,
+  uint32_t                             framebuffer_width,
+  uint32_t                             framebuffer_height,
+  MetaFixed16Rectangle                 source,
+  MtkRectangle                         destination)
+{
+  const MetaKmsConstraintsPlaneGeometry *geometry = NULL;
+  size_t i;
+
+  for (i = 0; i < description->n_plane_geometries; i++)
+    {
+      if (description->plane_geometries[i].plane_id == plane_id)
+        {
+          geometry = &description->plane_geometries[i];
+          break;
+        }
+    }
+
+  if (!geometry)
+    return TRUE;
+  if (source.x < 0 || source.y < 0 ||
+      source.width <= 0 || source.height <= 0 ||
+      destination.width <= 0 || destination.height <= 0)
+    return FALSE;
+  if ((uint64_t) source.x + source.width >
+        (uint64_t) framebuffer_width << 16 ||
+      (uint64_t) source.y + source.height >
+        (uint64_t) framebuffer_height << 16)
+    return FALSE;
+  if (!geometry->permits_crop &&
+      (source.x != 0 || source.y != 0 ||
+       (int64_t) source.width != (int64_t) framebuffer_width << 16 ||
+       (int64_t) source.height != (int64_t) framebuffer_height << 16))
+    return FALSE;
+  if (!geometry->permits_fractional_source &&
+      (((uint32_t) source.x | (uint32_t) source.y |
+        (uint32_t) source.width | (uint32_t) source.height) & 0xffff) != 0)
+    return FALSE;
+  if (!geometry->permits_position &&
+      (destination.x != 0 || destination.y != 0))
+    return FALSE;
+
+  return (uint64_t) source.width >=
+           (uint64_t) destination.width * geometry->min_scale &&
+         (uint64_t) source.width <=
+           (uint64_t) destination.width * geometry->max_scale &&
+         (uint64_t) source.height >=
+           (uint64_t) destination.height * geometry->min_scale &&
+         (uint64_t) source.height <=
+           (uint64_t) destination.height * geometry->max_scale;
 }
 
 static gboolean

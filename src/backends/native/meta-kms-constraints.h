@@ -21,6 +21,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "backends/native/meta-kms-types.h"
+#include "mtk/mtk.h"
+
 typedef struct _MetaKmsConstraintsDescription MetaKmsConstraintsDescription;
 
 typedef enum _MetaKmsConstraintsStorage
@@ -62,6 +65,16 @@ typedef struct _MetaKmsConstraintsProperty
   uint64_t mask;
 } MetaKmsConstraintsProperty;
 
+typedef struct _MetaKmsConstraintsPlaneGeometry
+{
+  uint32_t plane_id;
+  gboolean permits_crop;
+  gboolean permits_fractional_source;
+  gboolean permits_position;
+  uint32_t min_scale;
+  uint32_t max_scale;
+} MetaKmsConstraintsPlaneGeometry;
+
 typedef struct _MetaKmsConstraintsPlaneLimit
 {
   uint32_t max_active;
@@ -74,6 +87,8 @@ meta_kms_constraints_description_new (
   const MetaKmsConstraintsSize     *output,
   const MetaKmsConstraintsFormat   *formats,
   size_t                            n_formats,
+  const MetaKmsConstraintsPlaneGeometry *plane_geometries,
+  size_t                            n_plane_geometries,
   const MetaKmsConstraintsProperty *properties,
   size_t                            n_properties,
   const MetaKmsConstraintsPlaneLimit *plane_limits,
@@ -104,6 +119,11 @@ meta_kms_constraints_description_get_properties (
   const MetaKmsConstraintsDescription *description,
   size_t                              *n_properties);
 
+const MetaKmsConstraintsPlaneGeometry *
+meta_kms_constraints_description_get_plane_geometries (
+  const MetaKmsConstraintsDescription *description,
+  size_t                              *n_plane_geometries);
+
 const MetaKmsConstraintsPlaneLimit *
 meta_kms_constraints_description_get_plane_limits (
   const MetaKmsConstraintsDescription *description,
@@ -113,6 +133,14 @@ gboolean meta_kms_constraints_size_contains (
   const MetaKmsConstraintsSize *size,
   uint32_t                      width,
   uint32_t                      height);
+
+gboolean meta_kms_constraints_description_allows_plane_geometry (
+  const MetaKmsConstraintsDescription *description,
+  uint32_t                             plane_id,
+  uint32_t                             framebuffer_width,
+  uint32_t                             framebuffer_height,
+  MetaFixed16Rectangle                 source,
+  MtkRectangle                         destination);
 
 gboolean meta_kms_constraints_description_allows_explicit_layout (
   const MetaKmsConstraintsDescription *description,

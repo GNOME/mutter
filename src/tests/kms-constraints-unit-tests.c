@@ -51,6 +51,7 @@ typedef struct _TestConstraintsBlob
   struct drm_mode_constraints_description description;
   struct drm_mode_constraints_output_size output;
   struct drm_mode_constraints_plane_format format;
+  struct drm_mode_constraints_plane_geometry geometry;
   struct drm_mode_constraints_property property;
   TestConstraintsPlaneLimit plane_limit;
   struct drm_mode_constraints_record extension;
@@ -61,6 +62,7 @@ typedef struct _TestConstraintsPayload
   struct drm_mode_constraints_description description;
   struct drm_mode_constraints_output_size output;
   struct drm_mode_constraints_plane_format format;
+  struct drm_mode_constraints_plane_geometry geometry;
   struct drm_mode_constraints_property property;
   TestConstraintsPlaneLimit plane_limit;
   struct drm_mode_constraints_record extension;
@@ -94,6 +96,7 @@ create_constraints_blob (void)
       .description_length = sizeof (blob.description) +
                             sizeof (blob.output) +
                             sizeof (blob.format) +
+                            sizeof (blob.geometry) +
                             sizeof (blob.property) +
                             sizeof (blob.plane_limit) +
                             sizeof (blob.extension),
@@ -103,10 +106,11 @@ create_constraints_blob (void)
       .length = sizeof (blob.description) +
                 sizeof (blob.output) +
                 sizeof (blob.format) +
+                sizeof (blob.geometry) +
                 sizeof (blob.property) +
                 sizeof (blob.plane_limit) +
                 sizeof (blob.extension),
-      .record_count = 5,
+      .record_count = 6,
       .records_offset = G_STRUCT_OFFSET (TestConstraintsBlob, output),
     },
     .output = {
@@ -139,6 +143,19 @@ create_constraints_blob (void)
       .pitch_alignment = 4,
       .offset_alignment = 4,
       .max_pitch = 65536,
+    },
+    .geometry = {
+      .header = {
+        .type = DRM_MODE_CONSTRAINTS_RECORD_PLANE_GEOMETRY,
+        .flags = DRM_MODE_CONSTRAINTS_RECORD_REQUIRED,
+        .length = sizeof (blob.geometry),
+      },
+      .plane_id = 7,
+      .flags = DRM_MODE_CONSTRAINTS_GEOMETRY_CROP |
+               DRM_MODE_CONSTRAINTS_GEOMETRY_FRACTIONAL_SOURCE |
+               DRM_MODE_CONSTRAINTS_GEOMETRY_POSITION,
+      .min_scale = 1U << 15,
+      .max_scale = 2U << 16,
     },
     .property = {
       .header = {
@@ -243,6 +260,7 @@ create_two_entry_constraints_blob (void)
         .description = single.description,
         .output = single.output,
         .format = single.format,
+        .geometry = single.geometry,
         .property = single.property,
         .plane_limit = single.plane_limit,
         .extension = single.extension,
@@ -251,6 +269,7 @@ create_two_entry_constraints_blob (void)
         .description = single.description,
         .output = single.output,
         .format = single.format,
+        .geometry = single.geometry,
         .property = single.property,
         .plane_limit = single.plane_limit,
         .extension = single.extension,
@@ -456,6 +475,17 @@ static const MetaKmsConstraintsFormat formats[] = {
   },
 };
 
+static const MetaKmsConstraintsPlaneGeometry plane_geometries[] = {
+  {
+    .plane_id = 7,
+    .permits_crop = TRUE,
+    .permits_fractional_source = TRUE,
+    .permits_position = TRUE,
+    .min_scale = 1U << 15,
+    .max_scale = 2U << 16,
+  },
+};
+
 static MetaKmsConstraintsDescription *
 create_description (const MetaKmsConstraintsProperty *properties,
                     size_t                            n_properties)
@@ -466,6 +496,8 @@ create_description (const MetaKmsConstraintsProperty *properties,
   description = meta_kms_constraints_description_new (&output_size,
                                                        formats,
                                                        G_N_ELEMENTS (formats),
+                                                       plane_geometries,
+                                                       G_N_ELEMENTS (plane_geometries),
                                                        properties,
                                                        n_properties,
                                                        NULL,
@@ -474,6 +506,64 @@ create_description (const MetaKmsConstraintsProperty *properties,
   g_assert_no_error (error);
   g_assert_nonnull (description);
   return description;
+}
+
+static void
+meta_test_kms_constraints_plane_geometry (void)
+{
+  const MetaKmsConstraintsPlaneGeometry fixed_geometry = {
+    .plane_id = 7,
+    .min_scale = 1U << 16,
+    .max_scale = 1U << 16,
+  };
+  const MetaFixed16Rectangle full_source = {
+    .width = 1920U << 16,
+    .height = 1080U << 16,
+  };
+  const MtkRectangle full_destination = {
+    .width = 1920,
+    .height = 1080,
+  };
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsDescription) description = NULL;
+  MetaFixed16Rectangle source;
+  MtkRectangle destination;
+
+  description = meta_kms_constraints_description_new (
+    &output_size,
+    formats,
+    G_N_ELEMENTS (formats),
+    &fixed_geometry,
+    1,
+    NULL,
+    0,
+    NULL,
+    0,
+    &error);
+  g_assert_no_error (error);
+  g_assert_true (meta_kms_constraints_description_allows_plane_geometry (
+                   description, 7, 1920, 1080,
+                   full_source, full_destination));
+
+  source = full_source;
+  source.x = 1U << 16;
+  g_assert_false (meta_kms_constraints_description_allows_plane_geometry (
+                    description, 7, 1920, 1080, source, full_destination));
+  source = full_source;
+  source.width--;
+  g_assert_false (meta_kms_constraints_description_allows_plane_geometry (
+                    description, 7, 1920, 1080, source, full_destination));
+  destination = full_destination;
+  destination.x = 1;
+  g_assert_false (meta_kms_constraints_description_allows_plane_geometry (
+                    description, 7, 1920, 1080, full_source, destination));
+  destination = full_destination;
+  destination.width /= 2;
+  g_assert_false (meta_kms_constraints_description_allows_plane_geometry (
+                    description, 7, 1920, 1080, full_source, destination));
+  g_assert_true (meta_kms_constraints_description_allows_plane_geometry (
+                   description, 9, 1920, 1080,
+                   full_source, full_destination));
 }
 
 static void
@@ -753,6 +843,7 @@ meta_test_kms_constraints_owns_description (void)
 {
   MetaKmsConstraintsSize source_output = output_size;
   MetaKmsConstraintsFormat source_format = formats[0];
+  MetaKmsConstraintsPlaneGeometry source_geometry = plane_geometries[0];
   MetaKmsConstraintsProperty source_property = {
     .object_id = 7,
     .property_id = 11,
@@ -769,12 +860,15 @@ meta_test_kms_constraints_owns_description (void)
   g_autoptr (MetaKmsConstraintsDescription) description = NULL;
   const MetaKmsConstraintsSize *stored_output;
   const MetaKmsConstraintsFormat *stored_format;
+  const MetaKmsConstraintsPlaneGeometry *stored_geometry;
   const MetaKmsConstraintsProperty *stored_property;
   const MetaKmsConstraintsPlaneLimit *stored_plane_limit;
   size_t count;
 
   description = meta_kms_constraints_description_new (&source_output,
                                                        &source_format,
+                                                       1,
+                                                       &source_geometry,
                                                        1,
                                                        &source_property,
                                                        1,
@@ -786,6 +880,7 @@ meta_test_kms_constraints_owns_description (void)
 
   source_output.max_width = 1;
   source_format.plane_id = 1;
+  source_geometry.plane_id = 1;
   source_property.object_id = 1;
   source_plane_ids[0] = 1;
 
@@ -796,12 +891,17 @@ meta_test_kms_constraints_owns_description (void)
   stored_plane_limit =
     meta_kms_constraints_description_get_plane_limits (description, &count);
   g_assert_cmpuint (count, ==, 1);
+  stored_geometry =
+    meta_kms_constraints_description_get_plane_geometries (description,
+                                                            &count);
+  g_assert_cmpuint (count, ==, 1);
   stored_property =
     meta_kms_constraints_description_get_properties (description, &count);
   g_assert_cmpuint (count, ==, 1);
 
   g_assert_cmpuint (stored_output->max_width, ==, output_size.max_width);
   g_assert_cmpuint (stored_format->plane_id, ==, formats[0].plane_id);
+  g_assert_cmpuint (stored_geometry->plane_id, ==, 7);
   g_assert_cmpuint (stored_property->object_id, ==, 7);
   g_assert_cmpuint (stored_plane_limit->plane_ids[0], ==, 7);
 }
@@ -855,6 +955,8 @@ meta_test_kms_constraints_reject_invalid (void)
     0,
     NULL,
     0,
+    NULL,
+    0,
     &error);
   g_assert_null (description);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
@@ -866,6 +968,8 @@ meta_test_kms_constraints_reject_invalid (void)
     &output_size,
     &invalid_implicit,
     1,
+    NULL,
+    0,
     NULL,
     0,
     NULL,
@@ -884,6 +988,8 @@ meta_test_kms_constraints_reject_invalid (void)
     0,
     NULL,
     0,
+    NULL,
+    0,
     &error);
   g_assert_null (description);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
@@ -897,6 +1003,8 @@ meta_test_kms_constraints_reject_invalid (void)
     0,
     NULL,
     0,
+    NULL,
+    0,
     &error);
   g_assert_null (description);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
@@ -906,6 +1014,8 @@ meta_test_kms_constraints_reject_invalid (void)
     &output_size,
     formats,
     G_N_ELEMENTS (formats),
+    NULL,
+    0,
     &invalid_property,
     1,
     NULL,
@@ -919,6 +1029,8 @@ meta_test_kms_constraints_reject_invalid (void)
     &output_size,
     formats,
     G_N_ELEMENTS (formats),
+    NULL,
+    0,
     duplicate_properties,
     G_N_ELEMENTS (duplicate_properties),
     NULL,
@@ -932,6 +1044,8 @@ meta_test_kms_constraints_reject_invalid (void)
     &output_size,
     formats,
     G_N_ELEMENTS (formats),
+    NULL,
+    0,
     NULL,
     0,
     &invalid_plane_limit,
@@ -1079,10 +1193,12 @@ meta_test_kms_constraints_decode (void)
   const MetaKmsConstraintsListEntry *entry;
   const MetaKmsConstraintsDescription *description;
   const MetaKmsConstraintsFormat *decoded_formats;
+  const MetaKmsConstraintsPlaneGeometry *decoded_geometries;
   const MetaKmsConstraintsProperty *decoded_properties;
   const MetaKmsConstraintsPlaneLimit *decoded_plane_limits;
   const MetaKmsConstraintsSize *decoded_output;
   size_t n_formats;
+  size_t n_geometries;
   size_t n_properties;
   size_t n_plane_limits;
 
@@ -1114,6 +1230,16 @@ meta_test_kms_constraints_decode (void)
   g_assert_cmpuint (decoded_formats[0].pitch_alignment, ==, 4);
   g_assert_cmpuint (decoded_formats[0].offset_alignment, ==, 4);
   g_assert_cmpuint (decoded_formats[0].max_pitch, ==, 65536);
+  decoded_geometries =
+    meta_kms_constraints_description_get_plane_geometries (description,
+                                                            &n_geometries);
+  g_assert_cmpuint (n_geometries, ==, 1);
+  g_assert_cmpuint (decoded_geometries[0].plane_id, ==, 7);
+  g_assert_true (decoded_geometries[0].permits_crop);
+  g_assert_true (decoded_geometries[0].permits_fractional_source);
+  g_assert_true (decoded_geometries[0].permits_position);
+  g_assert_cmpuint (decoded_geometries[0].min_scale, ==, 1U << 15);
+  g_assert_cmpuint (decoded_geometries[0].max_scale, ==, 2U << 16);
   decoded_properties =
     meta_kms_constraints_description_get_properties (description,
                                                       &n_properties);
@@ -1235,6 +1361,20 @@ meta_test_kms_constraints_decode_reject_malformed (void)
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
   g_assert_null (list);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.geometry.flags = 8;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.geometry.min_scale = 0;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
 
   g_clear_error (&error);
   blob = create_constraints_blob ();
@@ -1550,6 +1690,16 @@ meta_test_kms_constraints_target (void)
   const uint32_t primary_plane[] = { 7 };
   const uint32_t primary_and_cursor_planes[] = { 7, 9 };
   const uint32_t unrelated_planes[] = { 11, 12 };
+  const MetaFixed16Rectangle source = {
+    .width = 1920U << 16,
+    .height = 1080U << 16,
+  };
+  MtkRectangle destination = {
+    .x = 20,
+    .y = 30,
+    .width = 1920,
+    .height = 1080,
+  };
 
   blob.payloads[1].extension.flags = 0;
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
@@ -1586,6 +1736,11 @@ meta_test_kms_constraints_target (void)
                     META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
                     1920,
                     1080));
+  g_assert_true (meta_kms_constraints_target_allows_plane_geometry (
+                   target, 7, 1920, 1080, source, destination));
+  destination.width = 640;
+  g_assert_false (meta_kms_constraints_target_allows_plane_geometry (
+                    target, 7, 1920, 1080, source, destination));
   g_assert_false (meta_kms_constraints_target_allows_implicit_layout (
                     target,
                     7,
@@ -1661,6 +1816,8 @@ main (int    argc,
   g_test_init (&argc, &argv, NULL);
   g_test_add_func ("/backends/native/kms/constraints/sizes",
                    meta_test_kms_constraints_sizes);
+  g_test_add_func ("/backends/native/kms/constraints/plane-geometry",
+                   meta_test_kms_constraints_plane_geometry);
   g_test_add_func ("/backends/native/kms/constraints/event",
                    meta_test_kms_constraints_event);
   g_test_add_func ("/backends/native/kms/constraints/formats",
