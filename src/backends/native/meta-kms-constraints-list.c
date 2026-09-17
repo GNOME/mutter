@@ -30,6 +30,7 @@ struct _MetaKmsConstraintsListEntry
 
 struct _MetaKmsConstraintsList
 {
+  gatomicrefcount ref_count;
   uint64_t generation;
   uint64_t selected_id;
   uint64_t suggested_id;
@@ -44,7 +45,7 @@ clear_entries (MetaKmsConstraintsListEntry *entries,
   size_t i;
 
   for (i = 0; i < n_entries; i++)
-    meta_kms_constraints_description_free (entries[i].description);
+    meta_kms_constraints_description_unref (entries[i].description);
   g_free (entries);
 }
 
@@ -155,12 +156,7 @@ meta_kms_constraints_list_new (
       entries_copy[i].id = entries[i].id;
       entries_copy[i].selectable = entries[i].selectable;
       entries_copy[i].description =
-        meta_kms_constraints_description_copy (entries[i].description, error);
-      if (!entries_copy[i].description)
-        {
-          clear_entries (g_steal_pointer (&entries_copy), n_copied);
-          return NULL;
-        }
+        meta_kms_constraints_description_ref (entries[i].description);
       n_copied++;
     }
 
@@ -175,6 +171,7 @@ meta_kms_constraints_list_new (
       return NULL;
     }
 
+  g_atomic_ref_count_init (&list->ref_count);
   list->generation = generation;
   list->selected_id = selected_id;
   list->suggested_id = suggested_id;
@@ -184,10 +181,19 @@ meta_kms_constraints_list_new (
   return list;
 }
 
+MetaKmsConstraintsList *
+meta_kms_constraints_list_ref (MetaKmsConstraintsList *list)
+{
+  g_atomic_ref_count_inc (&list->ref_count);
+  return list;
+}
+
 void
-meta_kms_constraints_list_free (MetaKmsConstraintsList *list)
+meta_kms_constraints_list_unref (MetaKmsConstraintsList *list)
 {
   if (!list)
+    return;
+  if (!g_atomic_ref_count_dec (&list->ref_count))
     return;
 
   clear_entries (list->entries, list->n_entries);

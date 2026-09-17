@@ -30,7 +30,7 @@ typedef struct _MetaKmsConstraintsListEntrySpec
 {
   uint64_t id;
   gboolean selectable;
-  const MetaKmsConstraintsDescription *description;
+  MetaKmsConstraintsDescription *description;
 } MetaKmsConstraintsListEntrySpec;
 
 MetaKmsConstraintsList *
@@ -42,10 +42,13 @@ meta_kms_constraints_list_new (
   size_t                                 n_entries,
   GError                               **error);
 
-void meta_kms_constraints_list_free (MetaKmsConstraintsList *list);
+MetaKmsConstraintsList *
+meta_kms_constraints_list_ref (MetaKmsConstraintsList *list);
+
+void meta_kms_constraints_list_unref (MetaKmsConstraintsList *list);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsConstraintsList,
-                               meta_kms_constraints_list_free)
+                               meta_kms_constraints_list_unref)
 
 uint64_t meta_kms_constraints_list_get_generation (
   const MetaKmsConstraintsList *list);

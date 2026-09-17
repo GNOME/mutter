@@ -633,6 +633,7 @@ meta_test_kms_constraints_list (void)
   };
   g_autoptr (GError) error = NULL;
   g_autoptr (MetaKmsConstraintsList) list = NULL;
+  g_autoptr (MetaKmsConstraintsList) retained_list = NULL;
   const MetaKmsConstraintsListEntry *stored_entry;
 
   list = meta_kms_constraints_list_new (17,
@@ -644,8 +645,8 @@ meta_test_kms_constraints_list (void)
   g_assert_no_error (error);
   g_assert_nonnull (list);
 
-  g_clear_pointer (&first, meta_kms_constraints_description_free);
-  g_clear_pointer (&second, meta_kms_constraints_description_free);
+  g_clear_pointer (&first, meta_kms_constraints_description_unref);
+  g_clear_pointer (&second, meta_kms_constraints_description_unref);
 
   g_assert_cmpuint (meta_kms_constraints_list_get_generation (list), ==, 17);
   g_assert_cmpuint (meta_kms_constraints_list_get_selected_id (list), ==, 5);
@@ -667,6 +668,14 @@ meta_test_kms_constraints_list (void)
   stored_entry = meta_kms_constraints_list_find_entry (list, 9);
   g_assert_true (meta_kms_constraints_list_entry_is_selectable (stored_entry));
   g_assert_null (meta_kms_constraints_list_find_entry (list, 10));
+
+  retained_list = meta_kms_constraints_list_ref (list);
+  g_clear_pointer (&list, meta_kms_constraints_list_unref);
+  stored_entry = meta_kms_constraints_list_find_entry (retained_list, 9);
+  g_assert_nonnull (stored_entry);
+  g_assert_cmpuint (meta_kms_constraints_list_entry_get_id (stored_entry),
+                    ==,
+                    9);
 }
 
 static void
@@ -927,7 +936,7 @@ meta_test_kms_constraints_decode_skip_unsupported (void)
   g_assert_nonnull (meta_kms_constraints_list_find_entry (list, 5));
   g_assert_null (meta_kms_constraints_list_find_entry (list, 9));
 
-  g_clear_pointer (&list, meta_kms_constraints_list_free);
+  g_clear_pointer (&list, meta_kms_constraints_list_unref);
   blob = create_two_entry_constraints_blob ();
   blob.payloads[1].extension.flags = 0;
   blob.entries[1].flags |= 2;
@@ -937,7 +946,7 @@ meta_test_kms_constraints_decode_skip_unsupported (void)
   g_assert_cmpuint (meta_kms_constraints_list_get_n_entries (list), ==, 1);
   g_assert_cmpuint (meta_kms_constraints_list_get_suggested_id (list), ==, 0);
 
-  g_clear_pointer (&list, meta_kms_constraints_list_free);
+  g_clear_pointer (&list, meta_kms_constraints_list_unref);
   blob.entries[1].id = blob.entries[0].id;
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
   g_assert_null (list);

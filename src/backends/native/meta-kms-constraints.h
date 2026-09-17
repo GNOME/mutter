@@ -60,15 +60,14 @@ meta_kms_constraints_description_new (
   GError                          **error);
 
 MetaKmsConstraintsDescription *
-meta_kms_constraints_description_copy (
-  const MetaKmsConstraintsDescription *description,
-  GError                             **error);
+meta_kms_constraints_description_ref (
+  MetaKmsConstraintsDescription *description);
 
-void meta_kms_constraints_description_free (
+void meta_kms_constraints_description_unref (
   MetaKmsConstraintsDescription *description);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsConstraintsDescription,
-                               meta_kms_constraints_description_free)
+                               meta_kms_constraints_description_unref)
 
 const MetaKmsConstraintsSize *
 meta_kms_constraints_description_get_output (

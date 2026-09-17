@@ -423,7 +423,7 @@ meta_kms_constraints_decode (const void  *data,
     goto fail;
 
   for (i = 0; i < n_entries; i++)
-    meta_kms_constraints_description_free (descriptions[i]);
+    meta_kms_constraints_description_unref (descriptions[i]);
   return g_steal_pointer (&list);
 
 invalid_header:
@@ -434,6 +434,6 @@ invalid_entry:
   set_invalid_error (error, "Malformed KMS constraints list entry");
 fail:
   for (i = 0; i < n_entries; i++)
-    meta_kms_constraints_description_free (descriptions[i]);
+    meta_kms_constraints_description_unref (descriptions[i]);
   return NULL;
 }

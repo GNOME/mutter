@@ -25,6 +25,7 @@
 
 struct _MetaKmsConstraintsDescription
 {
+  gatomicrefcount ref_count;
   MetaKmsConstraintsSize output;
   MetaKmsConstraintsFormat *formats;
   size_t n_formats;
@@ -206,6 +207,7 @@ meta_kms_constraints_description_new (
                            "Allocate KMS constraints description");
       return NULL;
     }
+  g_atomic_ref_count_init (&description->ref_count);
   description->output = *output;
   description->formats = g_steal_pointer (&formats_copy);
   description->n_formats = n_formats;
@@ -216,23 +218,20 @@ meta_kms_constraints_description_new (
 }
 
 MetaKmsConstraintsDescription *
-meta_kms_constraints_description_copy (
-  const MetaKmsConstraintsDescription *description,
-  GError                             **error)
+meta_kms_constraints_description_ref (
+  MetaKmsConstraintsDescription *description)
 {
-  return meta_kms_constraints_description_new (&description->output,
-                                                description->formats,
-                                                description->n_formats,
-                                                description->properties,
-                                                description->n_properties,
-                                                error);
+  g_atomic_ref_count_inc (&description->ref_count);
+  return description;
 }
 
 void
-meta_kms_constraints_description_free (
+meta_kms_constraints_description_unref (
   MetaKmsConstraintsDescription *description)
 {
   if (!description)
+    return;
+  if (!g_atomic_ref_count_dec (&description->ref_count))
     return;
 
   g_free (description->formats);
