@@ -611,7 +611,7 @@ meta_kms_crtc_refresh_constraints_in_impl (MetaKmsCrtc *crtc,
                   "Failed to refresh constraints for CRTC %u: %s",
                   crtc->id,
                   error->message);
-      return META_KMS_RESOURCE_CHANGE_NONE;
+      return META_KMS_RESOURCE_CHANGE_FULL;
     }
 
   crtc->current_state.constraints.id =
