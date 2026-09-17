@@ -4,7 +4,7 @@
 #include <drm.h>
 
 /* Experimental constraints interface shared with the development kernel. */
-#define DRM_KMS_CONSTRAINTS_ID_PROPERTY "CONSTRAINTS_ID"
+#define DRM_CONSTRAINTS_ID_PROPERTY "CONSTRAINTS_ID"
 
 #define DRM_MODE_CONSTRAINTS_VERSION 1
 #define DRM_MODE_CONSTRAINTS_MAX_BYTES (16U * 1024U * 1024U)

@@ -760,7 +760,7 @@ init_properties (MetaKmsCrtc       *crtc,
         },
       [META_KMS_CRTC_PROP_CONSTRAINTS_ID] =
         {
-          .name = DRM_KMS_CONSTRAINTS_ID_PROPERTY,
+          .name = DRM_CONSTRAINTS_ID_PROPERTY,
           .type = DRM_MODE_PROP_RANGE,
           .default_value = 0,
         },
