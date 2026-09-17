@@ -1851,6 +1851,7 @@ static void
 maybe_mark_next_frame_kms_ready (CoglOnscreen *onscreen)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  g_autoptr (GMainContext) main_context = NULL;
   MetaFrameNative *frame_native;
   GSource *source;
   NextFrameReadySource *next_frame_ready_source;
@@ -1865,13 +1866,15 @@ maybe_mark_next_frame_kms_ready (CoglOnscreen *onscreen)
       return;
     }
 
+  main_context = g_main_context_ref_thread_default ();
+
   source = g_source_new (&next_frame_source_funcs,
                          sizeof (NextFrameReadySource));
   g_source_add_unix_fd (source, sync_fd, G_IO_IN);
 
   g_source_set_static_name (source,
                             "[mutter] Clutter onscreen native next frame");
-  g_source_attach (source, NULL);
+  g_source_attach (source, main_context);
   g_source_unref (source);
   onscreen_native->next_frame_ready_source = source;
 
