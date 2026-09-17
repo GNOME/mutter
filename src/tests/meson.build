@@ -702,6 +702,14 @@ test('kms-renderer-control', renderer_control_test,
 
 test_cases += [
   {
+    'name': 'kms-constraints',
+    'suite': 'backends/native',
+    'sources': [
+      'kms-constraints-unit-tests.c',
+      '../backends/native/meta-kms-constraints.c',
+    ],
+  },
+  {
     'name': 'kms-utils',
     'suite': 'backends/native',
     'sources': [ 'kms-utils-unit-tests.c', ],
