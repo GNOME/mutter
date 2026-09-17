@@ -3660,7 +3660,9 @@ meta_onscreen_native_bind_constraints_target (
 
   mode_info = meta_crtc_mode_get_info (crtc_config->mode);
 
-  target_id = meta_kms_constraints_list_get_selected_id (list);
+  target_id = meta_kms_constraints_list_get_suggested_id (list);
+  if (target_id == 0)
+    target_id = meta_kms_constraints_list_get_selected_id (list);
 
   onscreen_native->constraints_target =
     meta_kms_constraints_target_new (list, target_id, error);
