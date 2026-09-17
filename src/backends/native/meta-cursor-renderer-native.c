@@ -1166,7 +1166,7 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
       struct gbm_bo *bo;
       g_autoptr (GError) error = NULL;
       MetaDrmBufferFlags flags;
-      MetaDrmBufferGbm *buffer_gbm;
+      g_autoptr (MetaDrmBufferGbm) buffer_gbm = NULL;
 
       device_file = meta_device_pool_open (device_pool,
                                            meta_gpu_kms_get_file_path (gpu_kms),
