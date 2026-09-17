@@ -668,7 +668,7 @@ selected_constraints_allow_cursor_buffer (MetaCrtcKms *crtc_kms,
   g_autoptr (GError) error = NULL;
 
   if (!list)
-    return TRUE;
+    return !meta_kms_crtc_get_current_state (kms_crtc)->constraints.supported;
   if (!kms_plane)
     return FALSE;
 
