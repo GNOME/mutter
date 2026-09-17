@@ -45,6 +45,7 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-output-kms.h"
@@ -717,7 +718,8 @@ meta_onscreen_native_dummy_power_save_page_flip (CoglOnscreen *onscreen)
 }
 
 static void
-apply_transform (MetaCrtcKms            *crtc_kms,
+apply_transform (MetaOnscreenNative     *onscreen_native,
+                 MetaCrtcKms            *crtc_kms,
                  MetaKmsPlaneAssignment *kms_plane_assignment,
                  MetaKmsPlane           *kms_plane)
 {
@@ -728,9 +730,11 @@ apply_transform (MetaCrtcKms            *crtc_kms,
   crtc_config = meta_crtc_get_config (crtc);
 
   hw_transform = crtc_config->transform;
-  if (!meta_kms_plane_is_transform_handled (kms_plane, hw_transform))
+  if (!meta_onscreen_native_is_transform_handled (onscreen_native,
+                                                   hw_transform))
     hw_transform = MTK_MONITOR_TRANSFORM_NORMAL;
-  if (!meta_kms_plane_is_transform_handled (kms_plane, hw_transform))
+  if (!meta_onscreen_native_is_transform_handled (onscreen_native,
+                                                   hw_transform))
     return;
 
   meta_kms_plane_update_set_rotation (kms_plane,
@@ -766,6 +770,7 @@ apply_color_range (MetaKmsPlaneAssignment *kms_plane_assignment,
 
 static MetaKmsPlaneAssignment *
 assign_primary_plane (MetaCrtcKms            *crtc_kms,
+                      MetaOnscreenNative     *onscreen_native,
                       MetaDrmBuffer          *buffer,
                       MetaKmsUpdate          *kms_update,
                       MetaKmsAssignPlaneFlag  flags,
@@ -802,7 +807,10 @@ assign_primary_plane (MetaCrtcKms            *crtc_kms,
                                                    src_rect_fixed16,
                                                    *dst_rect,
                                                    flags);
-  apply_transform (crtc_kms, plane_assignment, primary_kms_plane);
+  apply_transform (onscreen_native,
+                   crtc_kms,
+                   plane_assignment,
+                   primary_kms_plane);
   apply_color_encoding (plane_assignment, primary_kms_plane);
   apply_color_range (plane_assignment, primary_kms_plane);
 
@@ -878,6 +886,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
 
       select_constraints_target (onscreen_native, kms_update, kms_crtc);
       plane_assignment = assign_primary_plane (crtc_kms,
+                                               onscreen_native,
                                                buffer,
                                                kms_update,
                                                flags,
@@ -2182,10 +2191,16 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
   MetaKmsFeedbackResult result;
   graphene_rect_t src_rect;
   MtkRectangle dst_rect;
+  const MetaCrtcConfig *crtc_config;
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+
+  crtc_config = meta_crtc_get_config (crtc);
+  if (!meta_onscreen_native_is_transform_handled (onscreen_native,
+                                                   crtc_config->transform))
+    return FALSE;
 
   test_update = meta_kms_update_new (kms_device);
   select_constraints_target (onscreen_native, test_update, kms_crtc);
@@ -2195,6 +2210,7 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
 
   buffer = META_DRM_BUFFER (cogl_scanout_get_buffer (scanout));
   assign_primary_plane (crtc_kms,
+                        onscreen_native,
                         buffer,
                         test_update,
                         META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC,
@@ -3517,12 +3533,14 @@ constraints_target_supports_primary_buffers (
   return FALSE;
 }
 
-static gboolean
-init_constraints_target (MetaOnscreenNative  *onscreen_native,
-                         int                  width,
-                         int                  height,
-                         GError             **error)
+gboolean
+meta_onscreen_native_bind_selected_constraints (
+  MetaOnscreenNative  *onscreen_native,
+  GError             **error)
 {
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+  int width = cogl_framebuffer_get_width (framebuffer);
+  int height = cogl_framebuffer_get_height (framebuffer);
   const MetaCrtcConfig *crtc_config =
     meta_crtc_get_config (onscreen_native->crtc);
   const MetaCrtcModeInfo *mode_info;
@@ -3533,6 +3551,9 @@ init_constraints_target (MetaOnscreenNative  *onscreen_native,
   const MetaKmsConstraintsDescription *description;
   const MetaKmsConstraintsSize *output;
   uint64_t target_id;
+
+  if (onscreen_native->constraints_target)
+    return TRUE;
 
   if (!list)
     return TRUE;
@@ -3590,6 +3611,38 @@ init_constraints_target (MetaOnscreenNative  *onscreen_native,
   return TRUE;
 }
 
+gboolean
+meta_onscreen_native_is_transform_handled (
+  MetaOnscreenNative *onscreen_native,
+  MtkMonitorTransform transform)
+{
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+  uint32_t property_id;
+  uint64_t drm_rotation;
+
+  if (!meta_kms_plane_is_transform_handled (plane, transform))
+    return FALSE;
+  if (!onscreen_native->constraints_target)
+    return TRUE;
+
+  property_id = meta_kms_plane_get_prop_id (plane,
+                                            META_KMS_PLANE_PROP_ROTATION);
+  if (property_id == 0)
+    return TRUE;
+
+  g_return_val_if_fail (meta_kms_plane_transform_to_rotation (plane,
+                                                              transform,
+                                                              &drm_rotation),
+                        FALSE);
+
+  return meta_kms_constraints_target_allows_property (
+    onscreen_native->constraints_target,
+    meta_kms_plane_get_id (plane),
+    property_id,
+    drm_rotation);
+}
+
 static gboolean
 meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
                                GError          **error)
@@ -3607,8 +3660,7 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
 
-  if (!onscreen_native->constraints_target &&
-      !init_constraints_target (onscreen_native, width, height, error))
+  if (!meta_onscreen_native_bind_selected_constraints (onscreen_native, error))
     return FALSE;
 
   if (!onscreen_native->constraints_target &&

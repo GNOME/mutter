@@ -834,7 +834,8 @@ static MtkMonitorTransform
 calculate_view_transform (MetaMonitorManager *monitor_manager,
                           MetaLogicalMonitor *logical_monitor,
                           MetaOutput         *output,
-                          MetaCrtc           *crtc)
+                          MetaCrtc           *crtc,
+                          CoglFramebuffer    *framebuffer)
 {
   MtkMonitorTransform crtc_transform;
 
@@ -842,11 +843,18 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
   crtc_transform =
     meta_output_logical_to_crtc_transform (output, logical_monitor->transform);
 
-  if (meta_crtc_native_is_transform_handled (META_CRTC_NATIVE (crtc),
-                                             crtc_transform))
+  if (META_IS_ONSCREEN_NATIVE (framebuffer))
+    {
+      if (meta_onscreen_native_is_transform_handled (
+            META_ONSCREEN_NATIVE (framebuffer),
+            crtc_transform))
+        return MTK_MONITOR_TRANSFORM_NORMAL;
+    }
+  else if (meta_crtc_native_is_transform_handled (META_CRTC_NATIVE (crtc),
+                                                  crtc_transform))
     return MTK_MONITOR_TRANSFORM_NORMAL;
-  else
-    return crtc_transform;
+
+  return crtc_transform;
 }
 
 static gboolean
@@ -931,6 +939,17 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                                                       onscreen_width,
                                                       onscreen_height);
 
+          if (!meta_onscreen_native_bind_selected_constraints (onscreen_native,
+                                                                &local_error))
+            {
+              g_propagate_prefixed_error (
+                error,
+                local_error,
+                "Failed to bind selected KMS constraints for %s: ",
+                meta_gpu_kms_get_file_path (gpu_kms));
+              return NULL;
+            }
+
           if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen_native), &local_error))
             {
               g_propagate_prefixed_error (error, local_error,
@@ -965,7 +984,8 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
   view_transform = calculate_view_transform (monitor_manager,
                                              logical_monitor,
                                              output,
-                                             crtc);
+                                             crtc,
+                                             framebuffer);
 
   if (meta_backend_is_stage_views_scaled (backend))
     scale = meta_logical_monitor_get_scale (logical_monitor);

@@ -61,6 +61,14 @@ MetaOnscreenNative * meta_onscreen_native_new (MetaRendererNative *renderer_nati
                                                int                 width,
                                                int                 height);
 
+gboolean meta_onscreen_native_bind_selected_constraints (
+  MetaOnscreenNative  *onscreen_native,
+  GError             **error);
+
+gboolean meta_onscreen_native_is_transform_handled (
+  MetaOnscreenNative *onscreen_native,
+  MtkMonitorTransform transform);
+
 META_EXPORT_TEST
 MetaCrtc * meta_onscreen_native_get_crtc (MetaOnscreenNative *onscreen_native);
 
