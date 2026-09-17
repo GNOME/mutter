@@ -3530,7 +3530,6 @@ init_constraints_target (MetaOnscreenNative  *onscreen_native,
     meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   g_autoptr (MetaKmsConstraintsList) list =
     meta_kms_crtc_ref_constraints_list (kms_crtc);
-  const MetaKmsConstraintsListEntry *entry;
   const MetaKmsConstraintsDescription *description;
   const MetaKmsConstraintsSize *output;
   uint64_t target_id;
@@ -3549,31 +3548,7 @@ init_constraints_target (MetaOnscreenNative  *onscreen_native,
 
   mode_info = meta_crtc_mode_get_info (crtc_config->mode);
 
-  target_id = meta_kms_constraints_list_get_suggested_id (list);
-  if (target_id != 0)
-    {
-      g_autoptr (MetaKmsConstraintsTarget) target = NULL;
-
-      entry = meta_kms_constraints_list_find_entry (list, target_id);
-      description = meta_kms_constraints_list_entry_get_description (entry);
-      output = meta_kms_constraints_description_get_output (description);
-      if (!meta_kms_constraints_size_contains (output,
-                                                mode_info->width,
-                                                mode_info->height))
-        target_id = 0;
-      else
-        {
-          target = meta_kms_constraints_target_new (list, target_id, NULL);
-          if (!target ||
-              !constraints_target_supports_primary_buffers (onscreen_native,
-                                                            target,
-                                                            width,
-                                                            height))
-            target_id = 0;
-        }
-    }
-  if (target_id == 0)
-    target_id = meta_kms_constraints_list_get_selected_id (list);
+  target_id = meta_kms_constraints_list_get_selected_id (list);
 
   onscreen_native->constraints_target =
     meta_kms_constraints_target_new (list, target_id, error);
