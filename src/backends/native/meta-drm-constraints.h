@@ -7,7 +7,7 @@
 #define DRM_CONSTRAINTS_ID_PROPERTY "CONSTRAINTS_ID"
 
 #define DRM_MODE_CONSTRAINTS_VERSION 1
-#define DRM_MODE_CONSTRAINTS_MAX_BYTES (16U * 1024U * 1024U)
+#define DRM_MODE_CONSTRAINTS_MAX_BYTES (32U * 1024U * 1024U)
 #define DRM_MODE_CONSTRAINTS_MAX_ENTRIES 64U
 #define DRM_MODE_CONSTRAINTS_MAX_FORMATS 4096U
 #define DRM_MODE_CONSTRAINTS_MAX_PROPERTIES 64U
@@ -18,6 +18,8 @@
 #define DRM_MODE_CONSTRAINTS_RECORD_PLANE_FORMAT 2U
 #define DRM_MODE_CONSTRAINTS_RECORD_PROPERTY 3U
 #define DRM_MODE_CONSTRAINTS_LAYOUT_IMPLICIT (1U << 0)
+#define DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_NATIVE (1U << 0)
+#define DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_IMPORTED (1U << 1)
 
 #define DRM_CLIENT_CAP_KMS_CONSTRAINTS 9
 
@@ -107,7 +109,11 @@ struct drm_mode_constraints_plane_format
   __u32 max_width;
   __u32 max_height;
   __u32 layout_flags;
-  __u32 pad;
+  __u32 storage_flags;
+  __u32 plane_count;
+  __u32 pitch_alignment;
+  __u32 offset_alignment;
+  __u32 max_pitch;
 };
 
 struct drm_mode_constraints_property

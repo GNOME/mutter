@@ -49,6 +49,14 @@ format_is_valid (const MetaKmsConstraintsFormat *format)
          format->format != 0 &&
          ((format->implicit && format->modifier == 0) ||
           (!format->implicit && format->modifier != DRM_FORMAT_MOD_INVALID)) &&
+         (format->permits_native || format->permits_imported) &&
+         format->plane_count >= 1 &&
+         format->plane_count <= 4 &&
+         format->pitch_alignment != 0 &&
+         (format->pitch_alignment & (format->pitch_alignment - 1)) == 0 &&
+         format->offset_alignment != 0 &&
+         (format->offset_alignment & (format->offset_alignment - 1)) == 0 &&
+         format->max_pitch >= format->pitch_alignment &&
          size_is_valid (&format->size);
 }
 

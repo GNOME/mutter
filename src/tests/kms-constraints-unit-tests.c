@@ -119,6 +119,12 @@ create_constraints_blob (void)
       .min_height = 32,
       .max_width = 4096,
       .max_height = 4096,
+      .storage_flags = DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_NATIVE |
+                       DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_IMPORTED,
+      .plane_count = 1,
+      .pitch_alignment = 4,
+      .offset_alignment = 4,
+      .max_pitch = 65536,
     },
     .property = {
       .header = {
@@ -376,6 +382,12 @@ static const MetaKmsConstraintsFormat formats[] = {
     .plane_id = 7,
     .format = DRM_FORMAT_XRGB8888,
     .modifier = DRM_FORMAT_MOD_LINEAR,
+    .permits_native = TRUE,
+    .permits_imported = TRUE,
+    .plane_count = 1,
+    .pitch_alignment = 4,
+    .offset_alignment = 4,
+    .max_pitch = 65536,
     .size = {
       .min_width = 1280,
       .min_height = 720,
@@ -387,6 +399,11 @@ static const MetaKmsConstraintsFormat formats[] = {
     .plane_id = 7,
     .format = DRM_FORMAT_XRGB8888,
     .modifier = TEST_FORMAT_MODIFIER,
+    .permits_imported = TRUE,
+    .plane_count = 1,
+    .pitch_alignment = 256,
+    .offset_alignment = 4096,
+    .max_pitch = 65536,
     .size = {
       .min_width = 1920,
       .min_height = 1080,
@@ -399,6 +416,11 @@ static const MetaKmsConstraintsFormat formats[] = {
     .format = DRM_FORMAT_XRGB8888,
     .modifier = 0,
     .implicit = TRUE,
+    .permits_native = TRUE,
+    .plane_count = 1,
+    .pitch_alignment = 4,
+    .offset_alignment = 4,
+    .max_pitch = 65536,
     .size = {
       .min_width = 1280,
       .min_height = 720,
@@ -956,6 +978,12 @@ meta_test_kms_constraints_decode (void)
   g_assert_cmpuint (decoded_formats[0].format, ==, DRM_FORMAT_XRGB8888);
   g_assert_cmpuint (decoded_formats[0].modifier, ==, TEST_FORMAT_MODIFIER);
   g_assert_false (decoded_formats[0].implicit);
+  g_assert_true (decoded_formats[0].permits_native);
+  g_assert_true (decoded_formats[0].permits_imported);
+  g_assert_cmpuint (decoded_formats[0].plane_count, ==, 1);
+  g_assert_cmpuint (decoded_formats[0].pitch_alignment, ==, 4);
+  g_assert_cmpuint (decoded_formats[0].offset_alignment, ==, 4);
+  g_assert_cmpuint (decoded_formats[0].max_pitch, ==, 65536);
   decoded_properties =
     meta_kms_constraints_description_get_properties (description,
                                                       &n_properties);
@@ -1042,6 +1070,20 @@ meta_test_kms_constraints_decode_reject_malformed (void)
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
   g_assert_null (list);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.format.storage_flags = 4;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.format.pitch_alignment = 3;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
 
   g_clear_error (&error);
   blob = create_constraints_blob ();

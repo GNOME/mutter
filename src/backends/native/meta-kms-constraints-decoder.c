@@ -30,7 +30,7 @@ G_STATIC_ASSERT (sizeof (struct drm_mode_constraints) == 40);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_description) == 16);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_record) == 16);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_output_size) == 32);
-G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_plane_format) == 56);
+G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_plane_format) == 72);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_property) == 56);
 G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_mode_constraints_list,
                                   generation) == 8);
@@ -42,6 +42,8 @@ G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_mode_constraints_plane_format,
                                   modifier) == 24);
 G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_mode_constraints_plane_format,
                                   layout_flags) == 48);
+G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_mode_constraints_plane_format,
+                                  max_pitch) == 68);
 G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_mode_constraints_property,
                                   minimum) == 32);
 
@@ -214,10 +216,12 @@ decode_description (const uint8_t                *data,
             if (n_formats == format_capacity)
               goto invalid;
             memcpy (&wire, data + offset, sizeof (wire));
-            if (wire.pad != 0)
-              goto invalid;
             if ((wire.layout_flags &
                  ~DRM_MODE_CONSTRAINTS_LAYOUT_IMPLICIT) != 0)
+              return DECODE_RESULT_UNSUPPORTED;
+            if ((wire.storage_flags &
+                 ~(DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_NATIVE |
+                   DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_IMPORTED)) != 0)
               return DECODE_RESULT_UNSUPPORTED;
             formats[n_formats++] = (MetaKmsConstraintsFormat) {
               .plane_id = wire.plane_id,
@@ -225,6 +229,14 @@ decode_description (const uint8_t                *data,
               .modifier = wire.modifier,
               .implicit = !!(wire.layout_flags &
                              DRM_MODE_CONSTRAINTS_LAYOUT_IMPLICIT),
+              .permits_native = !!(wire.storage_flags &
+                                   DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_NATIVE),
+              .permits_imported = !!(wire.storage_flags &
+                                     DRM_MODE_CONSTRAINTS_FORMAT_STORAGE_IMPORTED),
+              .plane_count = wire.plane_count,
+              .pitch_alignment = wire.pitch_alignment,
+              .offset_alignment = wire.offset_alignment,
+              .max_pitch = wire.max_pitch,
               .size = {
                 .min_width = wire.min_width,
                 .min_height = wire.min_height,
