@@ -82,6 +82,12 @@ meta_kms_constraints_query (uint32_t                     crtc_id,
                            &size);
       if (result == -ESTALE)
         {
+          if (expected_generation == 0)
+            {
+              set_query_error (error, result);
+              return NULL;
+            }
+
           expected_generation = 0;
           continue;
         }
