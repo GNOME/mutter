@@ -230,6 +230,9 @@ META_EXPORT_TEST
 GList * meta_kms_update_get_crtc_updates (MetaKmsUpdate *update);
 
 META_EXPORT_TEST
+gboolean meta_kms_update_selects_constraints (MetaKmsUpdate *update);
+
+META_EXPORT_TEST
 GList * meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update);
 
 META_EXPORT_TEST

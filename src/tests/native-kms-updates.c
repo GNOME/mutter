@@ -114,17 +114,20 @@ meta_test_kms_update_constraints_modeset_permission (void)
   update = meta_kms_update_new (device);
   g_assert_false (meta_kms_update_get_needs_modeset (update));
   g_assert_false (meta_kms_update_requires_modeset_permission (update));
+  g_assert_false (meta_kms_update_selects_constraints (update));
 
   constraints_update = meta_kms_update_new (device);
   meta_kms_update_select_constraints (constraints_update, crtc, 7);
   g_assert_false (meta_kms_update_get_needs_modeset (constraints_update));
   g_assert_true (
     meta_kms_update_requires_modeset_permission (constraints_update));
+  g_assert_true (meta_kms_update_selects_constraints (constraints_update));
   g_assert_true (meta_kms_update_get_latch_crtc (constraints_update) == crtc);
 
   meta_kms_update_merge_from (update, constraints_update);
   g_assert_false (meta_kms_update_get_needs_modeset (update));
   g_assert_true (meta_kms_update_requires_modeset_permission (update));
+  g_assert_true (meta_kms_update_selects_constraints (update));
   g_assert_true (meta_kms_update_get_latch_crtc (update) == crtc);
 
   meta_kms_update_free (constraints_update);

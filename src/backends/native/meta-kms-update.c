@@ -859,6 +859,22 @@ meta_kms_update_get_crtc_updates (MetaKmsUpdate *update)
   return update->crtc_updates;
 }
 
+gboolean
+meta_kms_update_selects_constraints (MetaKmsUpdate *update)
+{
+  GList *l;
+
+  for (l = update->crtc_updates; l; l = l->next)
+    {
+      MetaKmsCrtcUpdate *crtc_update = l->data;
+
+      if (crtc_update->constraints.has_update)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 GList *
 meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update)
 {
