@@ -19,6 +19,20 @@
 #define DRM_MODE_CONSTRAINTS_RECORD_PROPERTY 3U
 #define DRM_MODE_CONSTRAINTS_LAYOUT_IMPLICIT (1U << 0)
 
+struct drm_mode_list_constraints
+{
+  __u32 crtc_id;
+  __u32 flags;
+  __aligned_u64 generation;
+  __aligned_u64 data;
+  __u32 size;
+  __u32 pad;
+  __aligned_u64 reserved[2];
+};
+
+#define DRM_IOCTL_MODE_LIST_CONSTRAINTS \
+  DRM_IOWR (0xD5, struct drm_mode_list_constraints)
+
 struct drm_mode_constraints_list
 {
   __u32 version;
