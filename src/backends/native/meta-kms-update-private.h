@@ -255,6 +255,9 @@ META_EXPORT_TEST
 gboolean meta_kms_update_get_needs_modeset (MetaKmsUpdate *update);
 
 META_EXPORT_TEST
+gboolean meta_kms_update_requires_modeset_permission (MetaKmsUpdate *update);
+
+META_EXPORT_TEST
 MetaKmsCrtc * meta_kms_update_get_latch_crtc (MetaKmsUpdate *update);
 
 void meta_kms_page_flip_listener_unref (MetaKmsPageFlipListener *listener);

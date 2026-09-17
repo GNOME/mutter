@@ -48,6 +48,7 @@ struct _MetaKmsUpdate
   GList *result_listeners;
 
   gboolean needs_modeset;
+  gboolean requires_modeset_permission;
 
   MetaKmsImplDevice *impl_device;
 
@@ -534,7 +535,7 @@ meta_kms_update_select_constraints (MetaKmsUpdate *update,
   crtc_update->constraints.has_update = TRUE;
   crtc_update->constraints.id = constraints_id;
 
-  update->needs_modeset = TRUE;
+  update->requires_modeset_permission = TRUE;
   update_latch_crtc (update, crtc);
 }
 
@@ -1214,6 +1215,8 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
   merge_result_listeners_from (update, other_update);
 
   update->needs_modeset |= other_update->needs_modeset;
+  update->requires_modeset_permission |=
+    other_update->requires_modeset_permission;
   meta_kms_update_set_sync_fd (update, g_steal_fd (&other_update->sync_fd));
   update->target_presentation_time_us =
     MAX (update->target_presentation_time_us,
@@ -1224,6 +1227,13 @@ gboolean
 meta_kms_update_get_needs_modeset (MetaKmsUpdate *update)
 {
   return update->needs_modeset || update->mode_sets;
+}
+
+gboolean
+meta_kms_update_requires_modeset_permission (MetaKmsUpdate *update)
+{
+  return (meta_kms_update_get_needs_modeset (update) ||
+          update->requires_modeset_permission);
 }
 
 MetaKmsUpdate *

@@ -1411,9 +1411,10 @@ retry:
                         &error))
     goto err;
 
-  if (meta_kms_update_get_needs_modeset (update))
+  if (meta_kms_update_requires_modeset_permission (update))
     commit_flags |= DRM_MODE_ATOMIC_ALLOW_MODESET;
-  else
+
+  if (!meta_kms_update_get_needs_modeset (update))
     commit_flags |= DRM_MODE_ATOMIC_NONBLOCK;
 
   if (meta_kms_update_get_page_flip_listeners (update))
