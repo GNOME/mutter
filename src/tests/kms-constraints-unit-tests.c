@@ -20,10 +20,12 @@
 #include <errno.h>
 #include <drm_fourcc.h>
 #include <gio/gio.h>
+#include <string.h>
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-drm-constraints.h"
 #include "backends/native/meta-kms-constraints-decoder.h"
+#include "backends/native/meta-kms-constraints-event.h"
 #include "backends/native/meta-kms-constraints-ioctl.h"
 #include "backends/native/meta-kms-constraints-list.h"
 #include "backends/native/meta-kms-constraints-query.h"
@@ -137,6 +139,66 @@ create_constraints_blob (void)
   };
 
   return blob;
+}
+
+static void
+meta_test_kms_constraints_event (void)
+{
+  struct drm_event_kms_constraints_list_changed event = {
+    .base = {
+      .type = DRM_EVENT_KMS_CONSTRAINTS_LIST_CHANGED,
+      .length = sizeof (event),
+    },
+    .crtc_id = 7,
+    .generation = 11,
+  };
+  MetaKmsConstraintsListChange change;
+  uint8_t unaligned[sizeof (event) + 1];
+
+  g_assert_true (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                 &change));
+  g_assert_cmpuint (change.crtc_id, ==, 7);
+  g_assert_cmpuint (change.generation, ==, 11);
+  g_assert_false (change.is_closed);
+
+  memcpy (unaligned + 1, &event, sizeof (event));
+  g_assert_true (meta_kms_constraints_event_decode_list_change (
+                   (const struct drm_event *) (unaligned + 1),
+                   &change));
+
+  event.flags = DRM_KMS_CONSTRAINTS_LIST_CLOSED;
+  event.generation = 0;
+  g_assert_true (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                 &change));
+  g_assert_true (change.is_closed);
+
+  event.base.type++;
+  g_assert_false (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                  &change));
+  event.base.type--;
+  event.base.length--;
+  g_assert_false (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                  &change));
+  event.base.length++;
+  event.crtc_id = 0;
+  g_assert_false (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                  &change));
+  event.crtc_id = 7;
+  event.reserved = 1;
+  g_assert_false (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                  &change));
+  event.reserved = 0;
+  event.flags = 2;
+  g_assert_false (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                  &change));
+  event.flags = DRM_KMS_CONSTRAINTS_LIST_CLOSED;
+  event.generation = 11;
+  g_assert_false (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                  &change));
+  event.flags = 0;
+  event.generation = 0;
+  g_assert_false (meta_kms_constraints_event_decode_list_change (&event.base,
+                                                                  &change));
 }
 
 static TestTwoEntryConstraintsBlob
@@ -1364,6 +1426,8 @@ main (int    argc,
   g_test_init (&argc, &argv, NULL);
   g_test_add_func ("/backends/native/kms/constraints/sizes",
                    meta_test_kms_constraints_sizes);
+  g_test_add_func ("/backends/native/kms/constraints/event",
+                   meta_test_kms_constraints_event);
   g_test_add_func ("/backends/native/kms/constraints/formats",
                    meta_test_kms_constraints_formats);
   g_test_add_func ("/backends/native/kms/constraints/allocation-views",

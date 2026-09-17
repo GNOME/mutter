@@ -19,6 +19,18 @@
 #define DRM_MODE_CONSTRAINTS_RECORD_PROPERTY 3U
 #define DRM_MODE_CONSTRAINTS_LAYOUT_IMPLICIT (1U << 0)
 
+#define DRM_EVENT_KMS_CONSTRAINTS_LIST_CHANGED 0x04
+#define DRM_KMS_CONSTRAINTS_LIST_CLOSED (1U << 0)
+
+struct drm_event_kms_constraints_list_changed
+{
+  struct drm_event base;
+  __u32 crtc_id;
+  __u32 flags;
+  __aligned_u64 generation;
+  __aligned_u64 reserved;
+};
+
 struct drm_mode_list_constraints
 {
   __u32 crtc_id;
