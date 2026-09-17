@@ -1252,8 +1252,10 @@ meta_test_kms_constraints_query_rejects_bad_transport (void)
                                      &query,
                                      &error);
   g_assert_null (list);
-  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_BUSY);
-  g_assert_cmpuint (query.calls, ==, 8);
+  g_assert_error (error,
+                  G_IO_ERROR,
+                  g_io_error_from_errno (ESTALE));
+  g_assert_cmpuint (query.calls, ==, 1);
 
   g_clear_error (&error);
   query.always_stale = FALSE;
