@@ -22,6 +22,8 @@
 
 #include "backends/native/meta-drm-castkms.h"
 #include "backends/native/meta-drm-constraints.h"
+#include "backends/native/meta-kms-constraints-ioctl.h"
+#include "backends/native/meta-kms-constraints-list.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-impl-device-atomic.h"
@@ -49,6 +51,7 @@ struct _MetaKmsCrtc
   int idx;
 
   MetaKmsCrtcState current_state;
+  MetaKmsConstraintsList *constraints_list;
 
   MetaKmsCrtcPropTable prop_table;
 
@@ -83,6 +86,15 @@ const MetaKmsCrtcState *
 meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc)
 {
   return &crtc->current_state;
+}
+
+MetaKmsConstraintsList *
+meta_kms_crtc_ref_constraints_list (MetaKmsCrtc *crtc)
+{
+  if (!crtc->constraints_list)
+    return NULL;
+
+  return meta_kms_constraints_list_ref (crtc->constraints_list);
 }
 
 uint32_t
@@ -384,9 +396,12 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
                           drmModeCrtc             *drm_crtc,
                           drmModeObjectProperties *drm_props)
 {
+  g_autoptr (MetaKmsConstraintsList) constraints_list = NULL;
   MetaKmsCrtcState crtc_state = {0};
   MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
   MetaKmsProp *prop;
+  uint64_t old_constraints_generation = 0;
+  uint64_t new_constraints_generation = 0;
 
   meta_kms_impl_device_update_prop_table (impl_device,
                                           drm_props->props,
@@ -422,9 +437,40 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
   prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_CONSTRAINTS_ID];
   if (prop->prop_id)
     {
+      g_autoptr (GError) error = NULL;
+
       crtc_state.constraints.supported = TRUE;
       crtc_state.constraints.id = prop->value;
+
+      constraints_list =
+        meta_kms_constraints_query_fd (meta_kms_impl_device_get_fd (impl_device),
+                                       crtc->id,
+                                       &error);
+      if (constraints_list)
+        {
+          crtc_state.constraints.id =
+            meta_kms_constraints_list_get_selected_id (constraints_list);
+        }
+      else
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "Failed to list constraints for CRTC %u: %s",
+                      crtc->id,
+                      error->message);
+          if (crtc->constraints_list)
+            constraints_list =
+              meta_kms_constraints_list_ref (crtc->constraints_list);
+        }
     }
+
+  if (crtc->constraints_list)
+    old_constraints_generation =
+      meta_kms_constraints_list_get_generation (crtc->constraints_list);
+  if (constraints_list)
+    new_constraints_generation =
+      meta_kms_constraints_list_get_generation (constraints_list);
+  if (old_constraints_generation != new_constraints_generation)
+    changes |= META_KMS_RESOURCE_CHANGE_FULL;
 
   read_degamma_state (crtc, &crtc_state, impl_device, drm_crtc);
   read_ctm_state (crtc, &crtc_state, impl_device);
@@ -442,9 +488,13 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
     }
   else
     {
-      changes = meta_kms_crtc_state_changes (&crtc->current_state, &crtc_state);
+      MetaKmsResourceChanges state_changes;
 
-      if (changes & META_KMS_RESOURCE_CHANGE_FULL)
+      state_changes = meta_kms_crtc_state_changes (&crtc->current_state,
+                                                   &crtc_state);
+      changes |= state_changes;
+
+      if (state_changes == META_KMS_RESOURCE_CHANGE_FULL)
         {
           meta_topic (META_DEBUG_KMS,
                       "%s: meta_kms_crtc_state_changes returned "
@@ -460,6 +510,9 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
   g_clear_pointer (&crtc->current_state.gamma.value,
                    meta_gamma_lut_free);
   crtc->current_state = crtc_state;
+  g_clear_pointer (&crtc->constraints_list,
+                   meta_kms_constraints_list_unref);
+  crtc->constraints_list = g_steal_pointer (&constraints_list);
 
   meta_topic (META_DEBUG_KMS,
               "Read CRTC %u state: active: %d, mode: %s, "
@@ -742,6 +795,7 @@ meta_kms_crtc_finalize (GObject *object)
   g_clear_pointer (&crtc->current_state.degamma.value, meta_gamma_lut_free);
   g_clear_pointer (&crtc->current_state.ctm.value, meta_ctm_free);
   g_clear_pointer (&crtc->current_state.gamma.value, meta_gamma_lut_free);
+  g_clear_pointer (&crtc->constraints_list, meta_kms_constraints_list_unref);
 
   G_OBJECT_CLASS (meta_kms_crtc_parent_class)->finalize (object);
 }

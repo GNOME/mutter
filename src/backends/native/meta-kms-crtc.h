@@ -26,6 +26,8 @@
 #include "core/util-private.h"
 #include "meta/boxes.h"
 
+typedef struct _MetaKmsConstraintsList MetaKmsConstraintsList;
+
 typedef struct _MetaKmsCrtcState
 {
   gboolean is_active;
@@ -74,6 +76,9 @@ MetaKmsDevice * meta_kms_crtc_get_device (MetaKmsCrtc *crtc);
 
 META_EXPORT_TEST
 const MetaKmsCrtcState * meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc);
+
+MetaKmsConstraintsList *
+meta_kms_crtc_ref_constraints_list (MetaKmsCrtc *crtc);
 
 META_EXPORT_TEST
 uint32_t meta_kms_crtc_get_id (MetaKmsCrtc *crtc);
