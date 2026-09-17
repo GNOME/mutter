@@ -330,6 +330,77 @@ meta_kms_constraints_description_allows_implicit_layout (
   return FALSE;
 }
 
+static gboolean
+contains_uint32 (GArray   *values,
+                 uint32_t  value)
+{
+  size_t i;
+
+  for (i = 0; i < values->len; i++)
+    {
+      if (g_array_index (values, uint32_t, i) == value)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+GArray *
+meta_kms_constraints_description_copy_drm_formats_for_plane (
+  const MetaKmsConstraintsDescription *description,
+  uint32_t                             plane_id,
+  uint32_t                             width,
+  uint32_t                             height)
+{
+  GArray *formats;
+  size_t i;
+
+  formats = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+  for (i = 0; i < description->n_formats; i++)
+    {
+      const MetaKmsConstraintsFormat *candidate = &description->formats[i];
+
+      if (candidate->plane_id != plane_id ||
+          !meta_kms_constraints_size_contains (&candidate->size,
+                                                width,
+                                                height) ||
+          contains_uint32 (formats, candidate->format))
+        continue;
+
+      g_array_append_val (formats, candidate->format);
+    }
+
+  return formats;
+}
+
+GArray *
+meta_kms_constraints_description_copy_explicit_modifiers_for_format (
+  const MetaKmsConstraintsDescription *description,
+  uint32_t                             plane_id,
+  uint32_t                             format,
+  uint32_t                             width,
+  uint32_t                             height)
+{
+  GArray *modifiers;
+  size_t i;
+
+  modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+  for (i = 0; i < description->n_formats; i++)
+    {
+      const MetaKmsConstraintsFormat *candidate = &description->formats[i];
+
+      if (candidate->plane_id != plane_id ||
+          candidate->format != format ||
+          candidate->implicit ||
+          !meta_kms_constraints_size_contains (&candidate->size, width, height))
+        continue;
+
+      g_array_append_val (modifiers, candidate->modifier);
+    }
+
+  return modifiers;
+}
+
 const MetaKmsConstraintsProperty *
 meta_kms_constraints_description_find_property (
   const MetaKmsConstraintsDescription *description,

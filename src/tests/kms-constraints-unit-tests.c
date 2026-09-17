@@ -158,6 +158,82 @@ meta_test_kms_constraints_formats (void)
 }
 
 static void
+meta_test_kms_constraints_allocation_views (void)
+{
+  g_autoptr (MetaKmsConstraintsDescription) description =
+    create_description (NULL, 0);
+  g_autoptr (GArray) drm_formats = NULL;
+  g_autoptr (GArray) modifiers = NULL;
+
+  drm_formats =
+    meta_kms_constraints_description_copy_drm_formats_for_plane (description,
+                                                                 7,
+                                                                 1920,
+                                                                 1080);
+  g_assert_cmpuint (drm_formats->len, ==, 1);
+  g_assert_cmphex (g_array_index (drm_formats, uint32_t, 0),
+                   ==,
+                   DRM_FORMAT_XRGB8888);
+
+  modifiers =
+    meta_kms_constraints_description_copy_explicit_modifiers_for_format (
+      description,
+      7,
+      DRM_FORMAT_XRGB8888,
+      1920,
+      1080);
+  g_assert_cmpuint (modifiers->len, ==, 2);
+  g_assert_cmphex (g_array_index (modifiers, uint64_t, 0),
+                   ==,
+                   DRM_FORMAT_MOD_LINEAR);
+  g_assert_cmphex (g_array_index (modifiers, uint64_t, 1),
+                   ==,
+                   TEST_FORMAT_MODIFIER);
+
+  g_clear_pointer (&modifiers, g_array_unref);
+  modifiers =
+    meta_kms_constraints_description_copy_explicit_modifiers_for_format (
+      description,
+      7,
+      DRM_FORMAT_XRGB8888,
+      1280,
+      720);
+  g_assert_cmpuint (modifiers->len, ==, 1);
+  g_assert_cmphex (g_array_index (modifiers, uint64_t, 0),
+                   ==,
+                   DRM_FORMAT_MOD_LINEAR);
+
+  g_clear_pointer (&drm_formats, g_array_unref);
+  drm_formats =
+    meta_kms_constraints_description_copy_drm_formats_for_plane (description,
+                                                                 7,
+                                                                 3840,
+                                                                 2160);
+  g_assert_cmpuint (drm_formats->len, ==, 1);
+
+  g_clear_pointer (&modifiers, g_array_unref);
+  modifiers =
+    meta_kms_constraints_description_copy_explicit_modifiers_for_format (
+      description,
+      7,
+      DRM_FORMAT_XRGB8888,
+      3840,
+      2160);
+  g_assert_cmpuint (modifiers->len, ==, 1);
+  g_assert_cmphex (g_array_index (modifiers, uint64_t, 0),
+                   ==,
+                   TEST_FORMAT_MODIFIER);
+
+  g_clear_pointer (&drm_formats, g_array_unref);
+  drm_formats =
+    meta_kms_constraints_description_copy_drm_formats_for_plane (description,
+                                                                 8,
+                                                                 1920,
+                                                                 1080);
+  g_assert_cmpuint (drm_formats->len, ==, 0);
+}
+
+static void
 meta_test_kms_constraints_properties (void)
 {
   const MetaKmsConstraintsProperty properties[] = {
@@ -506,6 +582,8 @@ main (int    argc,
                    meta_test_kms_constraints_sizes);
   g_test_add_func ("/backends/native/kms/constraints/formats",
                    meta_test_kms_constraints_formats);
+  g_test_add_func ("/backends/native/kms/constraints/allocation-views",
+                   meta_test_kms_constraints_allocation_views);
   g_test_add_func ("/backends/native/kms/constraints/properties",
                    meta_test_kms_constraints_properties);
   g_test_add_func ("/backends/native/kms/constraints/owns-description",

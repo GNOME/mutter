@@ -104,6 +104,19 @@ gboolean meta_kms_constraints_description_allows_implicit_layout (
   uint32_t                             width,
   uint32_t                             height);
 
+GArray * meta_kms_constraints_description_copy_drm_formats_for_plane (
+  const MetaKmsConstraintsDescription *description,
+  uint32_t                             plane_id,
+  uint32_t                             width,
+  uint32_t                             height);
+
+GArray * meta_kms_constraints_description_copy_explicit_modifiers_for_format (
+  const MetaKmsConstraintsDescription *description,
+  uint32_t                             plane_id,
+  uint32_t                             format,
+  uint32_t                             width,
+  uint32_t                             height);
+
 const MetaKmsConstraintsProperty *
 meta_kms_constraints_description_find_property (
   const MetaKmsConstraintsDescription *description,
