@@ -23,6 +23,12 @@
 
 #include "backends/native/meta-drm-constraints.h"
 
+G_STATIC_ASSERT (sizeof (struct drm_event_kms_constraints_list_changed) == 32);
+G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_event_kms_constraints_list_changed,
+                                  generation) == 16);
+G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_event_kms_constraints_list_changed,
+                                  reserved) == 24);
+
 gboolean
 meta_kms_constraints_event_decode_list_change (
   const struct drm_event        *event,
