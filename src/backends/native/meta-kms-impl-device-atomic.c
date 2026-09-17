@@ -20,6 +20,7 @@
 #include "backends/native/meta-kms-impl-device-atomic.h"
 
 #include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-drm-constraints.h"
 #include "backends/native/meta-drm-preparation.h"
 #include "backends/native/meta-kms-connector-private.h"
 #include "backends/native/meta-kms-crtc-private.h"
@@ -1672,6 +1673,7 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
 
   {
     MetaKmsImplDeviceAtomic *atomic = META_KMS_IMPL_DEVICE_ATOMIC (impl_device);
+    MetaKmsDeviceCaps *caps = meta_kms_impl_device_get_caps (impl_device);
     uint64_t supported = 0;
     int fd = meta_device_file_get_fd (device_file);
 
@@ -1684,6 +1686,19 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
                      "Enabling display preparation: %s", g_strerror (errno));
         return NULL;
       }
+
+#if DRM_EVENT_CONTEXT_VERSION >= 5
+    if (drmSetClientCap (fd, DRM_CLIENT_CAP_KMS_CONSTRAINTS, 1) == 0)
+      {
+        caps->constraints_enabled = TRUE;
+      }
+    else if (errno != EOPNOTSUPP)
+      {
+        g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                     "Enabling KMS constraints: %s", g_strerror (errno));
+        return NULL;
+      }
+#endif
   }
 
   return g_steal_pointer (&device_file);

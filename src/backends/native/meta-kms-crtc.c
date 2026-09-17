@@ -435,7 +435,8 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
     }
 
   prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_CONSTRAINTS_ID];
-  if (prop->prop_id)
+  if (prop->prop_id &&
+      meta_kms_impl_device_get_caps (impl_device)->constraints_enabled)
     {
       g_autoptr (GError) error = NULL;
 

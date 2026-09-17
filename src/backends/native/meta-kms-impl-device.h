@@ -39,6 +39,7 @@ typedef struct _MetaKmsDeviceCaps
   gboolean uses_monotonic_clock;
   gboolean addfb2_modifiers;
   gboolean supports_color_modes;
+  gboolean constraints_enabled;
 } MetaKmsDeviceCaps;
 
 
