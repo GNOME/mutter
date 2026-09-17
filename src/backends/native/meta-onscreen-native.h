@@ -61,7 +61,7 @@ MetaOnscreenNative * meta_onscreen_native_new (MetaRendererNative *renderer_nati
                                                int                 width,
                                                int                 height);
 
-gboolean meta_onscreen_native_bind_selected_constraints (
+gboolean meta_onscreen_native_bind_constraints_target (
   MetaOnscreenNative  *onscreen_native,
   GError             **error);
 

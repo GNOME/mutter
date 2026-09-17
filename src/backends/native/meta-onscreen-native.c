@@ -3614,7 +3614,7 @@ constraints_target_supports_primary_buffers (
 }
 
 gboolean
-meta_onscreen_native_bind_selected_constraints (
+meta_onscreen_native_bind_constraints_target (
   MetaOnscreenNative  *onscreen_native,
   GError             **error)
 {
@@ -3744,7 +3744,7 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
 
-  if (!meta_onscreen_native_bind_selected_constraints (onscreen_native, error))
+  if (!meta_onscreen_native_bind_constraints_target (onscreen_native, error))
     return FALSE;
 
   if (!onscreen_native->constraints_target &&

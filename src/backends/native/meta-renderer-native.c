@@ -939,13 +939,13 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                                                       onscreen_width,
                                                       onscreen_height);
 
-          if (!meta_onscreen_native_bind_selected_constraints (onscreen_native,
-                                                                &local_error))
+          if (!meta_onscreen_native_bind_constraints_target (onscreen_native,
+                                                              &local_error))
             {
               g_propagate_prefixed_error (
                 error,
                 local_error,
-                "Failed to bind selected KMS constraints for %s: ",
+                "Failed to bind a KMS constraints target for %s: ",
                 meta_gpu_kms_get_file_path (gpu_kms));
               return NULL;
             }
