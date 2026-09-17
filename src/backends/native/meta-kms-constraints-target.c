@@ -105,6 +105,7 @@ meta_kms_constraints_target_allows_format (
   const MetaKmsConstraintsTarget *target,
   uint32_t                        plane_id,
   uint32_t                        format,
+  MetaKmsConstraintsStorage       storage,
   uint32_t                        width,
   uint32_t                        height)
 {
@@ -120,6 +121,10 @@ meta_kms_constraints_target_allows_format (
     {
       if (formats[i].plane_id == plane_id &&
           formats[i].format == format &&
+          ((storage == META_KMS_CONSTRAINTS_STORAGE_NATIVE &&
+            formats[i].permits_native) ||
+           (storage == META_KMS_CONSTRAINTS_STORAGE_IMPORTED &&
+            formats[i].permits_imported)) &&
           meta_kms_constraints_size_contains (&formats[i].size,
                                                width,
                                                height))
@@ -134,6 +139,7 @@ meta_kms_constraints_target_allows_implicit_layout (
   const MetaKmsConstraintsTarget *target,
   uint32_t                        plane_id,
   uint32_t                        format,
+  MetaKmsConstraintsStorage       storage,
   uint32_t                        width,
   uint32_t                        height)
 {
@@ -141,8 +147,37 @@ meta_kms_constraints_target_allows_implicit_layout (
     meta_kms_constraints_target_get_description (target),
     plane_id,
     format,
+    storage,
     width,
     height);
+}
+
+gboolean
+meta_kms_constraints_target_allows_buffer_layout (
+  const MetaKmsConstraintsTarget *target,
+  uint32_t                        plane_id,
+  uint32_t                        format,
+  uint64_t                        modifier,
+  gboolean                        implicit,
+  MetaKmsConstraintsStorage       storage,
+  uint32_t                        width,
+  uint32_t                        height,
+  size_t                          n_planes,
+  const uint32_t                 *pitches,
+  const uint32_t                 *offsets)
+{
+  return meta_kms_constraints_description_allows_buffer_layout (
+    meta_kms_constraints_target_get_description (target),
+    plane_id,
+    format,
+    modifier,
+    implicit,
+    storage,
+    width,
+    height,
+    n_planes,
+    pitches,
+    offsets);
 }
 
 static gboolean
@@ -165,6 +200,7 @@ meta_kms_constraints_target_filter_explicit_modifiers (
   const MetaKmsConstraintsTarget *target,
   uint32_t                        plane_id,
   uint32_t                        format,
+  MetaKmsConstraintsStorage       storage,
   uint32_t                        width,
   uint32_t                        height,
   const GArray                   *candidates)
@@ -180,6 +216,7 @@ meta_kms_constraints_target_filter_explicit_modifiers (
       description,
       plane_id,
       format,
+      storage,
       width,
       height);
   filtered_modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));

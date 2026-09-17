@@ -469,6 +469,9 @@ meta_test_kms_constraints_formats (void)
     create_description (NULL, 0);
   const MetaKmsConstraintsFormat *stored_formats;
   size_t n_formats;
+  const uint32_t pitches[] = { 7680 };
+  const uint32_t offsets[] = { 4096 };
+  const uint32_t unaligned_pitches[] = { 7684 };
 
   stored_formats =
     meta_kms_constraints_description_get_formats (description, &n_formats);
@@ -480,6 +483,7 @@ meta_test_kms_constraints_formats (void)
                    7,
                    DRM_FORMAT_XRGB8888,
                    DRM_FORMAT_MOD_LINEAR,
+                   META_KMS_CONSTRAINTS_STORAGE_NATIVE,
                    1920,
                    1080));
   g_assert_true (meta_kms_constraints_description_allows_explicit_layout (
@@ -487,13 +491,23 @@ meta_test_kms_constraints_formats (void)
                    7,
                    DRM_FORMAT_XRGB8888,
                    TEST_FORMAT_MODIFIER,
+                   META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
                    3840,
                    2160));
+  g_assert_false (meta_kms_constraints_description_allows_explicit_layout (
+                    description,
+                    7,
+                    DRM_FORMAT_XRGB8888,
+                    TEST_FORMAT_MODIFIER,
+                    META_KMS_CONSTRAINTS_STORAGE_NATIVE,
+                    3840,
+                    2160));
   g_assert_false (meta_kms_constraints_description_allows_explicit_layout (
                     description,
                     8,
                     DRM_FORMAT_XRGB8888,
                     DRM_FORMAT_MOD_LINEAR,
+                    META_KMS_CONSTRAINTS_STORAGE_NATIVE,
                     1920,
                     1080));
   g_assert_false (meta_kms_constraints_description_allows_explicit_layout (
@@ -501,20 +515,55 @@ meta_test_kms_constraints_formats (void)
                     7,
                     DRM_FORMAT_XRGB8888,
                     DRM_FORMAT_MOD_LINEAR,
+                    META_KMS_CONSTRAINTS_STORAGE_NATIVE,
                     1921,
                     1080));
   g_assert_true (meta_kms_constraints_description_allows_implicit_layout (
                    description,
                    7,
                    DRM_FORMAT_XRGB8888,
+                   META_KMS_CONSTRAINTS_STORAGE_NATIVE,
                    1280,
                    720));
   g_assert_false (meta_kms_constraints_description_allows_implicit_layout (
                     description,
                     7,
                     DRM_FORMAT_XRGB8888,
+                    META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
+                    1280,
+                    720));
+  g_assert_false (meta_kms_constraints_description_allows_implicit_layout (
+                    description,
+                    7,
+                    DRM_FORMAT_XRGB8888,
+                    META_KMS_CONSTRAINTS_STORAGE_NATIVE,
                     1920,
                     1080));
+
+  g_assert_true (meta_kms_constraints_description_allows_buffer_layout (
+                   description,
+                   7,
+                   DRM_FORMAT_XRGB8888,
+                   TEST_FORMAT_MODIFIER,
+                   FALSE,
+                   META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
+                   1920,
+                   1080,
+                   G_N_ELEMENTS (pitches),
+                   pitches,
+                   offsets));
+  g_assert_false (meta_kms_constraints_description_allows_buffer_layout (
+                    description,
+                    7,
+                    DRM_FORMAT_XRGB8888,
+                    TEST_FORMAT_MODIFIER,
+                    FALSE,
+                    META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
+                    1920,
+                    1080,
+                    G_N_ELEMENTS (unaligned_pitches),
+                    unaligned_pitches,
+                    offsets));
 }
 
 static void
@@ -528,6 +577,7 @@ meta_test_kms_constraints_allocation_views (void)
   drm_formats =
     meta_kms_constraints_description_copy_drm_formats_for_plane (description,
                                                                  7,
+                                                                 META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
                                                                  1920,
                                                                  1080);
   g_assert_cmpuint (drm_formats->len, ==, 1);
@@ -540,6 +590,7 @@ meta_test_kms_constraints_allocation_views (void)
       description,
       7,
       DRM_FORMAT_XRGB8888,
+      META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
       1920,
       1080);
   g_assert_cmpuint (modifiers->len, ==, 2);
@@ -556,6 +607,7 @@ meta_test_kms_constraints_allocation_views (void)
       description,
       7,
       DRM_FORMAT_XRGB8888,
+      META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
       1280,
       720);
   g_assert_cmpuint (modifiers->len, ==, 1);
@@ -567,6 +619,7 @@ meta_test_kms_constraints_allocation_views (void)
   drm_formats =
     meta_kms_constraints_description_copy_drm_formats_for_plane (description,
                                                                  7,
+                                                                 META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
                                                                  3840,
                                                                  2160);
   g_assert_cmpuint (drm_formats->len, ==, 1);
@@ -577,6 +630,7 @@ meta_test_kms_constraints_allocation_views (void)
       description,
       7,
       DRM_FORMAT_XRGB8888,
+      META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
       3840,
       2160);
   g_assert_cmpuint (modifiers->len, ==, 1);
@@ -588,6 +642,7 @@ meta_test_kms_constraints_allocation_views (void)
   drm_formats =
     meta_kms_constraints_description_copy_drm_formats_for_plane (description,
                                                                  8,
+                                                                 META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
                                                                  1920,
                                                                  1080);
   g_assert_cmpuint (drm_formats->len, ==, 0);
@@ -1401,18 +1456,21 @@ meta_test_kms_constraints_target (void)
                    target,
                    7,
                    DRM_FORMAT_XRGB8888,
+                   META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
                    1920,
                    1080));
   g_assert_false (meta_kms_constraints_target_allows_format (
                     target,
                     8,
                     DRM_FORMAT_XRGB8888,
+                    META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
                     1920,
                     1080));
   g_assert_false (meta_kms_constraints_target_allows_implicit_layout (
                     target,
                     7,
                     DRM_FORMAT_XRGB8888,
+                    META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
                     1920,
                     1080));
   candidate_array = g_array_new (FALSE, FALSE, sizeof (uint64_t));
@@ -1423,6 +1481,7 @@ meta_test_kms_constraints_target (void)
     target,
     7,
     DRM_FORMAT_XRGB8888,
+    META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
     1920,
     1080,
     candidate_array);

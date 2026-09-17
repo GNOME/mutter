@@ -23,6 +23,12 @@
 
 typedef struct _MetaKmsConstraintsDescription MetaKmsConstraintsDescription;
 
+typedef enum _MetaKmsConstraintsStorage
+{
+  META_KMS_CONSTRAINTS_STORAGE_NATIVE,
+  META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
+} MetaKmsConstraintsStorage;
+
 typedef struct _MetaKmsConstraintsSize
 {
   uint32_t min_width;
@@ -99,6 +105,7 @@ gboolean meta_kms_constraints_description_allows_explicit_layout (
   uint32_t                             plane_id,
   uint32_t                             format,
   uint64_t                             modifier,
+  MetaKmsConstraintsStorage            storage,
   uint32_t                             width,
   uint32_t                             height);
 
@@ -106,12 +113,27 @@ gboolean meta_kms_constraints_description_allows_implicit_layout (
   const MetaKmsConstraintsDescription *description,
   uint32_t                             plane_id,
   uint32_t                             format,
+  MetaKmsConstraintsStorage            storage,
   uint32_t                             width,
   uint32_t                             height);
+
+gboolean meta_kms_constraints_description_allows_buffer_layout (
+  const MetaKmsConstraintsDescription *description,
+  uint32_t                             plane_id,
+  uint32_t                             format,
+  uint64_t                             modifier,
+  gboolean                             implicit,
+  MetaKmsConstraintsStorage            storage,
+  uint32_t                             width,
+  uint32_t                             height,
+  size_t                               n_planes,
+  const uint32_t                      *pitches,
+  const uint32_t                      *offsets);
 
 GArray * meta_kms_constraints_description_copy_drm_formats_for_plane (
   const MetaKmsConstraintsDescription *description,
   uint32_t                             plane_id,
+  MetaKmsConstraintsStorage            storage,
   uint32_t                             width,
   uint32_t                             height);
 
@@ -119,6 +141,7 @@ GArray * meta_kms_constraints_description_copy_explicit_modifiers_for_format (
   const MetaKmsConstraintsDescription *description,
   uint32_t                             plane_id,
   uint32_t                             format,
+  MetaKmsConstraintsStorage            storage,
   uint32_t                             width,
   uint32_t                             height);
 

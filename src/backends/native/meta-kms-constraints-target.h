@@ -18,6 +18,7 @@
 #pragma once
 
 #include <glib.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "backends/native/meta-kms-constraints-list.h"
@@ -48,6 +49,7 @@ gboolean meta_kms_constraints_target_allows_format (
   const MetaKmsConstraintsTarget *target,
   uint32_t                        plane_id,
   uint32_t                        format,
+  MetaKmsConstraintsStorage       storage,
   uint32_t                        width,
   uint32_t                        height);
 
@@ -55,13 +57,28 @@ gboolean meta_kms_constraints_target_allows_implicit_layout (
   const MetaKmsConstraintsTarget *target,
   uint32_t                        plane_id,
   uint32_t                        format,
+  MetaKmsConstraintsStorage       storage,
   uint32_t                        width,
   uint32_t                        height);
+
+gboolean meta_kms_constraints_target_allows_buffer_layout (
+  const MetaKmsConstraintsTarget *target,
+  uint32_t                        plane_id,
+  uint32_t                        format,
+  uint64_t                        modifier,
+  gboolean                        implicit,
+  MetaKmsConstraintsStorage       storage,
+  uint32_t                        width,
+  uint32_t                        height,
+  size_t                          n_planes,
+  const uint32_t                 *pitches,
+  const uint32_t                 *offsets);
 
 GArray * meta_kms_constraints_target_filter_explicit_modifiers (
   const MetaKmsConstraintsTarget *target,
   uint32_t                        plane_id,
   uint32_t                        format,
+  MetaKmsConstraintsStorage       storage,
   uint32_t                        width,
   uint32_t                        height,
   const GArray                   *candidates);

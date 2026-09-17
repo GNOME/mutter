@@ -283,12 +283,28 @@ meta_kms_constraints_size_contains (const MetaKmsConstraintsSize *size,
          height <= size->max_height;
 }
 
+static gboolean
+format_permits_storage (const MetaKmsConstraintsFormat *format,
+                        MetaKmsConstraintsStorage       storage)
+{
+  switch (storage)
+    {
+    case META_KMS_CONSTRAINTS_STORAGE_NATIVE:
+      return format->permits_native;
+    case META_KMS_CONSTRAINTS_STORAGE_IMPORTED:
+      return format->permits_imported;
+    }
+
+  g_assert_not_reached ();
+}
+
 gboolean
 meta_kms_constraints_description_allows_explicit_layout (
   const MetaKmsConstraintsDescription *description,
   uint32_t                             plane_id,
   uint32_t                             format,
   uint64_t                             modifier,
+  MetaKmsConstraintsStorage            storage,
   uint32_t                             width,
   uint32_t                             height)
 {
@@ -302,6 +318,7 @@ meta_kms_constraints_description_allows_explicit_layout (
           candidate->format == format &&
           !candidate->implicit &&
           candidate->modifier == modifier &&
+          format_permits_storage (candidate, storage) &&
           meta_kms_constraints_size_contains (&candidate->size,
                                                width,
                                                height))
@@ -316,6 +333,7 @@ meta_kms_constraints_description_allows_implicit_layout (
   const MetaKmsConstraintsDescription *description,
   uint32_t                             plane_id,
   uint32_t                             format,
+  MetaKmsConstraintsStorage            storage,
   uint32_t                             width,
   uint32_t                             height)
 {
@@ -328,9 +346,60 @@ meta_kms_constraints_description_allows_implicit_layout (
       if (candidate->plane_id == plane_id &&
           candidate->format == format &&
           candidate->implicit &&
+          format_permits_storage (candidate, storage) &&
           meta_kms_constraints_size_contains (&candidate->size,
                                                width,
                                                height))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+gboolean
+meta_kms_constraints_description_allows_buffer_layout (
+  const MetaKmsConstraintsDescription *description,
+  uint32_t                             plane_id,
+  uint32_t                             format,
+  uint64_t                             modifier,
+  gboolean                             implicit,
+  MetaKmsConstraintsStorage            storage,
+  uint32_t                             width,
+  uint32_t                             height,
+  size_t                               n_planes,
+  const uint32_t                      *pitches,
+  const uint32_t                      *offsets)
+{
+  size_t i;
+  size_t j;
+
+  if (!pitches || !offsets)
+    return FALSE;
+
+  for (i = 0; i < description->n_formats; i++)
+    {
+      const MetaKmsConstraintsFormat *candidate = &description->formats[i];
+
+      if (candidate->plane_id != plane_id ||
+          candidate->format != format ||
+          !!candidate->implicit != !!implicit ||
+          (!implicit && candidate->modifier != modifier) ||
+          !format_permits_storage (candidate, storage) ||
+          !meta_kms_constraints_size_contains (&candidate->size,
+                                                width,
+                                                height) ||
+          candidate->plane_count != n_planes)
+        continue;
+
+      for (j = 0; j < n_planes; j++)
+        {
+          if (pitches[j] % candidate->pitch_alignment != 0 ||
+              pitches[j] > candidate->max_pitch ||
+              offsets[j] % candidate->offset_alignment != 0)
+            break;
+        }
+
+      if (j == n_planes)
         return TRUE;
     }
 
@@ -356,6 +425,7 @@ GArray *
 meta_kms_constraints_description_copy_drm_formats_for_plane (
   const MetaKmsConstraintsDescription *description,
   uint32_t                             plane_id,
+  MetaKmsConstraintsStorage            storage,
   uint32_t                             width,
   uint32_t                             height)
 {
@@ -368,6 +438,7 @@ meta_kms_constraints_description_copy_drm_formats_for_plane (
       const MetaKmsConstraintsFormat *candidate = &description->formats[i];
 
       if (candidate->plane_id != plane_id ||
+          !format_permits_storage (candidate, storage) ||
           !meta_kms_constraints_size_contains (&candidate->size,
                                                 width,
                                                 height) ||
@@ -385,6 +456,7 @@ meta_kms_constraints_description_copy_explicit_modifiers_for_format (
   const MetaKmsConstraintsDescription *description,
   uint32_t                             plane_id,
   uint32_t                             format,
+  MetaKmsConstraintsStorage            storage,
   uint32_t                             width,
   uint32_t                             height)
 {
@@ -399,6 +471,7 @@ meta_kms_constraints_description_copy_explicit_modifiers_for_format (
       if (candidate->plane_id != plane_id ||
           candidate->format != format ||
           candidate->implicit ||
+          !format_permits_storage (candidate, storage) ||
           !meta_kms_constraints_size_contains (&candidate->size, width, height))
         continue;
 
