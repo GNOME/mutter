@@ -398,6 +398,7 @@ check-glib-main-context:
     - job: build-fedora-container@x86_64
       artifacts: false
   script:
+    - git config --global --add safe.directory $PWD
     - .gitlab-ci/check-glib-sources.sh
   allow_failure: true
   rules:
