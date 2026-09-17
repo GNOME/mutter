@@ -193,13 +193,19 @@ select_constraints_target (MetaOnscreenNative *onscreen_native,
                            MetaKmsUpdate      *kms_update,
                            MetaKmsCrtc        *kms_crtc)
 {
+  const MetaKmsCrtcState *crtc_state;
+  uint64_t target_id;
+
   if (!onscreen_native->constraints_target)
     return;
 
-  meta_kms_update_select_constraints (
-    kms_update,
-    kms_crtc,
-    meta_kms_constraints_target_get_id (onscreen_native->constraints_target));
+  target_id =
+    meta_kms_constraints_target_get_id (onscreen_native->constraints_target);
+  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
+  if (crtc_state->constraints.id == target_id)
+    return;
+
+  meta_kms_update_select_constraints (kms_update, kms_crtc, target_id);
 }
 
 static const MetaKmsConstraintsDescription *
