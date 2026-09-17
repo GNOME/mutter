@@ -21,10 +21,169 @@
 #include <gio/gio.h>
 #include <xf86drmMode.h>
 
+#include "backends/native/meta-drm-constraints.h"
+#include "backends/native/meta-kms-constraints-decoder.h"
 #include "backends/native/meta-kms-constraints-list.h"
 #include "backends/native/meta-kms-constraints.h"
 
 #define TEST_FORMAT_MODIFIER UINT64_C (1)
+
+typedef struct _TestConstraintsBlob
+{
+  struct drm_mode_constraints_list list;
+  struct drm_mode_constraints entry;
+  struct drm_mode_constraints_description description;
+  struct drm_mode_constraints_output_size output;
+  struct drm_mode_constraints_plane_format format;
+  struct drm_mode_constraints_property property;
+  struct drm_mode_constraints_record extension;
+} TestConstraintsBlob;
+
+typedef struct _TestConstraintsPayload
+{
+  struct drm_mode_constraints_description description;
+  struct drm_mode_constraints_output_size output;
+  struct drm_mode_constraints_plane_format format;
+  struct drm_mode_constraints_property property;
+  struct drm_mode_constraints_record extension;
+} TestConstraintsPayload;
+
+typedef struct _TestTwoEntryConstraintsBlob
+{
+  struct drm_mode_constraints_list list;
+  struct drm_mode_constraints entries[2];
+  TestConstraintsPayload payloads[2];
+} TestTwoEntryConstraintsBlob;
+
+static TestConstraintsBlob
+create_constraints_blob (void)
+{
+  TestConstraintsBlob blob = {
+    .list = {
+      .version = DRM_MODE_CONSTRAINTS_VERSION,
+      .length = sizeof (blob),
+      .generation = 17,
+      .selected_id = 5,
+      .suggested_id = 5,
+      .count_entries = 1,
+      .entries_offset = G_STRUCT_OFFSET (TestConstraintsBlob, entry),
+      .entry_size = sizeof (blob.entry),
+    },
+    .entry = {
+      .id = 5,
+      .flags = DRM_MODE_CONSTRAINTS_SELECTABLE,
+      .description_offset = G_STRUCT_OFFSET (TestConstraintsBlob, description),
+      .description_length = sizeof (blob.description) +
+                            sizeof (blob.output) +
+                            sizeof (blob.format) +
+                            sizeof (blob.property) +
+                            sizeof (blob.extension),
+    },
+    .description = {
+      .version = DRM_MODE_CONSTRAINTS_VERSION,
+      .length = sizeof (blob.description) +
+                sizeof (blob.output) +
+                sizeof (blob.format) +
+                sizeof (blob.property) +
+                sizeof (blob.extension),
+      .record_count = 4,
+      .records_offset = G_STRUCT_OFFSET (TestConstraintsBlob, output),
+    },
+    .output = {
+      .header = {
+        .type = DRM_MODE_CONSTRAINTS_RECORD_OUTPUT_SIZE,
+        .flags = DRM_MODE_CONSTRAINTS_RECORD_REQUIRED,
+        .length = sizeof (blob.output),
+      },
+      .min_width = 1920,
+      .min_height = 1080,
+      .max_width = 1920,
+      .max_height = 1080,
+    },
+    .format = {
+      .header = {
+        .type = DRM_MODE_CONSTRAINTS_RECORD_PLANE_FORMAT,
+        .flags = DRM_MODE_CONSTRAINTS_RECORD_REQUIRED,
+        .length = sizeof (blob.format),
+      },
+      .plane_id = 7,
+      .format = DRM_FORMAT_XRGB8888,
+      .modifier = TEST_FORMAT_MODIFIER,
+      .min_width = 64,
+      .min_height = 32,
+      .max_width = 4096,
+      .max_height = 4096,
+    },
+    .property = {
+      .header = {
+        .type = DRM_MODE_CONSTRAINTS_RECORD_PROPERTY,
+        .flags = DRM_MODE_CONSTRAINTS_RECORD_REQUIRED,
+        .length = sizeof (blob.property),
+      },
+      .object_id = 7,
+      .property_id = 8,
+      .type = DRM_MODE_PROP_RANGE,
+      .minimum = 1,
+      .maximum = 4,
+    },
+    .extension = {
+      .type = 99,
+      .length = sizeof (blob.extension),
+    },
+  };
+
+  return blob;
+}
+
+static TestTwoEntryConstraintsBlob
+create_two_entry_constraints_blob (void)
+{
+  TestConstraintsBlob single = create_constraints_blob ();
+  TestTwoEntryConstraintsBlob blob = {
+    .list = single.list,
+    .entries = { single.entry, single.entry },
+    .payloads = {
+      {
+        .description = single.description,
+        .output = single.output,
+        .format = single.format,
+        .property = single.property,
+        .extension = single.extension,
+      },
+      {
+        .description = single.description,
+        .output = single.output,
+        .format = single.format,
+        .property = single.property,
+        .extension = single.extension,
+      },
+    },
+  };
+  size_t i;
+
+  blob.list.length = sizeof (blob);
+  blob.list.count_entries = G_N_ELEMENTS (blob.entries);
+  blob.list.entries_offset = G_STRUCT_OFFSET (TestTwoEntryConstraintsBlob,
+                                              entries);
+  blob.list.entry_size = sizeof (blob.entries[0]);
+  blob.list.suggested_id = 9;
+  blob.entries[1].id = 9;
+  blob.payloads[1].extension.flags = DRM_MODE_CONSTRAINTS_RECORD_REQUIRED;
+
+  for (i = 0; i < G_N_ELEMENTS (blob.entries); i++)
+    {
+      blob.entries[i].description_offset =
+        G_STRUCT_OFFSET (TestTwoEntryConstraintsBlob, payloads) +
+        i * sizeof (blob.payloads[0]);
+      blob.entries[i].description_length = sizeof (blob.payloads[i]);
+      blob.payloads[i].description.length = sizeof (blob.payloads[i]);
+      blob.payloads[i].description.records_offset =
+        blob.entries[i].description_offset +
+        G_STRUCT_OFFSET (TestConstraintsPayload, output);
+    }
+
+  return blob;
+}
 
 static const MetaKmsConstraintsSize output_size = {
   .min_width = 1280,
@@ -573,6 +732,218 @@ meta_test_kms_constraints_list_reject_invalid (void)
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
 }
 
+static void
+meta_test_kms_constraints_decode (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+  const MetaKmsConstraintsListEntry *entry;
+  const MetaKmsConstraintsDescription *description;
+  const MetaKmsConstraintsFormat *decoded_formats;
+  const MetaKmsConstraintsProperty *decoded_properties;
+  const MetaKmsConstraintsSize *decoded_output;
+  size_t n_formats;
+  size_t n_properties;
+
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+  g_assert_cmpuint (meta_kms_constraints_list_get_generation (list), ==, 17);
+  g_assert_cmpuint (meta_kms_constraints_list_get_selected_id (list), ==, 5);
+  g_assert_cmpuint (meta_kms_constraints_list_get_suggested_id (list), ==, 5);
+  g_assert_cmpuint (meta_kms_constraints_list_get_n_entries (list), ==, 1);
+
+  entry = meta_kms_constraints_list_get_entry (list, 0);
+  g_assert_cmpuint (meta_kms_constraints_list_entry_get_id (entry), ==, 5);
+  g_assert_true (meta_kms_constraints_list_entry_is_selectable (entry));
+  description = meta_kms_constraints_list_entry_get_description (entry);
+  decoded_output = meta_kms_constraints_description_get_output (description);
+  g_assert_cmpuint (decoded_output->min_width, ==, 1920);
+  g_assert_cmpuint (decoded_output->max_height, ==, 1080);
+  decoded_formats = meta_kms_constraints_description_get_formats (description,
+                                                                   &n_formats);
+  g_assert_cmpuint (n_formats, ==, 1);
+  g_assert_cmpuint (decoded_formats[0].plane_id, ==, 7);
+  g_assert_cmpuint (decoded_formats[0].format, ==, DRM_FORMAT_XRGB8888);
+  g_assert_cmpuint (decoded_formats[0].modifier, ==, TEST_FORMAT_MODIFIER);
+  g_assert_false (decoded_formats[0].implicit);
+  decoded_properties =
+    meta_kms_constraints_description_get_properties (description,
+                                                      &n_properties);
+  g_assert_cmpuint (n_properties, ==, 1);
+  g_assert_cmpuint (decoded_properties[0].object_id, ==, 7);
+  g_assert_cmpuint (decoded_properties[0].property_id, ==, 8);
+  g_assert_cmpuint (decoded_properties[0].type, ==, DRM_MODE_PROP_RANGE);
+  g_assert_true (meta_kms_constraints_property_matches (&decoded_properties[0],
+                                                        1));
+  g_assert_true (meta_kms_constraints_property_matches (&decoded_properties[0],
+                                                        4));
+  g_assert_false (meta_kms_constraints_property_matches (&decoded_properties[0],
+                                                         5));
+}
+
+static void
+meta_test_kms_constraints_decode_implicit (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+  const MetaKmsConstraintsListEntry *entry;
+  const MetaKmsConstraintsDescription *description;
+  const MetaKmsConstraintsFormat *decoded_formats;
+  size_t n_formats;
+
+  blob.format.modifier = 0;
+  blob.format.layout_flags = DRM_MODE_CONSTRAINTS_LAYOUT_IMPLICIT;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+
+  entry = meta_kms_constraints_list_get_entry (list, 0);
+  description = meta_kms_constraints_list_entry_get_description (entry);
+  decoded_formats = meta_kms_constraints_description_get_formats (description,
+                                                                   &n_formats);
+  g_assert_cmpuint (n_formats, ==, 1);
+  g_assert_true (decoded_formats[0].implicit);
+  g_assert_cmpuint (decoded_formats[0].modifier, ==, 0);
+}
+
+static void
+meta_test_kms_constraints_decode_reject_malformed (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  list = meta_kms_constraints_decode (&blob, sizeof (blob) - 1, &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.list.entries_offset = G_MAXUINT32;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.list.entry_size += 8;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.entry.reserved[1] = 1;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.format.header.length = sizeof (blob.format) - 1;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.format.layout_flags = 2;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.property.type = G_MAXUINT32;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.entry.description_offset++;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.entry.description_offset = blob.list.entries_offset;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+}
+
+static void
+meta_test_kms_constraints_decode_reject_required_extension (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  blob.extension.flags = DRM_MODE_CONSTRAINTS_RECORD_REQUIRED;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.entry.flags |= 2;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.description.version++;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.list.version = 2;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+}
+
+static void
+meta_test_kms_constraints_decode_skip_unsupported (void)
+{
+  TestTwoEntryConstraintsBlob blob = create_two_entry_constraints_blob ();
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+  g_assert_cmpuint (meta_kms_constraints_list_get_n_entries (list), ==, 1);
+  g_assert_cmpuint (meta_kms_constraints_list_get_selected_id (list), ==, 5);
+  g_assert_cmpuint (meta_kms_constraints_list_get_suggested_id (list), ==, 0);
+  g_assert_nonnull (meta_kms_constraints_list_find_entry (list, 5));
+  g_assert_null (meta_kms_constraints_list_find_entry (list, 9));
+
+  g_clear_pointer (&list, meta_kms_constraints_list_free);
+  blob = create_two_entry_constraints_blob ();
+  blob.payloads[1].extension.flags = 0;
+  blob.entries[1].flags |= 2;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+  g_assert_cmpuint (meta_kms_constraints_list_get_n_entries (list), ==, 1);
+  g_assert_cmpuint (meta_kms_constraints_list_get_suggested_id (list), ==, 0);
+
+  g_clear_pointer (&list, meta_kms_constraints_list_free);
+  blob.entries[1].id = blob.entries[0].id;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -594,5 +965,17 @@ main (int    argc,
                    meta_test_kms_constraints_list);
   g_test_add_func ("/backends/native/kms/constraints/list-reject-invalid",
                    meta_test_kms_constraints_list_reject_invalid);
+  g_test_add_func ("/backends/native/kms/constraints/decode",
+                   meta_test_kms_constraints_decode);
+  g_test_add_func ("/backends/native/kms/constraints/decode-implicit",
+                   meta_test_kms_constraints_decode_implicit);
+  g_test_add_func ("/backends/native/kms/constraints/decode-reject-malformed",
+                   meta_test_kms_constraints_decode_reject_malformed);
+  g_test_add_func (
+    "/backends/native/kms/constraints/decode-reject-required-extension",
+    meta_test_kms_constraints_decode_reject_required_extension);
+  g_test_add_func (
+    "/backends/native/kms/constraints/decode-skip-unsupported",
+    meta_test_kms_constraints_decode_skip_unsupported);
   return g_test_run ();
 }
