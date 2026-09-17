@@ -40,6 +40,9 @@
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-frame-native.h"
 #include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-constraints-list.h"
+#include "backends/native/meta-kms-constraints-target.h"
+#include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-utils.h"
@@ -158,6 +161,8 @@ struct _MetaOnscreenNative
 
   GSource *render_source;
 
+  MetaKmsConstraintsTarget *constraints_target;
+
   union {
     struct {
       KmsProperty gamma_lut;
@@ -180,6 +185,66 @@ get_execution_kind (MetaOnscreenNative *onscreen_native)
     meta_kms_connector_get_current_state (connector);
 
   return state ? state->execution.kind : META_KMS_EXECUTION_UNSUPPORTED;
+}
+
+static void
+select_constraints_target (MetaOnscreenNative *onscreen_native,
+                           MetaKmsUpdate      *kms_update,
+                           MetaKmsCrtc        *kms_crtc)
+{
+  if (!onscreen_native->constraints_target)
+    return;
+
+  meta_kms_update_select_constraints (
+    kms_update,
+    kms_crtc,
+    meta_kms_constraints_target_get_id (onscreen_native->constraints_target));
+}
+
+static const MetaKmsConstraintsDescription *
+get_constraints_description (MetaOnscreenNative *onscreen_native)
+{
+  if (!onscreen_native->constraints_target)
+    return NULL;
+
+  return meta_kms_constraints_target_get_description (
+    onscreen_native->constraints_target);
+}
+
+static gboolean
+constraints_allow_format (MetaOnscreenNative *onscreen_native,
+                          MetaKmsPlane       *plane,
+                          uint32_t            format,
+                          uint32_t            width,
+                          uint32_t            height)
+{
+  if (!onscreen_native->constraints_target)
+    return TRUE;
+
+  return meta_kms_constraints_target_allows_format (
+    onscreen_native->constraints_target,
+    meta_kms_plane_get_id (plane),
+    format,
+    width,
+    height);
+}
+
+static gboolean
+constraints_allow_implicit_layout (MetaOnscreenNative *onscreen_native,
+                                   MetaKmsPlane       *plane,
+                                   uint32_t            format,
+                                   uint32_t            width,
+                                   uint32_t            height)
+{
+  if (!onscreen_native->constraints_target)
+    return TRUE;
+
+  return meta_kms_constraints_target_allows_implicit_layout (
+    onscreen_native->constraints_target,
+    meta_kms_plane_get_id (plane),
+    format,
+    width,
+    height);
 }
 
 static MetaSharedFramebufferCopyMode
@@ -811,6 +876,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
           };
         }
 
+      select_constraints_target (onscreen_native, kms_update, kms_crtc);
       plane_assignment = assign_primary_plane (crtc_kms,
                                                buffer,
                                                kms_update,
@@ -2122,6 +2188,7 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
 
   test_update = meta_kms_update_new (kms_device);
+  select_constraints_target (onscreen_native, test_update, kms_crtc);
 
   cogl_scanout_get_src_rect (scanout, &src_rect);
   cogl_scanout_get_dst_rect (scanout, &dst_rect);
@@ -2668,19 +2735,31 @@ get_gbm_format_from_egl (CoglRendererEGL *renderer_egl,
 }
 
 static GArray *
-get_supported_kms_modifiers (MetaCrtcKms *crtc_kms,
-                             uint32_t     format)
+get_supported_kms_modifiers (CoglOnscreen *onscreen,
+                             MetaCrtcKms  *crtc_kms,
+                             uint32_t      format,
+                             uint32_t      width,
+                             uint32_t      height)
 {
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
-  GArray *crtc_mods;
+  GArray *plane_modifiers;
 
   g_return_val_if_fail (plane, NULL);
 
-  crtc_mods = meta_kms_plane_get_modifiers_for_format (plane, format);
-  if (!crtc_mods)
+  plane_modifiers = meta_kms_plane_get_modifiers_for_format (plane, format);
+  if (!plane_modifiers)
     return NULL;
+  if (!onscreen_native->constraints_target)
+    return g_array_copy (plane_modifiers);
 
-  return g_array_copy (crtc_mods);
+  return meta_kms_constraints_target_filter_explicit_modifiers (
+    onscreen_native->constraints_target,
+    meta_kms_plane_get_id (plane),
+    format,
+    width,
+    height,
+    plane_modifiers);
 }
 
 static GArray *
@@ -2721,10 +2800,17 @@ get_supported_modifiers (CoglOnscreen *onscreen,
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaGpu *gpu;
   g_autoptr (GArray) modifiers = NULL;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  uint32_t width = cogl_framebuffer_get_width (framebuffer);
+  uint32_t height = cogl_framebuffer_get_height (framebuffer);
 
   gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   if (gpu == META_GPU (onscreen_native->render_gpu))
-    modifiers = get_supported_kms_modifiers (crtc_kms, format);
+    modifiers = get_supported_kms_modifiers (onscreen,
+                                             crtc_kms,
+                                             format,
+                                             width,
+                                             height);
   else
     modifiers = get_supported_egl_modifiers (onscreen, crtc_kms, format);
 
@@ -2737,8 +2823,30 @@ get_supported_kms_formats (CoglOnscreen *onscreen)
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  g_autoptr (GArray) plane_formats = NULL;
+  GArray *formats;
+  unsigned int i;
 
-  return meta_kms_plane_copy_drm_format_list (plane);
+  plane_formats = meta_kms_plane_copy_drm_format_list (plane);
+  if (!get_constraints_description (onscreen_native))
+    return g_steal_pointer (&plane_formats);
+
+  formats = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+  for (i = 0; i < plane_formats->len; i++)
+    {
+      uint32_t format = g_array_index (plane_formats, uint32_t, i);
+
+      if (constraints_allow_implicit_layout (
+            onscreen_native,
+            plane,
+            format,
+            cogl_framebuffer_get_width (framebuffer),
+            cogl_framebuffer_get_height (framebuffer)))
+        g_array_append_val (formats, format);
+    }
+
+  return formats;
 }
 
 static const uint32_t alphaless_10bpc_formats[] = {
@@ -2763,6 +2871,43 @@ static const uint32_t default_formats[] = {
   GBM_FORMAT_ARGB8888,
 };
 
+static const uint32_t secondary_gpu_formats[] = {
+  GBM_FORMAT_ARGB2101010,
+  GBM_FORMAT_ABGR2101010,
+  GBM_FORMAT_RGBA1010102,
+  GBM_FORMAT_BGRA1010102,
+  GBM_FORMAT_XRGB8888,
+  GBM_FORMAT_ARGB8888,
+};
+
+static size_t
+filter_formats_for_constraints (CoglOnscreen   *onscreen,
+                                MetaKmsPlane   *plane,
+                                const uint32_t *formats,
+                                size_t          n_formats,
+                                uint32_t       *filtered_formats)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  size_t n_filtered_formats = 0;
+  size_t i;
+
+  for (i = 0; i < n_formats; i++)
+    {
+      if (!constraints_allow_format (
+            onscreen_native,
+            plane,
+            formats[i],
+            cogl_framebuffer_get_width (framebuffer),
+            cogl_framebuffer_get_height (framebuffer)))
+        continue;
+
+      filtered_formats[n_filtered_formats++] = formats[i];
+    }
+
+  return n_filtered_formats;
+}
+
 static gboolean
 choose_onscreen_egl_config (CoglOnscreen  *onscreen,
                             EGLConfig     *out_config,
@@ -2776,12 +2921,36 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaKmsPlane *kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+  uint32_t filtered_alphaless_formats[G_N_ELEMENTS (alphaless_10bpc_formats)];
+  uint32_t filtered_default_formats[G_N_ELEMENTS (default_formats)];
+  const uint32_t *alphaless_formats = alphaless_10bpc_formats;
+  const uint32_t *formats = default_formats;
+  size_t n_alphaless_formats = G_N_ELEMENTS (alphaless_10bpc_formats);
+  size_t n_formats = G_N_ELEMENTS (default_formats);
   EGLint attrs[COGL_MAX_EGL_CONFIG_ATTRIBS];
 
   g_return_val_if_fail (META_IS_KMS_PLANE (kms_plane), FALSE);
 
   cogl_display_egl_determine_attributes (COGL_DISPLAY_EGL (cogl_display),
                                          attrs);
+
+  if (!should_surface_be_sharable (onscreen) &&
+      get_constraints_description (onscreen_native))
+    {
+      n_alphaless_formats =
+        filter_formats_for_constraints (onscreen,
+                                        kms_plane,
+                                        alphaless_10bpc_formats,
+                                        G_N_ELEMENTS (alphaless_10bpc_formats),
+                                        filtered_alphaless_formats);
+      alphaless_formats = filtered_alphaless_formats;
+      n_formats = filter_formats_for_constraints (onscreen,
+                                                  kms_plane,
+                                                  default_formats,
+                                                  G_N_ELEMENTS (default_formats),
+                                                  filtered_default_formats);
+      formats = filtered_default_formats;
+    }
 
   /* Secondary GPU contexts use GLES3, which doesn't guarantee that 10 bpc
    * formats without alpha are renderable
@@ -2790,8 +2959,8 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
       meta_renderer_native_choose_gbm_format (kms_plane,
                                               renderer_egl,
                                               attrs,
-                                              alphaless_10bpc_formats,
-                                              G_N_ELEMENTS (alphaless_10bpc_formats),
+                                              alphaless_formats,
+                                              n_alphaless_formats,
                                               "surface",
                                               out_config,
                                               error))
@@ -2800,8 +2969,8 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   if (meta_renderer_native_choose_gbm_format (kms_plane,
                                               renderer_egl,
                                               attrs,
-                                              default_formats,
-                                              G_N_ELEMENTS (default_formats),
+                                              formats,
+                                              n_formats,
                                               "surface",
                                               out_config,
                                               error))
@@ -2811,15 +2980,26 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
 }
 
 static gboolean
-choose_gbm_format (MetaKmsPlane   *kms_plane,
+choose_gbm_format (CoglOnscreen   *onscreen,
+                   MetaKmsPlane   *kms_plane,
                    const uint32_t *in_gbm_formats,
                    size_t          n_formats,
                    uint32_t       *out_gbm_format)
 {
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+
   for (int i = 0; i < n_formats; i++)
     {
       if (kms_plane &&
-          !meta_kms_plane_is_format_supported (kms_plane, in_gbm_formats[i]))
+          (!meta_kms_plane_is_format_supported (kms_plane,
+                                                in_gbm_formats[i]) ||
+           !constraints_allow_format (
+             onscreen_native,
+             kms_plane,
+             in_gbm_formats[i],
+             cogl_framebuffer_get_width (framebuffer),
+             cogl_framebuffer_get_height (framebuffer))))
         {
           if (meta_is_topic_enabled (META_DEBUG_RENDER))
             {
@@ -2896,7 +3076,9 @@ create_bos_gbm (CoglOnscreen  *onscreen,
   MetaDeviceFile *device_file;
   gboolean should_be_sharable;
   const MetaFormatInfo *format_info;
-  GArray *modifiers = NULL;
+  g_autoptr (GArray) modifiers = NULL;
+  gboolean allocated_with_modifiers = FALSE;
+  gboolean allow_implicit_layout;
   uint32_t gbm_format = 0;
   int i;
 
@@ -2909,14 +3091,16 @@ create_bos_gbm (CoglOnscreen  *onscreen,
 
   if (!should_be_sharable)
     {
-      choose_gbm_format (kms_plane,
+      choose_gbm_format (onscreen,
+                         kms_plane,
                          alphaless_10bpc_formats,
                          G_N_ELEMENTS (alphaless_10bpc_formats),
                          &gbm_format);
     }
 
   if (gbm_format == 0 &&
-      !choose_gbm_format (kms_plane,
+      !choose_gbm_format (onscreen,
+                          kms_plane,
                           default_formats,
                           G_N_ELEMENTS (default_formats),
                           &gbm_format))
@@ -2938,7 +3122,7 @@ create_bos_gbm (CoglOnscreen  *onscreen,
   if (meta_renderer_native_use_modifiers (renderer_native))
     modifiers = get_modifiers (onscreen, gbm_format, should_be_sharable);
 
-  if (modifiers)
+  if (modifiers && modifiers->len > 0)
     {
       for (i = 0; i < num_bos; i++)
         {
@@ -2951,14 +3135,19 @@ create_bos_gbm (CoglOnscreen  *onscreen,
           if (!onscreen_native->gbm.bos[i].gbm)
             break;
         }
-
-      g_array_free (modifiers, TRUE);
+      allocated_with_modifiers =
+        onscreen_native->gbm.bos[num_bos - 1].gbm != NULL;
     }
 
-  if (!onscreen_native->gbm.bos[num_bos - 1].gbm)
+  allow_implicit_layout =
+    !kms_plane ||
+    constraints_allow_implicit_layout (onscreen_native,
+                                       kms_plane,
+                                       gbm_format,
+                                       width,
+                                       height);
+  if (!allocated_with_modifiers && allow_implicit_layout)
     {
-      modifiers = NULL;
-
       if (should_be_sharable)
         gbm_flags |= GBM_BO_USE_LINEAR;
 
@@ -2979,7 +3168,7 @@ create_bos_gbm (CoglOnscreen  *onscreen,
       MetaDrmBufferFlags flags = META_DRM_BUFFER_FLAG_NONE;
       EGLImageKHR egl_image;
 
-      if (!modifiers)
+      if (!allocated_with_modifiers)
         flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
 
       for (i = 0; i < num_bos; i++)
@@ -3067,6 +3256,9 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   MetaRenderDeviceGbm *render_device_gbm;
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaKmsPlane *kms_plane =
+    meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
   struct gbm_device *gbm_device;
   struct gbm_surface *new_gbm_surface = NULL;
   EGLNativeWindowType egl_native_window;
@@ -3091,24 +3283,42 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
 
   format = get_gbm_format_from_egl (cogl_renderer_egl,
                                     egl_config);
+  if (!should_be_sharable &&
+      !constraints_allow_format (onscreen_native,
+                                 kms_plane,
+                                 format,
+                                 width,
+                                 height))
+    {
+      g_set_error_literal (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_SUPPORTED,
+                           "EGL config is incompatible with KMS constraints");
+      return FALSE;
+    }
 
   if (meta_renderer_native_use_modifiers (renderer_native))
     {
-      GArray *modifiers;
+      g_autoptr (GArray) modifiers = NULL;
 
       modifiers = get_modifiers (onscreen, format, should_be_sharable);
-      if (modifiers)
+      if (modifiers && modifiers->len > 0)
         {
           new_gbm_surface =
             gbm_surface_create_with_modifiers (gbm_device,
                                                width, height, format,
                                                (uint64_t *) modifiers->data,
                                                modifiers->len);
-          g_array_free (modifiers, TRUE);
         }
     }
 
-  if (!new_gbm_surface)
+  if (!new_gbm_surface &&
+      (should_be_sharable ||
+       constraints_allow_implicit_layout (onscreen_native,
+                                          kms_plane,
+                                          format,
+                                          width,
+                                          height)))
     {
       uint32_t flags = GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING;
 
@@ -3227,6 +3437,185 @@ should_try_fbos (CoglOnscreen *onscreen)
 }
 
 static gboolean
+constraints_target_supports_primary_buffers (
+  MetaOnscreenNative       *onscreen_native,
+  MetaKmsConstraintsTarget *target,
+  uint32_t                  width,
+  uint32_t                  height)
+{
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+  const uint32_t *format_sets[2];
+  size_t format_set_sizes[2];
+  size_t n_format_sets;
+  size_t set_index;
+  size_t i;
+
+  if (should_surface_be_sharable (COGL_ONSCREEN (onscreen_native)))
+    {
+      format_sets[0] = secondary_gpu_formats;
+      format_set_sizes[0] = G_N_ELEMENTS (secondary_gpu_formats);
+      n_format_sets = 1;
+    }
+  else
+    {
+      format_sets[0] = alphaless_10bpc_formats;
+      format_set_sizes[0] = G_N_ELEMENTS (alphaless_10bpc_formats);
+      format_sets[1] = default_formats;
+      format_set_sizes[1] = G_N_ELEMENTS (default_formats);
+      n_format_sets = 2;
+    }
+
+  for (set_index = 0; set_index < n_format_sets; set_index++)
+    {
+      const uint32_t *formats = format_sets[set_index];
+
+      for (i = 0; i < format_set_sizes[set_index]; i++)
+        {
+          GArray *modifiers;
+          g_autoptr (GArray) filtered_modifiers = NULL;
+
+          if (!meta_kms_plane_is_format_supported (plane, formats[i]) ||
+              !meta_kms_constraints_target_allows_format (
+                target,
+                meta_kms_plane_get_id (plane),
+                formats[i],
+                width,
+                height))
+            continue;
+
+          if (meta_kms_constraints_target_allows_implicit_layout (
+                target,
+                meta_kms_plane_get_id (plane),
+                formats[i],
+                width,
+                height))
+            return TRUE;
+
+          if (!meta_renderer_native_use_modifiers (renderer_native))
+            continue;
+
+          modifiers = meta_kms_plane_get_modifiers_for_format (plane,
+                                                                formats[i]);
+          if (!modifiers)
+            continue;
+
+          filtered_modifiers =
+            meta_kms_constraints_target_filter_explicit_modifiers (
+              target,
+              meta_kms_plane_get_id (plane),
+              formats[i],
+              width,
+              height,
+              modifiers);
+          if (filtered_modifiers->len > 0)
+            return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
+static gboolean
+init_constraints_target (MetaOnscreenNative  *onscreen_native,
+                         int                  width,
+                         int                  height,
+                         GError             **error)
+{
+  const MetaCrtcConfig *crtc_config =
+    meta_crtc_get_config (onscreen_native->crtc);
+  const MetaCrtcModeInfo *mode_info;
+  MetaKmsCrtc *kms_crtc =
+    meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+  g_autoptr (MetaKmsConstraintsList) list =
+    meta_kms_crtc_ref_constraints_list (kms_crtc);
+  const MetaKmsConstraintsListEntry *entry;
+  const MetaKmsConstraintsDescription *description;
+  const MetaKmsConstraintsSize *output;
+  uint64_t target_id;
+
+  if (!list)
+    return TRUE;
+
+  if (!crtc_config || !crtc_config->mode)
+    {
+      g_set_error_literal (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_SUPPORTED,
+                           "Cannot select KMS constraints without a mode");
+      return FALSE;
+    }
+
+  mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+
+  target_id = meta_kms_constraints_list_get_suggested_id (list);
+  if (target_id != 0)
+    {
+      g_autoptr (MetaKmsConstraintsTarget) target = NULL;
+
+      entry = meta_kms_constraints_list_find_entry (list, target_id);
+      description = meta_kms_constraints_list_entry_get_description (entry);
+      output = meta_kms_constraints_description_get_output (description);
+      if (!meta_kms_constraints_size_contains (output,
+                                                mode_info->width,
+                                                mode_info->height))
+        target_id = 0;
+      else
+        {
+          target = meta_kms_constraints_target_new (list, target_id, NULL);
+          if (!target ||
+              !constraints_target_supports_primary_buffers (onscreen_native,
+                                                            target,
+                                                            width,
+                                                            height))
+            target_id = 0;
+        }
+    }
+  if (target_id == 0)
+    target_id = meta_kms_constraints_list_get_selected_id (list);
+
+  onscreen_native->constraints_target =
+    meta_kms_constraints_target_new (list, target_id, error);
+  if (!onscreen_native->constraints_target)
+    return FALSE;
+
+  description = meta_kms_constraints_target_get_description (
+    onscreen_native->constraints_target);
+  output = meta_kms_constraints_description_get_output (description);
+  if (!meta_kms_constraints_size_contains (output,
+                                            mode_info->width,
+                                            mode_info->height))
+    {
+      g_clear_pointer (&onscreen_native->constraints_target,
+                       meta_kms_constraints_target_free);
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_NOT_SUPPORTED,
+                   "KMS constraints do not support a %dx%d output",
+                   mode_info->width,
+                   mode_info->height);
+      return FALSE;
+    }
+  if (!constraints_target_supports_primary_buffers (
+        onscreen_native,
+        onscreen_native->constraints_target,
+        width,
+        height))
+    {
+      g_clear_pointer (&onscreen_native->constraints_target,
+                       meta_kms_constraints_target_free);
+      g_set_error_literal (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_SUPPORTED,
+                           "KMS constraints have no usable primary buffer");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
                                GError          **error)
 {
@@ -3240,7 +3629,15 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
   int height;
   CoglFramebufferClass *parent_class;
 
-  if (get_execution_kind (onscreen_native) == META_KMS_EXECUTION_UNSUPPORTED)
+  width = cogl_framebuffer_get_width (framebuffer);
+  height = cogl_framebuffer_get_height (framebuffer);
+
+  if (!onscreen_native->constraints_target &&
+      !init_constraints_target (onscreen_native, width, height, error))
+    return FALSE;
+
+  if (!onscreen_native->constraints_target &&
+      get_execution_kind (onscreen_native) == META_KMS_EXECUTION_UNSUPPORTED)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                    "Unsupported display execution profile");
@@ -3254,9 +3651,6 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
                                      onscreen, error))
         return FALSE;
     }
-
-  width = cogl_framebuffer_get_width (framebuffer);
-  height = cogl_framebuffer_get_height (framebuffer);
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
@@ -3375,9 +3769,14 @@ create_secondary_gpu_buffer (CoglOnscreen        *onscreen,
       (kms_modifiers_debug_env ?
        g_strcmp0 (kms_modifiers_debug_env, "1") == 0 :
        !(kms_device_flags & META_KMS_DEVICE_FLAG_DISABLE_MODIFIERS)))
-    modifiers = get_supported_kms_modifiers (crtc_kms, format);
+    modifiers = get_supported_kms_modifiers (onscreen,
+                                             crtc_kms,
+                                             format,
+                                             width,
+                                             height);
 
-  if (modifiers)
+  gbm_bo = NULL;
+  if (modifiers && modifiers->len > 0)
     {
       gbm_bo = gbm_bo_create_with_modifiers2 (gbm_device,
                                               width,
@@ -3388,7 +3787,13 @@ create_secondary_gpu_buffer (CoglOnscreen        *onscreen,
                                               GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
       drm_buffer_flags = META_DRM_BUFFER_FLAG_NONE;
     }
-  else
+
+  if (!gbm_bo &&
+      constraints_allow_implicit_layout (onscreen_native,
+                                         meta_crtc_kms_get_assigned_primary_plane (crtc_kms),
+                                         format,
+                                         width,
+                                         height))
     {
       gbm_bo = gbm_bo_create (gbm_device,
                               width,
@@ -3400,9 +3805,11 @@ create_secondary_gpu_buffer (CoglOnscreen        *onscreen,
 
   if (!gbm_bo)
     {
-      g_set_error (error,  G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "gbm_bo_create failed for secondary GPU: %s",
-                   strerror (errno));
+      g_set_error_literal (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_FAILED,
+                           "No KMS-compatible secondary GPU buffer could "
+                           "be allocated");
       return NULL;
     }
 
@@ -3436,29 +3843,39 @@ create_secondary_gpu_buffers (CoglOnscreen                         *onscreen,
                               int                                   height,
                               GError                              **error)
 {
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaKmsPlane *primary_plane =
+    meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
   MetaRenderDevice *render_device = renderer_gpu_data->render_device;
   MetaRenderDeviceGbm *render_device_gbm =
     META_RENDER_DEVICE_GBM (render_device);
   struct gbm_device *gbm_device;
   MetaDeviceFile *device_file;
-  static const uint32_t gles3_formats[] = {
-    GBM_FORMAT_ARGB2101010,
-    GBM_FORMAT_ABGR2101010,
-    GBM_FORMAT_RGBA1010102,
-    GBM_FORMAT_BGRA1010102,
-    GBM_FORMAT_XRGB8888,
-    GBM_FORMAT_ARGB8888,
-  };
   uint32_t format;
   int i;
 
   gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
   device_file = meta_render_device_get_device_file (render_device);
 
-  for (i = 0; i < G_N_ELEMENTS (gles3_formats); i++)
+  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_formats); i++)
     {
-      format = gles3_formats[i];
+      format = secondary_gpu_formats[i];
       g_clear_error (error);
+
+      if (!constraints_allow_format (
+            onscreen_native,
+            primary_plane,
+            format,
+            width,
+            height))
+        {
+          g_set_error_literal (error,
+                               G_IO_ERROR,
+                               G_IO_ERROR_NOT_SUPPORTED,
+                               "KMS constraints do not support GBM format");
+          continue;
+        }
 
       if (!all_crtcs_support_format (secondary_gpu_state->gpu_kms, format))
         {
@@ -3876,6 +4293,8 @@ meta_onscreen_native_dispose (GObject *object)
   g_clear_pointer (&onscreen_native->gbm.surface, gbm_surface_destroy);
   g_clear_pointer (&onscreen_native->secondary_gpu_state,
                    secondary_gpu_state_free);
+  g_clear_pointer (&onscreen_native->constraints_target,
+                   meta_kms_constraints_target_free);
 
   g_clear_object (&onscreen_native->output);
   g_clear_object (&onscreen_native->crtc);
