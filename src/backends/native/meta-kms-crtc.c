@@ -696,7 +696,7 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
   for (l = crtc_color_updates; l; l = l->next)
     {
       MetaKmsCrtcColorUpdate *color_update = l->data;
-      MetaGammaLut *degamma = color_update->gamma.state;
+      MetaGammaLut *degamma = color_update->degamma.state;
       MetaCtm *ctm = color_update->ctm.state;
       MetaGammaLut *gamma = color_update->gamma.state;
 
