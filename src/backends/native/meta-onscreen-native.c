@@ -3614,12 +3614,12 @@ constraints_target_supports_primary_buffers (
 }
 
 static gboolean
-bind_constraints_target_id (MetaOnscreenNative  *onscreen_native,
-                            MetaKmsConstraintsList *list,
-                            uint64_t                target_id,
-                            int                     output_width,
-                            int                     output_height,
-                            GError                **error)
+bind_constraints_target_id (MetaOnscreenNative       *onscreen_native,
+                            MetaKmsConstraintsList   *list,
+                            uint64_t                  target_id,
+                            int                       output_width,
+                            int                       output_height,
+                            GError                  **error)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
   int width = cogl_framebuffer_get_width (framebuffer);
