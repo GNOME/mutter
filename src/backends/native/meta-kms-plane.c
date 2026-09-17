@@ -211,7 +211,7 @@ meta_kms_plane_update_set_color_range (MetaKmsPlane                *plane,
                                        MetaKmsPlaneYCbCrColorRange  range)
 {
   MetaKmsProp *prop =
-    &plane->prop_table.props[META_KMS_PLANE_YCBCR_COLOR_RANGE_LIMITED];
+    &plane->prop_table.props[META_KMS_PLANE_PROP_YCBCR_COLOR_RANGE];
 
   g_return_if_fail (meta_kms_plane_is_color_range_handled (plane, range));
 
