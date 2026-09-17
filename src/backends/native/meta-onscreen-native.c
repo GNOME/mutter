@@ -3613,14 +3613,65 @@ constraints_target_supports_primary_buffers (
   return FALSE;
 }
 
+static gboolean
+bind_constraints_target_id (MetaOnscreenNative  *onscreen_native,
+                            MetaKmsConstraintsList *list,
+                            uint64_t                target_id,
+                            int                     output_width,
+                            int                     output_height,
+                            GError                **error)
+{
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+  int width = cogl_framebuffer_get_width (framebuffer);
+  int height = cogl_framebuffer_get_height (framebuffer);
+  const MetaKmsConstraintsDescription *description;
+  const MetaKmsConstraintsSize *output;
+
+  onscreen_native->constraints_target =
+    meta_kms_constraints_target_new (list, target_id, error);
+  if (!onscreen_native->constraints_target)
+    return FALSE;
+
+  description = meta_kms_constraints_target_get_description (
+    onscreen_native->constraints_target);
+  output = meta_kms_constraints_description_get_output (description);
+  if (!meta_kms_constraints_size_contains (output,
+                                            output_width,
+                                            output_height))
+    {
+      g_clear_pointer (&onscreen_native->constraints_target,
+                       meta_kms_constraints_target_free);
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_NOT_SUPPORTED,
+                   "KMS constraints do not support a %dx%d output",
+                   output_width,
+                   output_height);
+      return FALSE;
+    }
+  if (!constraints_target_supports_primary_buffers (
+        onscreen_native,
+        onscreen_native->constraints_target,
+        width,
+        height))
+    {
+      g_clear_pointer (&onscreen_native->constraints_target,
+                       meta_kms_constraints_target_free);
+      g_set_error_literal (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_SUPPORTED,
+                           "KMS constraints have no usable primary buffer");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 gboolean
 meta_onscreen_native_bind_constraints_target (
   MetaOnscreenNative  *onscreen_native,
   GError             **error)
 {
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
-  int width = cogl_framebuffer_get_width (framebuffer);
-  int height = cogl_framebuffer_get_height (framebuffer);
   const MetaCrtcConfig *crtc_config =
     meta_crtc_get_config (onscreen_native->crtc);
   const MetaCrtcModeInfo *mode_info;
@@ -3630,9 +3681,8 @@ meta_onscreen_native_bind_constraints_target (
     meta_kms_crtc_get_current_state (kms_crtc);
   g_autoptr (MetaKmsConstraintsList) list =
     meta_kms_crtc_ref_constraints_list (kms_crtc);
-  const MetaKmsConstraintsDescription *description;
-  const MetaKmsConstraintsSize *output;
-  uint64_t target_id;
+  uint64_t selected_id;
+  uint64_t suggested_id;
 
   if (onscreen_native->constraints_target)
     return TRUE;
@@ -3659,49 +3709,39 @@ meta_onscreen_native_bind_constraints_target (
     }
 
   mode_info = meta_crtc_mode_get_info (crtc_config->mode);
-
-  target_id = meta_kms_constraints_list_get_suggested_id (list);
-  if (target_id == 0)
-    target_id = meta_kms_constraints_list_get_selected_id (list);
-
-  onscreen_native->constraints_target =
-    meta_kms_constraints_target_new (list, target_id, error);
-  if (!onscreen_native->constraints_target)
-    return FALSE;
-
-  description = meta_kms_constraints_target_get_description (
-    onscreen_native->constraints_target);
-  output = meta_kms_constraints_description_get_output (description);
-  if (!meta_kms_constraints_size_contains (output,
-                                            mode_info->width,
-                                            mode_info->height))
+  selected_id = meta_kms_constraints_list_get_selected_id (list);
+  suggested_id = meta_kms_constraints_list_get_suggested_id (list);
+  if (suggested_id != 0 && suggested_id != selected_id)
     {
-      g_clear_pointer (&onscreen_native->constraints_target,
-                       meta_kms_constraints_target_free);
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_NOT_SUPPORTED,
-                   "KMS constraints do not support a %dx%d output",
-                   mode_info->width,
-                   mode_info->height);
-      return FALSE;
-    }
-  if (!constraints_target_supports_primary_buffers (
-        onscreen_native,
-        onscreen_native->constraints_target,
-        width,
-        height))
-    {
-      g_clear_pointer (&onscreen_native->constraints_target,
-                       meta_kms_constraints_target_free);
-      g_set_error_literal (error,
-                           G_IO_ERROR,
-                           G_IO_ERROR_NOT_SUPPORTED,
-                           "KMS constraints have no usable primary buffer");
-      return FALSE;
+      g_autoptr (GError) local_error = NULL;
+
+      if (bind_constraints_target_id (onscreen_native,
+                                      list,
+                                      suggested_id,
+                                      mode_info->width,
+                                      mode_info->height,
+                                      &local_error))
+        return TRUE;
+
+      if (!g_error_matches (local_error,
+                            G_IO_ERROR,
+                            G_IO_ERROR_NOT_SUPPORTED))
+        {
+          g_propagate_error (error, g_steal_pointer (&local_error));
+          return FALSE;
+        }
+
+      meta_topic (META_DEBUG_KMS,
+                  "Suggested KMS constraints cannot be used: %s",
+                  local_error->message);
     }
 
-  return TRUE;
+  return bind_constraints_target_id (onscreen_native,
+                                     list,
+                                     selected_id,
+                                     mode_info->width,
+                                     mode_info->height,
+                                     error);
 }
 
 gboolean
