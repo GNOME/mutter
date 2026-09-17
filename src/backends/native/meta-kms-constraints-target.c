@@ -193,3 +193,20 @@ meta_kms_constraints_target_filter_explicit_modifiers (
 
   return filtered_modifiers;
 }
+
+gboolean
+meta_kms_constraints_target_allows_property (
+  const MetaKmsConstraintsTarget *target,
+  uint32_t                        object_id,
+  uint32_t                        property_id,
+  uint64_t                        value)
+{
+  const MetaKmsConstraintsDescription *description =
+    meta_kms_constraints_target_get_description (target);
+  const MetaKmsConstraintsProperty *property;
+
+  property = meta_kms_constraints_description_find_property (description,
+                                                              object_id,
+                                                              property_id);
+  return !property || meta_kms_constraints_property_matches (property, value);
+}

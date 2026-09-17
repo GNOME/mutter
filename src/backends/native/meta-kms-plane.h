@@ -74,6 +74,10 @@ meta_kms_plane_get_cursor_size_hints (MetaKmsPlane *plane);
 gboolean meta_kms_plane_is_transform_handled (MetaKmsPlane        *plane,
                                               MtkMonitorTransform  transform);
 
+gboolean meta_kms_plane_transform_to_rotation (MetaKmsPlane        *plane,
+                                               MtkMonitorTransform  transform,
+                                               uint64_t            *drm_rotation);
+
 gboolean meta_kms_plane_is_color_encoding_handled (MetaKmsPlane                   *plane,
                                                    MetaKmsPlaneYCbCrColorEncoding  encoding);
 

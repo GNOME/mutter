@@ -1324,6 +1324,18 @@ meta_test_kms_constraints_target (void)
   g_assert_cmphex (g_array_index (modifiers, uint64_t, 0),
                    ==,
                    TEST_FORMAT_MODIFIER);
+  g_assert_true (meta_kms_constraints_target_allows_property (target,
+                                                              7,
+                                                              8,
+                                                              2));
+  g_assert_false (meta_kms_constraints_target_allows_property (target,
+                                                               7,
+                                                               8,
+                                                               5));
+  g_assert_true (meta_kms_constraints_target_allows_property (target,
+                                                              7,
+                                                              99,
+                                                              G_MAXUINT64));
 
   g_clear_pointer (&target, meta_kms_constraints_target_free);
   blob.entries[1].flags = 0;

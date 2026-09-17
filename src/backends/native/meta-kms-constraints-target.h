@@ -65,3 +65,9 @@ GArray * meta_kms_constraints_target_filter_explicit_modifiers (
   uint32_t                        width,
   uint32_t                        height,
   const GArray                   *candidates);
+
+gboolean meta_kms_constraints_target_allows_property (
+  const MetaKmsConstraintsTarget *target,
+  uint32_t                        object_id,
+  uint32_t                        property_id,
+  uint64_t                        value);

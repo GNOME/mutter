@@ -133,14 +133,26 @@ meta_kms_plane_get_prop_drm_value (MetaKmsPlane     *plane,
   return meta_kms_prop_convert_value (prop, value);
 }
 
+static MetaKmsPlaneRotation
+transform_to_rotation (MtkMonitorTransform transform);
+
 void
 meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
                                     MetaKmsPlaneAssignment *plane_assignment,
                                     MtkMonitorTransform     transform)
 {
-  MetaKmsPlaneRotation kms_rotation = 0;
+  MetaKmsPlaneRotation kms_rotation;
 
   g_return_if_fail (meta_kms_plane_is_transform_handled (plane, transform));
+
+  kms_rotation = transform_to_rotation (transform);
+  meta_kms_plane_assignment_set_rotation (plane_assignment, kms_rotation);
+}
+
+static MetaKmsPlaneRotation
+transform_to_rotation (MtkMonitorTransform transform)
+{
+  MetaKmsPlaneRotation kms_rotation;
 
   switch (transform)
     {
@@ -176,7 +188,7 @@ meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
       g_assert_not_reached ();
     }
 
-  meta_kms_plane_assignment_set_rotation (plane_assignment, kms_rotation);
+  return kms_rotation;
 }
 
 void
@@ -237,6 +249,26 @@ meta_kms_plane_is_transform_handled (MetaKmsPlane        *plane,
     }
 
   return FALSE;
+}
+
+gboolean
+meta_kms_plane_transform_to_rotation (MetaKmsPlane        *plane,
+                                      MtkMonitorTransform  transform,
+                                      uint64_t            *drm_rotation)
+{
+  MetaKmsPlaneRotation kms_rotation;
+
+  g_return_val_if_fail (drm_rotation != NULL, FALSE);
+
+  if (!meta_kms_plane_is_transform_handled (plane, transform))
+    return FALSE;
+
+  kms_rotation = transform_to_rotation (transform);
+  *drm_rotation = meta_kms_plane_get_prop_drm_value (
+    plane,
+    META_KMS_PLANE_PROP_ROTATION,
+    kms_rotation);
+  return TRUE;
 }
 
 gboolean
