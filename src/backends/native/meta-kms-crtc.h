@@ -41,6 +41,11 @@ typedef struct _MetaKmsCrtcState
   } vrr;
 
   struct {
+    gboolean supported;
+    uint64_t id;
+  } constraints;
+
+  struct {
     MetaGammaLut *value;
     int size;
     gboolean supported;

@@ -367,6 +367,9 @@ meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
   if (state->vrr.enabled != other_state->vrr.enabled)
     return META_KMS_RESOURCE_CHANGE_FULL;
 
+  if (state->constraints.id != other_state->constraints.id)
+    return META_KMS_RESOURCE_CHANGE_FULL;
+
   if (!degamma_equal (state, other_state) ||
       !gamma_equal (state, other_state) ||
       !ctm_equal (state, other_state))
@@ -414,6 +417,13 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
     {
       crtc_state.vrr.supported = TRUE;
       crtc_state.vrr.enabled = !!prop->value;
+    }
+
+  prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_CONSTRAINTS_ID];
+  if (prop->prop_id)
+    {
+      crtc_state.constraints.supported = TRUE;
+      crtc_state.constraints.id = prop->value;
     }
 
   read_degamma_state (crtc, &crtc_state, impl_device, drm_crtc);
@@ -566,6 +576,9 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
 
       if (crtc_update->vrr.has_update)
         crtc->current_state.vrr.enabled = !!crtc_update->vrr.is_enabled;
+
+      if (crtc_update->constraints.has_update)
+        crtc->current_state.constraints.id = crtc_update->constraints.id;
 
       break;
     }

@@ -207,6 +207,12 @@ assert_crtc_state_equals (const MetaKmsCrtcState *crtc_state1,
     }
 
   g_assert_true (crtc_state1->vrr.enabled == crtc_state2->vrr.enabled);
+  g_assert_cmpint (crtc_state1->constraints.supported,
+                   ==,
+                   crtc_state2->constraints.supported);
+  g_assert_cmpuint (crtc_state1->constraints.id,
+                    ==,
+                    crtc_state2->constraints.id);
 
   g_assert_true (meta_gamma_lut_equal (crtc_state1->gamma.value,
                                        crtc_state2->gamma.value));
