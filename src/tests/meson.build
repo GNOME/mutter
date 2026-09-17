@@ -709,6 +709,7 @@ test_cases += [
       '../backends/native/meta-kms-constraints.c',
       '../backends/native/meta-kms-constraints-decoder.c',
       '../backends/native/meta-kms-constraints-list.c',
+      '../backends/native/meta-kms-constraints-query.c',
     ],
   },
   {

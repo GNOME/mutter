@@ -17,6 +17,7 @@
 
 #include "config.h"
 
+#include <errno.h>
 #include <drm_fourcc.h>
 #include <gio/gio.h>
 #include <xf86drmMode.h>
@@ -24,6 +25,7 @@
 #include "backends/native/meta-drm-constraints.h"
 #include "backends/native/meta-kms-constraints-decoder.h"
 #include "backends/native/meta-kms-constraints-list.h"
+#include "backends/native/meta-kms-constraints-query.h"
 #include "backends/native/meta-kms-constraints.h"
 
 #define TEST_FORMAT_MODIFIER UINT64_C (1)
@@ -183,6 +185,59 @@ create_two_entry_constraints_blob (void)
     }
 
   return blob;
+}
+
+typedef struct _TestConstraintsQuery
+{
+  const void *snapshot;
+  uint32_t snapshot_size;
+  uint64_t generation;
+  const void *replacement_snapshot;
+  uint32_t replacement_size;
+  uint64_t replacement_generation;
+  gboolean replace_on_fetch;
+  gboolean always_stale;
+  int result;
+  unsigned int calls;
+} TestConstraintsQuery;
+
+static int
+query_constraints (gpointer  user_data,
+                   uint32_t  crtc_id,
+                   uint64_t *generation,
+                   void     *data,
+                   uint32_t *size)
+{
+  TestConstraintsQuery *query = user_data;
+  uint32_t capacity = *size;
+
+  g_assert_cmpuint (crtc_id, ==, 19);
+  query->calls++;
+
+  if (query->result != 0)
+    return query->result;
+  if (query->always_stale)
+    return -ESTALE;
+  if (query->replace_on_fetch && data)
+    {
+      query->snapshot = query->replacement_snapshot;
+      query->snapshot_size = query->replacement_size;
+      query->generation = query->replacement_generation;
+      query->replace_on_fetch = FALSE;
+      return -ESTALE;
+    }
+  if (*generation != 0 && *generation != query->generation)
+    return -ESTALE;
+
+  *generation = query->generation;
+  *size = query->snapshot_size;
+  if (!data)
+    return 0;
+  if (capacity < query->snapshot_size)
+    return -ENOSPC;
+
+  memcpy (data, query->snapshot, query->snapshot_size);
+  return 0;
 }
 
 static const MetaKmsConstraintsSize output_size = {
@@ -953,6 +1008,111 @@ meta_test_kms_constraints_decode_skip_unsupported (void)
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
 }
 
+static void
+meta_test_kms_constraints_query (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  TestConstraintsQuery query = {
+    .snapshot = &blob,
+    .snapshot_size = sizeof (blob),
+    .generation = blob.list.generation,
+  };
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  list = meta_kms_constraints_query (19,
+                                     query_constraints,
+                                     &query,
+                                     &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+  g_assert_cmpuint (query.calls, ==, 2);
+  g_assert_cmpuint (meta_kms_constraints_list_get_generation (list),
+                    ==,
+                    blob.list.generation);
+}
+
+static void
+meta_test_kms_constraints_query_retries_changes (void)
+{
+  TestConstraintsBlob initial = create_constraints_blob ();
+  TestTwoEntryConstraintsBlob replacement = create_two_entry_constraints_blob ();
+  TestConstraintsQuery query = {
+    .snapshot = &initial,
+    .snapshot_size = sizeof (initial),
+    .generation = initial.list.generation,
+    .replacement_snapshot = &replacement,
+    .replacement_size = sizeof (replacement),
+    .replacement_generation = 18,
+    .replace_on_fetch = TRUE,
+  };
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  replacement.list.generation = query.replacement_generation;
+  list = meta_kms_constraints_query (19,
+                                     query_constraints,
+                                     &query,
+                                     &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+  g_assert_cmpuint (query.calls, ==, 4);
+  g_assert_cmpuint (meta_kms_constraints_list_get_generation (list), ==, 18);
+}
+
+static void
+meta_test_kms_constraints_query_rejects_bad_transport (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  TestConstraintsQuery query = {
+    .snapshot = &blob,
+    .snapshot_size = sizeof (blob),
+    .generation = blob.list.generation,
+  };
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  query.snapshot_size = DRM_MODE_CONSTRAINTS_MAX_BYTES + 1U;
+  list = meta_kms_constraints_query (19,
+                                     query_constraints,
+                                     &query,
+                                     &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  query.snapshot_size = sizeof (blob);
+  query.always_stale = TRUE;
+  query.calls = 0;
+  list = meta_kms_constraints_query (19,
+                                     query_constraints,
+                                     &query,
+                                     &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_BUSY);
+  g_assert_cmpuint (query.calls, ==, 8);
+
+  g_clear_error (&error);
+  query.always_stale = FALSE;
+  query.result = -EACCES;
+  list = meta_kms_constraints_query (19,
+                                     query_constraints,
+                                     &query,
+                                     &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED);
+
+  g_clear_error (&error);
+  query.result = 0;
+  query.generation++;
+  list = meta_kms_constraints_query (19,
+                                     query_constraints,
+                                     &query,
+                                     &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -986,5 +1146,11 @@ main (int    argc,
   g_test_add_func (
     "/backends/native/kms/constraints/decode-skip-unsupported",
     meta_test_kms_constraints_decode_skip_unsupported);
+  g_test_add_func ("/backends/native/kms/constraints/query",
+                   meta_test_kms_constraints_query);
+  g_test_add_func ("/backends/native/kms/constraints/query-retries-changes",
+                   meta_test_kms_constraints_query_retries_changes);
+  g_test_add_func ("/backends/native/kms/constraints/query-rejects-transport",
+                   meta_test_kms_constraints_query_rejects_bad_transport);
   return g_test_run ();
 }
