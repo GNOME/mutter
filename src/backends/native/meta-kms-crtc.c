@@ -571,6 +571,57 @@ out:
   return changes;
 }
 
+MetaKmsResourceChanges
+meta_kms_crtc_refresh_constraints_in_impl (MetaKmsCrtc *crtc,
+                                           uint64_t     generation,
+                                           gboolean     is_closed)
+{
+  MetaKmsImplDevice *impl_device;
+  g_autoptr (MetaKmsConstraintsList) constraints_list = NULL;
+  g_autoptr (GError) error = NULL;
+  uint64_t old_generation = 0;
+
+  impl_device = meta_kms_device_get_impl_device (crtc->device);
+
+  if (!crtc->current_state.constraints.supported)
+    return META_KMS_RESOURCE_CHANGE_NONE;
+
+  if (crtc->constraints_list)
+    old_generation =
+      meta_kms_constraints_list_get_generation (crtc->constraints_list);
+
+  if (is_closed)
+    {
+      g_clear_pointer (&crtc->constraints_list,
+                       meta_kms_constraints_list_unref);
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
+
+  if (generation == old_generation)
+    return META_KMS_RESOURCE_CHANGE_NONE;
+
+  constraints_list =
+    meta_kms_constraints_query_fd (meta_kms_impl_device_get_fd (impl_device),
+                                   crtc->id,
+                                   &error);
+  if (!constraints_list)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "Failed to refresh constraints for CRTC %u: %s",
+                  crtc->id,
+                  error->message);
+      return META_KMS_RESOURCE_CHANGE_NONE;
+    }
+
+  crtc->current_state.constraints.id =
+    meta_kms_constraints_list_get_selected_id (constraints_list);
+  g_clear_pointer (&crtc->constraints_list,
+                   meta_kms_constraints_list_unref);
+  crtc->constraints_list = g_steal_pointer (&constraints_list);
+
+  return META_KMS_RESOURCE_CHANGE_FULL;
+}
+
 void
 meta_kms_crtc_disable_in_impl (MetaKmsCrtc *crtc)
 {

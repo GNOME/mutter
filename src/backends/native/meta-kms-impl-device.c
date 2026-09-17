@@ -24,14 +24,17 @@
 #include <glib/gstdio.h>
 #include <linux/dma-buf.h>
 #include <poll.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/timerfd.h>
 #include <xf86drm.h>
 
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-device-pool.h"
+#include "backends/native/meta-drm-constraints.h"
 #include "backends/native/meta-kms-connector-private.h"
 #include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-constraints-event.h"
 #include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device-private.h"
@@ -111,6 +114,9 @@ static void meta_kms_impl_device_do_process_update (MetaKmsImplDevice *impl_devi
                                                     MetaKmsCrtc       *latch_crtc,
                                                     MetaKmsUpdate     *update,
                                                     MetaKmsUpdateFlag  flags);
+
+static void emit_resources_changed_callback (MetaThread *thread,
+                                             gpointer    user_data);
 
 typedef enum _MetaDeadlineTimerState
 {
@@ -517,6 +523,60 @@ meta_kms_impl_device_list_lessees (MetaKmsImplDevice  *impl_device,
   return TRUE;
 }
 
+#if DRM_EVENT_CONTEXT_VERSION >= 5
+static void
+handle_unhandled_drm_event (int                     fd,
+                            const struct drm_event *event,
+                            void                   *user_data)
+{
+  MetaKmsImplDevice *impl_device = user_data;
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsConstraintsListChange change;
+  MetaKmsResourceChanges changes;
+  struct drm_event base;
+  GList *l;
+
+  memcpy (&base, event, sizeof (base));
+  if (base.type != DRM_EVENT_KMS_CONSTRAINTS_LIST_CHANGED)
+    return;
+
+  if (!meta_kms_constraints_event_decode_list_change (event, &change))
+    {
+      g_warning ("Ignoring malformed KMS constraints event");
+      return;
+    }
+
+  for (l = priv->crtcs; l; l = l->next)
+    {
+      MetaKmsCrtc *crtc = l->data;
+
+      if (meta_kms_crtc_get_id (crtc) != change.crtc_id)
+        continue;
+
+      changes = meta_kms_crtc_refresh_constraints_in_impl (
+        crtc,
+        change.generation,
+        change.is_closed);
+      if (changes != META_KMS_RESOURCE_CHANGE_NONE)
+        {
+          MetaKms *kms = meta_kms_device_get_kms (priv->device);
+
+          meta_kms_queue_callback (kms,
+                                   NULL,
+                                   emit_resources_changed_callback,
+                                   GUINT_TO_POINTER (changes),
+                                   NULL);
+        }
+      return;
+    }
+
+  meta_topic (META_DEBUG_KMS,
+              "Ignoring constraints event for unknown CRTC %u",
+              change.crtc_id);
+}
+#endif
+
 gboolean
 meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
                                GError            **error)
@@ -532,6 +592,12 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
 
   drm_event_context = (drmEventContext) { 0 };
   klass->setup_drm_event_context (impl_device, &drm_event_context);
+
+#if DRM_EVENT_CONTEXT_VERSION >= 5
+  drm_event_context.version = DRM_EVENT_CONTEXT_VERSION;
+  drm_event_context.unhandled_event_handler = handle_unhandled_drm_event;
+  drm_event_context.unhandled_event_handler_data = impl_device;
+#endif
 
   fd = meta_device_file_get_fd (priv->device_file);
 

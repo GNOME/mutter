@@ -45,6 +45,11 @@ MetaKmsCrtc * meta_kms_crtc_new (MetaKmsImplDevice  *impl_device,
 
 MetaKmsResourceChanges meta_kms_crtc_update_state_in_impl (MetaKmsCrtc *crtc);
 
+MetaKmsResourceChanges meta_kms_crtc_refresh_constraints_in_impl (
+  MetaKmsCrtc *crtc,
+  uint64_t     generation,
+  gboolean     is_closed);
+
 void meta_kms_crtc_disable_in_impl (MetaKmsCrtc *crtc);
 
 void meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
