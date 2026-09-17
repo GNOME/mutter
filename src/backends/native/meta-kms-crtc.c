@@ -597,7 +597,7 @@ meta_kms_crtc_refresh_constraints_in_impl (MetaKmsCrtc *crtc,
       return META_KMS_RESOURCE_CHANGE_FULL;
     }
 
-  if (generation == old_generation)
+  if (generation <= old_generation)
     return META_KMS_RESOURCE_CHANGE_NONE;
 
   constraints_list =
