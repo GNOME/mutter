@@ -3071,6 +3071,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   struct gbm_surface *new_gbm_surface = NULL;
   EGLNativeWindowType egl_native_window;
   gboolean should_be_sharable;
+  g_autoptr (GError) config_error = NULL;
   EGLSurface new_egl_surface;
   EGLConfig egl_config;
   uint32_t format;
@@ -3085,7 +3086,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
 
   if (!cogl_renderer_egl_has_feature (cogl_renderer_egl,
                                       COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
-      !choose_onscreen_egl_config (onscreen, &egl_config, error))
+      !choose_onscreen_egl_config (onscreen, &egl_config, &config_error))
     egl_config = cogl_display_egl_get_egl_config (cogl_display_egl);
 
   format = get_gbm_format_from_egl (cogl_renderer_egl,
