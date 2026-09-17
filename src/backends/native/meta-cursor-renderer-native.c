@@ -42,6 +42,7 @@
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-frame-native.h"
+#include "backends/native/meta-kms-constraints-buffer.h"
 #include "backends/native/meta-kms-constraints-list.h"
 #include "backends/native/meta-kms-constraints-target.h"
 #include "backends/native/meta-kms-crtc.h"
@@ -658,6 +659,7 @@ constraints_target_allows_cursor_buffer (MetaKmsConstraintsList *list,
                                          MetaKmsPlane           *kms_plane,
                                          uint64_t                target_id,
                                          uint32_t                format,
+                                         MetaKmsConstraintsStorage storage,
                                          uint32_t                width,
                                          uint32_t                height)
 {
@@ -677,19 +679,79 @@ constraints_target_allows_cursor_buffer (MetaKmsConstraintsList *list,
            target,
            meta_kms_plane_get_id (kms_plane),
            format,
+           storage,
            width,
            height) &&
          meta_kms_constraints_target_allows_implicit_layout (
            target,
            meta_kms_plane_get_id (kms_plane),
            format,
+           storage,
            width,
            height);
 }
 
 static gboolean
+constraints_target_allows_cursor_layout (MetaKmsConstraintsList   *list,
+                                         MetaKmsPlane             *kms_plane,
+                                         uint64_t                  target_id,
+                                         MetaDrmBuffer            *buffer,
+                                         MetaKmsConstraintsStorage storage)
+{
+  g_autoptr (MetaKmsConstraintsTarget) target = NULL;
+  g_autoptr (GError) error = NULL;
+
+  target = meta_kms_constraints_target_new (list, target_id, &error);
+  if (!target)
+    return FALSE;
+
+  return meta_kms_constraints_target_allows_drm_buffer (
+    target,
+    kms_plane,
+    buffer,
+    storage);
+}
+
+static gboolean
+constraints_allow_cursor_layout (MetaCrtcKms             *crtc_kms,
+                                 MetaDrmBuffer            *buffer,
+                                 MetaKmsConstraintsStorage storage)
+{
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaKmsPlane *kms_plane =
+    meta_crtc_kms_get_assigned_cursor_plane (crtc_kms);
+  g_autoptr (MetaKmsConstraintsList) list =
+    meta_kms_crtc_ref_constraints_list (kms_crtc);
+  uint64_t selected_id;
+  uint64_t suggested_id;
+
+  if (!list)
+    return !meta_kms_crtc_get_current_state (kms_crtc)->constraints.supported;
+  if (!kms_plane)
+    return FALSE;
+
+  selected_id = meta_kms_constraints_list_get_selected_id (list);
+  if (!constraints_target_allows_cursor_layout (list,
+                                                kms_plane,
+                                                selected_id,
+                                                buffer,
+                                                storage))
+    return FALSE;
+
+  suggested_id = meta_kms_constraints_list_get_suggested_id (list);
+  return (suggested_id == 0 ||
+          suggested_id == selected_id ||
+          constraints_target_allows_cursor_layout (list,
+                                                   kms_plane,
+                                                   suggested_id,
+                                                   buffer,
+                                                   storage));
+}
+
+static gboolean
 constraints_allow_cursor_buffer (MetaCrtcKms *crtc_kms,
                                  uint32_t     format,
+                                 MetaKmsConstraintsStorage storage,
                                  uint32_t     width,
                                  uint32_t     height)
 {
@@ -711,6 +773,7 @@ constraints_allow_cursor_buffer (MetaCrtcKms *crtc_kms,
                                                 kms_plane,
                                                 selected_id,
                                                 format,
+                                                storage,
                                                 width,
                                                 height))
     return FALSE;
@@ -722,6 +785,7 @@ constraints_allow_cursor_buffer (MetaCrtcKms *crtc_kms,
                                                    kms_plane,
                                                    suggested_id,
                                                    format,
+                                                   storage,
                                                    width,
                                                    height));
 }
@@ -855,6 +919,7 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
 
   if (!constraints_allow_cursor_buffer (crtc_kms,
                                         gbm_format,
+                                        META_KMS_CONSTRAINTS_STORAGE_NATIVE,
                                         cursor_width,
                                         cursor_height))
     return FALSE;
@@ -885,6 +950,12 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
       disable_hw_cursor_for_gpu (gpu_kms, error);
       return FALSE;
     }
+
+  if (!constraints_allow_cursor_layout (
+        crtc_kms,
+        buffer,
+        META_KMS_CONSTRAINTS_STORAGE_NATIVE))
+    return FALSE;
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
@@ -1306,8 +1377,15 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
       if (!constraints_allow_cursor_buffer (
             crtc_kms,
             meta_drm_buffer_get_format (META_DRM_BUFFER (buffer_gbm)),
+            META_KMS_CONSTRAINTS_STORAGE_IMPORTED,
             meta_drm_buffer_get_width (META_DRM_BUFFER (buffer_gbm)),
             meta_drm_buffer_get_height (META_DRM_BUFFER (buffer_gbm))))
+        return FALSE;
+
+      if (!constraints_allow_cursor_layout (
+            crtc_kms,
+            META_DRM_BUFFER (buffer_gbm),
+            META_KMS_CONSTRAINTS_STORAGE_IMPORTED))
         return FALSE;
 
       kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
