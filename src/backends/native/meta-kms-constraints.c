@@ -17,6 +17,7 @@
 
 #include "config.h"
 
+#include "backends/native/meta-drm-constraints.h"
 #include "backends/native/meta-kms-constraints.h"
 
 #include <drm_fourcc.h>
@@ -31,6 +32,8 @@ struct _MetaKmsConstraintsDescription
   size_t n_formats;
   MetaKmsConstraintsProperty *properties;
   size_t n_properties;
+  MetaKmsConstraintsPlaneLimit *plane_limits;
+  size_t n_plane_limits;
 };
 
 static gboolean
@@ -103,6 +106,45 @@ property_equals (const MetaKmsConstraintsProperty *a,
          a->property_id == b->property_id;
 }
 
+static gboolean
+plane_limit_is_valid (const MetaKmsConstraintsPlaneLimit *limit)
+{
+  size_t i;
+  size_t j;
+
+  if (limit->max_active == 0 ||
+      limit->n_plane_ids == 0 ||
+      limit->max_active > limit->n_plane_ids ||
+      limit->n_plane_ids > DRM_MODE_CONSTRAINTS_MAX_PLANES_PER_LIMIT ||
+      !limit->plane_ids)
+    return FALSE;
+
+  for (i = 0; i < limit->n_plane_ids; i++)
+    {
+      if (limit->plane_ids[i] == 0)
+        return FALSE;
+
+      for (j = 0; j < i; j++)
+        {
+          if (limit->plane_ids[i] == limit->plane_ids[j])
+            return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
+static void
+free_plane_limits (MetaKmsConstraintsPlaneLimit *plane_limits,
+                   size_t                        n_plane_limits)
+{
+  size_t i;
+
+  for (i = 0; i < n_plane_limits; i++)
+    g_free ((gpointer) plane_limits[i].plane_ids);
+  g_free (plane_limits);
+}
+
 MetaKmsConstraintsDescription *
 meta_kms_constraints_description_new (
   const MetaKmsConstraintsSize     *output,
@@ -110,10 +152,13 @@ meta_kms_constraints_description_new (
   size_t                            n_formats,
   const MetaKmsConstraintsProperty *properties,
   size_t                            n_properties,
+  const MetaKmsConstraintsPlaneLimit *plane_limits,
+  size_t                            n_plane_limits,
   GError                          **error)
 {
   g_autofree MetaKmsConstraintsFormat *formats_copy = NULL;
   g_autofree MetaKmsConstraintsProperty *properties_copy = NULL;
+  MetaKmsConstraintsPlaneLimit *plane_limits_copy = NULL;
   MetaKmsConstraintsDescription *description;
   size_t i;
   size_t j;
@@ -122,13 +167,27 @@ meta_kms_constraints_description_new (
       !formats ||
       n_formats == 0 ||
       !size_is_valid (output) ||
-      (n_properties != 0 && !properties))
+      (n_properties != 0 && !properties) ||
+      (n_plane_limits != 0 && !plane_limits) ||
+      n_plane_limits > DRM_MODE_CONSTRAINTS_MAX_PLANE_LIMITS)
     {
       g_set_error_literal (error,
                            G_IO_ERROR,
                            G_IO_ERROR_INVALID_DATA,
                            "Invalid KMS constraints description");
       return NULL;
+    }
+
+  for (i = 0; i < n_plane_limits; i++)
+    {
+      if (!plane_limit_is_valid (&plane_limits[i]))
+        {
+          g_set_error_literal (error,
+                               G_IO_ERROR,
+                               G_IO_ERROR_INVALID_DATA,
+                               "Invalid KMS constraints plane limit");
+          return NULL;
+        }
     }
 
   for (i = 0; i < n_formats; i++)
@@ -206,9 +265,49 @@ meta_kms_constraints_description_new (
               sizeof (*properties) * n_properties);
     }
 
+  if (n_plane_limits != 0)
+    {
+      plane_limits_copy = g_try_new0 (MetaKmsConstraintsPlaneLimit,
+                                      n_plane_limits);
+      if (!plane_limits_copy)
+        {
+          g_set_error_literal (error,
+                               G_IO_ERROR,
+                               G_IO_ERROR_NO_SPACE,
+                               "Allocate KMS constraints plane limits");
+          return NULL;
+        }
+
+      for (i = 0; i < n_plane_limits; i++)
+        {
+          uint32_t *plane_ids;
+
+          plane_limits_copy[i].max_active = plane_limits[i].max_active;
+          plane_limits_copy[i].n_plane_ids = plane_limits[i].n_plane_ids;
+          plane_ids = g_try_malloc_n (plane_limits[i].n_plane_ids,
+                                      sizeof (*plane_limits[i].plane_ids));
+
+          plane_limits_copy[i].plane_ids = plane_ids;
+          if (!plane_ids)
+            {
+              free_plane_limits (plane_limits_copy, n_plane_limits);
+              g_set_error_literal (error,
+                                   G_IO_ERROR,
+                                   G_IO_ERROR_NO_SPACE,
+                                   "Allocate KMS constraints plane IDs");
+              return NULL;
+            }
+          memcpy (plane_ids,
+                  plane_limits[i].plane_ids,
+                  sizeof (*plane_limits[i].plane_ids) *
+                  plane_limits[i].n_plane_ids);
+        }
+    }
+
   description = g_try_new0 (MetaKmsConstraintsDescription, 1);
   if (!description)
     {
+      free_plane_limits (plane_limits_copy, n_plane_limits);
       g_set_error_literal (error,
                            G_IO_ERROR,
                            G_IO_ERROR_NO_SPACE,
@@ -221,6 +320,8 @@ meta_kms_constraints_description_new (
   description->n_formats = n_formats;
   description->properties = g_steal_pointer (&properties_copy);
   description->n_properties = n_properties;
+  description->plane_limits = plane_limits_copy;
+  description->n_plane_limits = n_plane_limits;
 
   return description;
 }
@@ -244,6 +345,8 @@ meta_kms_constraints_description_unref (
 
   g_free (description->formats);
   g_free (description->properties);
+  free_plane_limits (description->plane_limits,
+                     description->n_plane_limits);
   g_free (description);
 }
 
@@ -270,6 +373,15 @@ meta_kms_constraints_description_get_properties (
 {
   *n_properties = description->n_properties;
   return description->properties;
+}
+
+const MetaKmsConstraintsPlaneLimit *
+meta_kms_constraints_description_get_plane_limits (
+  const MetaKmsConstraintsDescription *description,
+  size_t                              *n_plane_limits)
+{
+  *n_plane_limits = description->n_plane_limits;
+  return description->plane_limits;
 }
 
 gboolean

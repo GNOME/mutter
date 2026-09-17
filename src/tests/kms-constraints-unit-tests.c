@@ -34,6 +34,16 @@
 
 #define TEST_FORMAT_MODIFIER UINT64_C (1)
 
+typedef struct _TestConstraintsPlaneLimit
+{
+  struct drm_mode_constraints_record header;
+  uint32_t max_active;
+  uint32_t count_planes;
+  uint32_t plane_ids[2];
+} TestConstraintsPlaneLimit;
+
+G_STATIC_ASSERT (sizeof (TestConstraintsPlaneLimit) == 32);
+
 typedef struct _TestConstraintsBlob
 {
   struct drm_mode_constraints_list list;
@@ -42,6 +52,7 @@ typedef struct _TestConstraintsBlob
   struct drm_mode_constraints_output_size output;
   struct drm_mode_constraints_plane_format format;
   struct drm_mode_constraints_property property;
+  TestConstraintsPlaneLimit plane_limit;
   struct drm_mode_constraints_record extension;
 } TestConstraintsBlob;
 
@@ -51,6 +62,7 @@ typedef struct _TestConstraintsPayload
   struct drm_mode_constraints_output_size output;
   struct drm_mode_constraints_plane_format format;
   struct drm_mode_constraints_property property;
+  TestConstraintsPlaneLimit plane_limit;
   struct drm_mode_constraints_record extension;
 } TestConstraintsPayload;
 
@@ -83,6 +95,7 @@ create_constraints_blob (void)
                             sizeof (blob.output) +
                             sizeof (blob.format) +
                             sizeof (blob.property) +
+                            sizeof (blob.plane_limit) +
                             sizeof (blob.extension),
     },
     .description = {
@@ -91,8 +104,9 @@ create_constraints_blob (void)
                 sizeof (blob.output) +
                 sizeof (blob.format) +
                 sizeof (blob.property) +
+                sizeof (blob.plane_limit) +
                 sizeof (blob.extension),
-      .record_count = 4,
+      .record_count = 5,
       .records_offset = G_STRUCT_OFFSET (TestConstraintsBlob, output),
     },
     .output = {
@@ -137,6 +151,16 @@ create_constraints_blob (void)
       .type = DRM_MODE_PROP_RANGE,
       .minimum = 1,
       .maximum = 4,
+    },
+    .plane_limit = {
+      .header = {
+        .type = DRM_MODE_CONSTRAINTS_RECORD_PLANE_LIMIT,
+        .flags = DRM_MODE_CONSTRAINTS_RECORD_REQUIRED,
+        .length = sizeof (blob.plane_limit),
+      },
+      .max_active = 1,
+      .count_planes = 2,
+      .plane_ids = { 7, 9 },
     },
     .extension = {
       .type = 99,
@@ -220,6 +244,7 @@ create_two_entry_constraints_blob (void)
         .output = single.output,
         .format = single.format,
         .property = single.property,
+        .plane_limit = single.plane_limit,
         .extension = single.extension,
       },
       {
@@ -227,6 +252,7 @@ create_two_entry_constraints_blob (void)
         .output = single.output,
         .format = single.format,
         .property = single.property,
+        .plane_limit = single.plane_limit,
         .extension = single.extension,
       },
     },
@@ -442,6 +468,8 @@ create_description (const MetaKmsConstraintsProperty *properties,
                                                        G_N_ELEMENTS (formats),
                                                        properties,
                                                        n_properties,
+                                                       NULL,
+                                                       0,
                                                        &error);
   g_assert_no_error (error);
   g_assert_nonnull (description);
@@ -731,17 +759,26 @@ meta_test_kms_constraints_owns_description (void)
     .type = DRM_MODE_PROP_RANGE,
     .maximum = 1,
   };
+  uint32_t source_plane_ids[] = { 7, 9 };
+  MetaKmsConstraintsPlaneLimit source_plane_limit = {
+    .max_active = 1,
+    .plane_ids = source_plane_ids,
+    .n_plane_ids = G_N_ELEMENTS (source_plane_ids),
+  };
   g_autoptr (GError) error = NULL;
   g_autoptr (MetaKmsConstraintsDescription) description = NULL;
   const MetaKmsConstraintsSize *stored_output;
   const MetaKmsConstraintsFormat *stored_format;
   const MetaKmsConstraintsProperty *stored_property;
+  const MetaKmsConstraintsPlaneLimit *stored_plane_limit;
   size_t count;
 
   description = meta_kms_constraints_description_new (&source_output,
                                                        &source_format,
                                                        1,
                                                        &source_property,
+                                                       1,
+                                                       &source_plane_limit,
                                                        1,
                                                        &error);
   g_assert_no_error (error);
@@ -750,10 +787,14 @@ meta_test_kms_constraints_owns_description (void)
   source_output.max_width = 1;
   source_format.plane_id = 1;
   source_property.object_id = 1;
+  source_plane_ids[0] = 1;
 
   stored_output = meta_kms_constraints_description_get_output (description);
   stored_format =
     meta_kms_constraints_description_get_formats (description, &count);
+  g_assert_cmpuint (count, ==, 1);
+  stored_plane_limit =
+    meta_kms_constraints_description_get_plane_limits (description, &count);
   g_assert_cmpuint (count, ==, 1);
   stored_property =
     meta_kms_constraints_description_get_properties (description, &count);
@@ -762,6 +803,7 @@ meta_test_kms_constraints_owns_description (void)
   g_assert_cmpuint (stored_output->max_width, ==, output_size.max_width);
   g_assert_cmpuint (stored_format->plane_id, ==, formats[0].plane_id);
   g_assert_cmpuint (stored_property->object_id, ==, 7);
+  g_assert_cmpuint (stored_plane_limit->plane_ids[0], ==, 7);
 }
 
 static void
@@ -797,12 +839,20 @@ meta_test_kms_constraints_reject_invalid (void)
     .type = DRM_MODE_PROP_ENUM,
   };
   MetaKmsConstraintsFormat invalid_implicit = formats[0];
+  uint32_t duplicate_plane_ids[] = { 7, 7 };
+  MetaKmsConstraintsPlaneLimit invalid_plane_limit = {
+    .max_active = 1,
+    .plane_ids = duplicate_plane_ids,
+    .n_plane_ids = G_N_ELEMENTS (duplicate_plane_ids),
+  };
 
   invalid_output.min_width = 0;
   description = meta_kms_constraints_description_new (
     &invalid_output,
     formats,
     G_N_ELEMENTS (formats),
+    NULL,
+    0,
     NULL,
     0,
     &error);
@@ -818,6 +868,8 @@ meta_test_kms_constraints_reject_invalid (void)
     1,
     NULL,
     0,
+    NULL,
+    0,
     &error);
   g_assert_null (description);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
@@ -828,6 +880,8 @@ meta_test_kms_constraints_reject_invalid (void)
     &output_size,
     duplicate_implicit_formats,
     G_N_ELEMENTS (duplicate_implicit_formats),
+    NULL,
+    0,
     NULL,
     0,
     &error);
@@ -841,6 +895,8 @@ meta_test_kms_constraints_reject_invalid (void)
     G_N_ELEMENTS (duplicate_formats),
     NULL,
     0,
+    NULL,
+    0,
     &error);
   g_assert_null (description);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
@@ -852,6 +908,8 @@ meta_test_kms_constraints_reject_invalid (void)
     G_N_ELEMENTS (formats),
     &invalid_property,
     1,
+    NULL,
+    0,
     &error);
   g_assert_null (description);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
@@ -863,6 +921,21 @@ meta_test_kms_constraints_reject_invalid (void)
     G_N_ELEMENTS (formats),
     duplicate_properties,
     G_N_ELEMENTS (duplicate_properties),
+    NULL,
+    0,
+    &error);
+  g_assert_null (description);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  description = meta_kms_constraints_description_new (
+    &output_size,
+    formats,
+    G_N_ELEMENTS (formats),
+    NULL,
+    0,
+    &invalid_plane_limit,
+    1,
     &error);
   g_assert_null (description);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
@@ -1007,9 +1080,11 @@ meta_test_kms_constraints_decode (void)
   const MetaKmsConstraintsDescription *description;
   const MetaKmsConstraintsFormat *decoded_formats;
   const MetaKmsConstraintsProperty *decoded_properties;
+  const MetaKmsConstraintsPlaneLimit *decoded_plane_limits;
   const MetaKmsConstraintsSize *decoded_output;
   size_t n_formats;
   size_t n_properties;
+  size_t n_plane_limits;
 
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
   g_assert_no_error (error);
@@ -1052,6 +1127,14 @@ meta_test_kms_constraints_decode (void)
                                                         4));
   g_assert_false (meta_kms_constraints_property_matches (&decoded_properties[0],
                                                          5));
+  decoded_plane_limits =
+    meta_kms_constraints_description_get_plane_limits (description,
+                                                        &n_plane_limits);
+  g_assert_cmpuint (n_plane_limits, ==, 1);
+  g_assert_cmpuint (decoded_plane_limits[0].max_active, ==, 1);
+  g_assert_cmpuint (decoded_plane_limits[0].n_plane_ids, ==, 2);
+  g_assert_cmpuint (decoded_plane_limits[0].plane_ids[0], ==, 7);
+  g_assert_cmpuint (decoded_plane_limits[0].plane_ids[1], ==, 9);
 }
 
 static void
@@ -1078,6 +1161,26 @@ meta_test_kms_constraints_decode_implicit (void)
   g_assert_cmpuint (n_formats, ==, 1);
   g_assert_true (decoded_formats[0].implicit);
   g_assert_cmpuint (decoded_formats[0].modifier, ==, 0);
+}
+
+static void
+meta_test_kms_constraints_decode_plane_limit_padding (void)
+{
+  TestConstraintsBlob blob = create_constraints_blob ();
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaKmsConstraintsList) list = NULL;
+
+  blob.plane_limit.count_planes = 1;
+  blob.plane_limit.plane_ids[1] = 0;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (list);
+
+  g_clear_pointer (&list, meta_kms_constraints_list_unref);
+  blob.plane_limit.plane_ids[1] = 9;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
 }
 
 static void
@@ -1146,6 +1249,20 @@ meta_test_kms_constraints_decode_reject_malformed (void)
   list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
   g_assert_null (list);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.plane_limit.count_planes = 3;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+
+  g_clear_error (&error);
+  blob = create_constraints_blob ();
+  blob.plane_limit.plane_ids[1] = 7;
+  list = meta_kms_constraints_decode (&blob, sizeof (blob), &error);
+  g_assert_null (list);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
 
   g_clear_error (&error);
   blob = create_constraints_blob ();
@@ -1549,6 +1666,8 @@ main (int    argc,
                    meta_test_kms_constraints_decode);
   g_test_add_func ("/backends/native/kms/constraints/decode-implicit",
                    meta_test_kms_constraints_decode_implicit);
+  g_test_add_func ("/backends/native/kms/constraints/decode-plane-limit-padding",
+                   meta_test_kms_constraints_decode_plane_limit_padding);
   g_test_add_func ("/backends/native/kms/constraints/decode-reject-malformed",
                    meta_test_kms_constraints_decode_reject_malformed);
   g_test_add_func (

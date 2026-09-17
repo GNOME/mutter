@@ -62,6 +62,13 @@ typedef struct _MetaKmsConstraintsProperty
   uint64_t mask;
 } MetaKmsConstraintsProperty;
 
+typedef struct _MetaKmsConstraintsPlaneLimit
+{
+  uint32_t max_active;
+  const uint32_t *plane_ids;
+  size_t n_plane_ids;
+} MetaKmsConstraintsPlaneLimit;
+
 MetaKmsConstraintsDescription *
 meta_kms_constraints_description_new (
   const MetaKmsConstraintsSize     *output,
@@ -69,6 +76,8 @@ meta_kms_constraints_description_new (
   size_t                            n_formats,
   const MetaKmsConstraintsProperty *properties,
   size_t                            n_properties,
+  const MetaKmsConstraintsPlaneLimit *plane_limits,
+  size_t                            n_plane_limits,
   GError                          **error);
 
 MetaKmsConstraintsDescription *
@@ -94,6 +103,11 @@ const MetaKmsConstraintsProperty *
 meta_kms_constraints_description_get_properties (
   const MetaKmsConstraintsDescription *description,
   size_t                              *n_properties);
+
+const MetaKmsConstraintsPlaneLimit *
+meta_kms_constraints_description_get_plane_limits (
+  const MetaKmsConstraintsDescription *description,
+  size_t                              *n_plane_limits);
 
 gboolean meta_kms_constraints_size_contains (
   const MetaKmsConstraintsSize *size,

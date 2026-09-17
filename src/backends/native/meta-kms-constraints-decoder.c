@@ -32,6 +32,7 @@ G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_record) == 16);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_output_size) == 32);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_plane_format) == 72);
 G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_property) == 56);
+G_STATIC_ASSERT (sizeof (struct drm_mode_constraints_plane_limit) == 24);
 G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_mode_constraints_list,
                                   generation) == 8);
 G_STATIC_ASSERT (G_STRUCT_OFFSET (struct drm_mode_constraints_list,
@@ -85,6 +86,21 @@ ranges_overlap (size_t first_offset,
          second_offset < first_offset + first_length;
 }
 
+static gboolean
+bytes_are_zero (const uint8_t *bytes,
+                size_t         size)
+{
+  size_t i;
+
+  for (i = 0; i < size; i++)
+    {
+      if (bytes[i] != 0)
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 set_invalid_error (GError     **error,
                    const char  *message)
@@ -111,12 +127,16 @@ decode_description (const uint8_t                *data,
   MetaKmsConstraintsSize output = {0};
   g_autofree MetaKmsConstraintsFormat *formats = NULL;
   g_autofree MetaKmsConstraintsProperty *properties = NULL;
+  g_autofree MetaKmsConstraintsPlaneLimit *plane_limits = NULL;
+  g_autoptr (GPtrArray) plane_id_arrays = NULL;
   size_t description_end;
   size_t offset;
   size_t n_formats = 0;
   size_t n_properties = 0;
+  size_t n_plane_limits = 0;
   size_t format_capacity;
   size_t property_capacity;
+  size_t plane_limit_capacity;
   gboolean has_output = FALSE;
   uint32_t i;
 
@@ -158,9 +178,14 @@ decode_description (const uint8_t                *data,
                          DRM_MODE_CONSTRAINTS_MAX_FORMATS);
   property_capacity = MIN (description.record_count,
                            DRM_MODE_CONSTRAINTS_MAX_PROPERTIES);
+  plane_limit_capacity = MIN (description.record_count,
+                              DRM_MODE_CONSTRAINTS_MAX_PLANE_LIMITS);
   formats = g_try_new0 (MetaKmsConstraintsFormat, format_capacity);
   properties = g_try_new0 (MetaKmsConstraintsProperty, property_capacity);
-  if (description.record_count != 0 && (!formats || !properties))
+  plane_limits = g_try_new0 (MetaKmsConstraintsPlaneLimit,
+                             plane_limit_capacity);
+  if (description.record_count != 0 &&
+      (!formats || !properties || !plane_limits))
     {
       g_set_error_literal (error,
                            G_IO_ERROR,
@@ -168,6 +193,7 @@ decode_description (const uint8_t                *data,
                            "Allocate decoded KMS constraints records");
       return DECODE_RESULT_INVALID;
     }
+  plane_id_arrays = g_ptr_array_new_with_free_func (g_free);
 
   offset = description.records_offset;
   for (i = 0; i < description.record_count; i++)
@@ -272,6 +298,53 @@ decode_description (const uint8_t                *data,
             };
             break;
           }
+        case DRM_MODE_CONSTRAINTS_RECORD_PLANE_LIMIT:
+          {
+            struct drm_mode_constraints_plane_limit wire;
+            g_autofree uint32_t *plane_ids = NULL;
+            size_t ids_size;
+            size_t unpadded_size;
+            size_t expected_size;
+
+            if (record.length < sizeof (wire))
+              return DECODE_RESULT_UNSUPPORTED;
+            if (n_plane_limits == plane_limit_capacity)
+              goto invalid;
+            memcpy (&wire, data + offset, sizeof (wire));
+            if (wire.count_planes == 0 ||
+                wire.count_planes > DRM_MODE_CONSTRAINTS_MAX_PLANES_PER_LIMIT ||
+                wire.max_active == 0 ||
+                wire.max_active > wire.count_planes)
+              goto invalid;
+
+            ids_size = sizeof (*plane_ids) * wire.count_planes;
+            unpadded_size = sizeof (wire) + ids_size;
+            expected_size = (unpadded_size + 7) & ~(size_t) 7;
+            if (record.length != expected_size ||
+                !bytes_are_zero (data + offset + unpadded_size,
+                                 expected_size - unpadded_size))
+              goto invalid;
+
+            plane_ids = g_try_new (uint32_t, wire.count_planes);
+            if (!plane_ids)
+              {
+                g_set_error_literal (error,
+                                     G_IO_ERROR,
+                                     G_IO_ERROR_NO_SPACE,
+                                     "Allocate decoded KMS plane IDs");
+                return DECODE_RESULT_INVALID;
+              }
+            memcpy (plane_ids,
+                    data + offset + sizeof (wire),
+                    ids_size);
+            plane_limits[n_plane_limits++] = (MetaKmsConstraintsPlaneLimit) {
+              .max_active = wire.max_active,
+              .plane_ids = plane_ids,
+              .n_plane_ids = wire.count_planes,
+            };
+            g_ptr_array_add (plane_id_arrays, g_steal_pointer (&plane_ids));
+            break;
+          }
         default:
           if (record.flags & DRM_MODE_CONSTRAINTS_RECORD_REQUIRED)
             return DECODE_RESULT_UNSUPPORTED;
@@ -289,6 +362,8 @@ decode_description (const uint8_t                *data,
                                                             n_formats,
                                                             properties,
                                                             n_properties,
+                                                            plane_limits,
+                                                            n_plane_limits,
                                                             error);
   return *out_description ? DECODE_RESULT_OK : DECODE_RESULT_INVALID;
 
