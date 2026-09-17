@@ -1721,6 +1721,22 @@ submit_update (MetaKmsImplDevice      *impl_device,
 
   feedback = klass->process_update (impl_device, update, flags);
 
+  if (feedback->constraints_stale)
+    {
+      GList *l;
+
+      for (l = meta_kms_update_get_crtc_updates (update); l; l = l->next)
+        {
+          MetaKmsCrtcUpdate *crtc_update = l->data;
+
+          if (!crtc_update->constraints.has_update)
+            continue;
+
+          *changes |= meta_kms_crtc_reload_constraints_in_impl (
+            crtc_update->crtc);
+        }
+    }
+
   if (crtc_frame &&
       meta_kms_feedback_get_result (feedback) == META_KMS_FEEDBACK_PASSED)
     {

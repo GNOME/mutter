@@ -59,6 +59,8 @@ typedef struct _MetaKmsFeedback
   MetaKmsFeedbackResult result;
   /* A failed, unaccepted submission that can be retried unchanged. */
   gboolean retryable;
+  /* The selected constraints changed and the update must be rebuilt. */
+  gboolean constraints_stale;
   int64_t ready_time_us;
 
   GList *failed_planes;

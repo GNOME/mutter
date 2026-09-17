@@ -1304,6 +1304,7 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
   int fd;
   uint32_t commit_flags = 0;
   gboolean retryable = FALSE;
+  gboolean constraints_stale = FALSE;
   int64_t preparation_retry_deadline = g_get_monotonic_time () + 100 * 1000;
   int ret;
 
@@ -1421,13 +1422,17 @@ retry:
   ret = drmModeAtomicCommit (fd, req, commit_flags, impl_device);
   if (ret < 0)
     {
+      constraints_stale =
+        ret == -ESTALE && meta_kms_update_selects_constraints (update);
       retryable = (ret == -EBUSY || ret == -ESTALE) &&
+                  !constraints_stale &&
                   (commit_flags & DRM_MODE_ATOMIC_NONBLOCK) &&
                   !(commit_flags & DRM_MODE_ATOMIC_TEST_ONLY);
       if (ret == -ESTALE)
         {
           meta_kms_update_set_preparation (update, NULL);
           if (META_KMS_IMPL_DEVICE_ATOMIC (impl_device)->preparation_enabled &&
+              !constraints_stale &&
               !(commit_flags & (DRM_MODE_ATOMIC_NONBLOCK |
                                 DRM_MODE_ATOMIC_TEST_ONLY)) &&
               g_get_monotonic_time () < preparation_retry_deadline)
@@ -1471,6 +1476,7 @@ err:
 
     feedback = meta_kms_feedback_new_failed (failed_planes, error);
     feedback->retryable = retryable;
+    feedback->constraints_stale = constraints_stale;
     return feedback;
   }
 }
