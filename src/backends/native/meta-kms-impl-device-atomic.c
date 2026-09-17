@@ -1673,7 +1673,6 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
 
   {
     MetaKmsImplDeviceAtomic *atomic = META_KMS_IMPL_DEVICE_ATOMIC (impl_device);
-    MetaKmsDeviceCaps *caps = meta_kms_impl_device_get_caps (impl_device);
     uint64_t supported = 0;
     int fd = meta_device_file_get_fd (device_file);
 
@@ -1688,6 +1687,8 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
       }
 
 #if DRM_EVENT_CONTEXT_VERSION >= 5
+    MetaKmsDeviceCaps *caps = meta_kms_impl_device_get_caps (impl_device);
+
     if (drmSetClientCap (fd, DRM_CLIENT_CAP_KMS_CONSTRAINTS, 1) == 0)
       {
         caps->constraints_enabled = TRUE;
