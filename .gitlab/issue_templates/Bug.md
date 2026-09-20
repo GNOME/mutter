@@ -9,7 +9,6 @@ first to ensure that you create a clear and specific issue.
 Provide at least the following information:
 * Your OS and version
 * Affected Mutter version
-* Does this issue appear in XOrg and/or Wayland
 -->
 
 ### Bug summary
