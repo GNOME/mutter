@@ -34,3 +34,7 @@ struct _MetaRendererViewClass
 
 META_EXPORT_TEST
 MetaCrtc *meta_renderer_view_get_crtc (MetaRendererView *view);
+
+gboolean meta_renderer_view_is_vrr_allowed (MetaRendererView *view);
+void meta_renderer_view_set_vrr_allowed (MetaRendererView *view,
+                                         gboolean          allowed);

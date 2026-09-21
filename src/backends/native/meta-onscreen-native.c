@@ -49,6 +49,7 @@
 #include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-gles3.h"
+#include "backends/meta-renderer-view.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-secondary-gpu-copy-state.h"
 #include "backends/native/meta-egl-gbm.h"
@@ -2250,13 +2251,15 @@ add_cogl_frame_info (MetaCrtc     *crtc,
                                        frame);
 }
 
-void
-meta_onscreen_native_allow_vrr (MetaOnscreenNative *onscreen_native,
-                                gboolean            allowed)
+
+static void
+on_vrr_allowed_changed (MetaRendererView   *view,
+                        GParamSpec         *pspec,
+                        MetaOnscreenNative *onscreen_native)
 {
   gboolean vrr_enabled;
 
-  vrr_enabled = allowed &&
+  vrr_enabled = meta_renderer_view_is_vrr_allowed (onscreen_native->view) &&
                 meta_output_is_vrr_enabled (onscreen_native->output);
 
   if (vrr_enabled != onscreen_native->vrr_enabled)
@@ -3718,6 +3721,14 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
                           onscreen_native);
     }
 
+  if (output_info->supports_vrr)
+    {
+      onscreen_native->property.vrr.signal_handler_id =
+        g_signal_connect (onscreen_native->view, "notify::is-vrr-allowed",
+                          G_CALLBACK (on_vrr_allowed_changed),
+                          onscreen_native);
+    }
+
   return onscreen_native;
 }
 
@@ -3730,6 +3741,8 @@ clear_invalidation_handlers (MetaOnscreenNative *onscreen_native)
                           onscreen_native->crtc);
   g_clear_signal_handler (&onscreen_native->property.privacy_screen.signal_handler_id,
                           onscreen_native->output);
+  g_clear_signal_handler (&onscreen_native->property.vrr.signal_handler_id,
+                          onscreen_native->view);
 }
 
 static void

@@ -27,6 +27,7 @@
 
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/meta-renderer-view.h"
 #include "backends/native/meta-onscreen-native.h"
 #include "clutter/clutter.h"
 #include "compositor/compositor-private.h"
@@ -447,7 +448,6 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
   MetaCompositorView *compositor_view =
     META_COMPOSITOR_VIEW (view_native);
   ClutterStageView *stage_view;
-  CoglFramebuffer *framebuffer;
 
   g_clear_signal_handler (&view_native->fullscreen_surface_repaint_scheduled_id,
                           view_native->fullscreen_actor);
@@ -476,12 +476,8 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
 
   stage_view = meta_compositor_view_get_stage_view (compositor_view);
 
-  framebuffer = clutter_stage_view_get_onscreen (stage_view);
-  if (!META_IS_ONSCREEN_NATIVE (framebuffer))
-    return;
-
-  meta_onscreen_native_allow_vrr (META_ONSCREEN_NATIVE (framebuffer),
-                                  surface_actor != NULL);
+  meta_renderer_view_set_vrr_allowed (META_RENDERER_VIEW (stage_view),
+                                      surface_actor != NULL);
 }
 
 void
