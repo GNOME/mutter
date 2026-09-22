@@ -23,7 +23,9 @@
 
 #include "wayland/meta-wayland-xdg-shell.h"
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor-private.h"
+#include "backends/meta-monitor-manager-private.h"
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/meta-window-config-private.h"
@@ -998,6 +1000,25 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
       meta_window_config_set_initial (window_config);
 
       meta_window_emit_configure (window, window_config);
+
+      if (meta_window_config_has_position (window_config))
+        {
+          MetaContext *context =
+            meta_wayland_compositor_get_context (surface->compositor);
+          MetaBackend *backend = meta_context_get_backend (context);
+          MetaMonitorManager *monitor_manager =
+            meta_backend_get_monitor_manager (backend);
+          MetaLogicalMonitor *logical_monitor;
+          MtkRectangle new_rect;
+
+          new_rect = meta_window_config_get_rect (window_config);
+          logical_monitor =
+            meta_monitor_manager_get_logical_monitor_from_rect (monitor_manager,
+                                                                &new_rect);
+          if (logical_monitor)
+            meta_window_set_target_monitor (window, logical_monitor);
+        }
+
       meta_window_notify_ready (window);
       meta_window_process_config (window, window_config);
     }
