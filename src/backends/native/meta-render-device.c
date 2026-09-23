@@ -58,25 +58,29 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaRenderDevice, meta_render_device,
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          initable_iface_init))
 
-static void
-init_egl (MetaRenderDevice *render_device)
+static gboolean
+init_egl (MetaRenderDevice  *render_device,
+          GError           **error)
 {
   MetaRenderDevicePrivate *priv =
     meta_render_device_get_instance_private (render_device);
-  g_autoptr (GError) error = NULL;
+  g_autoptr (GError) local_error = NULL;
   MetaRendererEgl *renderer_egl;
 
   renderer_egl = meta_renderer_egl_new (render_device);
   priv->renderer_egl = renderer_egl;
 
-  if (!cogl_renderer_connect (COGL_RENDERER (renderer_egl), &error))
+  if (!cogl_renderer_connect (COGL_RENDERER (renderer_egl), &local_error))
     {
       meta_topic (META_DEBUG_RENDER, "Failed to connect renderer for %s: %s",
                   meta_device_file_get_path (priv->device_file),
-                  error->message);
+                  local_error->message);
       g_clear_object (&priv->renderer_egl);
-      return;
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return FALSE;
     }
+
+  return TRUE;
 }
 
 static gboolean
@@ -86,9 +90,7 @@ meta_render_device_initable_init (GInitable     *initable,
 {
   MetaRenderDevice *render_device = META_RENDER_DEVICE (initable);
 
-  init_egl (render_device);
-
-  return TRUE;
+  return init_egl (render_device, error);
 }
 
 static void
