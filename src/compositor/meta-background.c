@@ -810,10 +810,10 @@ meta_background_get_texture (MetaBackground       *self,
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
           cogl_pipeline_set_layer_max_mipmap_level (pipeline, 0, mipmap_level);
 
-          bare_region_visible = bare_region_visible || draw_texture (self,
-                                                                     monitor->fbo, pipeline,
-                                                                     self->texture1, &monitor_area,
-                                                                     monitor_scale);
+          bare_region_visible |= draw_texture (self,
+                                               monitor->fbo, pipeline,
+                                               self->texture1, &monitor_area,
+                                               monitor_scale);
 
           g_object_unref (pipeline);
         }
