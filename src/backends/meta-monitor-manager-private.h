@@ -291,6 +291,9 @@ META_EXPORT_TEST
 MetaPowerSave       meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager);
 
 META_EXPORT_TEST
+gboolean            meta_monitor_manager_is_power_saving (MetaMonitorManager *monitor_manager);
+
+META_EXPORT_TEST
 void                meta_monitor_manager_set_power_save_mode (MetaMonitorManager *monitor_manager,
                                                               MetaPowerSave       mode);
 

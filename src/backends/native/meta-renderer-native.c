@@ -711,13 +711,11 @@ meta_renderer_native_pop_pending_mode_set (MetaRendererNative *renderer_native,
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaPowerSave power_save_mode;
   GList *link;
 
   g_assert (META_IS_RENDERER_VIEW (view));
 
-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode != META_POWER_SAVE_ON)
+  if (meta_monitor_manager_is_power_saving (monitor_manager))
     return FALSE;
 
   link = g_list_find (renderer_native->pending_mode_set_views, view);
@@ -978,11 +976,8 @@ maybe_detach_onscreens (MetaRenderer *renderer)
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaPowerSave power_save_mode;
   GList *views;
   GList *l;
-
-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
 
   views = meta_renderer_get_views (renderer);
   for (l = views; l; l = l->next)
@@ -995,7 +990,7 @@ maybe_detach_onscreens (MetaRenderer *renderer)
 
       meta_onscreen_native_detach (META_ONSCREEN_NATIVE (onscreen));
 
-      if (power_save_mode == META_POWER_SAVE_ON)
+      if (!meta_monitor_manager_is_power_saving (monitor_manager))
         {
           renderer_native->detached_onscreens =
             g_list_prepend (renderer_native->detached_onscreens,
@@ -1074,10 +1069,8 @@ meta_renderer_native_prepare_frame (MetaRendererNative *renderer_native,
     meta_backend_get_monitor_manager (backend);
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
-  MetaPowerSave power_save_mode;
 
-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode != META_POWER_SAVE_ON)
+  if (meta_monitor_manager_is_power_saving (monitor_manager))
     return;
 
   if (COGL_IS_ONSCREEN (framebuffer))
@@ -1567,10 +1560,8 @@ on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
-  MetaPowerSave power_save_mode;
 
-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode == META_POWER_SAVE_ON &&
+  if (!meta_monitor_manager_is_power_saving (monitor_manager) &&
       reason == META_POWER_SAVE_CHANGE_REASON_MODE_CHANGE)
     {
       meta_renderer_native_queue_modes_reset (renderer_native);

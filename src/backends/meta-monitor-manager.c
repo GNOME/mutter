@@ -317,6 +317,15 @@ meta_monitor_manager_power_save_mode_changed (MetaMonitorManager        *manager
     meta_orientation_manager_uninhibit_tracking (orientation_manager);
 }
 
+gboolean
+meta_monitor_manager_is_power_saving (MetaMonitorManager *monitor_manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (monitor_manager);
+
+  return priv->power_save_mode != META_POWER_SAVE_ON;
+}
+
 void
 meta_monitor_manager_set_power_save_mode (MetaMonitorManager *monitor_manager,
                                           MetaPowerSave       mode)

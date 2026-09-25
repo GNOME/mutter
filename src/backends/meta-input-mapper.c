@@ -702,12 +702,9 @@ input_mapper_power_save_mode_changed_cb (MetaMonitorManager        *monitor_mana
   ClutterSeat *seat;
   MetaLogicalMonitor *logical_monitor;
   MetaMonitor *builtin;
-  MetaPowerSave power_save_mode;
   gboolean on;
 
-  power_save_mode =
-    meta_monitor_manager_get_power_save_mode (mapper->monitor_manager);
-  on = power_save_mode == META_POWER_SAVE_ON;
+  on = !meta_monitor_manager_is_power_saving (mapper->monitor_manager);
 
   builtin = meta_monitor_manager_get_builtin_monitor (monitor_manager);
   if (!builtin)
@@ -1000,7 +997,6 @@ meta_input_mapper_add_device (MetaInputMapper    *mapper,
 {
   MetaMapperInputInfo *info;
   ClutterInputDeviceType type;
-  MetaPowerSave power_save_mode;
   gboolean on;
 
   g_return_if_fail (mapper != NULL);
@@ -1016,9 +1012,7 @@ meta_input_mapper_add_device (MetaInputMapper    *mapper,
   type = clutter_input_device_get_device_type (device);
   if (type == CLUTTER_TOUCHSCREEN_DEVICE)
     {
-      power_save_mode =
-        meta_monitor_manager_get_power_save_mode (mapper->monitor_manager);
-      on = power_save_mode == META_POWER_SAVE_ON;
+      on = !meta_monitor_manager_is_power_saving (mapper->monitor_manager);
       g_signal_emit (mapper, signals[DEVICE_ENABLED], 0, device, on);
     }
 }

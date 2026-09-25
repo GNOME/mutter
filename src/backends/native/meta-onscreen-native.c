@@ -1771,7 +1771,6 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   MetaOutputKms *output_kms = META_OUTPUT_KMS (onscreen_native->output);
   MetaKmsConnector *kms_connector =
     meta_output_kms_get_kms_connector (output_kms);
-  MetaPowerSave power_save_mode;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
   MetaKmsUpdate *kms_update;
@@ -1902,8 +1901,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
       flip_flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
     }
 
-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode != META_POWER_SAVE_ON)
+  if (meta_monitor_manager_is_power_saving (monitor_manager))
     {
       if (!onscreen_native->gbm.surface)
         {
@@ -1917,7 +1915,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
                                                        onscreen);
     }
 
-  if (power_save_mode != META_POWER_SAVE_ON ||
+  if (meta_monitor_manager_is_power_saving (monitor_manager) ||
       meta_kms_is_shutting_down (kms))
     goto post_failed;
 

@@ -437,6 +437,7 @@ meta_test_kms_device_power_save_gamma_rebuild (void)
   g_assert_cmpint (meta_monitor_manager_get_power_save_mode (monitor_manager),
                    ==,
                    META_POWER_SAVE_OFF);
+  g_assert_true (meta_monitor_manager_is_power_saving (monitor_manager));
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
   meta_wait_for_update (test_context);

@@ -341,8 +341,7 @@ on_power_save_changed (MetaMonitorManager        *monitor_manager,
                        MetaPowerSaveChangeReason  reason,
                        MetaStage                 *stage)
 {
-  if (meta_monitor_manager_get_power_save_mode (monitor_manager) ==
-      META_POWER_SAVE_ON)
+  if (!meta_monitor_manager_is_power_saving (monitor_manager))
     clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 }
 
