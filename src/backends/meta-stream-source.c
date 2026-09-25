@@ -1597,6 +1597,26 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
   return record_result;
 }
 
+static gboolean
+is_it_too_early (MetaStreamSource    *source,
+                 struct spa_fraction *framerate,
+                 int64_t              frame_timestamp_us)
+{
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  int64_t interval_us;
+  int64_t time_since_last_frame_us;
+
+  interval_us = ((G_USEC_PER_SEC * ((int64_t) framerate->denom)) /
+                 ((int64_t) framerate->num));
+
+  time_since_last_frame_us = frame_timestamp_us - priv->last_frame_timestamp_us;
+  if (time_since_last_frame_us < interval_us)
+    return TRUE;
+
+  return FALSE;
+}
+
 MetaStreamRecordResult
 meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *source,
                                                       MetaStreamRecordFlag  flags,
@@ -1624,16 +1644,9 @@ meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *sour
   if (priv->video_format.max_framerate.num > 0 &&
       priv->last_frame_timestamp_us != 0)
     {
-      int64_t min_interval_us;
-      int64_t time_since_last_frame_us;
-
-      min_interval_us =
-        ((G_USEC_PER_SEC * ((int64_t) priv->video_format.max_framerate.denom)) /
-         ((int64_t) priv->video_format.max_framerate.num));
-
-      time_since_last_frame_us =
-        frame_timestamp_us - priv->last_frame_timestamp_us;
-      if (time_since_last_frame_us < min_interval_us)
+      if (is_it_too_early (source,
+                           &priv->video_format.max_framerate,
+                           frame_timestamp_us))
         {
           meta_topic (META_DEBUG_SCREEN_CAST,
                       "Skipped recording frame on stream %u, too early",
