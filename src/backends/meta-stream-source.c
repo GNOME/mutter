@@ -1600,21 +1600,29 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
 static gboolean
 is_it_too_early (MetaStreamSource    *source,
                  struct spa_fraction *framerate,
-                 int64_t              frame_timestamp_us)
+                 int64_t              frame_timestamp_us,
+                 int64_t             *interval_us,
+                 int64_t             *nearest_frame_timestamp_us)
 {
   MetaStreamSourcePrivate *priv =
     meta_stream_source_get_instance_private (source);
-  int64_t interval_us;
-  int64_t time_since_last_frame_us;
 
-  interval_us = ((G_USEC_PER_SEC * ((int64_t) framerate->denom)) /
-                 ((int64_t) framerate->num));
+  if (framerate->num <= 0)
+    {
+      *interval_us = 0;
+      *nearest_frame_timestamp_us = frame_timestamp_us;
+      return FALSE;
+    }
 
-  time_since_last_frame_us = frame_timestamp_us - priv->last_frame_timestamp_us;
-  if (time_since_last_frame_us < interval_us)
-    return TRUE;
+  *interval_us = ((G_USEC_PER_SEC * ((int64_t) framerate->denom)) /
+                  ((int64_t) framerate->num));
 
-  return FALSE;
+  *nearest_frame_timestamp_us =
+    mtk_find_nearest_interval_boundary (priv->last_frame_timestamp_us,
+                                        frame_timestamp_us,
+                                        *interval_us);
+
+  return *nearest_frame_timestamp_us == priv->last_frame_timestamp_us;
 }
 
 MetaStreamRecordResult
@@ -1641,12 +1649,22 @@ meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *sour
       return record_result;
     }
 
-  if (priv->video_format.max_framerate.num > 0 &&
-      priv->last_frame_timestamp_us != 0)
+  if (priv->last_frame_timestamp_us != 0)
     {
+      struct spa_fraction *framerate;
+      int64_t interval_us;
+      int64_t nearest_frame_timestamp_us;
+
+      if (priv->video_format.framerate.num > 1)
+        framerate = &priv->video_format.framerate;
+      else
+        framerate = &priv->video_format.max_framerate;
+
       if (is_it_too_early (source,
-                           &priv->video_format.max_framerate,
-                           frame_timestamp_us))
+                           framerate,
+                           frame_timestamp_us,
+                           &interval_us,
+                           &nearest_frame_timestamp_us))
         {
           meta_topic (META_DEBUG_SCREEN_CAST,
                       "Skipped recording frame on stream %u, too early",
@@ -1654,9 +1672,22 @@ meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *sour
           meta_stream_source_queue_follow_up (source, flags);
           return record_result;
         }
-    }
 
-  priv->last_frame_timestamp_us = frame_timestamp_us;
+      if (priv->video_format.framerate.num > 1)
+        {
+          priv->last_frame_timestamp_us = nearest_frame_timestamp_us;
+        }
+      else
+        {
+          priv->last_frame_timestamp_us =
+            MAX (priv->last_frame_timestamp_us + interval_us,
+                 frame_timestamp_us);
+        }
+    }
+  else
+    {
+      priv->last_frame_timestamp_us = frame_timestamp_us;
+    }
 
   return meta_stream_source_record_frame_with_timestamp (source,
                                                          flags,
