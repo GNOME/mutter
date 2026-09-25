@@ -1225,7 +1225,11 @@ meta_stream_source_record_frame (MetaStreamSource     *source,
                                  MetaStreamRecordFlag  flags,
                                  MetaStreamPaintPhase  paint_phase)
 {
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   int64_t now_us = g_get_monotonic_time ();
+
+  priv->last_frame_timestamp_us = now_us;
 
   return meta_stream_source_record_frame_with_timestamp (source,
                                                          flags,
@@ -1571,8 +1575,6 @@ meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
 
   record_result |= maybe_record_cursor (source, spa_buffer);
 
-  priv->last_frame_timestamp_us = frame_timestamp_us;
-
   if (header)
     {
       header->pts = frame_timestamp_us * SPA_NSEC_PER_USEC;
@@ -1640,6 +1642,8 @@ meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *sour
           return record_result;
         }
     }
+
+  priv->last_frame_timestamp_us = frame_timestamp_us;
 
   return meta_stream_source_record_frame_with_timestamp (source,
                                                          flags,
