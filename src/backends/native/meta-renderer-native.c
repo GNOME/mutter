@@ -1102,18 +1102,23 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
                                    MetaRendererView   *view,
                                    ClutterFrame       *frame)
 {
-  if (!clutter_frame_has_result (frame))
-    {
-      CoglFramebuffer *framebuffer =
-        clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  CoglFramebuffer *framebuffer;
 
-      if (COGL_IS_ONSCREEN (framebuffer))
-        {
-          CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  if (clutter_frame_has_result (frame))
+    return;
 
-          meta_onscreen_native_finish_frame (onscreen, frame);
-        }
-    }
+  if (meta_monitor_manager_is_power_saving (monitor_manager))
+    return;
+
+  framebuffer = clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
+  if (!COGL_IS_ONSCREEN (framebuffer))
+    return;
+
+  meta_onscreen_native_finish_frame (COGL_ONSCREEN (framebuffer), frame);
 }
 
 static gboolean
