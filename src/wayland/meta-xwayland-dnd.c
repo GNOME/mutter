@@ -103,7 +103,6 @@ const gchar *atom_names[] = {
   "XdndLeave",
   "XdndDrop",
   "XdndFinished",
-  "XdndProxy",
   "XdndTypeList",
   "XdndActionMove",
   "XdndActionCopy",
