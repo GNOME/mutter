@@ -122,10 +122,10 @@ on_after_paint (ClutterStage          *stage,
                 ClutterFrame          *frame,
                 MetaWaylandCompositor *compositor)
 {
-  struct wl_list *feedbacks;
+  struct wl_list *frame_feedbacks;
   GList *l;
 
-  feedbacks =
+  frame_feedbacks =
     meta_wayland_presentation_time_ensure_feedbacks (&compositor->presentation_time,
                                                      stage_view, frame->frame_count);
 
@@ -149,7 +149,7 @@ on_after_paint (ClutterStage          *stage,
       if (!wl_list_empty (&surface->presentation_time.feedback_list))
         {
           /* Add feedbacks to the list to be fired on presentation. */
-          wl_list_insert_list (feedbacks,
+          wl_list_insert_list (frame_feedbacks,
                                &surface->presentation_time.feedback_list);
           wl_list_init (&surface->presentation_time.feedback_list);
         }
@@ -376,18 +376,18 @@ meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *pr
                                                  ClutterStageView            *stage_view,
                                                  int64_t                      view_frame_counter)
 {
-  GHashTable *hash_table;
+  GHashTable *view_frames;
   struct wl_list *list;
 
-  hash_table = g_hash_table_lookup (presentation_time->feedbacks, stage_view);
-  if (!hash_table)
+  view_frames = g_hash_table_lookup (presentation_time->feedbacks, stage_view);
+  if (!view_frames)
     {
-      hash_table = g_hash_table_new_full (g_int64_hash, g_int64_equal, g_free,
-                                          destroy_feedback_list);
-      g_hash_table_insert (presentation_time->feedbacks, stage_view, hash_table);
+      view_frames = g_hash_table_new_full (g_int64_hash, g_int64_equal, g_free,
+                                           destroy_feedback_list);
+      g_hash_table_insert (presentation_time->feedbacks, stage_view, view_frames);
     }
 
-  list = g_hash_table_lookup (hash_table, &view_frame_counter);
+  list = g_hash_table_lookup (view_frames, &view_frame_counter);
   if (!list)
     {
       int64_t *key;
@@ -396,7 +396,7 @@ meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *pr
       *key = view_frame_counter;
       list = g_new0 (struct wl_list, 1);
       wl_list_init (list);
-      g_hash_table_insert (hash_table, key, list);
+      g_hash_table_insert (view_frames, key, list);
     }
 
   return list;
@@ -429,24 +429,26 @@ meta_wayland_presentation_time_notify_frame_presented (MetaWaylandCompositor *co
                                                        ClutterFrameInfo      *frame_info)
 {
   struct wl_list *feedbacks;
-  GHashTable *hash_table;
+  GHashTable *view_frames;
   GHashTableIter iter;
-  int64_t *key;
+  int64_t *view_frame_counter;
 
-  hash_table = g_hash_table_lookup (compositor->presentation_time.feedbacks,
-                                    stage_view);
-  if (!hash_table)
+  view_frames = g_hash_table_lookup (compositor->presentation_time.feedbacks,
+                                     stage_view);
+  if (!view_frames)
     return;
 
-  g_hash_table_iter_init (&iter, hash_table);
-  while (g_hash_table_iter_next (&iter, (gpointer *) &key, (gpointer *)&feedbacks))
+  g_hash_table_iter_init (&iter, view_frames);
+  while (g_hash_table_iter_next (&iter,
+                                 (gpointer *) &view_frame_counter,
+                                 (gpointer *) &feedbacks))
     {
       MetaWaylandPresentationFeedback *feedback, *next;
 
-      if (*key > frame_info->view_frame_counter)
+      if (*view_frame_counter > frame_info->view_frame_counter)
         continue;
 
-      if (*key == frame_info->view_frame_counter)
+      if (*view_frame_counter == frame_info->view_frame_counter)
         {
           MetaWaylandOutput *output;
 
@@ -463,7 +465,7 @@ meta_wayland_presentation_time_notify_frame_presented (MetaWaylandCompositor *co
       g_hash_table_iter_remove (&iter);
     }
 
-  g_hash_table_remove (hash_table, &frame_info->view_frame_counter);
+  g_hash_table_remove (view_frames, &frame_info->view_frame_counter);
 }
 
 void
