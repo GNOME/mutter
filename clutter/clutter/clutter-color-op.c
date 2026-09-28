@@ -910,12 +910,6 @@ clutter_color_op_curve_1d_do_transform (ClutterColorOp *op,
 }
 
 static gboolean
-clutter_color_op_curve_1d_get_transforms_alpha (ClutterColorOp *op)
-{
-  return TRUE;
-}
-
-static gboolean
 clutter_color_op_curve_1d_get_clamps_input (ClutterColorOp *op)
 {
   return TRUE;
@@ -952,7 +946,6 @@ clutter_color_op_curve_1d_class_init (ClutterColorOpCurve1DClass *klass)
 
   op_class->to_string = clutter_color_op_curve_1d_to_string;
   op_class->do_transform = clutter_color_op_curve_1d_do_transform;
-  op_class->get_transforms_alpha = clutter_color_op_curve_1d_get_transforms_alpha;
   op_class->get_clamps_input = clutter_color_op_curve_1d_get_clamps_input;
 }
 
@@ -1152,12 +1145,6 @@ clutter_color_op_ycbcr_matrix_to_string (ClutterColorOp *op)
   return g_strdup_printf ("ycbcr_matrix(%s)", name);
 }
 
-static gboolean
-clutter_color_op_ycbcr_matrix_get_transforms_alpha (ClutterColorOp *op)
-{
-  return TRUE;
-}
-
 static void
 clutter_color_op_ycbcr_matrix_dispose (GObject *object)
 {
@@ -1180,7 +1167,6 @@ clutter_color_op_ycbcr_matrix_class_init (ClutterColorOpYcbcrMatrixClass *klass)
 
   op_class->to_string = clutter_color_op_ycbcr_matrix_to_string;
   op_class->do_transform = clutter_color_op_ycbcr_matrix_do_transform;
-  op_class->get_transforms_alpha = clutter_color_op_ycbcr_matrix_get_transforms_alpha;
 }
 
 static void
@@ -1238,12 +1224,6 @@ clutter_color_op_matrix_4x4_do_transform (ClutterColorOp *op,
   do_matrix_transform (priv->matrix, data, n_samples);
 }
 
-static gboolean
-clutter_color_op_matrix_4x4_get_transforms_alpha (ClutterColorOp *op)
-{
-  return TRUE;
-}
-
 static char *
 clutter_color_op_matrix_4x4_to_string (ClutterColorOp *op)
 {
@@ -1272,7 +1252,6 @@ clutter_color_op_matrix_4x4_class_init (ClutterColorOpMatrix4x4Class *klass)
 
   op_class->to_string = clutter_color_op_matrix_4x4_to_string;
   op_class->do_transform = clutter_color_op_matrix_4x4_do_transform;
-  op_class->get_transforms_alpha = clutter_color_op_matrix_4x4_get_transforms_alpha;
 }
 
 static void
