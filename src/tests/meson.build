@@ -525,6 +525,11 @@ test_cases += [
     'suite': 'core',
     'sources': [ 'window-created-tests.c', ],
   },
+  {
+    'name': 'idle-monitor',
+    'suite': 'core',
+    'sources': [ 'idle-monitor-tests.c', ],
+  },
 ]
 
 remote_desktop_utils = [

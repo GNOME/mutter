@@ -28,6 +28,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-dnd-private.h"
 #include "backends/meta-idle-manager.h"
+#include "backends/meta-monitor-manager-private.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/display-private.h"
@@ -95,9 +96,11 @@ handle_idletime_for_event (MetaDisplay        *display,
 {
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager;
   MetaIdleManager *idle_manager;
   ClutterEventType event_type;
   ClutterEventFlags flags;
+  int64_t event_time_us;
 
   flags = clutter_event_get_flags (event);
   event_type = clutter_event_type (event);
@@ -105,6 +108,15 @@ handle_idletime_for_event (MetaDisplay        *display,
   if (flags & CLUTTER_EVENT_FLAG_SYNTHETIC ||
       event_type == CLUTTER_ENTER ||
       event_type == CLUTTER_LEAVE)
+    return;
+
+  /* An event that happened before the displays entered power saving,
+   * but is only dispatched now because the main loop was busy, is not
+   * new user activity and must not wake the displays back up. */
+  monitor_manager = meta_backend_get_monitor_manager (backend);
+  event_time_us = clutter_event_get_time_us (event);
+  if (meta_monitor_manager_is_power_saving (monitor_manager) &&
+      event_time_us < meta_monitor_manager_get_power_save_start_time_us (monitor_manager))
     return;
 
   idle_manager = meta_backend_get_idle_manager (backend);

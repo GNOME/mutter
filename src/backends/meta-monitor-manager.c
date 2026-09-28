@@ -109,6 +109,7 @@ static int signals[SIGNALS_LAST];
 typedef struct _MetaMonitorManagerPrivate
 {
   MetaPowerSave power_save_mode;
+  int64_t power_save_start_time_us;
   gboolean initial_orient_change_done;
 
   GList *virtual_monitors;
@@ -297,6 +298,9 @@ meta_monitor_manager_power_save_mode_changed (MetaMonitorManager        *manager
 
   if (priv->power_save_mode == mode)
     return;
+
+  if (priv->power_save_mode == META_POWER_SAVE_ON)
+    priv->power_save_start_time_us = g_get_monotonic_time ();
 
   priv->power_save_mode = mode;
   g_signal_emit (manager, signals[POWER_SAVE_MODE_CHANGED], 0, reason);
@@ -3634,6 +3638,21 @@ meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager)
     meta_monitor_manager_get_instance_private (manager);
 
   return priv->power_save_mode;
+}
+
+/**
+ * meta_monitor_manager_get_power_save_start_time_us:
+ *
+ * Returns: the monotonic time at which the displays last left
+ * %META_POWER_SAVE_ON.
+ */
+int64_t
+meta_monitor_manager_get_power_save_start_time_us (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+
+  return priv->power_save_start_time_us;
 }
 
 static void
