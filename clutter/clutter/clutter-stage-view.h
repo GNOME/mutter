@@ -44,6 +44,9 @@ struct _ClutterStageViewClass
   ClutterPaintFlag (* get_default_paint_flags) (ClutterStageView *view);
 
   void (* schedule_update) (ClutterStageView *view);
+
+  gboolean (* is_painting_inhibited) (ClutterStageView *view);
+
 };
 
 CLUTTER_EXPORT

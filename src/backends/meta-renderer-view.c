@@ -119,6 +119,20 @@ on_color_state_changed (MetaColorDevice  *color_device,
   set_color_states (view);
 }
 
+static gboolean
+meta_renderer_view_is_painting_inhibited (ClutterStageView *clutter_view)
+{
+  MetaRendererView *view = META_RENDERER_VIEW (clutter_view);
+  MetaRendererViewPrivate *priv =
+    meta_renderer_view_get_instance_private (view);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (priv->backend);
+
+  if (COGL_IS_ONSCREEN (clutter_stage_view_get_onscreen (clutter_view)))
+    return meta_monitor_manager_is_power_saving (monitor_manager);
+  else
+    return FALSE;
+}
+
 static void
 meta_renderer_view_get_property (GObject    *object,
                                  guint       prop_id,
@@ -216,11 +230,15 @@ static void
 meta_renderer_view_class_init (MetaRendererViewClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_CLASS (klass);
 
   object_class->constructed = meta_renderer_view_constructed;
   object_class->dispose = meta_renderer_view_dispose;
   object_class->get_property = meta_renderer_view_get_property;
   object_class->set_property = meta_renderer_view_set_property;
+
+  view_class->is_painting_inhibited =
+    meta_renderer_view_is_painting_inhibited;
 
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend", NULL, NULL,

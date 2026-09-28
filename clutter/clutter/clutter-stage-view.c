@@ -994,6 +994,14 @@ end_frame_timing_measurement (ClutterStageView *view)
     }
 }
 
+static gboolean
+clutter_stage_view_is_painting_inhibited (ClutterStageView *view)
+{
+  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
+
+  return view_class->is_painting_inhibited (view);
+}
+
 static ClutterFrameResult
 handle_frame_clock_frame (ClutterFrameClock *frame_clock,
                           ClutterFrame      *frame,
@@ -1029,7 +1037,8 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   _clutter_stage_window_prepare_frame (stage_window, view, frame);
   clutter_stage_emit_prepare_frame (stage, view, frame);
 
-  if (clutter_stage_view_has_redraw_clip (view))
+  if (clutter_stage_view_has_redraw_clip (view) &&
+      !clutter_stage_view_is_painting_inhibited (view))
     {
       clutter_stage_emit_before_paint (stage, view, frame);
 
