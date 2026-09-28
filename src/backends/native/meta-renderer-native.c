@@ -1575,6 +1575,7 @@ on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
     {
       clear_detached_onscreens (renderer_native);
       meta_kms_discard_pending_page_flips (kms);
+      discard_pending_swaps (renderer);
     }
 }
 
