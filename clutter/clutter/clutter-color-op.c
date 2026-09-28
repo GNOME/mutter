@@ -131,14 +131,30 @@ clutter_color_op_real_get_clamps_output (ClutterColorOp *op)
 }
 
 static void
+clutter_color_op_constructed (GObject *object)
+{
+  ClutterColorOp *op = CLUTTER_COLOR_OP (object);
+  G_GNUC_UNUSED ClutterColorOpClass *klass = CLUTTER_COLOR_OP_GET_CLASS (op);
+
+  g_assert (klass->do_transform != clutter_color_op_real_do_transform ||
+            klass->do_transform_one != clutter_color_op_real_do_transform_one);
+
+  G_OBJECT_CLASS (clutter_color_op_parent_class)->constructed (object);
+}
+
+static void
 clutter_color_op_class_init (ClutterColorOpClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
   klass->to_string = clutter_color_op_real_to_string;
   klass->do_transform = clutter_color_op_real_do_transform;
   klass->do_transform_one = clutter_color_op_real_do_transform_one;
   klass->get_transforms_alpha = clutter_color_op_real_get_transforms_alpha;
   klass->get_clamps_input = clutter_color_op_real_get_clamps_input;
   klass->get_clamps_output = clutter_color_op_real_get_clamps_output;
+
+  object_class->constructed = clutter_color_op_constructed;
 }
 
 static void
