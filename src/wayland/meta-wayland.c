@@ -556,9 +556,9 @@ on_presented (ClutterStage          *stage,
               ClutterFrameInfo      *frame_info,
               MetaWaylandCompositor *compositor)
 {
-  meta_wayland_presentation_time_present_feedbacks (compositor,
-                                                    stage_view,
-                                                    frame_info);
+  meta_wayland_presentation_time_notify_frame_presented (compositor,
+                                                         stage_view,
+                                                         frame_info);
 }
 
 static void

@@ -424,9 +424,9 @@ get_output_for_stage_view (MetaWaylandCompositor *compositor,
 }
 
 void
-meta_wayland_presentation_time_present_feedbacks (MetaWaylandCompositor *compositor,
-                                                  ClutterStageView      *stage_view,
-                                                  ClutterFrameInfo      *frame_info)
+meta_wayland_presentation_time_notify_frame_presented (MetaWaylandCompositor *compositor,
+                                                       ClutterStageView      *stage_view,
+                                                       ClutterFrameInfo      *frame_info)
 {
   struct wl_list *feedbacks;
   GHashTable *hash_table;
