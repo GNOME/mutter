@@ -48,3 +48,38 @@ wait
 
 assert_stacking w/1 w/2
 assert_focused w/1
+
+destroy w/1
+destroy w/2
+wait
+
+# An automatically sticky window must not replace another workspace's MRU
+# window
+move_cursor_to 150 250
+create w/primary csd
+resize w/primary 100 100
+show w/primary
+wait_reconfigure w/primary
+
+activate_workspace 0
+
+create w/sticky csd
+resize w/sticky 100 100
+show w/sticky
+wait_reconfigure w/sticky
+move w/sticky 900 200
+wait
+assert_sticky w/sticky true
+
+activate_workspace 1
+wait
+
+assert_focused w/primary
+
+# Explicitly sticky windows should move to the front of every workspace's MRU
+# list
+stick w/primary
+wait
+activate_workspace 0
+wait
+assert_focused w/primary

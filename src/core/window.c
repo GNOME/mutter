@@ -5098,7 +5098,9 @@ meta_window_make_most_recent (MetaWindow    *window,
       if (!window->on_all_workspaces)
         continue;
 
-      /* Otherwise move it before other sticky windows */
+      /* Otherwise insert it before other sticky windows, or at the end */
+      workspace->mru_list = g_list_delete_link (workspace->mru_list, self);
+
       for (link = workspace->mru_list; link; link = link->next)
         {
           MetaWindow *mru_window = link->data;
@@ -5107,10 +5109,6 @@ meta_window_make_most_recent (MetaWindow    *window,
             break;
         }
 
-      if (link == self)
-        continue;
-
-      workspace->mru_list = g_list_delete_link (workspace->mru_list, self);
       workspace->mru_list = g_list_insert_before (workspace->mru_list, link, window);
     }
 }
@@ -5298,6 +5296,15 @@ set_workspace_state (MetaWindow    *window,
 }
 
 static gboolean
+should_be_on_all_workspaces_for_monitor (MetaWindow *window)
+{
+  return meta_prefs_get_workspaces_only_on_primary () &&
+         !window->unmanaging &&
+         window->monitor &&
+         !meta_window_is_on_primary_monitor (window);
+}
+
+static gboolean
 should_be_on_all_workspaces (MetaWindow *window)
 {
   if (window->always_sticky)
@@ -5309,13 +5316,7 @@ should_be_on_all_workspaces (MetaWindow *window)
   if (window->override_redirect)
     return TRUE;
 
-  if (meta_prefs_get_workspaces_only_on_primary () &&
-      !window->unmanaging &&
-      window->monitor &&
-      !meta_window_is_on_primary_monitor (window))
-    return TRUE;
-
-  return FALSE;
+  return should_be_on_all_workspaces_for_monitor (window);
 }
 
 void
@@ -5323,6 +5324,11 @@ meta_window_on_all_workspaces_changed (MetaWindow *window)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   gboolean on_all_workspaces = should_be_on_all_workspaces (window);
+  gboolean became_sticky_for_monitor;
+
+  became_sticky_for_monitor =
+    !window->on_all_workspaces &&
+    should_be_on_all_workspaces_for_monitor (window);
 
   if (window->on_all_workspaces == on_all_workspaces)
     return;
@@ -5341,6 +5347,12 @@ meta_window_on_all_workspaces_changed (MetaWindow *window)
     }
 
   set_workspace_state (window, on_all_workspaces, workspace);
+
+  if (became_sticky_for_monitor)
+    {
+      meta_window_make_most_recent (window,
+                                    workspace_manager->active_workspace);
+    }
 }
 
 static void
