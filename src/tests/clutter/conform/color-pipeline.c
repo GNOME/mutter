@@ -681,14 +681,14 @@ color_pipeline_clamp_merge (void)
   v[1] = 1.0f;
   clutter_color_pipeline_take_op (p1, clutter_color_op_curve_1d_new_rgb (2, v));
 
-  /* Add clamp after curve_1d (which clamps output) */
+  /* Add clamp after curve_1d */
   clutter_color_pipeline_take_op (p1, clutter_color_op_clamp_unit_new ());
 
   assert_pipeline_matches (p1, "ClutterColorPipeline: clamp_unit -> curve_1d -> clamp_unit");
 
   /* Simplify should remove both redundant clamp_unit operations */
   clutter_color_pipeline_simplify (p1);
-  assert_pipeline_matches (p1, "ClutterColorPipeline: curve_1d");
+  assert_pipeline_matches (p1, "ClutterColorPipeline: curve_1d -> clamp_unit");
 
   /* Test case where clamp should NOT be removed */
   p2 = g_object_new (CLUTTER_TYPE_COLOR_PIPELINE, NULL);

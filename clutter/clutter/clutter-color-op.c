@@ -734,6 +734,12 @@ clutter_color_op_3d_lut_to_string (ClutterColorOp *op)
   return g_strdup_printf ("3d_lut(%u)", priv->size);
 }
 
+static gboolean
+clutter_color_op_3d_lut_get_clamps_input (ClutterColorOp *op)
+{
+  return TRUE;
+}
+
 static void
 clutter_color_op_3d_lut_dispose (GObject *object)
 {
@@ -756,6 +762,7 @@ clutter_color_op_3d_lut_class_init (ClutterColorOp3DLutClass *klass)
 
   op_class->to_string = clutter_color_op_3d_lut_to_string;
   op_class->do_transform = clutter_color_op_3d_lut_do_transform;
+  op_class->get_clamps_input = clutter_color_op_3d_lut_get_clamps_input;
 }
 
 static void
@@ -914,12 +921,6 @@ clutter_color_op_curve_1d_get_clamps_input (ClutterColorOp *op)
   return TRUE;
 }
 
-static gboolean
-clutter_color_op_curve_1d_get_clamps_output (ClutterColorOp *op)
-{
-  return TRUE;
-}
-
 static char *
 clutter_color_op_curve_1d_to_string (ClutterColorOp *op)
 {
@@ -953,7 +954,6 @@ clutter_color_op_curve_1d_class_init (ClutterColorOpCurve1DClass *klass)
   op_class->do_transform = clutter_color_op_curve_1d_do_transform;
   op_class->get_transforms_alpha = clutter_color_op_curve_1d_get_transforms_alpha;
   op_class->get_clamps_input = clutter_color_op_curve_1d_get_clamps_input;
-  op_class->get_clamps_output = clutter_color_op_curve_1d_get_clamps_output;
 }
 
 static void
