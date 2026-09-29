@@ -214,38 +214,6 @@ clutter_color_op_get_clamps_output (ClutterColorOp *op)
 }
 
 static ClutterColorOp *
-lower_to_3d_lut (ClutterColorOp *op,
-                 uint32_t        size)
-{
-  g_autofree float *data = NULL;
-  size_t n;
-
-  n = (size_t) size * size * size;
-  data = g_new (float, n * 3);
-
-  for (size_t b = 0; b < size; b++)
-    for (size_t g = 0; g < size; g++)
-      for (size_t r = 0; r < size; r++)
-        {
-          float sample[4];
-          size_t idx;
-
-          idx = (b * size * size + g * size + r) * 3;
-          sample[0] = (float) r / (size - 1);
-          sample[1] = (float) g / (size - 1);
-          sample[2] = (float) b / (size - 1);
-          sample[3] = 1.0f;
-
-          clutter_color_op_do_transform (op, sample, 1);
-          data[idx + 0] = sample[0];
-          data[idx + 1] = sample[1];
-          data[idx + 2] = sample[2];
-        }
-
-  return clutter_color_op_3d_lut_new (size, data);
-}
-
-static ClutterColorOp *
 lower_to_curve_uniform (ClutterColorOp *op,
                         size_t          size)
 {
@@ -1423,23 +1391,3 @@ clutter_color_op_lower_to_curve_1d (ClutterColorOp *op,
   return lower_to_curve_uniform (op, n_samples);
 }
 
-gboolean
-clutter_color_op_can_lower_to_3d_lut (ClutterColorOp *op)
-{
-  return CLUTTER_IS_COLOR_OP_MATRIX_4X4 (op);
-}
-
-/**
- * clutter_color_op_lower_to_3d_lut:
- *
- * Returns: (transfer full) (nullable): A lowered 3D LUT op, or %NULL
- */
-ClutterColorOp *
-clutter_color_op_lower_to_3d_lut (ClutterColorOp *op,
-                                  uint32_t        size)
-{
-  if (!clutter_color_op_can_lower_to_3d_lut (op))
-    return NULL;
-
-  return lower_to_3d_lut (op, size);
-}

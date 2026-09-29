@@ -237,11 +237,4 @@ CLUTTER_EXPORT
 ClutterColorOp * clutter_color_op_lower_to_curve_1d (ClutterColorOp *op,
                                                      size_t          n_samples);
 
-CLUTTER_EXPORT
-gboolean clutter_color_op_can_lower_to_3d_lut (ClutterColorOp *op);
-
-CLUTTER_EXPORT
-ClutterColorOp * clutter_color_op_lower_to_3d_lut (ClutterColorOp *op,
-                                                   uint32_t        size);
-
 G_END_DECLS
