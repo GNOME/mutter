@@ -25,6 +25,8 @@
 
 #include <math.h>
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (graphene_matrix_t, graphene_matrix_free)
+
 static float
 lut_lookup_interpolate (float   sample,
                         size_t  lut_size,
@@ -1428,43 +1430,56 @@ clutter_color_op_ycbcr_matrix_get_matrix (ClutterColorOp *op)
   return priv->matrix;
 }
 
-static ClutterColorOp *
-combine_multiply_with_matrix (float                    multiply_value,
-                              const graphene_matrix_t  *matrix,
-                              gboolean                  multiply_first)
-{
-  graphene_matrix_t *scale_matrix;
-  graphene_matrix_t *result;
-
-  scale_matrix = graphene_matrix_alloc ();
-  graphene_matrix_init_from_float (scale_matrix, (float[16]) {
-    multiply_value, 0.0f, 0.0f, 0.0f,
-    0.0f, multiply_value, 0.0f, 0.0f,
-    0.0f, 0.0f, multiply_value, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f,
-  });
-
-  result = graphene_matrix_alloc ();
-  if (multiply_first)
-    graphene_matrix_multiply (scale_matrix, matrix, result);
-  else
-    graphene_matrix_multiply (matrix, scale_matrix, result);
-
-  graphene_matrix_free (scale_matrix);
-
-  return clutter_color_op_matrix_4x4_new (result);
-}
-
-static const graphene_matrix_t *
+static graphene_matrix_t *
 get_matrix_from_op (ClutterColorOp *op)
 {
+  g_autoptr (graphene_matrix_t) m = graphene_matrix_alloc ();
+
   if (CLUTTER_IS_COLOR_OP_MATRIX_4X4 (op))
-    return clutter_color_op_matrix_4x4_get_matrix (op);
+    {
+      graphene_matrix_init_from_matrix (m, clutter_color_op_matrix_4x4_get_matrix (op));
+    }
+  else if (CLUTTER_IS_COLOR_OP_YCBCR_MATRIX (op))
+    {
+      graphene_matrix_init_from_matrix (m, clutter_color_op_ycbcr_matrix_get_matrix (op));
+    }
+  else if (CLUTTER_IS_COLOR_OP_MULTIPLY (op))
+    {
+      float value = clutter_color_op_multiply_get_value (op);
 
-  if (CLUTTER_IS_COLOR_OP_YCBCR_MATRIX (op))
-    return clutter_color_op_ycbcr_matrix_get_matrix (op);
+      graphene_matrix_init_scale (m, value, value, value);
+    }
+  else
+    {
+      g_assert_not_reached ();
+    }
 
-  return NULL;
+  return g_steal_pointer (&m);
+}
+
+static gboolean
+is_matrix_op (ClutterColorOp *op)
+{
+  return CLUTTER_IS_COLOR_OP_MATRIX_4X4 (op) ||
+         CLUTTER_IS_COLOR_OP_YCBCR_MATRIX (op);
+}
+
+static gboolean
+is_matrix_combinable (ClutterColorOp *op)
+{
+  return is_matrix_op (op) || CLUTTER_IS_COLOR_OP_MULTIPLY (op);
+}
+
+static ClutterColorOp *
+combine_matrix_ops (ClutterColorOp *a,
+                    ClutterColorOp *b)
+{
+  g_autoptr (graphene_matrix_t) ma = get_matrix_from_op (a);
+  g_autoptr (graphene_matrix_t) mb = get_matrix_from_op (b);
+  g_autoptr (graphene_matrix_t) result = graphene_matrix_alloc ();
+
+  graphene_matrix_multiply (ma, mb, result);
+  return clutter_color_op_matrix_4x4_new (g_steal_pointer (&result));
 }
 
 /**
@@ -1476,27 +1491,11 @@ ClutterColorOp *
 clutter_color_op_try_combine (ClutterColorOp *a,
                               ClutterColorOp *b)
 {
-  const graphene_matrix_t *ma, *mb;
-
-  ma = get_matrix_from_op (a);
-  mb = get_matrix_from_op (b);
-
-  if (ma && mb)
+  if ((is_matrix_op (a) && is_matrix_combinable (b)) ||
+      (is_matrix_op (b) && is_matrix_combinable (a)))
     {
-      graphene_matrix_t *result;
-
-      result = graphene_matrix_alloc ();
-      graphene_matrix_multiply (ma, mb, result);
-      return clutter_color_op_matrix_4x4_new (result);
+      return combine_matrix_ops (a, b);
     }
-
-  if (ma && CLUTTER_IS_COLOR_OP_MULTIPLY (b))
-    return combine_multiply_with_matrix (clutter_color_op_multiply_get_value (b),
-                                         ma, FALSE);
-
-  if (CLUTTER_IS_COLOR_OP_MULTIPLY (a) && mb)
-    return combine_multiply_with_matrix (clutter_color_op_multiply_get_value (a),
-                                         mb, TRUE);
 
   if (CLUTTER_IS_COLOR_OP_MULTIPLY (a) &&
       CLUTTER_IS_COLOR_OP_MULTIPLY (b))
