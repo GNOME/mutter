@@ -1150,14 +1150,14 @@ clutter_color_op_unpremultiply_do_transform (ClutterColorOp *op,
                                              float          *data,
                                              size_t          n_samples)
 {
-  for (size_t i = 0; i < n_samples; i++)
+  for (size_t i = 0; i < n_samples; i++, data += 4)
     {
-      if (data[i * 4 + 3] <= 0.0f)
+      if (data[3] <= 0.0f)
         continue;
 
-      data[i * 4 + 0] /= data[i * 4 + 3];
-      data[i * 4 + 1] /= data[i * 4 + 3];
-      data[i * 4 + 2] /= data[i * 4 + 3];
+      data[0] /= data[3];
+      data[1] /= data[3];
+      data[2] /= data[3];
     }
 }
 
@@ -1200,11 +1200,11 @@ clutter_color_op_premultiply_do_transform (ClutterColorOp *op,
                                            float          *data,
                                            size_t          n_samples)
 {
-  for (size_t i = 0; i < n_samples; i++)
+  for (size_t i = 0; i < n_samples; i++, data += 4)
     {
-      data[i * 4 + 0] *= data[i * 4 + 3];
-      data[i * 4 + 1] *= data[i * 4 + 3];
-      data[i * 4 + 2] *= data[i * 4 + 3];
+      data[0] *= data[3];
+      data[1] *= data[3];
+      data[2] *= data[3];
     }
 }
 
