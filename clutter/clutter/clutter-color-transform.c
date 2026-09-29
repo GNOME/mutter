@@ -1135,13 +1135,28 @@ color_transform_cache_free (gpointer data)
   g_free (cache);
 }
 
+static GQuark
+get_color_transform_cache_quark (void)
+{
+  static gsize quark_initialized;
+  static GQuark quark;
+
+  if (g_once_init_enter (&quark_initialized))
+    {
+      quark = g_quark_from_static_string ("color-transform-cache");
+      g_once_init_leave (&quark_initialized, 1);
+    }
+
+  return quark;
+}
+
 static ColorTransformCache *
 get_color_transform_cache (ClutterContext *context)
 {
   ColorTransformCache *cache;
 
-  cache = g_object_get_data (G_OBJECT (context),
-                             "color-transform-cache");
+  cache = g_object_get_qdata (G_OBJECT (context),
+                              get_color_transform_cache_quark ());
   if (!cache)
     {
       cache = g_new0 (ColorTransformCache, 1);
@@ -1153,10 +1168,10 @@ get_color_transform_cache (ClutterContext *context)
                                g_object_unref);
       cache->tracked_states =
         g_hash_table_new (g_direct_hash, g_direct_equal);
-      g_object_set_data_full (G_OBJECT (context),
-                              "color-transform-cache",
-                              cache,
-                              color_transform_cache_free);
+      g_object_set_qdata_full (G_OBJECT (context),
+                               get_color_transform_cache_quark (),
+                               cache,
+                               color_transform_cache_free);
     }
 
   return cache;
@@ -1170,8 +1185,8 @@ on_color_state_destroyed (ClutterColorState *color_state,
   GHashTableIter iter;
   gpointer key;
 
-  cache = g_object_get_data (G_OBJECT (context),
-                             "color-transform-cache");
+  cache = g_object_get_qdata (G_OBJECT (context),
+                              get_color_transform_cache_quark ());
   if (!cache)
     return;
 
