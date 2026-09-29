@@ -772,7 +772,7 @@ get_shader_invocation (ClutterColorOp *op,
   if (info && info->get_invocation)
     return info->get_invocation (op, op_id);
 
-  return g_strdup_printf ("%s (color)", G_OBJECT_TYPE_NAME (op));
+  g_assert_not_reached ();
 }
 
 static void
