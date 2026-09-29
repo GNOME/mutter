@@ -113,13 +113,28 @@ build_snippet_cache_key (ClutterColorPipeline *color_pipeline)
   return g_steal_pointer (&key);
 }
 
+static GQuark
+get_color_pipeline_snippet_cache_quark (void)
+{
+  static gsize quark_initialized;
+  static GQuark quark;
+
+  if (g_once_init_enter (&quark_initialized))
+    {
+      quark = g_quark_from_static_string ("color-pipeline-snippet-cache");
+      g_once_init_leave (&quark_initialized, 1);
+    }
+
+  return quark;
+}
+
 static GHashTable *
 get_snippet_cache (CoglContext *context)
 {
   GHashTable *cache;
 
-  cache = g_object_get_data (G_OBJECT (context),
-                             "color-pipeline-snippet-cache");
+  cache = g_object_get_qdata (G_OBJECT (context),
+                              get_color_pipeline_snippet_cache_quark ());
   if (!cache)
     {
       g_autoptr (GHashTable) owned_cache = NULL;
@@ -128,10 +143,10 @@ get_snippet_cache (CoglContext *context)
                                                    snippet_cache_key_equal,
                                                    g_free,
                                                    g_object_unref);
-      g_object_set_data_full (G_OBJECT (context),
-                              "color-pipeline-snippet-cache",
-                              g_steal_pointer (&owned_cache),
-                              (GDestroyNotify) g_hash_table_unref);
+      g_object_set_qdata_full (G_OBJECT (context),
+                               get_color_pipeline_snippet_cache_quark (),
+                               g_steal_pointer (&owned_cache),
+                               (GDestroyNotify) g_hash_table_unref);
     }
 
   return cache;
