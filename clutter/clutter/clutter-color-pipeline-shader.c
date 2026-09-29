@@ -603,26 +603,6 @@ update_matrix_4x4_state (ClutterColorOp *op,
                                     matrix_floats);
 }
 
-static void
-update_ycbcr_matrix_state (ClutterColorOp *op,
-                           size_t          op_id,
-                           CoglPipeline   *pipeline)
-{
-  const graphene_matrix_t *matrix;
-  g_autofree char *uniform_name = NULL;
-  int uniform_location;
-  float matrix_floats[16];
-
-  matrix = clutter_color_op_ycbcr_matrix_get_matrix (op);
-  uniform_name = g_strdup_printf ("matrix_4x4_param_%zu", op_id);
-  uniform_location = cogl_pipeline_get_uniform_location (pipeline,
-                                                         uniform_name);
-  graphene_matrix_to_float (matrix, matrix_floats);
-  cogl_pipeline_set_uniform_matrix (pipeline, uniform_location,
-                                    4, 1, FALSE,
-                                    matrix_floats);
-}
-
 static char *
 get_multiply_declarations (ClutterColorOp *op,
                            size_t          op_id)
@@ -730,13 +710,6 @@ static const ShaderOpInfo shader_op_infos[] = {
     .get_declarations = get_matrix_declarations,
     .get_invocation = get_matrix_invocation,
     .update_state = update_matrix_4x4_state,
-  },
-  {
-    .get_type = clutter_color_op_ycbcr_matrix_get_type,
-    .shader_source = matrix_4x4_source,
-    .get_declarations = get_matrix_declarations,
-    .get_invocation = get_matrix_invocation,
-    .update_state = update_ycbcr_matrix_state,
   },
   {
     .get_type = clutter_color_op_multiply_get_type,
