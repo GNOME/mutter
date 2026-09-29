@@ -138,11 +138,6 @@ get_snippet_cache (CoglContext *context)
 }
 
 static const char clamp_unit_source[] =
-  "vec3 clamp_unit (vec3 color)\n"
-  "{\n"
-  "  return clamp (color, 0.0, 1.0);\n"
-  "}\n"
-  "\n"
   "vec4 clamp_unit (vec4 color)\n"
   "{\n"
   "  return clamp (color, 0.0, 1.0);\n"
@@ -195,6 +190,11 @@ static const char pq_eotf_source[] =
   "  vec3 num = max (color_pow - c1, vec3 (0.0));\n"
   "  vec3 den = c2 - c3 * color_pow;\n"
   "  return pow (num / den, vec3 (oo_m1));\n"
+  "}\n"
+  "\n"
+  "vec4 pq_eotf (vec4 color)\n"
+  "{\n"
+  "  return vec4 (pq_eotf (color.rgb), color.a);\n"
   "}\n";
 
 static const char pq_inv_eotf_source[] =
@@ -211,6 +211,11 @@ static const char pq_inv_eotf_source[] =
   "  vec3 num = c1 + c2 * in_pow_m1;\n"
   "  vec3 den = vec3 (1.0) + c3 * in_pow_m1;\n"
   "  return pow (num / den, vec3 (m2));\n"
+  "}\n"
+  "\n"
+  "vec4 pq_inv_eotf (vec4 color)\n"
+  "{\n"
+  "  return vec4 (pq_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
 static const char lut_3d_source[] =
@@ -287,6 +292,11 @@ static const char lut_3d_source[] =
   "          return v000 + t.x * (v110 - v010) + t.y * (v010 - v000) + t.z * (v111 - v110);\n"
   "        }\n"
   "    }\n"
+  "}\n"
+  "\n"
+  "vec4 sample_3d_lut_SIZE (vec4 color, sampler2D lut_texture, float lut_size)\n"
+  "{\n"
+  "  return vec4 (sample_3d_lut_SIZE (color.rgb, lut_texture, lut_size), color.a);\n"
   "}\n";
 
 static const char gamma_power_source[] =
@@ -374,7 +384,7 @@ get_3d_lut_invocation (ClutterColorOp *op,
   size_t layer_id;
 
   layer_id = op_id + PIPELINE_LAYER_OFFSET;
-  return g_strdup_printf ("vec4 (sample_3d_lut_SIZE (color.rgb, cogl_sampler%zu, lut_3d_size_%zu), color.a)",
+  return g_strdup_printf ("sample_3d_lut_SIZE (color, cogl_sampler%zu, lut_3d_size_%zu)",
                           layer_id, layer_id);
 }
 
@@ -451,7 +461,7 @@ static char *
 get_gamma_power_invocation (ClutterColorOp *op,
                             size_t          op_id)
 {
-  return g_strdup_printf ("vec4 (gamma_power (color.rgb, gamma_power_param_%zu), color.a)", op_id);
+  return g_strdup_printf ("gamma_power (color, gamma_power_param_%zu)", op_id);
 }
 
 static void
@@ -599,7 +609,7 @@ static char *
 get_multiply_invocation (ClutterColorOp *op,
                          size_t          op_id)
 {
-  return g_strdup_printf ("vec4 (multiply (color.rgb, multiply_param_%zu), color.a)", op_id);
+  return g_strdup_printf ("multiply (color, multiply_param_%zu)", op_id);
 }
 
 static void
@@ -636,27 +646,27 @@ static const ShaderOpInfo shader_op_infos[] = {
   {
     .get_type = clutter_color_op_clamp_unit_get_type,
     .shader_source = clamp_unit_source,
-    .invocation = "vec4 (clamp_unit (color.rgb), clamp (color.a, 0.0, 1.0))",
+    .invocation = "clamp_unit (color)",
   },
   {
     .get_type = clutter_color_op_srgb_piecewise_eotf_get_type,
     .shader_source = srgb_piecewise_eotf_source,
-    .invocation = "vec4 (srgb_piecewise_eotf (color.rgb), color.a)",
+    .invocation = "srgb_piecewise_eotf (color)",
   },
   {
     .get_type = clutter_color_op_srgb_piecewise_inv_eotf_get_type,
     .shader_source = srgb_piecewise_inv_eotf_source,
-    .invocation = "vec4 (srgb_piecewise_inv_eotf (color.rgb), color.a)",
+    .invocation = "srgb_piecewise_inv_eotf (color)",
   },
   {
     .get_type = clutter_color_op_pq_eotf_get_type,
     .shader_source = pq_eotf_source,
-    .invocation = "vec4 (pq_eotf (color.rgb), color.a)",
+    .invocation = "pq_eotf (color)",
   },
   {
     .get_type = clutter_color_op_pq_inv_eotf_get_type,
     .shader_source = pq_inv_eotf_source,
-    .invocation = "vec4 (pq_inv_eotf (color.rgb), color.a)",
+    .invocation = "pq_inv_eotf (color)",
   },
   {
     .get_type = clutter_color_op_unpremultiply_get_type,
