@@ -157,31 +157,6 @@ CLUTTER_EXPORT
 ClutterColorOp * clutter_color_op_curve_1d_new_rgb (size_t  size,
                                                     float  *v);
 
-typedef enum _ClutterYcbcrCoefficients
-{
-  CLUTTER_YCBCR_COEFFICIENTS_IDENTITY_LIMITED,
-  CLUTTER_YCBCR_COEFFICIENTS_BT601_FULL,
-  CLUTTER_YCBCR_COEFFICIENTS_BT601_LIMITED,
-  CLUTTER_YCBCR_COEFFICIENTS_BT709_FULL,
-  CLUTTER_YCBCR_COEFFICIENTS_BT709_LIMITED,
-  CLUTTER_YCBCR_COEFFICIENTS_BT2020_FULL,
-  CLUTTER_YCBCR_COEFFICIENTS_BT2020_LIMITED,
-} ClutterYcbcrCoefficients;
-
-#define CLUTTER_TYPE_COLOR_OP_YCBCR_MATRIX (clutter_color_op_ycbcr_matrix_get_type ())
-CLUTTER_EXPORT
-G_DECLARE_FINAL_TYPE (ClutterColorOpYcbcrMatrix,
-                      clutter_color_op_ycbcr_matrix,
-                      CLUTTER, COLOR_OP_YCBCR_MATRIX,
-                      ClutterColorOp)
-
-CLUTTER_EXPORT
-ClutterColorOp * clutter_color_op_ycbcr_matrix_new (ClutterYcbcrCoefficients  coeffs,
-                                                    graphene_matrix_t        *matrix);
-
-CLUTTER_EXPORT
-ClutterYcbcrCoefficients clutter_color_op_ycbcr_matrix_get_coeffs (ClutterColorOp *op);
-
 #define CLUTTER_TYPE_COLOR_OP_MATRIX_4X4 (clutter_color_op_matrix_4x4_get_type ())
 CLUTTER_EXPORT
 G_DECLARE_FINAL_TYPE (ClutterColorOpMatrix4x4,
@@ -238,9 +213,6 @@ CLUTTER_EXPORT
 gboolean clutter_color_op_srgb_piecewise_inv_eotf_get_unit_range_only (ClutterColorOp *op);
 
 CLUTTER_EXPORT
-const graphene_matrix_t * clutter_color_op_ycbcr_matrix_get_matrix (ClutterColorOp *op);
-
-CLUTTER_EXPORT
 void clutter_color_op_curve_1d_get_data (ClutterColorOp  *op,
                                          size_t          *out_size,
                                          const float    **out_r,
@@ -271,11 +243,5 @@ gboolean clutter_color_op_can_lower_to_3d_lut (ClutterColorOp *op);
 CLUTTER_EXPORT
 ClutterColorOp * clutter_color_op_lower_to_3d_lut (ClutterColorOp *op,
                                                    uint32_t        size);
-
-CLUTTER_EXPORT
-gboolean clutter_color_op_can_lower_to_matrix_4x4 (ClutterColorOp *op);
-
-CLUTTER_EXPORT
-ClutterColorOp * clutter_color_op_lower_to_matrix_4x4 (ClutterColorOp *op);
 
 G_END_DECLS

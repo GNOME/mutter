@@ -1079,126 +1079,6 @@ clutter_color_op_multiply_new (float value)
   return CLUTTER_COLOR_OP (g_steal_pointer (&op));
 }
 
-typedef struct _ClutterColorOpYcbcrMatrixPrivate
-{
-  ClutterYcbcrCoefficients  coeffs;
-  graphene_matrix_t        *matrix;
-} ClutterColorOpYcbcrMatrixPrivate;
-
-struct _ClutterColorOpYcbcrMatrix
-{
-  ClutterColorOp parent;
-};
-
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorOpYcbcrMatrix,
-                            clutter_color_op_ycbcr_matrix,
-                            CLUTTER_TYPE_COLOR_OP)
-
-static void
-clutter_color_op_ycbcr_matrix_do_transform (ClutterColorOp *op,
-                                             float          *data,
-                                             size_t          n_samples)
-{
-  ClutterColorOpYcbcrMatrixPrivate *priv =
-    clutter_color_op_ycbcr_matrix_get_instance_private (
-      CLUTTER_COLOR_OP_YCBCR_MATRIX (op));
-
-  do_matrix_transform (priv->matrix, data, n_samples);
-}
-
-static char *
-clutter_color_op_ycbcr_matrix_to_string (ClutterColorOp *op)
-{
-  ClutterColorOpYcbcrMatrixPrivate *priv =
-    clutter_color_op_ycbcr_matrix_get_instance_private (
-      CLUTTER_COLOR_OP_YCBCR_MATRIX (op));
-  const char *name;
-
-  switch (priv->coeffs)
-    {
-    case CLUTTER_YCBCR_COEFFICIENTS_IDENTITY_LIMITED:
-      name = "identity_limited";
-      break;
-    case CLUTTER_YCBCR_COEFFICIENTS_BT601_FULL:
-      name = "bt601_full";
-      break;
-    case CLUTTER_YCBCR_COEFFICIENTS_BT601_LIMITED:
-      name = "bt601_limited";
-      break;
-    case CLUTTER_YCBCR_COEFFICIENTS_BT709_FULL:
-      name = "bt709_full";
-      break;
-    case CLUTTER_YCBCR_COEFFICIENTS_BT709_LIMITED:
-      name = "bt709_limited";
-      break;
-    case CLUTTER_YCBCR_COEFFICIENTS_BT2020_FULL:
-      name = "bt2020_full";
-      break;
-    case CLUTTER_YCBCR_COEFFICIENTS_BT2020_LIMITED:
-      name = "bt2020_limited";
-      break;
-    default:
-      name = "unknown";
-      break;
-    }
-
-  return g_strdup_printf ("ycbcr_matrix(%s)", name);
-}
-
-static void
-clutter_color_op_ycbcr_matrix_dispose (GObject *object)
-{
-  ClutterColorOpYcbcrMatrix *ycbcr_op = CLUTTER_COLOR_OP_YCBCR_MATRIX (object);
-  ClutterColorOpYcbcrMatrixPrivate *priv =
-    clutter_color_op_ycbcr_matrix_get_instance_private (ycbcr_op);
-
-  g_clear_pointer (&priv->matrix, graphene_matrix_free);
-
-  G_OBJECT_CLASS (clutter_color_op_ycbcr_matrix_parent_class)->dispose (object);
-}
-
-static void
-clutter_color_op_ycbcr_matrix_class_init (ClutterColorOpYcbcrMatrixClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  ClutterColorOpClass *op_class = CLUTTER_COLOR_OP_CLASS (klass);
-
-  object_class->dispose = clutter_color_op_ycbcr_matrix_dispose;
-
-  op_class->to_string = clutter_color_op_ycbcr_matrix_to_string;
-  op_class->do_transform = clutter_color_op_ycbcr_matrix_do_transform;
-}
-
-static void
-clutter_color_op_ycbcr_matrix_init (ClutterColorOpYcbcrMatrix *op)
-{
-}
-
-ClutterColorOp *
-clutter_color_op_ycbcr_matrix_new (ClutterYcbcrCoefficients  coeffs,
-                                   graphene_matrix_t        *matrix)
-{
-  g_autoptr (ClutterColorOpYcbcrMatrix) op = NULL;
-  ClutterColorOpYcbcrMatrixPrivate *priv;
-
-  op = g_object_new (CLUTTER_TYPE_COLOR_OP_YCBCR_MATRIX, NULL);
-  priv = clutter_color_op_ycbcr_matrix_get_instance_private (op);
-  priv->coeffs = coeffs;
-  priv->matrix = matrix;
-
-  return CLUTTER_COLOR_OP (g_steal_pointer (&op));
-}
-
-ClutterYcbcrCoefficients
-clutter_color_op_ycbcr_matrix_get_coeffs (ClutterColorOp *op)
-{
-  ClutterColorOpYcbcrMatrixPrivate *priv =
-    clutter_color_op_ycbcr_matrix_get_instance_private (
-      CLUTTER_COLOR_OP_YCBCR_MATRIX (op));
-
-  return priv->coeffs;
-}
-
 typedef struct _ClutterColorOpMatrix4x4Private
 {
   graphene_matrix_t *matrix;
@@ -1418,16 +1298,6 @@ clutter_color_op_srgb_piecewise_inv_eotf_get_unit_range_only (ClutterColorOp *op
   return priv->unit_range_only;
 }
 
-const graphene_matrix_t *
-clutter_color_op_ycbcr_matrix_get_matrix (ClutterColorOp *op)
-{
-  ClutterColorOpYcbcrMatrixPrivate *priv =
-    clutter_color_op_ycbcr_matrix_get_instance_private (
-      CLUTTER_COLOR_OP_YCBCR_MATRIX (op));
-
-  return priv->matrix;
-}
-
 static ClutterColorOp *
 combine_multiply_with_matrix (float                    multiply_value,
                               const graphene_matrix_t  *matrix,
@@ -1460,9 +1330,6 @@ get_matrix_from_op (ClutterColorOp *op)
 {
   if (CLUTTER_IS_COLOR_OP_MATRIX_4X4 (op))
     return clutter_color_op_matrix_4x4_get_matrix (op);
-
-  if (CLUTTER_IS_COLOR_OP_YCBCR_MATRIX (op))
-    return clutter_color_op_ycbcr_matrix_get_matrix (op);
 
   return NULL;
 }
@@ -1559,8 +1426,7 @@ clutter_color_op_lower_to_curve_1d (ClutterColorOp *op,
 gboolean
 clutter_color_op_can_lower_to_3d_lut (ClutterColorOp *op)
 {
-  return CLUTTER_IS_COLOR_OP_MATRIX_4X4 (op) ||
-         CLUTTER_IS_COLOR_OP_YCBCR_MATRIX (op);
+  return CLUTTER_IS_COLOR_OP_MATRIX_4X4 (op);
 }
 
 /**
@@ -1576,30 +1442,4 @@ clutter_color_op_lower_to_3d_lut (ClutterColorOp *op,
     return NULL;
 
   return lower_to_3d_lut (op, size);
-}
-
-gboolean
-clutter_color_op_can_lower_to_matrix_4x4 (ClutterColorOp *op)
-{
-  return CLUTTER_IS_COLOR_OP_YCBCR_MATRIX (op);
-}
-
-/**
- * clutter_color_op_lower_to_matrix_4x4:
- *
- * Returns: (transfer full) (nullable): A lowered matrix op, or %NULL
- */
-ClutterColorOp *
-clutter_color_op_lower_to_matrix_4x4 (ClutterColorOp *op)
-{
-  const graphene_matrix_t *src;
-  graphene_matrix_t *copy;
-
-  if (!clutter_color_op_can_lower_to_matrix_4x4 (op))
-    return NULL;
-
-  src = clutter_color_op_ycbcr_matrix_get_matrix (op);
-  copy = graphene_matrix_alloc ();
-  graphene_matrix_init_from_matrix (copy, src);
-  return clutter_color_op_matrix_4x4_new (copy);
 }
