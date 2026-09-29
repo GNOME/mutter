@@ -304,16 +304,26 @@ static const char gamma_power_source[] =
   "}\n";
 
 static const char curve_1d_source[] =
-  "// samples from a xsize by 4 texture,"
-  "// where the y-direction contains the different channels\n"
-  "vec4 curve_1d (vec4 color, in sampler2D tex, float xsize)\n"
+  "// samples from a size by 1 texture where each texel's R, G, B, A\n"
+  "// channels hold the respective curve's value at that x position\n"
+  "vec4 curve_1d_rgb (vec4 color, sampler2D tex, float size)\n"
   "{\n"
-  "  float xoff = (1.0 / (xsize * 2.0));\n"
-  "  float yoff = (1.0 / (4.0 * 2.0));\n"
-  "  return vec4 (texture (tex, vec2 (color.r + xoff, 0.00 + yoff)).r,\n"
-  "               texture (tex, vec2 (color.g + xoff, 0.25 + yoff)).r,\n"
-  "               texture (tex, vec2 (color.b + xoff, 0.50 + yoff)).r,\n"
-  "               texture (tex, vec2 (color.a + xoff, 0.75 + yoff)).r);\n"
+  "  float xscale = (size - 1.0) / size;\n"
+  "  float xoff = 0.5 / size;\n"
+  "  return vec4 (texture (tex, vec2 (color.r * xscale + xoff, 0.5)).r,\n"
+  "               texture (tex, vec2 (color.g * xscale + xoff, 0.5)).g,\n"
+  "               texture (tex, vec2 (color.b * xscale + xoff, 0.5)).b,\n"
+  "               color.a);\n"
+  "}\n"
+  "\n"
+  "vec4 curve_1d_rgba (vec4 color, sampler2D tex, float size)\n"
+  "{\n"
+  "  float xscale = (size - 1.0) / size;\n"
+  "  float xoff = 0.5 / size;\n"
+  "  return vec4 (texture (tex, vec2 (color.r * xscale + xoff, 0.5)).r,\n"
+  "               texture (tex, vec2 (color.g * xscale + xoff, 0.5)).g,\n"
+  "               texture (tex, vec2 (color.b * xscale + xoff, 0.5)).b,\n"
+  "               texture (tex, vec2 (color.a * xscale + xoff, 0.5)).a);\n"
   "}\n";
 
 static const char multiply_source[] =
@@ -465,49 +475,24 @@ get_curve_1d_declarations (ClutterColorOp *op,
                            size_t          op_id)
 {
   size_t layer_id;
-  const float *a_data;
 
   layer_id = op_id + PIPELINE_LAYER_OFFSET;
-  clutter_color_op_curve_1d_get_data (op, NULL, NULL, NULL, NULL, &a_data);
-
-  if (a_data)
-    {
-      return g_strdup_printf (
-        "uniform float curve_1d_size_%zu;\n"
-        "vec4 curve_1d_%zu (vec4 color)\n"
-        "{\n"
-        "  float xscale = (curve_1d_size_%zu - 1.0) / curve_1d_size_%zu;\n"
-        "  float xoff = 0.5 / curve_1d_size_%zu;\n"
-        "  vec4 r_sample = texture (cogl_sampler%zu, vec2 (color.r * xscale + xoff, 0.5));\n"
-        "  vec4 g_sample = texture (cogl_sampler%zu, vec2 (color.g * xscale + xoff, 0.5));\n"
-        "  vec4 b_sample = texture (cogl_sampler%zu, vec2 (color.b * xscale + xoff, 0.5));\n"
-        "  vec4 a_sample = texture (cogl_sampler%zu, vec2 (color.a * xscale + xoff, 0.5));\n"
-        "  return vec4 (r_sample.r, g_sample.g, b_sample.b, a_sample.a);\n"
-        "}\n",
-        layer_id, op_id, layer_id, layer_id, layer_id,
-        layer_id, layer_id, layer_id, layer_id);
-    }
-
-  return g_strdup_printf (
-    "uniform float curve_1d_size_%zu;\n"
-    "vec4 curve_1d_%zu (vec4 color)\n"
-    "{\n"
-    "  float xscale = (curve_1d_size_%zu - 1.0) / curve_1d_size_%zu;\n"
-    "  float xoff = 0.5 / curve_1d_size_%zu;\n"
-    "  vec4 r_sample = texture (cogl_sampler%zu, vec2 (color.r * xscale + xoff, 0.5));\n"
-    "  vec4 g_sample = texture (cogl_sampler%zu, vec2 (color.g * xscale + xoff, 0.5));\n"
-    "  vec4 b_sample = texture (cogl_sampler%zu, vec2 (color.b * xscale + xoff, 0.5));\n"
-    "  return vec4 (r_sample.r, g_sample.g, b_sample.b, color.a);\n"
-    "}\n",
-    layer_id, op_id, layer_id, layer_id, layer_id,
-    layer_id, layer_id, layer_id);
+  return g_strdup_printf ("uniform float curve_1d_size_%zu;\n", layer_id);
 }
 
 static char *
 get_curve_1d_invocation (ClutterColorOp *op,
                          size_t          op_id)
 {
-  return g_strdup_printf ("curve_1d_%zu (color)", op_id);
+  size_t layer_id;
+  const float *a_data;
+
+  layer_id = op_id + PIPELINE_LAYER_OFFSET;
+  clutter_color_op_curve_1d_get_data (op, NULL, NULL, NULL, NULL, &a_data);
+
+  return g_strdup_printf ("%s (color, cogl_sampler%zu, curve_1d_size_%zu)",
+                          a_data ? "curve_1d_rgba" : "curve_1d_rgb",
+                          layer_id, layer_id);
 }
 
 static void
