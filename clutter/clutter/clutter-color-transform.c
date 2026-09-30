@@ -124,20 +124,20 @@ compute_chromatic_adaptation (graphene_vec3_t   *src_white_point_XYZ,
   graphene_matrix_init_from_float (
     &bradford_mat,
     (float [16]) {
-       0.89510f, -0.7502f,  0.0389f, 0.0f,
-       0.26640f,  1.7135f, -0.0685f, 0.0f,
-      -0.16140f,  0.0367f,  1.0296f, 0.0f,
-       0.00000f,  0.0000f,  0.0000f, 1.0f,
-    });
+    0.89510f, -0.7502f,  0.0389f, 0.0f,
+    0.26640f,  1.7135f, -0.0685f, 0.0f,
+    -0.16140f, 0.0367f,  1.0296f, 0.0f,
+    0.00000f,  0.0000f,  0.0000f, 1.0f,
+  });
 
   graphene_matrix_init_from_float (
     &inv_bradford_mat,
     (float [16]) {
-       0.9869929f, 0.4323053f, -0.0085287f, 0.0f,
-      -0.1470543f, 0.5183603f,  0.0400428f, 0.0f,
-       0.1599627f, 0.0492912f,  0.9684867f, 0.0f,
-       0.0000000f, 0.0000000f,  0.0000000f, 1.0f,
-    });
+    0.9869929f,  0.4323053f, -0.0085287f, 0.0f,
+    -0.1470543f, 0.5183603f,  0.0400428f, 0.0f,
+    0.1599627f,  0.0492912f,  0.9684867f, 0.0f,
+    0.0000000f,  0.0000000f,  0.0000000f, 1.0f,
+  });
 
   graphene_matrix_transform_vec3 (&bradford_mat,
                                   src_white_point_XYZ,
@@ -496,11 +496,11 @@ get_icc_to_linear_bt2020_matrix (cmsHPROFILE        *profile,
   graphene_matrix_init_from_float (
     &colorant_to_XYZ_D50,
     (float [16]) {
-      (float) red->X,   (float) red->Y,   (float) red->Z,   0.0f,
-      (float) green->X, (float) green->Y, (float) green->Z, 0.0f,
-      (float) blue->X,  (float) blue->Y,  (float) blue->Z,  0.0f,
-      0.0f,             0.0f,             0.0f,             1.0f,
-    });
+    (float) red->X,   (float) red->Y,   (float) red->Z,   0.0f,
+    (float) green->X, (float) green->Y, (float) green->Z, 0.0f,
+    (float) blue->X,  (float) blue->Y,  (float) blue->Z,  0.0f,
+    0.0f,             0.0f,             0.0f,             1.0f,
+  });
 
   graphene_vec3_init (&D50_XYZ, CLUTTER_D50_X, CLUTTER_D50_Y, CLUTTER_D50_Z);
   graphene_vec3_init (&D65_XYZ, CLUTTER_D65_X, CLUTTER_D65_Y, CLUTTER_D65_Z);
