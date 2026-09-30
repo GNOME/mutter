@@ -24,7 +24,6 @@
 
 #include "clutter/clutter-color-transform.h"
 #include "clutter/clutter-color-state.h"
-#include "clutter/clutter-color-state.h"
 #include "clutter/clutter-color-pipeline.h"
 
 CLUTTER_EXPORT_TEST
