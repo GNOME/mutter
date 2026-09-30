@@ -194,8 +194,8 @@ get_from_D65 (const ClutterColorimetry *colorimetry,
 }
 
 static void
-get_params_to_linear_bt2020 (ClutterColorStateParams *params,
-                             graphene_matrix_t       *out_matrix)
+get_params_to_linear_bt2020_matrix (ClutterColorStateParams *params,
+                                    graphene_matrix_t       *out_matrix)
 {
   const ClutterColorimetry *colorimetry;
   ClutterColorimetry bt2020_colorimetry = {
@@ -203,7 +203,7 @@ get_params_to_linear_bt2020 (ClutterColorStateParams *params,
     .colorspace = CLUTTER_COLORSPACE_BT2020,
   };
   graphene_matrix_t to_XYZ, to_D65, from_XYZ_bt2020;
-  graphene_matrix_t temp;
+  graphene_matrix_t matrix;
 
   colorimetry = clutter_color_state_params_get_colorimetry (params);
 
@@ -212,13 +212,17 @@ get_params_to_linear_bt2020 (ClutterColorStateParams *params,
   clutter_colorimetry_from_XYZ (&bt2020_colorimetry, &from_XYZ_bt2020);
 
   /* source → XYZ → XYZ D65 → BT.2020 */
-  graphene_matrix_multiply (&to_XYZ, &to_D65, &temp);
-  graphene_matrix_multiply (&temp, &from_XYZ_bt2020, out_matrix);
+  graphene_matrix_init_identity (&matrix);
+  graphene_matrix_multiply (&matrix, &to_XYZ, &matrix);
+  graphene_matrix_multiply (&matrix, &to_D65, &matrix);
+  graphene_matrix_multiply (&matrix, &from_XYZ_bt2020, &matrix);
+
+  *out_matrix = matrix;
 }
 
 static void
-get_params_from_linear_bt2020 (ClutterColorStateParams *params,
-                               graphene_matrix_t       *out_matrix)
+get_params_from_linear_bt2020_matrix (ClutterColorStateParams *params,
+                                      graphene_matrix_t       *out_matrix)
 {
   const ClutterColorimetry *colorimetry;
   ClutterColorimetry bt2020_colorimetry = {
@@ -226,7 +230,7 @@ get_params_from_linear_bt2020 (ClutterColorStateParams *params,
     .colorspace = CLUTTER_COLORSPACE_BT2020,
   };
   graphene_matrix_t to_XYZ_bt2020, from_D65, from_XYZ;
-  graphene_matrix_t temp;
+  graphene_matrix_t matrix;
 
   colorimetry = clutter_color_state_params_get_colorimetry (params);
 
@@ -235,8 +239,12 @@ get_params_from_linear_bt2020 (ClutterColorStateParams *params,
   clutter_colorimetry_from_XYZ (colorimetry, &from_XYZ);
 
   /* BT.2020 → XYZ D65 → XYZ → target */
-  graphene_matrix_multiply (&to_XYZ_bt2020, &from_D65, &temp);
-  graphene_matrix_multiply (&temp, &from_XYZ, out_matrix);
+  graphene_matrix_init_identity (&matrix);
+  graphene_matrix_multiply (&matrix, &to_XYZ_bt2020, &matrix);
+  graphene_matrix_multiply (&matrix, &from_D65, &matrix);
+  graphene_matrix_multiply (&matrix, &from_XYZ, &matrix);
+
+  *out_matrix = matrix;
 }
 
 static ClutterColorOp *
@@ -314,7 +322,7 @@ add_params_to_linear_bt2020_ops (ClutterColorPipeline    *pipeline,
   }
 
   /* 2. Transform to linear BT.2020 D65 (via XYZ) */
-  get_params_to_linear_bt2020 (params, &to_linear_bt2020_stack);
+  get_params_to_linear_bt2020_matrix (params, &to_linear_bt2020_stack);
 
   to_linear_bt2020 = graphene_matrix_alloc ();
   graphene_matrix_init_from_matrix (to_linear_bt2020,
@@ -334,7 +342,7 @@ add_params_from_linear_bt2020_ops (ClutterColorPipeline    *pipeline,
   eotf = clutter_color_state_params_get_eotf (params);
 
   /* 1. Transform from linear BT.2020 D65 to target colorspace (via XYZ) */
-  get_params_from_linear_bt2020 (params, &from_linear_bt2020_stack);
+  get_params_from_linear_bt2020_matrix (params, &from_linear_bt2020_stack);
   from_linear_bt2020 = graphene_matrix_alloc ();
   graphene_matrix_init_from_matrix (from_linear_bt2020,
                                     &from_linear_bt2020_stack);
@@ -472,11 +480,11 @@ get_icc_to_linear_bt2020_matrix (cmsHPROFILE        *profile,
     .type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE,
     .colorspace = CLUTTER_COLORSPACE_BT2020,
   };
-  graphene_matrix_t colorant_to_xyz_d50;
-  graphene_matrix_t adapt_d50_to_d65;
-  graphene_matrix_t from_xyz_bt2020;
-  graphene_matrix_t temp;
-  graphene_vec3_t d50_xyz, d65_xyz;
+  graphene_matrix_t colorant_to_XYZ_D50;
+  graphene_matrix_t adapt_D50_to_D65;
+  graphene_matrix_t from_XYZ_bt2020;
+  graphene_vec3_t D50_XYZ, D65_XYZ;
+  graphene_matrix_t matrix;
 
   red = cmsReadTag (profile, cmsSigRedColorantTag);
   green = cmsReadTag (profile, cmsSigGreenColorantTag);
@@ -486,7 +494,7 @@ get_icc_to_linear_bt2020_matrix (cmsHPROFILE        *profile,
     return FALSE;
 
   graphene_matrix_init_from_float (
-    &colorant_to_xyz_d50,
+    &colorant_to_XYZ_D50,
     (float [16]) {
       (float) red->X,   (float) red->Y,   (float) red->Z,   0.0f,
       (float) green->X, (float) green->Y, (float) green->Z, 0.0f,
@@ -494,14 +502,18 @@ get_icc_to_linear_bt2020_matrix (cmsHPROFILE        *profile,
       0.0f,             0.0f,             0.0f,             1.0f,
     });
 
-  graphene_vec3_init (&d50_xyz, CLUTTER_D50_X, CLUTTER_D50_Y, CLUTTER_D50_Z);
-  graphene_vec3_init (&d65_xyz, CLUTTER_D65_X, CLUTTER_D65_Y, CLUTTER_D65_Z);
-  compute_chromatic_adaptation (&d50_xyz, &d65_xyz, &adapt_d50_to_d65);
+  graphene_vec3_init (&D50_XYZ, CLUTTER_D50_X, CLUTTER_D50_Y, CLUTTER_D50_Z);
+  graphene_vec3_init (&D65_XYZ, CLUTTER_D65_X, CLUTTER_D65_Y, CLUTTER_D65_Z);
+  compute_chromatic_adaptation (&D50_XYZ, &D65_XYZ, &adapt_D50_to_D65);
 
-  clutter_colorimetry_from_XYZ (&bt2020_colorimetry, &from_xyz_bt2020);
+  clutter_colorimetry_from_XYZ (&bt2020_colorimetry, &from_XYZ_bt2020);
 
-  graphene_matrix_multiply (&colorant_to_xyz_d50, &adapt_d50_to_d65, &temp);
-  graphene_matrix_multiply (&temp, &from_xyz_bt2020, out_matrix);
+  graphene_matrix_init_identity (&matrix);
+  graphene_matrix_multiply (&matrix, &colorant_to_XYZ_D50, &matrix);
+  graphene_matrix_multiply (&matrix, &adapt_D50_to_D65, &matrix);
+  graphene_matrix_multiply (&matrix, &from_XYZ_bt2020, &matrix);
+
+  *out_matrix = matrix;
 
   return TRUE;
 }
