@@ -24,8 +24,6 @@
 #include "clutter/clutter-color-op.h"
 #include "clutter/clutter-color-pipeline.h"
 
-#include <float.h>
-
 typedef struct _ClutterColorPipeline
 {
   GObject parent;
@@ -139,58 +137,6 @@ clutter_color_pipeline_do_transform (ClutterColorPipeline *color_pipeline,
 }
 
 static gboolean
-is_inverse_pair (ClutterColorOp *a,
-                 ClutterColorOp *b)
-{
-  return (CLUTTER_IS_COLOR_OP_SRGB_PIECEWISE_EOTF (a) &&
-          CLUTTER_IS_COLOR_OP_SRGB_PIECEWISE_INV_EOTF (b)) ||
-         (CLUTTER_IS_COLOR_OP_SRGB_PIECEWISE_INV_EOTF (a) &&
-          CLUTTER_IS_COLOR_OP_SRGB_PIECEWISE_EOTF (b)) ||
-         (CLUTTER_IS_COLOR_OP_PQ_EOTF (a) &&
-          CLUTTER_IS_COLOR_OP_PQ_INV_EOTF (b)) ||
-         (CLUTTER_IS_COLOR_OP_PQ_INV_EOTF (a) &&
-          CLUTTER_IS_COLOR_OP_PQ_EOTF (b));
-}
-
-typedef enum _SimplifyAction
-{
-  SIMPLIFY_KEEP,
-  SIMPLIFY_DROP_BOTH,
-  SIMPLIFY_DROP_PREV,
-  SIMPLIFY_DROP_OP,
-} SimplifyAction;
-
-static SimplifyAction
-try_simplify (ClutterColorOp *prev_op,
-              ClutterColorOp *op)
-{
-  if (is_inverse_pair (prev_op, op))
-    return SIMPLIFY_DROP_BOTH;
-
-  if (CLUTTER_IS_COLOR_OP_GAMMA_POWER (prev_op) &&
-      CLUTTER_IS_COLOR_OP_GAMMA_POWER (op))
-    {
-      float pa, pb;
-
-      pa = clutter_color_op_gamma_power_get_power (prev_op);
-      pb = clutter_color_op_gamma_power_get_power (op);
-
-      if (G_APPROX_VALUE (pa * pb, 1.0f, FLT_EPSILON))
-        return SIMPLIFY_DROP_BOTH;
-    }
-
-  if (CLUTTER_IS_COLOR_OP_CLAMP_UNIT (prev_op) &&
-      clutter_color_op_get_clamps_input (op))
-    return SIMPLIFY_DROP_PREV;
-
-  if (CLUTTER_IS_COLOR_OP_CLAMP_UNIT (op) &&
-      clutter_color_op_get_clamps_output (prev_op))
-    return SIMPLIFY_DROP_OP;
-
-  return SIMPLIFY_KEEP;
-}
-
-static gboolean
 clutter_color_pipeline_simplify_pass (ClutterColorPipeline *color_pipeline)
 {
   g_autolist (ClutterColorOp) old_ops = g_steal_pointer (&color_pipeline->ops);
@@ -203,22 +149,22 @@ clutter_color_pipeline_simplify_pass (ClutterColorPipeline *color_pipeline)
 
       if (prev)
         {
-          switch (try_simplify (prev->data, op))
+          switch (clutter_color_op_try_simplify (prev->data, op))
             {
-            case SIMPLIFY_DROP_BOTH:
+            case CLUTTER_COLOR_OP_SIMPLIFY_DROP_BOTH:
               g_object_unref (prev->data);
               color_pipeline->ops = g_list_delete_link (color_pipeline->ops, prev);
               changed = TRUE;
               continue;
-            case SIMPLIFY_DROP_PREV:
+            case CLUTTER_COLOR_OP_SIMPLIFY_DROP_PREV:
               g_object_unref (prev->data);
               color_pipeline->ops = g_list_delete_link (color_pipeline->ops, prev);
               changed = TRUE;
               break;
-            case SIMPLIFY_DROP_OP:
+            case CLUTTER_COLOR_OP_SIMPLIFY_DROP_OP:
               changed = TRUE;
               continue;
-            case SIMPLIFY_KEEP:
+            case CLUTTER_COLOR_OP_SIMPLIFY_KEEP:
               break;
             }
         }

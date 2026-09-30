@@ -23,6 +23,7 @@
 
 #include "clutter-color-op.h"
 
+#include <float.h>
 #include <math.h>
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (graphene_matrix_t, graphene_matrix_free)
@@ -1301,6 +1302,55 @@ combine_matrix_with_multiply (ClutterColorOp *a,
 
   graphene_matrix_multiply (ma, mb, result);
   return clutter_color_op_matrix_4x4_new (g_steal_pointer (&result));
+}
+
+static gboolean
+is_inverse_pair (ClutterColorOp *a,
+                 ClutterColorOp *b)
+{
+  return (CLUTTER_IS_COLOR_OP_SRGB_PIECEWISE_EOTF (a) &&
+          CLUTTER_IS_COLOR_OP_SRGB_PIECEWISE_INV_EOTF (b)) ||
+         (CLUTTER_IS_COLOR_OP_SRGB_PIECEWISE_INV_EOTF (a) &&
+          CLUTTER_IS_COLOR_OP_SRGB_PIECEWISE_EOTF (b)) ||
+         (CLUTTER_IS_COLOR_OP_PQ_EOTF (a) &&
+          CLUTTER_IS_COLOR_OP_PQ_INV_EOTF (b)) ||
+         (CLUTTER_IS_COLOR_OP_PQ_INV_EOTF (a) &&
+          CLUTTER_IS_COLOR_OP_PQ_EOTF (b));
+}
+
+/**
+ * clutter_color_op_try_simplify:
+ *
+ * Returns: How the pair of ops should be simplified
+ */
+ClutterColorOpSimplifyResult
+clutter_color_op_try_simplify (ClutterColorOp *prev_op,
+                               ClutterColorOp *op)
+{
+  if (is_inverse_pair (prev_op, op))
+    return CLUTTER_COLOR_OP_SIMPLIFY_DROP_BOTH;
+
+  if (CLUTTER_IS_COLOR_OP_GAMMA_POWER (prev_op) &&
+      CLUTTER_IS_COLOR_OP_GAMMA_POWER (op))
+    {
+      float pa, pb;
+
+      pa = clutter_color_op_gamma_power_get_power (prev_op);
+      pb = clutter_color_op_gamma_power_get_power (op);
+
+      if (G_APPROX_VALUE (pa * pb, 1.0f, FLT_EPSILON))
+        return CLUTTER_COLOR_OP_SIMPLIFY_DROP_BOTH;
+    }
+
+  if (CLUTTER_IS_COLOR_OP_CLAMP_UNIT (prev_op) &&
+      clutter_color_op_get_clamps_input (op))
+    return CLUTTER_COLOR_OP_SIMPLIFY_DROP_PREV;
+
+  if (CLUTTER_IS_COLOR_OP_CLAMP_UNIT (op) &&
+      clutter_color_op_get_clamps_output (prev_op))
+    return CLUTTER_COLOR_OP_SIMPLIFY_DROP_OP;
+
+  return CLUTTER_COLOR_OP_SIMPLIFY_KEEP;
 }
 
 /**

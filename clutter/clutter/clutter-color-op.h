@@ -225,6 +225,18 @@ void clutter_color_op_3d_lut_get_data (ClutterColorOp  *op,
                                        uint32_t        *out_size,
                                        const float    **out_data);
 
+typedef enum _ClutterColorOpSimplifyResult
+{
+  CLUTTER_COLOR_OP_SIMPLIFY_KEEP,
+  CLUTTER_COLOR_OP_SIMPLIFY_DROP_BOTH,
+  CLUTTER_COLOR_OP_SIMPLIFY_DROP_PREV,
+  CLUTTER_COLOR_OP_SIMPLIFY_DROP_OP,
+} ClutterColorOpSimplifyResult;
+
+CLUTTER_EXPORT
+ClutterColorOpSimplifyResult clutter_color_op_try_simplify (ClutterColorOp *prev_op,
+                                                            ClutterColorOp *op);
+
 CLUTTER_EXPORT
 ClutterColorOp * clutter_color_op_try_combine (ClutterColorOp *a,
                                                ClutterColorOp *b);
