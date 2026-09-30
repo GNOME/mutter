@@ -760,8 +760,8 @@ create_eotf_device_link (cmsHPROFILE *icc_profile)
 }
 
 static void
-add_icc_to_linear_bt2020_op (ClutterColorPipeline *pipeline,
-                             ClutterColorStateIcc *icc)
+add_icc_to_linear_bt2020_ops (ClutterColorPipeline *pipeline,
+                              ClutterColorStateIcc *icc)
 {
   cmsHPROFILE *profile;
   gboolean is_linearized;
@@ -827,8 +827,8 @@ add_icc_to_linear_bt2020_op (ClutterColorPipeline *pipeline,
 }
 
 static void
-add_icc_from_linear_bt2020_op (ClutterColorPipeline *pipeline,
-                               ClutterColorStateIcc *icc)
+add_icc_from_linear_bt2020_ops (ClutterColorPipeline *pipeline,
+                                ClutterColorStateIcc *icc)
 {
   cmsHPROFILE *profile;
   gboolean is_linearized;
@@ -894,9 +894,9 @@ add_icc_from_linear_bt2020_op (ClutterColorPipeline *pipeline,
 }
 
 static void
-add_icc_to_icc_op (ClutterColorPipeline *pipeline,
-                   ClutterColorStateIcc *src_icc,
-                   ClutterColorStateIcc *target_icc)
+add_icc_to_icc_ops (ClutterColorPipeline *pipeline,
+                    ClutterColorStateIcc *src_icc,
+                    ClutterColorStateIcc *target_icc)
 {
   cmsHPROFILE *src_profile;
   cmsHPROFILE *target_profile;
@@ -980,8 +980,8 @@ add_to_linear_bt2020_ops (ClutterColorPipeline *pipeline,
     }
   else if (CLUTTER_IS_COLOR_STATE_ICC (color_state))
     {
-      add_icc_to_linear_bt2020_op (pipeline,
-                                   CLUTTER_COLOR_STATE_ICC (color_state));
+      add_icc_to_linear_bt2020_ops (pipeline,
+                                    CLUTTER_COLOR_STATE_ICC (color_state));
     }
   else
     {
@@ -1000,8 +1000,8 @@ add_from_linear_bt2020_ops (ClutterColorPipeline *pipeline,
     }
   else if (CLUTTER_IS_COLOR_STATE_ICC (color_state))
     {
-      add_icc_from_linear_bt2020_op (pipeline,
-                                     CLUTTER_COLOR_STATE_ICC (color_state));
+      add_icc_from_linear_bt2020_ops (pipeline,
+                                      CLUTTER_COLOR_STATE_ICC (color_state));
     }
   else
     {
@@ -1042,9 +1042,9 @@ build_transform_pipeline (ClutterColorPipeline            *pipeline,
   if (CLUTTER_IS_COLOR_STATE_ICC (source_color_state) &&
       CLUTTER_IS_COLOR_STATE_ICC (target_color_state))
     {
-      add_icc_to_icc_op (pipeline,
-                         CLUTTER_COLOR_STATE_ICC (source_color_state),
-                         CLUTTER_COLOR_STATE_ICC (target_color_state));
+      add_icc_to_icc_ops (pipeline,
+                          CLUTTER_COLOR_STATE_ICC (source_color_state),
+                          CLUTTER_COLOR_STATE_ICC (target_color_state));
     }
   else
     {
