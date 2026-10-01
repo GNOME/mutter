@@ -486,7 +486,9 @@ build-intermediate-commits@x86_64:
         --warnlevel 2
         --wrap-mode nofallback
         -Dbuildtype=debugoptimized
+        -Db_coverage=true
         -Db_sanitize='["address"]'
+        -Ddocs=true
         $BASE_MESON_OPTIONS
         $EXTRA_MESON_OPTIONS;
       if ! git rebase --exec "ninja --quiet -C build" $MERGE_BASE ${CI_COMMIT_SHA}^; then
