@@ -48,6 +48,7 @@ struct _CoglBitmap
   int rowstride;
 
   uint8_t *data;
+  CoglBufferAccess access;
 
   gboolean mapped;
   gboolean bound;

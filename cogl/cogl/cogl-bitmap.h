@@ -216,6 +216,31 @@ COGL_EXPORT CoglPixelBuffer *
 cogl_bitmap_get_buffer (CoglBitmap *bitmap);
 
 /**
+ * cogl_bitmap_set_access:
+ * @bitmap: A #CoglBitmap
+ * @access: The allowed access to the bitmap's storage
+ *
+ * Specifies the allowed access to the underlying storage. Bitmaps allow
+ * both reading and writing by default. Device mappings that are only
+ * writable can use %COGL_BUFFER_ACCESS_WRITE.
+ *
+ * The bitmap must not be mapped or bound. Bitmaps sharing the same storage
+ * share the access restriction.
+ */
+COGL_EXPORT void
+cogl_bitmap_set_access (CoglBitmap       *bitmap,
+                        CoglBufferAccess  access);
+
+/**
+ * cogl_bitmap_get_access:
+ * @bitmap: A #CoglBitmap
+ *
+ * Return value: The allowed access to the bitmap's storage
+ */
+COGL_EXPORT CoglBufferAccess
+cogl_bitmap_get_access (CoglBitmap *bitmap);
+
+/**
  * cogl_bitmap_map:
  * @bitmap: A #CoglBitmap
  * @access: How the mapped buffer will be used by the caller
