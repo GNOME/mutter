@@ -410,6 +410,14 @@ cogl_bitmap_map (CoglBitmap         *bitmap,
 
   g_assert (!bitmap->mapped);
 
+  if ((access & bitmap->access) != access)
+    {
+      g_set_error_literal (error, COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_UNSUPPORTED,
+                           "Bitmap does not allow the requested access");
+      return NULL;
+    }
+
   if (bitmap->buffer)
     {
       uint8_t *data = _cogl_buffer_map (bitmap->buffer,

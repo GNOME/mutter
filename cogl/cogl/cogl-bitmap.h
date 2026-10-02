@@ -247,7 +247,8 @@ cogl_bitmap_get_access (CoglBitmap *bitmap);
  * @hints: A mask of `CoglBufferMapHint`s
  * @error: A #GError
  *
- * Maps the bitmap's underlying data for direct access.
+ * Maps the bitmap's underlying data for direct access. The requested @access
+ * must be allowed by [method@Cogl.Bitmap.set_access].
  *
  * The bitmap will be automatically unmapped when disposed, so explicit
  * unmapping is not required.
