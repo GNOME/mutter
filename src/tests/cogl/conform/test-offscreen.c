@@ -234,6 +234,77 @@ test_bitmap_access (void)
   cogl_bitmap_unmap (bitmap);
 }
 
+static void
+test_write_only_readback_with_padded_rows (void)
+{
+  CoglDriver *driver = cogl_context_get_driver (test_ctx);
+  g_autoptr (CoglTexture) texture = NULL;
+  g_autoptr (CoglOffscreen) offscreen = NULL;
+  g_autoptr (CoglPipeline) pipeline = NULL;
+  g_autoptr (CoglBitmap) bitmap = NULL;
+  CoglFramebuffer *framebuffer;
+  CoglColor color;
+  uint8_t expected[3 * 3 * 4];
+  uint8_t pixels[3 * 20];
+  gboolean had_any_stride;
+
+  texture = cogl_texture_2d_new_with_size (test_ctx, 8, 8);
+  cogl_texture_set_premultiplied (texture, TRUE);
+  offscreen = cogl_offscreen_new_with_texture (texture);
+  framebuffer = COGL_FRAMEBUFFER (offscreen);
+  pipeline = cogl_pipeline_new (test_ctx);
+  cogl_framebuffer_orthographic (framebuffer, 0, 0, 8, 8, -1, 1);
+
+  for (int y = 2; y < 5; y++)
+    {
+      cogl_color_init_from_4f (&color,
+                               y == 2, y == 3, y == 4, 1);
+      cogl_pipeline_set_color (pipeline, &color);
+      cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
+                                       1, y, 4, y + 1);
+    }
+
+  g_assert_true (cogl_framebuffer_read_pixels (framebuffer,
+                                               1, 2, 3, 3,
+                                               COGL_PIXEL_FORMAT_RGBA_8888,
+                                               expected));
+  test_utils_compare_pixel (expected, 0xff0000ff);
+  test_utils_compare_pixel (expected + 12, 0x00ff00ff);
+  test_utils_compare_pixel (expected + 24, 0x0000ffff);
+  g_assert_cmpint (cogl_framebuffer_get_internal_format (framebuffer) &
+                   COGL_PREMULT_BIT, !=, 0);
+
+  bitmap = cogl_bitmap_new_for_data (test_ctx,
+                                     3, 3,
+                                     COGL_PIXEL_FORMAT_RGBA_8888,
+                                     20,
+                                     pixels);
+  cogl_bitmap_set_access (bitmap, COGL_BUFFER_ACCESS_WRITE);
+  had_any_stride =
+    cogl_driver_has_feature (driver, COGL_FEATURE_ID_READ_PIXELS_ANY_STRIDE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_READ_PIXELS_ANY_STRIDE,
+                           FALSE);
+
+  memset (pixels, 0xa5, sizeof (pixels));
+  g_assert_true (cogl_framebuffer_read_pixels_into_bitmap (
+                   framebuffer, 1, 2,
+                   COGL_READ_PIXELS_COLOR_BUFFER,
+                   bitmap));
+
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_READ_PIXELS_ANY_STRIDE,
+                           had_any_stride);
+
+  for (int y = 0; y < 3; y++)
+    {
+      g_assert_cmpmem (pixels + y * 20, 12,
+                       expected + y * 12, 12);
+      for (int x = 12; x < 20; x++)
+        g_assert_cmphex (pixels[y * 20 + x], ==, 0xa5);
+    }
+}
+
 COGL_TEST_SUITE (
   g_test_add_func ("/bitmap/access", test_bitmap_access);
-  g_test_add_func ("/offscreen", test_offscreen); )
+  g_test_add_func ("/offscreen", test_offscreen);
+  g_test_add_func ("/offscreen/write-only-readback-padded-rows",
+                   test_write_only_readback_with_padded_rows); )
