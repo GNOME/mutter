@@ -220,9 +220,10 @@ cogl_bitmap_get_buffer (CoglBitmap *bitmap);
  * @bitmap: A #CoglBitmap
  * @access: The allowed access to the bitmap's storage
  *
- * Specifies the allowed access to the underlying storage. Bitmaps allow
- * both reading and writing by default. Device mappings that are only
- * writable can use %COGL_BUFFER_ACCESS_WRITE.
+ * Restricts access to the underlying storage. Bitmaps allow both reading
+ * and writing by default. Device mappings that are only writable can use
+ * %COGL_BUFFER_ACCESS_WRITE so pixel readback performs any operations that
+ * require reading pixels in temporary storage.
  *
  * The bitmap must not be mapped or bound. Bitmaps sharing the same storage
  * share the access restriction.
