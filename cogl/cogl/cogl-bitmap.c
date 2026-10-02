@@ -64,6 +64,7 @@ cogl_bitmap_dispose (GObject *object)
 static void
 cogl_bitmap_init (CoglBitmap *bitmap)
 {
+  bitmap->access = COGL_BUFFER_ACCESS_READ_WRITE;
 }
 
 static void
@@ -370,6 +371,31 @@ cogl_bitmap_get_buffer (CoglBitmap *bitmap)
     bitmap = bitmap->shared_bmp;
 
   return COGL_PIXEL_BUFFER (bitmap->buffer);
+}
+
+void
+cogl_bitmap_set_access (CoglBitmap       *bitmap,
+                        CoglBufferAccess  access)
+{
+  g_return_if_fail (access == COGL_BUFFER_ACCESS_READ ||
+                    access == COGL_BUFFER_ACCESS_WRITE ||
+                    access == COGL_BUFFER_ACCESS_READ_WRITE);
+
+  while (bitmap->shared_bmp)
+    bitmap = bitmap->shared_bmp;
+
+  g_return_if_fail (!bitmap->mapped && !bitmap->bound);
+
+  bitmap->access = access;
+}
+
+CoglBufferAccess
+cogl_bitmap_get_access (CoglBitmap *bitmap)
+{
+  while (bitmap->shared_bmp)
+    bitmap = bitmap->shared_bmp;
+
+  return bitmap->access;
 }
 
 uint8_t *
