@@ -452,6 +452,9 @@ build-intermediate-commits@x86_64:
   needs:
     - job: build-fedora-container@x86_64
       artifacts: false
+  artifacts:
+    paths:
+      - build/meson-logs
   # Auto-retry in case of infra failures
   retry:
     max: 1
