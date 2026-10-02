@@ -983,6 +983,9 @@ cogl_framebuffer_finish (CoglFramebuffer *framebuffer);
  * should either specify a format that doesn't use an alpha channel or
  * use one of the formats ending in PRE.
  *
+ * If @bitmap only allows write access, Cogl may use temporary storage to
+ * flip or convert the pixels before writing them to @bitmap.
+ *
  * Return value: %TRUE if the read succeeded or %FALSE otherwise. The
  *  function is only likely to fail if the bitmap points to a pixel
  *  buffer and it could not be mapped.

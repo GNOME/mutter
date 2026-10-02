@@ -401,6 +401,57 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *fb_driver,
 }
 
 static gboolean
+cogl_gl_framebuffer_copy_readback (CoglBitmap *source,
+                                   CoglBitmap *destination,
+                                   gboolean    flip_rows,
+                                   GError    **error)
+{
+  uint8_t *source_data;
+  uint8_t *destination_data;
+  int width = cogl_bitmap_get_width (source);
+  int height = cogl_bitmap_get_height (source);
+  int source_stride = cogl_bitmap_get_rowstride (source);
+  int destination_stride = cogl_bitmap_get_rowstride (destination);
+  size_t row_size = (size_t) width *
+                    cogl_pixel_format_get_bytes_per_pixel (cogl_bitmap_get_format (source), 0);
+
+  g_return_val_if_fail (width == cogl_bitmap_get_width (destination), FALSE);
+  g_return_val_if_fail (height == cogl_bitmap_get_height (destination), FALSE);
+  g_return_val_if_fail (cogl_bitmap_get_format (source) ==
+                        cogl_bitmap_get_format (destination), FALSE);
+  g_return_val_if_fail (source_stride >= 0 && destination_stride >= 0, FALSE);
+  g_return_val_if_fail (row_size <= (size_t) source_stride &&
+                        row_size <= (size_t) destination_stride, FALSE);
+
+  source_data = cogl_bitmap_map (source, COGL_BUFFER_ACCESS_READ, 0, error);
+  if (!source_data)
+    return FALSE;
+
+  destination_data = cogl_bitmap_map (destination,
+                                      COGL_BUFFER_ACCESS_WRITE,
+                                      COGL_BUFFER_MAP_HINT_DISCARD,
+                                      error);
+  if (!destination_data)
+    {
+      cogl_bitmap_unmap (source);
+      return FALSE;
+    }
+
+  for (int y = 0; y < height; y++)
+    {
+      int source_y = flip_rows ? height - y - 1 : y;
+
+      memcpy (destination_data + (size_t) y * destination_stride,
+              source_data + (size_t) source_y * source_stride,
+              row_size);
+    }
+
+  cogl_bitmap_unmap (destination);
+  cogl_bitmap_unmap (source);
+  return TRUE;
+}
+
+static gboolean
 cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
                                              int                     x,
                                              int                     y,
@@ -426,6 +477,8 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
   int bytes_per_pixel;
   gboolean format_mismatch;
   gboolean stride_mismatch;
+  gboolean software_flip;
+  gboolean premult_mismatch;
   gboolean pack_invert_set;
   int status = FALSE;
 
@@ -435,29 +488,6 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
                                         framebuffer,
                                         framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
-
-  /* The y coordinate should be given in OpenGL's coordinate system
-   * so 0 is the bottom row.
-   */
-  if (!cogl_framebuffer_is_y_flipped (framebuffer))
-    y = framebuffer_height - y - height;
-
-  if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_MESA_PACK_INVERT) &&
-      (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
-      !cogl_framebuffer_is_y_flipped (framebuffer))
-    {
-      CoglRenderer *renderer = cogl_context_get_renderer (ctx);
-
-      if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GLES2)
-        gl_pack_enum = GL_PACK_REVERSE_ROW_ORDER_ANGLE;
-      else
-        gl_pack_enum = GL_PACK_INVERT_MESA;
-
-      GE (driver, glPixelStorei (gl_pack_enum, TRUE));
-      pack_invert_set = TRUE;
-    }
-  else
-    pack_invert_set = FALSE;
 
   read_format = driver_gl_klass->get_read_pixels_format (COGL_DRIVER_GL (driver),
                                                          internal_format,
@@ -473,6 +503,83 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
     !cogl_driver_has_feature (driver,
                               COGL_FEATURE_ID_READ_PIXELS_ANY_STRIDE) &&
     (cogl_bitmap_get_rowstride (bitmap) != bytes_per_pixel * width);
+
+  software_flip = !cogl_framebuffer_is_y_flipped (framebuffer) &&
+    (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
+    !cogl_driver_has_feature (driver, COGL_FEATURE_ID_MESA_PACK_INVERT);
+  premult_mismatch = (internal_format & COGL_A_BIT) &&
+    _cogl_pixel_format_can_have_premult (format) &&
+    ((internal_format ^ format) & COGL_PREMULT_BIT);
+
+  /* Format and stride conversions already write to the destination without
+   * reading it. Only the software flip and in-place premultiplication need
+   * cacheable staging storage.
+   */
+  if (!(cogl_bitmap_get_access (bitmap) & COGL_BUFFER_ACCESS_READ) &&
+      (software_flip || premult_mismatch))
+    {
+      GQuark staging_quark =
+        g_quark_from_static_string ("cogl-gl-write-only-readback-bitmap");
+      CoglBitmap *staging = g_object_get_qdata (G_OBJECT (fb_driver),
+                                               staging_quark);
+      CoglReadPixelsFlags staging_source = source;
+
+      if (!staging ||
+          cogl_bitmap_get_width (staging) != width ||
+          cogl_bitmap_get_height (staging) != height ||
+          cogl_bitmap_get_format (staging) != format)
+        {
+          staging = cogl_bitmap_new_with_malloc_buffer (ctx,
+                                                        width, height,
+                                                        format, error);
+          if (!staging)
+            return FALSE;
+
+          g_object_set_qdata_full (G_OBJECT (fb_driver), staging_quark,
+                                   staging, g_object_unref);
+        }
+
+      /* Leave GL's bottom-up row order intact and reverse the rows while
+       * copying to the write-only destination. All format conversion and
+       * premultiplication happen in cacheable memory first.
+       */
+      if (software_flip)
+        staging_source |= COGL_READ_PIXELS_NO_FLIP;
+
+      if (!cogl_gl_framebuffer_read_pixels_into_bitmap (fb_driver,
+                                                         x, y,
+                                                         staging_source,
+                                                         staging,
+                                                         error))
+        return FALSE;
+
+      return cogl_gl_framebuffer_copy_readback (staging,
+                                                bitmap,
+                                                software_flip,
+                                                error);
+    }
+
+  /* The y coordinate should be given in OpenGL's coordinate system
+   * so 0 is the bottom row. Keep Cogl coordinates for the staging call.
+   */
+  if (!cogl_framebuffer_is_y_flipped (framebuffer))
+    y = framebuffer_height - y - height;
+
+  pack_invert_set =
+    cogl_driver_has_feature (driver, COGL_FEATURE_ID_MESA_PACK_INVERT) &&
+    (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
+    !cogl_framebuffer_is_y_flipped (framebuffer);
+  if (pack_invert_set)
+    {
+      CoglRenderer *renderer = cogl_context_get_renderer (ctx);
+
+      if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GLES2)
+        gl_pack_enum = GL_PACK_REVERSE_ROW_ORDER_ANGLE;
+      else
+        gl_pack_enum = GL_PACK_INVERT_MESA;
+
+      GE (driver, glPixelStorei (gl_pack_enum, TRUE));
+    }
 
   if (format_mismatch || stride_mismatch)
     {
