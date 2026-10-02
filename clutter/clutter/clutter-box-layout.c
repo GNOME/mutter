@@ -562,6 +562,9 @@ distribute_natural_allocation (float          extra_space,
   g_return_val_if_fail (isnormal (extra_space) || extra_space == 0, 0);
   g_return_val_if_fail (extra_space >= 0, 0);
 
+  if (n_requested_sizes == 0)
+    return extra_space;
+
   spreading = g_newa (unsigned int, n_requested_sizes);
 
   for (i = 0; i < n_requested_sizes; i++)
