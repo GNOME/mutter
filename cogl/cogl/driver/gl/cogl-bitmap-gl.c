@@ -41,10 +41,10 @@
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
 
 uint8_t *
-_cogl_bitmap_gl_bind (CoglBitmap *bitmap,
-                      CoglBufferAccess access,
+_cogl_bitmap_gl_bind (CoglBitmap       *bitmap,
+                      CoglBufferAccess  access,
                       CoglBufferMapHint hints,
-                      GError **error)
+                      GError          **error)
 {
   uint8_t *ptr;
   GError *internal_error = NULL;
@@ -58,6 +58,14 @@ _cogl_bitmap_gl_bind (CoglBitmap *bitmap,
     return _cogl_bitmap_gl_bind (bitmap->shared_bmp, access, hints, error);
 
   g_return_val_if_fail (!bitmap->bound, NULL);
+
+  if ((access & cogl_bitmap_get_access (bitmap)) != access)
+    {
+      g_set_error_literal (error, COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_UNSUPPORTED,
+                           "Bitmap does not allow the requested access");
+      return NULL;
+    }
 
   /* If the bitmap wasn't created from a buffer then the
      implementation of bind is the same as map */
