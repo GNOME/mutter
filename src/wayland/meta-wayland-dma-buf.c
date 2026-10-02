@@ -1531,6 +1531,8 @@ ensure_surface_feedback (MetaWaylandDmaBufManager *dma_buf_manager,
   surface_feedback->feedback =
     meta_wayland_dma_buf_feedback_copy (dma_buf_manager->default_feedback);
 
+  update_surface_feedback_tranches (surface_feedback);
+
   surface_feedback->scanout_candidate_changed_id =
     g_signal_connect (surface, "notify::scanout-candidate",
                       G_CALLBACK (on_scanout_candidate_changed),
