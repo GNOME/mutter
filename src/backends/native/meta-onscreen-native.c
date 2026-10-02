@@ -1422,6 +1422,8 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                                           stride,
                                           buffer_data);
 
+  cogl_bitmap_set_access (dumb_bitmap, COGL_BUFFER_ACCESS_WRITE);
+
   if (!cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
                                                  0 /* x */,
                                                  0 /* y */,
