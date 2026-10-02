@@ -407,6 +407,15 @@ check-glib-main-context:
 .build-mutter-base:
   variables:
     BASE_MESON_OPTIONS:
+      --prefix /usr
+      --werror
+      --fatal-meson-warnings
+      --warnlevel 2
+      --wrap-mode nofallback
+      -Dbuildtype=debugoptimized
+      -Db_coverage=true
+      -Db_sanitize=address
+      -Ddocs=true
 
 .build-mutter:
   extends:
@@ -415,15 +424,6 @@ check-glib-main-context:
   stage: build
   script:
     - meson setup . build
-        --prefix /usr
-        --werror
-        --fatal-meson-warnings
-        --warnlevel 2
-        --wrap-mode nofallback
-        -Dbuildtype=debugoptimized
-        -Db_coverage=true
-        -Db_sanitize='["address"]'
-        -Ddocs=true
         $BASE_MESON_OPTIONS
         $EXTRA_MESON_OPTIONS
     - meson compile -C build
@@ -480,15 +480,6 @@ build-intermediate-commits@x86_64:
         exit 0;
       fi;
       meson setup . build
-        --prefix /usr
-        --werror
-        --fatal-meson-warnings
-        --warnlevel 2
-        --wrap-mode nofallback
-        -Dbuildtype=debugoptimized
-        -Db_coverage=true
-        -Db_sanitize='["address"]'
-        -Ddocs=true
         $BASE_MESON_OPTIONS
         $EXTRA_MESON_OPTIONS;
       if ! git rebase --exec "ninja --quiet -C build" $MERGE_BASE ${CI_COMMIT_SHA}^; then
