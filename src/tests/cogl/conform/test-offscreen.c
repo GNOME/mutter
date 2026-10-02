@@ -252,7 +252,33 @@ test_dma_buf_framebuffer_without_egl_image_support (void)
   g_assert_nonnull (strstr (error->message, "EGL"));
 }
 
+static void
+test_bitmap_access (void)
+{
+  g_autoptr (CoglBitmap) bitmap = NULL;
+  g_autoptr (GError) error = NULL;
+  uint8_t pixel[4];
+
+  bitmap = cogl_bitmap_new_for_data (test_ctx,
+                                     1, 1,
+                                     COGL_PIXEL_FORMAT_RGBA_8888,
+                                     4,
+                                     pixel);
+  g_assert_cmpint (cogl_bitmap_get_access (bitmap), ==,
+                   COGL_BUFFER_ACCESS_READ_WRITE);
+  cogl_bitmap_set_access (bitmap, COGL_BUFFER_ACCESS_WRITE);
+  g_assert_null (cogl_bitmap_map (bitmap, COGL_BUFFER_ACCESS_READ, 0, &error));
+  g_assert_error (error, COGL_SYSTEM_ERROR, COGL_SYSTEM_ERROR_UNSUPPORTED);
+  g_clear_error (&error);
+
+  g_assert_true (cogl_bitmap_map (bitmap, COGL_BUFFER_ACCESS_WRITE,
+                                  0, &error) == pixel);
+  g_assert_no_error (error);
+  cogl_bitmap_unmap (bitmap);
+}
+
 COGL_TEST_SUITE (
+  g_test_add_func ("/bitmap/access", test_bitmap_access);
   g_test_add_func ("/offscreen", test_offscreen);
   g_test_add_func ("/offscreen/dma-buf-without-egl-image-support",
                    test_dma_buf_framebuffer_without_egl_image_support);
