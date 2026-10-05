@@ -137,7 +137,7 @@ meta_wayland_data_device_primary_set_selection (MetaWaylandDataDevicePrimary *da
   g_assert (!source || META_IS_WAYLAND_DATA_SOURCE_PRIMARY (source));
 
   if (data_device->data_source &&
-      data_device->serial - serial < UINT32_MAX / 2)
+      serial - data_device->serial > UINT32_MAX / 2)
     return;
 
   if (data_device->data_source)

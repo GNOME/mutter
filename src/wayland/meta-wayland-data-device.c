@@ -1086,7 +1086,7 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
   MetaSelectionSource *selection_source;
 
   if (data_device->selection_data_source &&
-      data_device->selection_serial - serial < UINT32_MAX / 2)
+      serial - data_device->selection_serial > UINT32_MAX / 2)
     return;
 
   if (data_device->selection_data_source)
