@@ -1608,8 +1608,9 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
   int64_t next_update_time_us = -1;
   int64_t next_presentation_time_us = 0;
   int64_t next_frame_deadline_us;
-  int64_t ready_time_us = 0, extrapolated_presentation_time_us;
+  int64_t ready_time_us = target_us, extrapolated_presentation_time_us;
   int64_t max_update_time_estimate_us;
+  int64_t now_us;
   int64_t cycles;
   ClutterFrameClockState next_state = frame_clock->state;
 
@@ -1633,8 +1634,12 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
     {
     case CLUTTER_FRAME_CLOCK_STATE_INIT:
     case CLUTTER_FRAME_CLOCK_STATE_IDLE:
-    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER:
       next_state = CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER;
+      break;
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER:
+      if (frame_clock->is_next_presentation_time_valid &&
+          frame_clock->next_presentation_time_us <= target_us)
+        return;
       break;
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
@@ -1642,6 +1647,9 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_NOW:
       return;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
+      if (frame_clock->is_next_presentation_time_valid &&
+          frame_clock->next_presentation_time_us <= target_us)
+        return;
       break;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE:
       if (want_triple_buffering (frame_clock))
@@ -1672,7 +1680,6 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
       if (next_presentation_time_us == 0)
         {
           /* Without presentation feedback there is nothing to extrapolate */
-          ready_time_us = MAX (target_us, g_get_monotonic_time ());
           frame_clock->is_next_presentation_time_valid = FALSE;
           frame_clock->next_presentation_time_us = 0;
           frame_clock->is_target_presentation_time = FALSE;
@@ -1695,6 +1702,9 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
         next_presentation_time_us + frame_clock->refresh_interval_us * cycles;
       max_update_time_estimate_us = next_presentation_time_us - next_update_time_us;
       ready_time_us = extrapolated_presentation_time_us - max_update_time_estimate_us;
+      frame_clock->next_presentation_time_us = extrapolated_presentation_time_us;
+      frame_clock->is_next_presentation_time_valid = TRUE;
+      frame_clock->is_target_presentation_time = TRUE;
       break;
     case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
       if (!clutter_frame_clock_estimate_max_update_time_us (frame_clock,
@@ -1703,7 +1713,8 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
           max_update_time_estimate_us = (int64_t) (frame_clock->refresh_interval_us *
                                                    SYNC_DELAY_FALLBACK_FRACTION);
         }
-      ready_time_us = target_us - max_update_time_estimate_us;
+      now_us = g_get_monotonic_time ();
+      ready_time_us = MAX (target_us - max_update_time_estimate_us, now_us);
       frame_clock->is_target_presentation_time = TRUE;
       frame_clock->is_next_presentation_time_valid = TRUE;
       frame_clock->next_presentation_time_us = target_us;
@@ -1713,6 +1724,14 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
       break;
     }
 
+  if (frame_clock->is_next_presentation_time_valid)
+    {
+      frame_clock->next_frame_deadline_us =
+        frame_clock->next_presentation_time_us - frame_clock->vblank_duration_us;
+      frame_clock->has_next_frame_deadline = TRUE;
+    }
+
+  frame_clock->next_update_time_us = ready_time_us;
   g_source_set_ready_time (frame_clock->source, ready_time_us);
   frame_clock->pending_reschedule = TRUE;
   clutter_frame_clock_set_state (frame_clock, next_state);
