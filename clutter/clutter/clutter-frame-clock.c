@@ -2017,7 +2017,8 @@ frame_clock_source_dispatch (GSource     *source,
   ClutterFrameClock *frame_clock = clock_source->frame_clock;
   int64_t dispatch_time_us;
 
-  dispatch_time_us = g_source_get_time (source);
+  /* g_source_get_time() may be stale if there is a slow GSource */
+  dispatch_time_us = g_get_monotonic_time ();
   clutter_frame_clock_dispatch (frame_clock, dispatch_time_us);
 
   return G_SOURCE_CONTINUE;
