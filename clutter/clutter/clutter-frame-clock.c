@@ -1647,7 +1647,17 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
                                      NULL,
                                      &next_frame_deadline_us);
 
-      g_warn_if_fail (next_presentation_time_us != -1);
+      if (next_presentation_time_us == 0)
+        {
+          /* Without presentation feedback there is nothing to extrapolate */
+          ready_time_us = MAX (target_us, g_get_monotonic_time ());
+          frame_clock->is_next_presentation_time_valid = FALSE;
+          frame_clock->next_presentation_time_us = 0;
+          frame_clock->is_target_presentation_time = FALSE;
+          frame_clock->has_next_frame_deadline = FALSE;
+          frame_clock->next_frame_deadline_us = 0;
+          break;
+        }
 
       if (next_presentation_time_us >= target_us)
         {
