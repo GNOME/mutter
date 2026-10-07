@@ -819,6 +819,41 @@ meta_kms_crtc_target_is_after_expected (int64_t expected_presentation_time_us,
                                              ms2us (1));
 }
 
+int64_t
+meta_kms_crtc_get_last_vblank (MetaKmsCrtc   *crtc,
+                               unsigned int  *out_sequence,
+                               GError       **error)
+{
+  MetaKmsImplDevice *impl_device =
+    meta_kms_device_get_impl_device (crtc->device);
+  drmVBlankSeqType vblank_seq_type;
+  drmVBlank vblank;
+  int fd;
+  int ret;
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+
+  vblank_seq_type = get_crtc_type_bitmask (crtc);
+  vblank = (drmVBlank) {
+    .request.type = DRM_VBLANK_RELATIVE | vblank_seq_type,
+    .request.sequence = 0,
+    .request.signal = 0,
+  };
+
+  ret = drmWaitVBlank (fd, &vblank);
+  if (ret != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "drmWaitVBlank failed: %s", g_strerror (-ret));
+      return -1;
+    }
+
+  if (out_sequence)
+    *out_sequence = vblank.reply.sequence;
+
+  return s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec;
+}
+
 gboolean
 meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
                                   MetaKmsUpdate  *kms_update,
@@ -829,8 +864,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
                                   GError        **error)
 {
   struct _VRR *vrr = &crtc->vrr;
-  MetaKmsImplDevice *impl_device;
-  int ret;
   drmModeModeInfo *drm_mode;
   int64_t vblank_duration_us, deadline_evasion_us;
   int64_t vblank_time_us, refresh_interval_us;
@@ -845,8 +878,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
                    "Mode invalid");
       return FALSE;
     }
-
-  impl_device = meta_kms_device_get_impl_device (crtc->device);
 
   /*
    *                         1
@@ -868,28 +899,14 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
       now_us - vrr->last_presentation_us > refresh_interval_us :
       now_us - crtc->last_vblank_time_us > refresh_interval_us)
     {
-      drmVBlank vblank;
-      int fd;
+      int64_t last_vblank_time_us;
 
-      fd = meta_kms_impl_device_get_fd (impl_device);
-
-      vblank = (drmVBlank) {
-        .request.type = DRM_VBLANK_RELATIVE | get_crtc_type_bitmask (crtc),
-        .request.sequence = 0,
-        .request.signal = 0,
-      };
-
-      ret = drmWaitVBlank (fd, &vblank);
-      if (ret != 0)
-        {
-          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                       "drmWaitVBlank failed: %s", g_strerror (-ret));
-          return FALSE;
-        }
+      last_vblank_time_us = meta_kms_crtc_get_last_vblank (crtc, NULL, error);
+      if (last_vblank_time_us == -1)
+        return FALSE;
 
       crtc->last_vblank_time_us = MAX (crtc->last_vblank_time_us,
-                                       s2us (vblank.reply.tval_sec) +
-                                       vblank.reply.tval_usec);
+                                       last_vblank_time_us);
       vblank_time_us = crtc->last_vblank_time_us;
     }
   else
