@@ -2522,6 +2522,15 @@ meta_onscreen_native_discard_pending_swaps (CoglOnscreen *onscreen)
   render_source_remove_frame (onscreen_native->render_source,
                               onscreen_native->next_frame);
   g_clear_pointer (&onscreen_native->next_frame_ready_source, g_source_destroy);
+
+  if (onscreen_native->next_frame)
+    {
+      CoglFrameInfo *frame_info =
+        clutter_frame_get_cogl_frame_info (onscreen_native->next_frame);
+
+      frame_info->flags |= COGL_FRAME_INFO_FLAG_DISCARDED;
+      notify_frame_info_complete (frame_info);
+    }
   g_clear_pointer (&onscreen_native->next_frame, clutter_frame_unref);
 }
 
