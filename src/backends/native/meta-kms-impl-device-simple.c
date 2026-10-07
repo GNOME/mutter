@@ -1097,6 +1097,82 @@ symbolic_page_flip_idle (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
+static void
+guess_next_presentation_time (MetaKmsCrtc  *crtc,
+                              unsigned int *out_sequence,
+                              unsigned int *out_tv_sec,
+                              unsigned int *out_tv_usec)
+{
+  const MetaKmsCrtcState *crtc_state;
+  int64_t refresh_interval_us;
+  int64_t now_us;
+  int64_t last_vblank_time_us;
+  int64_t last_vblank_sequence;
+  int64_t next_presentation_time_us;
+  int64_t next_vblank_sequence;
+
+  crtc_state = meta_kms_crtc_get_current_state (crtc);
+  refresh_interval_us =
+    (int64_t) (0.5 + G_USEC_PER_SEC /
+               meta_calculate_drm_mode_refresh_rate (&crtc_state->drm_mode));
+
+  now_us = g_get_monotonic_time ();
+
+  last_vblank_time_us = meta_kms_crtc_get_last_vblank_time_us (crtc);
+  last_vblank_sequence = meta_kms_crtc_get_last_vblank_sequence (crtc);
+
+  next_presentation_time_us =
+    mtk_extrapolate_next_interval_boundary (last_vblank_time_us,
+                                            now_us,
+                                            refresh_interval_us);
+  next_vblank_sequence = (last_vblank_sequence +
+                          ((next_presentation_time_us - last_vblank_time_us) /
+                           refresh_interval_us));
+
+  *out_sequence = next_vblank_sequence;
+  *out_tv_sec = us2s (next_presentation_time_us);
+  *out_tv_usec = next_presentation_time_us % G_USEC_PER_SEC;
+}
+
+static void
+predict_next_presentation_time (MetaKmsImplDevice *impl_device,
+                                MetaKmsCrtc       *crtc,
+                                unsigned int      *out_sequence,
+                                unsigned int      *out_tv_sec,
+                                unsigned int      *out_tv_usec)
+{
+  g_autoptr (GError) error = NULL;
+  const MetaKmsCrtcState *crtc_state;
+  int64_t refresh_interval_us;
+  unsigned int sequence;
+  int64_t last_vblank_time_us;
+  int64_t next_presentation_us;
+
+  crtc_state = meta_kms_crtc_get_current_state (crtc);
+  refresh_interval_us =
+    (int64_t) (0.5 + G_USEC_PER_SEC /
+               meta_calculate_drm_mode_refresh_rate (&crtc_state->drm_mode));
+
+  last_vblank_time_us = meta_kms_crtc_get_last_vblank (crtc, &sequence, &error);
+  if (last_vblank_time_us == -1)
+    {
+      meta_topic (META_DEBUG_KMS, "Failed to get last vblank (%s), "
+                  "guessing instead",
+                  error->message);
+      guess_next_presentation_time (crtc,
+                                    out_sequence,
+                                    out_tv_sec,
+                                    out_tv_usec);
+      return;
+    }
+
+  next_presentation_us = last_vblank_time_us + refresh_interval_us;
+
+  *out_sequence = sequence;
+  *out_tv_sec = us2s (next_presentation_us);
+  *out_tv_usec = next_presentation_us % G_USEC_PER_SEC;
+}
+
 static gboolean
 dispatch_page_flip (MetaKmsImplDevice    *impl_device,
                     MetaKmsUpdate        *update,
@@ -1119,9 +1195,21 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
     {
       MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
       MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
+      unsigned int sequence;
+      unsigned int tv_sec;
+      unsigned int tv_usec;
       GSource *source;
 
-      meta_kms_page_flip_data_make_symbolic (page_flip_data);
+      predict_next_presentation_time (impl_device,
+                                      crtc,
+                                      &sequence,
+                                      &tv_sec,
+                                      &tv_usec);
+
+      meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
+                                                   sequence,
+                                                   tv_sec,
+                                                   tv_usec);
 
       source = meta_thread_impl_add_source (thread_impl,
                                             symbolic_page_flip_idle,
