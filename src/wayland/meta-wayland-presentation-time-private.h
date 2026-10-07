@@ -60,6 +60,10 @@ void meta_wayland_presentation_time_notify_frame_presented (MetaWaylandComposito
                                                             ClutterStageView      *stage_view,
                                                             ClutterFrameInfo      *frame_info);
 
+void meta_wayland_presentation_time_notify_frame_discarded (MetaWaylandCompositor *compositor,
+                                                            ClutterStageView      *stage_view,
+                                                            CoglFrameInfo         *frame_info);
+
 void meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *presentation_time,
                                                     ClutterStageView            *stage_view,
                                                     int64_t                      view_frame_counter,

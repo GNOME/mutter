@@ -562,6 +562,17 @@ on_presented (ClutterStage          *stage,
 }
 
 static void
+on_frame_discarded (ClutterStage          *stage,
+                    ClutterStageView      *stage_view,
+                    CoglFrameInfo         *frame_info,
+                    MetaWaylandCompositor *compositor)
+{
+  meta_wayland_presentation_time_notify_frame_discarded (compositor,
+                                                         stage_view,
+                                                         frame_info);
+}
+
+static void
 on_started (MetaContext           *context,
             MetaWaylandCompositor *compositor)
 {
@@ -609,8 +620,8 @@ meta_wayland_compositor_remove_frame_callback_surface (MetaWaylandCompositor *co
 }
 
 void
-meta_wayland_compositor_add_presentation_feedback_surface (MetaWaylandCompositor *compositor,
-                                                           MetaWaylandSurface    *surface)
+meta_wayland_compositor_ensure_presentation_feedback_surface (MetaWaylandCompositor *compositor,
+                                                              MetaWaylandSurface    *surface)
 {
   if (g_list_find (compositor->presentation_time.feedback_surfaces, surface))
     return;
@@ -810,6 +821,7 @@ meta_wayland_compositor_finalize (GObject *object)
 
   g_signal_handlers_disconnect_by_func (stage, on_after_update, compositor);
   g_signal_handlers_disconnect_by_func (stage, on_presented, compositor);
+  g_signal_handlers_disconnect_by_func (stage, on_frame_discarded, compositor);
 
   meta_wayland_transaction_finalize (compositor);
 
@@ -977,6 +989,8 @@ meta_wayland_compositor_new (MetaContext *context)
                     G_CALLBACK (on_after_update), compositor);
   g_signal_connect (stage, "presented",
                     G_CALLBACK (on_presented), compositor);
+  g_signal_connect (stage, "frame-discarded",
+                    G_CALLBACK (on_frame_discarded), compositor);
 
   g_signal_connect (context, "started",
                     G_CALLBACK (on_started), compositor);

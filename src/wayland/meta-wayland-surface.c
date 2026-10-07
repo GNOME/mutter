@@ -1057,8 +1057,11 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   wl_list_init (&state->presentation_feedback_list);
 
   if (!wl_list_empty (&surface->presentation_time.feedback_list))
-    meta_wayland_compositor_add_presentation_feedback_surface (surface->compositor,
-                                                               surface);
+    {
+      meta_wayland_compositor_ensure_presentation_feedback_surface (
+        surface->compositor,
+        surface);
+    }
 
   if (surface->role)
     {

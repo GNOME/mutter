@@ -468,6 +468,111 @@ meta_wayland_presentation_time_notify_frame_presented (MetaWaylandCompositor *co
   g_hash_table_remove (view_frames, &frame_info->view_frame_counter);
 }
 
+static gboolean
+feedback_is_replaced (struct wl_list                  *feedbacks,
+                      MetaWaylandPresentationFeedback *feedback)
+{
+  MetaWaylandPresentationFeedback *other_feedback;
+
+  wl_list_for_each (other_feedback, feedbacks, link)
+    {
+      if (other_feedback->surface == feedback->surface)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+void
+meta_wayland_presentation_time_notify_frame_discarded (MetaWaylandCompositor *compositor,
+                                                       ClutterStageView      *stage_view,
+                                                       CoglFrameInfo         *frame_info)
+{
+  int64_t view_frame_counter;
+  GHashTable *view_frames;
+  struct wl_list *frame_feedbacks;
+  MetaWaylandPresentationFeedback *feedback, *next;
+
+  view_frame_counter = cogl_frame_info_get_view_frame_counter (frame_info);
+
+  view_frames = g_hash_table_lookup (compositor->presentation_time.feedbacks,
+                                     stage_view);
+  if (!view_frames)
+    return;
+
+  frame_feedbacks = g_hash_table_lookup (view_frames, &view_frame_counter);
+
+  if (frame_feedbacks)
+    {
+      GHashTableIter iter;
+      int64_t *other_view_frame_counter;
+      struct wl_list *other_feedbacks;
+      struct wl_list *follow_up_frame_feedbacks = NULL;
+      int64_t follow_up_frame_counter = INT64_MAX;
+      struct wl_list pending_surface_feedbacks;
+
+      g_hash_table_iter_init (&iter, view_frames);
+      while (g_hash_table_iter_next (&iter,
+                                     (gpointer *) &other_view_frame_counter,
+                                     (gpointer *) &other_feedbacks))
+        {
+          if (*other_view_frame_counter > view_frame_counter &&
+              *other_view_frame_counter < follow_up_frame_counter)
+            {
+              follow_up_frame_counter = MIN (follow_up_frame_counter,
+                                             *other_view_frame_counter);
+              follow_up_frame_feedbacks = other_feedbacks;
+            }
+        }
+
+      /* For each feedback associated with the discarded frame, find if there is
+       * any new pending frame that should cause it to be discarded, or whether
+       * it should be migrated to the new frame.
+       *
+       * If no new frame is found, and there was no surface level feedbacks,
+       * move it back to the surface so that any future frame can handle it
+       * again.
+       */
+      wl_list_init (&pending_surface_feedbacks);
+      wl_list_for_each_safe (feedback, next, frame_feedbacks, link)
+        {
+          MetaWaylandSurface *surface = feedback->surface;
+
+          /* Conditionally migrate feedback; if not migrated, it'll be
+           * discarded when removed from the hash table.
+           */
+          if (follow_up_frame_feedbacks)
+            {
+              if (!feedback_is_replaced (follow_up_frame_feedbacks, feedback))
+                {
+                  wl_list_remove (&feedback->link);
+                  wl_list_insert (follow_up_frame_feedbacks, &feedback->link);
+                }
+            }
+          else if (wl_list_empty (&surface->presentation_time.feedback_list))
+            {
+              wl_list_remove (&feedback->link);
+              wl_list_insert (&pending_surface_feedbacks, &feedback->link);
+            }
+        }
+
+      wl_list_for_each_safe (feedback, next, &pending_surface_feedbacks, link)
+        {
+          MetaWaylandSurface *surface = feedback->surface;
+
+          wl_list_remove (&feedback->link);
+          wl_list_insert (&surface->presentation_time.feedback_list,
+                          &feedback->link);
+
+          meta_wayland_compositor_ensure_presentation_feedback_surface (
+            compositor,
+            surface);
+        }
+    }
+
+  g_hash_table_remove (view_frames, &view_frame_counter);
+}
+
 void
 meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *presentation_time,
                                                ClutterStageView            *stage_view,
