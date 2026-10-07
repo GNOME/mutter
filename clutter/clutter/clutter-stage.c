@@ -137,6 +137,7 @@ enum
   AFTER_UPDATE,
   PAINT_VIEW,
   PRESENTED,
+  FRAME_DISCARDED,
 
   LAST_SIGNAL
 };
@@ -1669,6 +1670,28 @@ clutter_stage_class_init (ClutterStageClass *klass)
   g_signal_set_va_marshaller (stage_signals[PRESENTED],
                               G_TYPE_FROM_CLASS (gobject_class),
                               _clutter_marshal_VOID__OBJECT_POINTERv);
+
+  /**
+   * ClutterStage::frame-discarded: (skip)
+   * @stage: the stage that received the event
+   * @view: the #ClutterStageView presented
+   * @frame_info: a #ClutterFrameInfo
+   *
+   * Signals that a frame was notified as discarded.
+   */
+  stage_signals[FRAME_DISCARDED] =
+    g_signal_new (I_("frame-discarded"),
+                  G_TYPE_FROM_CLASS (gobject_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_POINTER,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
+                  G_TYPE_POINTER);
+  g_signal_set_va_marshaller (stage_signals[FRAME_DISCARDED],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_POINTERv);
 }
 
 static void
@@ -2572,6 +2595,14 @@ clutter_stage_presented (ClutterStage     *stage,
                          ClutterFrameInfo *frame_info)
 {
   g_signal_emit (stage, stage_signals[PRESENTED], 0, view, frame_info);
+}
+
+void
+clutter_stage_notify_frame_discarded (ClutterStage     *stage,
+                                      ClutterStageView *view,
+                                      CoglFrameInfo    *frame_info)
+{
+  g_signal_emit (stage, stage_signals[FRAME_DISCARDED], 0, view, frame_info);
 }
 
 /**

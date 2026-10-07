@@ -101,6 +101,10 @@ void            clutter_stage_presented                 (ClutterStage      *stag
 void            clutter_stage_queue_actor_relayout      (ClutterStage *stage,
                                                          ClutterActor *actor);
 
+void clutter_stage_notify_frame_discarded (ClutterStage     *stage,
+                                           ClutterStageView *view,
+                                           CoglFrameInfo    *frame_info);
+
 void clutter_stage_dequeue_actor_relayout (ClutterStage *stage,
                                            ClutterActor *actor);
 

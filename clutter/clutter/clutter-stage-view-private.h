@@ -72,7 +72,8 @@ void clutter_stage_view_notify_presented (ClutterStageView *view,
                                           ClutterFrameInfo *frame_info);
 
 CLUTTER_EXPORT
-void clutter_stage_view_notify_discarded (ClutterStageView *view);
+void clutter_stage_view_notify_discarded (ClutterStageView *view,
+                                          CoglFrameInfo    *frame_info);
 
 void clutter_stage_view_invalidate_input_devices (ClutterStageView *view);
 

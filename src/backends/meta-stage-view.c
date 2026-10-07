@@ -56,7 +56,7 @@ frame_cb (CoglOnscreen  *onscreen,
 
   if (cogl_frame_info_get_is_discarded (frame_info))
     {
-      clutter_stage_view_notify_discarded (view);
+      clutter_stage_view_notify_discarded (view, frame_info);
     }
   else
     {
