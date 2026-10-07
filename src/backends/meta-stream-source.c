@@ -206,6 +206,11 @@ enum {
   SYNCOBJ_MINIMUM_N_DATAS
 };
 
+static MetaStreamRecordResult meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
+                                                                              MetaStreamRecordFlag  flags,
+                                                                              MetaStreamPaintPhase  paint_phase,
+                                                                              int64_t               frame_timestamp_us);
+
 static struct spa_data*
 syncobj_data_from_buffer (struct spa_buffer *spa_buffer,
                           int                offset)
@@ -1447,7 +1452,7 @@ meta_stream_source_has_damage (MetaStreamSource *source)
   return priv->damage && !mtk_region_is_empty (priv->damage);
 }
 
-MetaStreamRecordResult
+static MetaStreamRecordResult
 meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
                                                 MetaStreamRecordFlag  flags,
                                                 MetaStreamPaintPhase  paint_phase,

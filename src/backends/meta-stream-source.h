@@ -139,11 +139,6 @@ MetaStreamRecordResult meta_stream_source_record_frame (MetaStreamSource     *so
                                                         MetaStreamRecordFlag  flags,
                                                         MetaStreamPaintPhase  paint_phase);
 
-MetaStreamRecordResult meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
-                                                                       MetaStreamRecordFlag  flags,
-                                                                       MetaStreamPaintPhase  paint_phase,
-                                                                       int64_t               frame_timestamp_us);
-
 gboolean meta_stream_source_is_driving (MetaStreamSource *source);
 
 void meta_stream_source_request_process (MetaStreamSource *source);
