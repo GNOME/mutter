@@ -294,13 +294,6 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
 }
 
 static void
-page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
-                          gpointer     user_data)
-{
-  g_assert_not_reached ();
-}
-
-static void
 page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
@@ -317,7 +310,6 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
   .flipped = page_flip_feedback_flipped,
-  .ready = page_flip_feedback_ready,
   .mode_set_fallback = page_flip_feedback_mode_set_fallback,
   .discarded = page_flip_feedback_discarded,
 };

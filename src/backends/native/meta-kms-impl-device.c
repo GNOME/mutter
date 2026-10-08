@@ -1544,15 +1544,6 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
 }
 
 static void
-crtc_page_flip_feedback_ready (MetaKmsCrtc *crtc,
-                               gpointer     user_data)
-{
-  CrtcFrame *crtc_frame = user_data;
-
-  notify_crtc_frame_ready (crtc_frame);
-}
-
-static void
 crtc_page_flip_feedback_mode_set_fallback (MetaKmsCrtc *crtc,
                                            gpointer     user_data)
 {
@@ -1573,7 +1564,6 @@ crtc_page_flip_feedback_discarded (MetaKmsCrtc  *crtc,
 
 static const MetaKmsPageFlipListenerVtable crtc_page_flip_listener_vtable = {
   .flipped = crtc_page_flip_feedback_flipped,
-  .ready = crtc_page_flip_feedback_ready,
   .mode_set_fallback = crtc_page_flip_feedback_mode_set_fallback,
   .discarded = crtc_page_flip_feedback_discarded,
 };

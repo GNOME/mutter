@@ -52,6 +52,4 @@ void meta_kms_page_flip_data_mode_set_fallback_in_impl (MetaKmsPageFlipData *pag
 void meta_kms_page_flip_data_discard_in_impl (MetaKmsPageFlipData *page_flip_data,
                                               const GError        *error);
 
-void meta_kms_page_flip_data_make_symbolic (MetaKmsPageFlipData *page_flip_data);
-
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsPageFlipData, meta_kms_page_flip_data_unref)

@@ -525,21 +525,6 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
 }
 
 static void
-page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
-                          gpointer     user_data)
-{
-  ClutterFrame *frame = user_data;
-  CoglFrameInfo *frame_info = clutter_frame_get_cogl_frame_info (frame);
-  CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
-
-  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
-
-  notify_frame_info_complete (frame_info);
-
-  meta_onscreen_native_clear_posted_fb (onscreen);
-}
-
-static void
 page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
@@ -606,7 +591,6 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
   .flipped = page_flip_feedback_flipped,
-  .ready = page_flip_feedback_ready,
   .mode_set_fallback = page_flip_feedback_mode_set_fallback,
   .discarded = page_flip_feedback_discarded,
 };
