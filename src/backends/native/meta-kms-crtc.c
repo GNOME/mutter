@@ -60,6 +60,7 @@ struct _MetaKmsCrtc
   } deadline_evasion_margin;
 
   int64_t last_vblank_time_us;
+  int64_t last_vblank_sequence;
 
   struct _VRR {
     int64_t interval_us[4];
@@ -900,13 +901,17 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
       now_us - crtc->last_vblank_time_us > refresh_interval_us)
     {
       int64_t last_vblank_time_us;
+      unsigned int last_vblank_sequence;
 
-      last_vblank_time_us = meta_kms_crtc_get_last_vblank (crtc, NULL, error);
+      last_vblank_time_us = meta_kms_crtc_get_last_vblank (crtc,
+                                                           &last_vblank_sequence,
+                                                           error);
       if (last_vblank_time_us == -1)
         return FALSE;
 
-      crtc->last_vblank_time_us = MAX (crtc->last_vblank_time_us,
-                                       last_vblank_time_us);
+      meta_kms_crtc_set_presentation_time (crtc,
+                                           last_vblank_time_us,
+                                           last_vblank_sequence);
       vblank_time_us = crtc->last_vblank_time_us;
     }
   else
@@ -1063,10 +1068,15 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc    *crtc,
 }
 
 void
-meta_kms_crtc_set_presentation_time (MetaKmsCrtc *crtc,
-                                     int64_t      presentation_us)
+meta_kms_crtc_set_presentation_time (MetaKmsCrtc  *crtc,
+                                     int64_t       presentation_us,
+                                     unsigned int  sequence)
 {
-  crtc->last_vblank_time_us = MAX (crtc->last_vblank_time_us, presentation_us);
+  if (presentation_us > crtc->last_vblank_time_us)
+    {
+      crtc->last_vblank_time_us = presentation_us;
+      crtc->last_vblank_sequence = sequence;
+    }
 }
 
 void

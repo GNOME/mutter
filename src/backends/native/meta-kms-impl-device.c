@@ -1498,7 +1498,9 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
     .tv_usec = tv_usec,
   };
   presentation_time_us = meta_timeval_to_microseconds (&page_flip_timeval);
-  meta_kms_crtc_set_presentation_time (crtc, presentation_time_us);
+  meta_kms_crtc_set_presentation_time (crtc,
+                                       presentation_time_us,
+                                       sequence);
 
   if (crtc_frame->kms_ready_time_us &&
       !crtc_frame->pending_update &&
