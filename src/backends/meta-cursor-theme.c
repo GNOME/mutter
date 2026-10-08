@@ -156,7 +156,9 @@ meta_cursor_theme_get_cursor (MetaCursorTheme   *cursor_theme,
                                  NULL);
 
           g_assert (cursor != NULL);
-          break;
+
+          if (!G_IS_INITABLE (cursor) || g_initable_init (G_INITABLE (cursor), NULL, NULL))
+            break;
         }
 
       if (!cursor)
