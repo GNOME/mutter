@@ -1079,6 +1079,18 @@ meta_kms_crtc_set_presentation_time (MetaKmsCrtc  *crtc,
     }
 }
 
+int64_t
+meta_kms_crtc_get_last_vblank_time_us (MetaKmsCrtc *crtc)
+{
+  return crtc->last_vblank_time_us;
+}
+
+int64_t
+meta_kms_crtc_get_last_vblank_sequence (MetaKmsCrtc *crtc)
+{
+  return crtc->last_vblank_sequence;
+}
+
 void
 meta_kms_crtc_set_vrr_presentation_time (MetaKmsCrtc *crtc,
                                          int64_t      presentation_us)
