@@ -88,7 +88,7 @@ cogl_frame_info_get_onscreen (CoglFrameInfo *info)
 int64_t
 cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info)
 {
-  g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
+  g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_DISCARDED));
 
   return info->presentation_time_us;
 }
@@ -96,7 +96,7 @@ cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info)
 float
 cogl_frame_info_get_refresh_rate (CoglFrameInfo *info)
 {
-  g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
+  g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_DISCARDED));
 
   return info->refresh_rate;
 }
@@ -114,9 +114,9 @@ cogl_frame_info_get_view_frame_counter (CoglFrameInfo *info)
 }
 
 gboolean
-cogl_frame_info_get_is_symbolic (CoglFrameInfo *info)
+cogl_frame_info_get_is_discarded (CoglFrameInfo *info)
 {
-  return !!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC);
+  return !!(info->flags & COGL_FRAME_INFO_FLAG_DISCARDED);
 }
 
 gboolean
@@ -140,7 +140,7 @@ cogl_frame_info_is_vsync (CoglFrameInfo *info)
 unsigned int
 cogl_frame_info_get_sequence (CoglFrameInfo *info)
 {
-  g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
+  g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_DISCARDED));
 
   return info->sequence;
 }

@@ -1093,12 +1093,12 @@ clutter_stage_view_notify_presented (ClutterStageView *view,
 }
 
 void
-clutter_stage_view_notify_ready (ClutterStageView *view)
+clutter_stage_view_notify_discarded (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  clutter_frame_clock_notify_ready (priv->frame_clock);
+  clutter_frame_clock_notify_discarded (priv->frame_clock);
 }
 
 static void

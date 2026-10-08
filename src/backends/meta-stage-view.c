@@ -54,9 +54,9 @@ frame_cb (CoglOnscreen  *onscreen,
   if (frame_event == COGL_FRAME_EVENT_SYNC)
     return;
 
-  if (cogl_frame_info_get_is_symbolic (frame_info))
+  if (cogl_frame_info_get_is_discarded (frame_info))
     {
-      clutter_stage_view_notify_ready (view);
+      clutter_stage_view_notify_discarded (view);
     }
   else
     {

@@ -766,20 +766,20 @@ frame_clock_destroy_signal (void)
 }
 
 static gboolean
-notify_ready_and_schedule_update_idle (gpointer user_data)
+notify_discarded_and_schedule_update_idle (gpointer user_data)
 {
   ClutterFrameClock *frame_clock = user_data;
 
-  clutter_frame_clock_notify_ready (frame_clock);
+  clutter_frame_clock_notify_discarded (frame_clock);
   clutter_frame_clock_schedule_update (frame_clock);
 
   return G_SOURCE_REMOVE;
 }
 
 static ClutterFrameResult
-frame_clock_ready_frame (ClutterFrameClock *frame_clock,
-                         ClutterFrame      *frame,
-                         gpointer           user_data)
+frame_clock_discarded_frame (ClutterFrameClock *frame_clock,
+                             ClutterFrame      *frame,
+                             gpointer           user_data)
 {
   GMainLoop *main_loop = user_data;
 
@@ -795,17 +795,17 @@ frame_clock_ready_frame (ClutterFrameClock *frame_clock,
 
   test_frame_count--;
 
-  g_idle_add (notify_ready_and_schedule_update_idle, frame_clock);
+  g_idle_add (notify_discarded_and_schedule_update_idle, frame_clock);
 
   return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
 }
 
-static const ClutterFrameListenerIface frame_clock_ready_listener_iface = {
-  .frame = frame_clock_ready_frame,
+static const ClutterFrameListenerIface frame_clock_discarded_listener_iface = {
+  .frame = frame_clock_discarded_frame,
 };
 
 static void
-frame_clock_notify_ready (void)
+frame_clock_notify_discarded (void)
 {
   GMainLoop *main_loop;
   ClutterFrameClock *frame_clock;
@@ -819,7 +819,7 @@ frame_clock_notify_ready (void)
   frame_clock = clutter_frame_clock_new (refresh_rate,
                                          0,
                                          NULL,
-                                         &frame_clock_ready_listener_iface,
+                                         &frame_clock_discarded_listener_iface,
                                          main_loop);
 
   before_us = g_get_monotonic_time ();
@@ -848,5 +848,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/inhibit", frame_clock_inhibit)
   CLUTTER_TEST_UNIT ("/frame-clock/reschedule-on-idle", frame_clock_reschedule_on_idle)
   CLUTTER_TEST_UNIT ("/frame-clock/destroy-signal", frame_clock_destroy_signal)
-  CLUTTER_TEST_UNIT ("/frame-clock/notify-ready", frame_clock_notify_ready)
+  CLUTTER_TEST_UNIT ("/frame-clock/notify-discarded", frame_clock_notify_discarded)
 )

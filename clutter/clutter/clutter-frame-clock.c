@@ -930,12 +930,12 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 }
 
 void
-clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
+clutter_frame_clock_notify_discarded (ClutterFrameClock *frame_clock)
 {
-  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyReady, "Clutter::FrameClock::ready()");
-  COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyReady, frame_clock->output_name);
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyDiscarded, "Clutter::FrameClock::discarded()");
+  COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyDiscarded, frame_clock->output_name);
 
-  CLUTTER_NOTE (FRAME_CLOCK, "Frame for %s ready",
+  CLUTTER_NOTE (FRAME_CLOCK, "Frame for %s discarded",
                 frame_clock->output_name);
 
   if (frame_clock->next_next_presentation)
@@ -1975,7 +1975,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
       break;
     case CLUTTER_FRAME_RESULT_IDLE:
       /* The frame was aborted; nothing to paint/present */
-      clutter_frame_clock_notify_ready (frame_clock);
+      clutter_frame_clock_notify_discarded (frame_clock);
       break;
     case CLUTTER_FRAME_RESULT_IGNORED:
       frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;

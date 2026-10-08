@@ -124,7 +124,7 @@ COGL_EXPORT
 int64_t cogl_frame_info_get_view_frame_counter (CoglFrameInfo *info);
 
 COGL_EXPORT
-gboolean cogl_frame_info_get_is_symbolic (CoglFrameInfo *info);
+gboolean cogl_frame_info_get_is_discarded (CoglFrameInfo *info);
 
 COGL_EXPORT
 gboolean cogl_frame_info_is_hw_clock (CoglFrameInfo *info);

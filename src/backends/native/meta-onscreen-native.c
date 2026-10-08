@@ -556,11 +556,6 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   int64_t frame_counter;
 
-  /*
-   * Page flipping failed, but we want to fail gracefully, so to avoid freezing
-   * the frame clock, emit a symbolic flip.
-   */
-
   if (error &&
       !g_error_matches (error,
                         G_IO_ERROR,
@@ -568,7 +563,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
 
     g_warning ("Page flip discarded: %s", error->message);
 
-  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_DISCARDED;
 
   frame_counter = cogl_frame_info_get_frame_counter (frame_info);
 
@@ -1472,11 +1467,6 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (frame_info);
   const GError *error = NULL;
 
-  /*
-   * Page flipping failed, but we want to fail gracefully, so to avoid freezing
-   * the frame clock, emit a symbolic flip.
-   */
-
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
     {
@@ -1497,7 +1487,7 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
                         G_IO_ERROR_PERMISSION_DENIED))
     g_warning ("Page flip failed: %s", error->message);
 
-  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_DISCARDED;
   notify_frame_info_complete (frame_info);
 
   meta_onscreen_native_clear_posted_fb (onscreen);
@@ -2022,7 +2012,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   return;
 
 post_failed:
-  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_DISCARDED;
   notify_frame_info_complete (frame_info);
 }
 
@@ -2121,7 +2111,7 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
         }
     }
 
-  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_DISCARDED;
 
   notify_frame_info_complete (frame_info);
   meta_onscreen_native_clear_posted_fb (onscreen);
@@ -2403,7 +2393,7 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
                         META_KMS_ERROR_EMPTY_UPDATE))
     g_warning ("Cursor update failed: %s", error->message);
 
-  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_DISCARDED;
 
   notify_frame_info_complete (frame_info);
   meta_onscreen_native_clear_posted_fb (onscreen);

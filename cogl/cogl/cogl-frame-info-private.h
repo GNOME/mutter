@@ -36,7 +36,11 @@
 typedef enum _CoglFrameInfoFlag
 {
   COGL_FRAME_INFO_FLAG_NONE = 0,
-  COGL_FRAME_INFO_FLAG_SYMBOLIC = 1 << 0,
+  /*
+   * The frame was discarded, for example by entering power save mode, or
+   * failure to commit.
+   */
+  COGL_FRAME_INFO_FLAG_DISCARDED = 1 << 0,
   /* presentation_time timestamp was provided by the hardware */
   COGL_FRAME_INFO_FLAG_HW_CLOCK = 1 << 1,
   /*
