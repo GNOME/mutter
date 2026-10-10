@@ -4622,6 +4622,7 @@ meta_window_move_frame (MetaWindow *window,
   MtkRectangle rect = { root_x_nw, root_y_nw, 0, 0 };
 
   g_return_if_fail (!window->override_redirect);
+  g_return_if_fail (!window->unmanaging);
 
   flags = ((user_op ? META_MOVE_RESIZE_USER_ACTION : 0) |
            META_MOVE_RESIZE_MOVE_ACTION |
@@ -4721,6 +4722,7 @@ meta_window_move_resize_frame (MetaWindow  *window,
   MtkRectangle rect = { root_x_nw, root_y_nw, w, h };
 
   g_return_if_fail (!window->override_redirect);
+  g_return_if_fail (!window->unmanaging);
 
   flags = ((user_op ? META_MOVE_RESIZE_USER_ACTION : 0) |
            META_MOVE_RESIZE_MOVE_ACTION |
@@ -4791,6 +4793,8 @@ void
 meta_window_move_to_monitor (MetaWindow  *window,
                              int          monitor)
 {
+  g_return_if_fail (!window->unmanaging);
+
   meta_window_move_to_monitor_internal (window, 0, monitor);
 }
 
