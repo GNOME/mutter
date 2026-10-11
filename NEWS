@@ -1,3 +1,27 @@
+51.1
+====
+* Fix drag&drop between Wayland and Xwayland clients [Alessandro; !5362]
+* Update window's monitor after configure [Aleksandr; !5354]
+* Use logical normal orientation when resetting panel rotation
+  [Ratchanan; !4898]
+* Preserve MRU order when windows become sticky [Jon; !5361]
+* Allow changing selections with the same serial [Vlad; !5370, !5382]
+* Fix applying `workspaces-only-on-primary` after monitor changes
+  [liuyingjie; !5254]
+* Allow cursor implementations to fall back to Xcursor [Alessandro; !5352]
+* Enforce throttling of frame clock updates while power saving [Michel; !5331]
+* Misc. bug fixes and cleanups [Sebastian, Marco, Jonas, Carlos, Michel, Erhan;
+  !5336, !5332, !5329, !5346, !5349, !5248, !5259, !5365, !5366]
+
+Contributors:
+  Alessandro Astone, Erhan Bilgili, Michel Dänzer, Carlos Garnacho, Jon Howell,
+  Sebastian Keller, liuyingjie, Aleksandr Mezin, Ratchanan Srirattanamet,
+  Marco Trevisan (Treviño), Vlad Zahorodnii, Jonas Ådahl
+
+Translators:
+  Kjartan Maraas [nb], Bruce Cowan [en_GB], Hugo Carvalho [pt],
+  Efstathios Iosifidis [el]
+
 51.0
 ====
 * Fix giving some X11 clients a wrong empty input mask [Jonas; !5296]
