@@ -1149,7 +1149,7 @@ clutter_event_get_distance (const ClutterEvent *source,
   graphene_point_t p0, p1;
 
   clutter_event_get_position (source, &p0);
-  clutter_event_get_position (source, &p1);
+  clutter_event_get_position (target, &p1);
 
   return graphene_point_distance (&p0, &p1, NULL, NULL);
 }
