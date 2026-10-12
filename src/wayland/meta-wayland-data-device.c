@@ -1089,6 +1089,9 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
       serial - data_device->selection_serial > UINT32_MAX / 2)
     return;
 
+  if (data_device->selection_data_source == source)
+    return;
+
   if (data_device->selection_data_source)
     {
       g_object_weak_unref (G_OBJECT (data_device->selection_data_source),
