@@ -167,6 +167,7 @@ struct _ClutterFrameClock
   int64_t timeline_target_us;
   int64_t timeline_time_us;
   gboolean timelines_playing;
+  gboolean timelines_use_presentation_time;
 
   int n_missed_frames;
   int64_t missed_frame_report_time_us;
@@ -386,6 +387,24 @@ advance_timelines (ClutterFrameClock *frame_clock,
                                 frame_clock->output_name,
                                 delta_us);
 
+                  frame_clock->timelines_use_presentation_time = FALSE;
+                  frame_clock->timeline_time_us =
+                    frame_clock->next_presentation_time_us;
+                }
+              else if (frame_clock->timelines_use_presentation_time)
+                {
+                  frame_clock->timeline_time_us =
+                    frame_clock->next_presentation_time_us;
+                }
+              else if (delta_us > 2 * refresh_interval_us)
+                {
+                  CLUTTER_NOTE (FRAME_TIMINGS,
+                                "%s timelines lagging by %ld µs,"
+                                " using presentation times",
+                                frame_clock->output_name,
+                                delta_us);
+
+                  frame_clock->timelines_use_presentation_time = TRUE;
                   frame_clock->timeline_time_us =
                     frame_clock->next_presentation_time_us;
                 }
@@ -406,6 +425,7 @@ advance_timelines (ClutterFrameClock *frame_clock,
         }
       else
         {
+          frame_clock->timelines_use_presentation_time = FALSE;
           frame_clock->timeline_time_us =
             frame_clock->next_presentation_time_us;
         }
