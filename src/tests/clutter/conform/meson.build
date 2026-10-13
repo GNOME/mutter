@@ -34,6 +34,7 @@ if have_fonts
   ]
 
   clutter_conform_tests_classes_tests += [
+    'key-controller',
     'text',
   ]
 endif
