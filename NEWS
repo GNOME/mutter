@@ -1,3 +1,19 @@
+50.6
+====
+* Fix auto-rotate on phones without tablet mode switch [Christian; !4962]
+* Use logical normal orientation when resetting panel rotation
+  [Ratchanan; !4898]
+* Fix applying `workspaces-only-on-primary` after monitor changes
+  [liuyingjie; !5254]
+* Misc. bug fixes and cleanups [Marco, Erhan; !5332, !5366]
+
+Contributors:
+  Erhan Bilgili, Christian Glombek, liuyingjie, Ratchanan Srirattanamet,
+  Marco Trevisan (Treviño)
+
+Translators:
+  Roy-Magne Mo [nn]
+
 50.5
 ====
 * Make software cursor overlay visibility per-view [Victor; !5207]
