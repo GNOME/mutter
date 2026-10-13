@@ -21,6 +21,8 @@
 
 #include "clutter/clutter-key-controller.h"
 
+#include <xkbcommon/xkbcommon.h>
+
 #include "clutter/clutter-event.h"
 
 enum
@@ -48,6 +50,7 @@ struct _ClutterKeyController
   ClutterAction parent_instance;
   ClutterInputFocus *im_focus;
   const ClutterEvent *event;
+  struct xkb_keymap *latin_keymap;
 
   unsigned int trigger_keybindings : 1;
 };
@@ -62,6 +65,7 @@ clutter_key_controller_finalize (GObject *object)
   ClutterKeyController *key_controller = CLUTTER_KEY_CONTROLLER (object);
 
   g_clear_object (&key_controller->im_focus);
+  g_clear_pointer (&key_controller->latin_keymap, xkb_keymap_unref);
 
   G_OBJECT_CLASS (clutter_key_controller_parent_class)->finalize (object);
 }
@@ -108,6 +112,109 @@ clutter_key_controller_set_property (GObject      *object,
 }
 
 static gboolean
+activate_keybindings (ClutterKeyController *key_controller,
+                      const ClutterEvent   *event,
+                      uint32_t              keyval,
+                      gboolean             *binding_found)
+{
+  ClutterActor *actor;
+  ClutterModifierType modifiers;
+  GType gtype;
+
+  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (key_controller));
+  if (!actor)
+    return CLUTTER_EVENT_PROPAGATE;
+
+  modifiers = clutter_event_get_state (event);
+  gtype = G_OBJECT_TYPE (actor);
+
+  if (clutter_event_type (event) == CLUTTER_KEY_RELEASE)
+    modifiers |= CLUTTER_RELEASE_MASK;
+
+  while (gtype != G_TYPE_INVALID)
+    {
+      ClutterBindingPool *binding_pool;
+
+      binding_pool = clutter_binding_pool_find (g_type_name (gtype));
+
+      if (binding_pool)
+        {
+          if (clutter_binding_pool_find_action (binding_pool, keyval, modifiers))
+            *binding_found = TRUE;
+
+          if (clutter_binding_pool_activate (binding_pool, keyval, modifiers,
+                                             G_OBJECT (actor)))
+            return CLUTTER_EVENT_STOP;
+        }
+
+      gtype = g_type_parent (gtype);
+      if (gtype == CLUTTER_TYPE_ACTOR)
+        break;
+    }
+
+  return CLUTTER_EVENT_PROPAGATE;
+}
+
+static uint32_t
+get_latin_fallback_keyval (ClutterKeyController *key_controller,
+                           const ClutterEvent   *event)
+{
+  const ClutterModifierType other_modifiers =
+    CLUTTER_MOD1_MASK | CLUTTER_MOD4_MASK | CLUTTER_MOD5_MASK |
+    CLUTTER_SUPER_MASK | CLUTTER_HYPER_MASK | CLUTTER_META_MASK;
+  ClutterModifierType modifiers;
+  const xkb_keysym_t *symbols;
+  uint32_t keycode;
+  gunichar unicode;
+
+  modifiers = clutter_event_get_state (event);
+  if (!(modifiers & CLUTTER_CONTROL_MASK) || (modifiers & other_modifiers))
+    return 0;
+
+  unicode = xkb_keysym_to_utf32 (clutter_event_get_key_symbol (event));
+  if (!g_unichar_isalpha (unicode) ||
+      g_unichar_get_script (unicode) == G_UNICODE_SCRIPT_LATIN)
+    return 0;
+
+  keycode = clutter_event_get_key_code (event);
+  if (keycode == 0)
+    return 0;
+
+  if (!key_controller->latin_keymap)
+    {
+      struct xkb_context *context;
+      const struct xkb_rule_names names = {
+        .rules = "evdev",
+        .model = "pc105",
+        .layout = "us",
+        .variant = "",
+        .options = "",
+      };
+
+      context = xkb_context_new (XKB_CONTEXT_NO_FLAGS);
+      if (!context)
+        return 0;
+
+      /* Use the same US fallback as Mutter's global keybindings, without
+       * changing the active layout or the original input event.
+       */
+      key_controller->latin_keymap =
+        xkb_keymap_new_from_names (context, &names,
+                                   XKB_KEYMAP_COMPILE_NO_FLAGS);
+      xkb_context_unref (context);
+      if (!key_controller->latin_keymap)
+        return 0;
+    }
+
+  if (xkb_keymap_key_get_syms_by_level (key_controller->latin_keymap,
+                                        keycode, 0, 0, &symbols) != 1 ||
+      symbols[0] < XKB_KEY_a || symbols[0] > XKB_KEY_z)
+    return 0;
+
+  return symbols[0];
+}
+
+static gboolean
 clutter_key_controller_handle_event (ClutterAction      *action,
                                      const ClutterEvent *event)
 {
@@ -115,6 +222,7 @@ clutter_key_controller_handle_event (ClutterAction      *action,
   ClutterEventType evtype = clutter_event_type (event);
   ClutterEventFlags flags;
   gboolean retval = CLUTTER_EVENT_PROPAGATE;
+  gboolean binding_found = FALSE;
 
   flags = clutter_event_get_flags (event);
 
@@ -127,35 +235,11 @@ clutter_key_controller_handle_event (ClutterAction      *action,
   if (key_controller->trigger_keybindings &&
       (evtype == CLUTTER_KEY_PRESS || evtype == CLUTTER_KEY_RELEASE))
     {
-      ClutterActor *actor;
-      GType gtype;
       uint32_t keyval;
-      ClutterModifierType modifiers;
 
-      modifiers = clutter_event_get_state (event);
       keyval = clutter_event_get_key_symbol (event);
-      actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
-      gtype = G_OBJECT_TYPE (actor);
-
-      if (evtype == CLUTTER_KEY_RELEASE)
-        modifiers |= CLUTTER_RELEASE_MASK;
-
-      while (gtype != G_TYPE_INVALID)
-        {
-          ClutterBindingPool *binding_pool;
-
-          binding_pool = clutter_binding_pool_find (g_type_name (gtype));
-
-          if (binding_pool &&
-              clutter_binding_pool_activate (binding_pool,
-                                             keyval, modifiers,
-                                             G_OBJECT (actor)))
-            return CLUTTER_EVENT_STOP;
-
-          gtype = g_type_parent (gtype);
-          if (gtype == CLUTTER_TYPE_ACTOR)
-            break;
-        }
+      if (activate_keybindings (key_controller, event, keyval, &binding_found))
+        return CLUTTER_EVENT_STOP;
     }
 
   key_controller->event = event;
@@ -182,6 +266,17 @@ clutter_key_controller_handle_event (ClutterAction      *action,
     }
 
   key_controller->event = NULL;
+
+  if (!retval && !binding_found && key_controller->trigger_keybindings &&
+      (evtype == CLUTTER_KEY_PRESS || evtype == CLUTTER_KEY_RELEASE))
+    {
+      uint32_t keyval;
+
+      keyval = get_latin_fallback_keyval (key_controller, event);
+      if (keyval != 0)
+        retval = activate_keybindings (key_controller, event, keyval,
+                                       &binding_found);
+    }
 
   return retval;
 }
