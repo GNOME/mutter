@@ -38,7 +38,9 @@ meta_monitor_config_copy (MetaMonitorConfig *monitor_config)
                             sizeof (MetaMonitorModeSpec)),
     .enable_underscanning = monitor_config->enable_underscanning,
     .has_max_bpc = monitor_config->has_max_bpc,
-    .max_bpc = monitor_config->max_bpc
+    .max_bpc = monitor_config->max_bpc,
+    .rgb_range = monitor_config->rgb_range,
+    .color_mode = monitor_config->color_mode,
   };
 
   return new_monitor_config;

@@ -3547,6 +3547,61 @@ create_config_with_scale (MetaMonitorManager *monitor_manager,
 }
 
 static void
+meta_test_monitor_config_copy (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager =
+    meta_monitor_manager_get_config_manager (monitor_manager);
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitorsConfig *current_config;
+  g_autoptr (MetaMonitorsConfig) source_config = NULL;
+  g_autoptr (MetaMonitorsConfig) copied_config = NULL;
+  MetaLogicalMonitorConfig *source_logical_monitor_config;
+  MetaLogicalMonitorConfig *copied_logical_monitor_config;
+  MetaMonitorConfig *source_monitor_config;
+  MetaMonitorConfig *copied_monitor_config;
+
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &initial_test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_emulate_hotplug (test_setup);
+
+  current_config = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_nonnull (current_config);
+  source_config = meta_monitors_config_copy (current_config);
+
+  source_logical_monitor_config = source_config->logical_monitor_configs->data;
+  source_monitor_config =
+    source_logical_monitor_config->monitor_configs->data;
+  source_monitor_config->enable_underscanning = TRUE;
+  source_monitor_config->has_max_bpc = TRUE;
+  source_monitor_config->max_bpc = 10;
+  source_monitor_config->rgb_range = META_OUTPUT_RGB_RANGE_FULL;
+  source_monitor_config->color_mode = META_COLOR_MODE_BT2100;
+
+  copied_config = meta_monitors_config_copy (source_config);
+  copied_logical_monitor_config = copied_config->logical_monitor_configs->data;
+  copied_monitor_config =
+    copied_logical_monitor_config->monitor_configs->data;
+
+  g_assert_true (copied_monitor_config->enable_underscanning);
+  g_assert_true (copied_monitor_config->has_max_bpc);
+  g_assert_cmpuint (copied_monitor_config->max_bpc, ==, 10);
+  g_assert_cmpuint (copied_monitor_config->rgb_range,
+                    ==,
+                    META_OUTPUT_RGB_RANGE_FULL);
+  g_assert_cmpuint (copied_monitor_config->color_mode,
+                    ==,
+                    META_COLOR_MODE_BT2100);
+  g_assert_true (copied_monitor_config->monitor_spec !=
+                 source_monitor_config->monitor_spec);
+  g_assert_true (copied_monitor_config->mode_spec !=
+                 source_monitor_config->mode_spec);
+}
+
+static void
 meta_test_monitor_remember_scale_hotplug (void)
 {
   MonitorTestCaseOutput output1 = {
@@ -4067,6 +4122,8 @@ init_config_tests (void)
                          meta_test_monitor_max_bpc_config);
   meta_add_monitor_test ("/backends/monitor/rgb-range-config",
                          meta_test_monitor_rgb_range_config);
+  meta_add_monitor_test ("/backends/monitor/config-copy",
+                         meta_test_monitor_config_copy);
   meta_add_monitor_test ("/backends/monitor/preferred-non-first-mode",
                          meta_test_monitor_preferred_non_first_mode);
   meta_add_monitor_test ("/backends/monitor/non-upright-panel",
