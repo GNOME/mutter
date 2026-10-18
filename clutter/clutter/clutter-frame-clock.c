@@ -96,6 +96,9 @@ typedef struct _Frame
   int64_t target_presentation_time_us;
   int64_t flip_time_us;
   int64_t dispatch_interval_us;
+#ifdef HAVE_PROFILER
+  int64_t trace_frame_count;
+#endif
   ClutterFrameInfoFlag presentation_flags;
   gboolean got_measurements;
 } Frame;
@@ -117,6 +120,9 @@ struct _ClutterFrameClock
   GSource *source;
 
   int64_t frame_count;
+#ifdef HAVE_PROFILER
+  guint trace_clock_id;
+#endif
 
   ClutterFrameClockState state;
   ClutterFrameClockMode mode;
@@ -179,6 +185,10 @@ struct _ClutterFrameClock
 
   GQueue *deferred_times;
 };
+
+#ifdef HAVE_PROFILER
+static guint next_trace_clock_id;
+#endif
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
                G_TYPE_OBJECT)
@@ -730,6 +740,16 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
         }
 
       COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyPresented, description->str);
+      {
+        g_autofree char *timing =
+          g_strdup_printf ("clock=%u frame=%" G_GINT64_FORMAT
+                           " actual_us=%" G_GINT64_FORMAT " flags=%u",
+                           frame_clock->trace_clock_id,
+                           presented_frame->trace_frame_count,
+                           (int64_t) frame_info->presentation_time,
+                           (unsigned int) frame_info->flags);
+        COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyPresented, timing);
+      }
     }
 #endif
 
@@ -942,6 +962,23 @@ clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
 {
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyReady, "Clutter::FrameClock::ready()");
   COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyReady, frame_clock->output_name);
+
+#ifdef HAVE_PROFILER
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      Frame *ready_frame = frame_clock->next_next_presentation ?
+        frame_clock->next_next_presentation : frame_clock->next_presentation;
+
+      if (ready_frame)
+        {
+          g_autofree char *timing =
+            g_strdup_printf ("clock=%u frame=%" G_GINT64_FORMAT,
+                             frame_clock->trace_clock_id,
+                             ready_frame->trace_frame_count);
+          COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyReady, timing);
+        }
+    }
+#endif
 
   CLUTTER_NOTE (FRAME_CLOCK, "Frame for %s ready",
                 frame_clock->output_name);
@@ -1942,6 +1979,9 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
     frame = clutter_frame_new (ClutterFrame, NULL);
 
   frame->frame_count = frame_count;
+#ifdef HAVE_PROFILER
+  this_dispatch->trace_frame_count = frame_count;
+#endif
   frame->has_expected_presentation_time =
     frame_clock->is_next_presentation_time_valid;
   frame->expected_presentation_time_us =
@@ -1961,6 +2001,32 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 
   frame->has_frame_deadline = frame_clock->has_next_frame_deadline;
   frame->frame_deadline_us = frame_clock->next_frame_deadline_us;
+
+#ifdef HAVE_PROFILER
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      g_autofree char *timing =
+        g_strdup_printf ("clock=%u frame=%" G_GINT64_FORMAT
+                         " target_us=%" G_GINT64_FORMAT
+                         " prediction_us=%" G_GINT64_FORMAT
+                         " submit_deadline_us=%" G_GINT64_FORMAT
+                         " refresh_us=%" G_GINT64_FORMAT
+                         " mode=%s",
+                         frame_clock->trace_clock_id,
+                         frame_count,
+                         frame->is_target_presentation_time ?
+                           frame->expected_presentation_time_us : 0,
+                         frame->has_expected_presentation_time &&
+                           !frame->is_target_presentation_time ?
+                           frame->expected_presentation_time_us : 0,
+                         frame->has_frame_deadline ? frame->frame_deadline_us : 0,
+                         frame_clock->refresh_interval_us,
+                         frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_FIXED ? "fixed" :
+                         frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_VARIABLE ? "variable" :
+                         "passive");
+      COGL_TRACE_DESCRIBE (ClutterFrameClockDispatch, timing);
+    }
+#endif
 
   CLUTTER_NOTE (FRAME_CLOCK, "Dispatching frame %ld for %s",
                 frame->frame_count,
@@ -1989,6 +2055,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
       clutter_frame_clock_notify_ready (frame_clock);
       break;
     case CLUTTER_FRAME_RESULT_IGNORED:
+      COGL_TRACE_DESCRIBE (ClutterFrameClockDispatch, "result=ignored");
       frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
       clear_frame (&frame_clock->next_presentation);
       maybe_reschedule_update (frame_clock);
@@ -2260,6 +2327,9 @@ clutter_frame_clock_init (ClutterFrameClock *frame_clock)
   frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_INIT;
   frame_clock->mode = CLUTTER_FRAME_CLOCK_MODE_FIXED;
   frame_clock->power_state = CLUTTER_FRAME_CLOCK_POWER_STATE_ON;
+#ifdef HAVE_PROFILER
+  frame_clock->trace_clock_id = ++next_trace_clock_id;
+#endif
 }
 
 static void
