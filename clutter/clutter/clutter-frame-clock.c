@@ -117,6 +117,9 @@ struct _ClutterFrameClock
   GSource *source;
 
   int64_t frame_count;
+#ifdef HAVE_PROFILER
+  guint trace_clock_id;
+#endif
 
   ClutterFrameClockState state;
   ClutterFrameClockMode mode;
@@ -179,6 +182,10 @@ struct _ClutterFrameClock
 
   GQueue *deferred_times;
 };
+
+#ifdef HAVE_PROFILER
+static guint next_trace_clock_id;
+#endif
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
                G_TYPE_OBJECT)
@@ -729,6 +736,16 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                   frame_info->kms_ready_time_us);
         }
 
+      if (description->len > 0)
+        g_string_append (description, ", ");
+
+      g_string_append_printf (description,
+                              "clock=%u frame=%" G_GINT64_FORMAT
+                              " actual_us=%" G_GINT64_FORMAT " flags=%u",
+                              frame_clock->trace_clock_id,
+                              frame_info->view_frame_counter,
+                              (int64_t) frame_info->presentation_time,
+                              (unsigned int) frame_info->flags);
       COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyPresented, description->str);
     }
 #endif
@@ -942,6 +959,19 @@ clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
 {
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyReady, "Clutter::FrameClock::ready()");
   COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyReady, frame_clock->output_name);
+
+#ifdef HAVE_PROFILER
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      g_autofree char *timing = NULL;
+
+      /* notify_ready() completes the most recently dispatched frame. */
+      timing = g_strdup_printf ("clock=%u frame=%" G_GINT64_FORMAT,
+                                frame_clock->trace_clock_id,
+                                frame_clock->frame_count - 1);
+      COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyReady, timing);
+    }
+#endif
 
   CLUTTER_NOTE (FRAME_CLOCK, "Frame for %s ready",
                 frame_clock->output_name);
@@ -1962,6 +1992,32 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   frame->has_frame_deadline = frame_clock->has_next_frame_deadline;
   frame->frame_deadline_us = frame_clock->next_frame_deadline_us;
 
+#ifdef HAVE_PROFILER
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      g_autofree char *timing = NULL;
+
+      timing = g_strdup_printf ("clock=%u frame=%" G_GINT64_FORMAT
+                                " target_us=%" G_GINT64_FORMAT
+                                " prediction_us=%" G_GINT64_FORMAT
+                                " submit_deadline_us=%" G_GINT64_FORMAT
+                                " refresh_interval_us=%" G_GINT64_FORMAT
+                                " mode=%s",
+                                frame_clock->trace_clock_id,
+                                frame_count,
+                                frame->is_target_presentation_time ?
+                                frame->expected_presentation_time_us : 0,
+                                frame->has_expected_presentation_time ?
+                                frame->expected_presentation_time_us : 0,
+                                frame->has_frame_deadline ? frame->frame_deadline_us : 0,
+                                frame_clock->refresh_interval_us,
+                                frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_FIXED ? "fixed" :
+                                frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_VARIABLE ? "variable" :
+                                "passive");
+      COGL_TRACE_DESCRIBE (ClutterFrameClockDispatch, timing);
+    }
+#endif
+
   CLUTTER_NOTE (FRAME_CLOCK, "Dispatching frame %ld for %s",
                 frame->frame_count,
                 frame_clock->output_name);
@@ -1989,6 +2045,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
       clutter_frame_clock_notify_ready (frame_clock);
       break;
     case CLUTTER_FRAME_RESULT_IGNORED:
+      COGL_TRACE_DESCRIBE (ClutterFrameClockDispatch, "result=ignored");
       frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
       clear_frame (&frame_clock->next_presentation);
       maybe_reschedule_update (frame_clock);
@@ -2260,6 +2317,9 @@ clutter_frame_clock_init (ClutterFrameClock *frame_clock)
   frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_INIT;
   frame_clock->mode = CLUTTER_FRAME_CLOCK_MODE_FIXED;
   frame_clock->power_state = CLUTTER_FRAME_CLOCK_POWER_STATE_ON;
+#ifdef HAVE_PROFILER
+  frame_clock->trace_clock_id = ++next_trace_clock_id;
+#endif
 }
 
 static void
