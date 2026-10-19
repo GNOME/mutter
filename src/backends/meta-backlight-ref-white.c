@@ -77,6 +77,8 @@ on_change_ref_white (gpointer user_data)
   backlight_ref_white->change_ref_white_handle_id = 0;
 
   set_factor (backlight_ref_white, brightness_target / 100.f);
+  meta_backlight_update_brightness_target (META_BACKLIGHT (backlight_ref_white),
+                                           brightness_target);
 
   g_task_return_int (task, brightness_target);
 
