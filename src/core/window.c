@@ -232,6 +232,7 @@ enum
   PROP_EFFECT,
   PROP_SUSPEND_STATE,
   PROP_MAPPED,
+  PROP_TRANSIENT_FOR,
   PROP_MAIN_MONITOR,
   PROP_TAG,
   PROP_A11Y_DBUS_NAME,
@@ -523,6 +524,9 @@ meta_window_get_property (GObject         *object,
     case PROP_MAPPED:
       g_value_set_boolean (value, window->mapped);
       break;
+    case PROP_TRANSIENT_FOR:
+      g_value_set_object (value, window->transient_for);
+      break;
     case PROP_MAIN_MONITOR:
       g_value_set_object (value, window->monitor);
       break;
@@ -705,6 +709,11 @@ meta_window_class_init (MetaWindowClass *klass)
     g_param_spec_boolean ("mapped", NULL, NULL,
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_TRANSIENT_FOR] =
+    g_param_spec_object ("transient-for", NULL, NULL,
+                         META_TYPE_WINDOW,
+                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_MAIN_MONITOR] =
     g_param_spec_object ("main-monitor", NULL, NULL,
@@ -7721,6 +7730,7 @@ meta_window_set_transient_for (MetaWindow *window,
                                MetaWindow *parent)
 {
   MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+  gboolean changed;
 
   if (check_transient_for_loop (window, parent))
     {
@@ -7748,7 +7758,7 @@ meta_window_set_transient_for (MetaWindow *window,
   if (window->transient_for)
     meta_window_remove_transient_child (window->transient_for, window);
 
-  g_set_object (&window->transient_for, parent);
+  changed = g_set_object (&window->transient_for, parent);
 
   if (window->transient_for)
     meta_window_add_transient_child (window->transient_for, window);
@@ -7765,6 +7775,9 @@ meta_window_set_transient_for (MetaWindow *window,
 
   if (parent && parent->on_all_workspaces)
     meta_window_stick (window);
+
+  if (changed)
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TRANSIENT_FOR]);
 }
 
 void
