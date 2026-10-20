@@ -446,6 +446,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'transient-for-test',
+    'suite': 'core',
+    'sources': [
+      'transient-for-test.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'monitor-utils',
     'suite': 'unit',
     'sources': [ 'monitor-util-tests.c', ],
