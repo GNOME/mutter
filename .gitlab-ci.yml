@@ -467,6 +467,8 @@ build-intermediate-commits@x86_64:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     - git config --global --add safe.directory $PWD;
+      git config user.name "Mutter CI";
+      git config user.email "mutter-ci@example.invalid";
       git remote add target ${CI_MERGE_REQUEST_PROJECT_URL}.git;
       git fetch --no-tags --depth 100 target
         ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}:remotes/target/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME};
