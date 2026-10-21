@@ -467,6 +467,8 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
   state->has_new_color_state = FALSE;
   state->color_state = NULL;
 
+  state->has_target_time = FALSE;
+
   state->fifo_wait = FALSE;
   state->fifo_barrier = FALSE;
 }
@@ -644,6 +646,14 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
         }
 
       from->subsurface_placement_ops = NULL;
+    }
+
+  if (from->has_target_time &&
+      (!to->has_target_time ||
+       from->target_time_us > to->target_time_us))
+    {
+      to->target_time_us = from->target_time_us;
+      to->has_target_time = TRUE;
     }
 
   if (from->fifo_wait)
