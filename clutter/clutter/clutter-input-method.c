@@ -265,7 +265,7 @@ clutter_input_method_put_im_event (ClutterInputMethod      *im,
 
   event = clutter_event_im_new (event_type,
                                 CLUTTER_EVENT_FLAG_INPUT_METHOD,
-                                CLUTTER_CURRENT_TIME,
+                                g_get_monotonic_time (),
                                 seat,
                                 text,
                                 offset,
