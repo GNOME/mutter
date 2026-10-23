@@ -39,3 +39,9 @@ int meta_drm_buffer_dumb_ensure_dmabuf_fd (MetaDrmBufferDumb  *buffer_dumb,
                                            GError            **error);
 
 void * meta_drm_buffer_dumb_get_data (MetaDrmBufferDumb *buffer_dumb);
+
+void meta_drm_buffer_dumb_write (MetaDrmBufferDumb *buffer_dumb,
+                                 const uint8_t     *src_pixels,
+                                 int                src_width,
+                                 int                src_height,
+                                 int                src_stride);

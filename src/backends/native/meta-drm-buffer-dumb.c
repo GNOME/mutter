@@ -29,6 +29,7 @@
 #include <xf86drm.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <string.h>
 
 #include "backends/native/meta-device-pool.h"
 
@@ -235,6 +236,29 @@ void *
 meta_drm_buffer_dumb_get_data (MetaDrmBufferDumb *buffer_dumb)
 {
   return buffer_dumb->map;
+}
+
+void
+meta_drm_buffer_dumb_write (MetaDrmBufferDumb *buffer_dumb,
+                            const uint8_t     *src_pixels,
+                            int                src_width,
+                            int                src_height,
+                            int                src_stride)
+{
+  MetaDrmBuffer *buffer = META_DRM_BUFFER (buffer_dumb);
+  uint8_t *data = meta_drm_buffer_dumb_get_data (buffer_dumb);
+  int destination_stride = meta_drm_buffer_get_stride (buffer);
+  int bytes_per_pixel = meta_drm_buffer_get_bpp (buffer) / 8;
+  int buffer_height = meta_drm_buffer_get_height (buffer);
+  int i;
+
+  memset (data, 0, (size_t) destination_stride * buffer_height);
+  for (i = 0; i < src_height; i++)
+    {
+      memcpy (data + (size_t) i * destination_stride,
+              src_pixels + (size_t) i * src_stride,
+              (size_t) src_width * bytes_per_pixel);
+    }
 }
 
 static gboolean

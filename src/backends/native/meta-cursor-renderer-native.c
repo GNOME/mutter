@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include "backends/native/meta-cursor-renderer-native.h"
+#include "backends/native/meta-drm-buffer-dumb.h"
 
 #include <string.h>
 #include <gbm.h>
@@ -595,8 +596,6 @@ create_cursor_drm_buffer_dumb (MetaGpuKms      *gpu_kms,
                                GError         **error)
 {
   MetaDrmBufferDumb *buffer_dumb;
-  int i;
-  uint8_t *data;
 
   buffer_dumb = meta_drm_buffer_dumb_new (device_file,
                                           cursor_width, cursor_height,
@@ -605,11 +604,7 @@ create_cursor_drm_buffer_dumb (MetaGpuKms      *gpu_kms,
   if (!buffer_dumb)
     return NULL;
 
-  data = meta_drm_buffer_dumb_get_data (buffer_dumb);
-
-  memset (data, 0, cursor_width * cursor_height * 4);
-  for (i = 0; i < height; i++)
-    memcpy (data + i * 4 * cursor_width, pixels + i * stride, width * 4);
+  meta_drm_buffer_dumb_write (buffer_dumb, pixels, width, height, stride);
 
   return META_DRM_BUFFER (buffer_dumb);
 }
