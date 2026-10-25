@@ -186,7 +186,7 @@ meta_drm_buffer_release_fb_id (MetaDrmBuffer *buffer)
   ret = drmModeCloseFB (fd, priv->fb_id);
   if (ret == -EINVAL)
     ret = drmModeRmFB (fd, priv->fb_id);
-  if (ret != 0)
+  if (ret != 0 && ret != -ENODEV)
     g_warning ("drmModeRmFB: %s", g_strerror (-ret));
 
   priv->fb_id = 0;
