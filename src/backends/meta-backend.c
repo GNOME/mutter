@@ -112,6 +112,7 @@ enum
   LAST_DEVICE_CHANGED,
   LID_IS_CLOSED_CHANGED,
   GPU_ADDED,
+  GPU_REMOVED,
   PREPARE_SHUTDOWN,
   OVERRIDE_CURSOR,
   RESET_KEYMAP_DESCRIPTION,
@@ -866,6 +867,18 @@ meta_backend_class_init (MetaBackendClass *klass)
    */
   signals[GPU_ADDED] =
     g_signal_new ("gpu-added",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, META_TYPE_GPU);
+  /**
+   * MetaBackend::gpu-removed: (skip)
+   * @backend: the #MetaBackend
+   * @gpu: (type gpointer): the #MetaGpu
+   */
+  signals[GPU_REMOVED] =
+    g_signal_new ("gpu-removed",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0,
@@ -1929,6 +1942,18 @@ meta_backend_add_gpu (MetaBackend *backend,
   priv->gpus = g_list_append (priv->gpus, gpu);
 
   g_signal_emit (backend, signals[GPU_ADDED], 0, gpu);
+}
+
+void
+meta_backend_remove_gpu (MetaBackend *backend,
+                         MetaGpu     *gpu)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->gpus = g_list_remove (priv->gpus, gpu);
+
+  g_signal_emit (backend, signals[GPU_REMOVED], 0, gpu);
+  g_object_unref (gpu);
 }
 
 GList *

@@ -193,6 +193,9 @@ META_EXPORT_TEST
 void meta_backend_add_gpu (MetaBackend *backend,
                            MetaGpu     *gpu);
 
+void meta_backend_remove_gpu (MetaBackend *backend,
+                              MetaGpu     *gpu);
+
 META_EXPORT_TEST
 GList * meta_backend_get_gpus (MetaBackend *backend);
 
