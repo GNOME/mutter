@@ -34,7 +34,6 @@
 enum
 {
   RESOURCES_CHANGED,
-  DEVICE_ADDED,
   LEASE_CHANGED,
 
   N_SIGNALS
@@ -376,8 +375,6 @@ meta_kms_create_device (MetaKms            *kms,
 
   kms->devices = g_list_append (kms->devices, device);
 
-  g_signal_emit (kms, signals[DEVICE_ADDED], 0, device);
-
   return device;
 }
 
@@ -542,15 +539,6 @@ meta_kms_class_init (MetaKmsClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   META_TYPE_KMS_RESOURCE_CHANGES);
-
-  signals[DEVICE_ADDED] =
-    g_signal_new ("device-added",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  META_TYPE_KMS_DEVICE);
 
   signals[LEASE_CHANGED] =
     g_signal_new ("lease-changed",
