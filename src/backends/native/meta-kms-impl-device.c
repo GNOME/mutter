@@ -1159,7 +1159,7 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
   if (!ensure_device_file (impl_device, &error))
     {
       g_warning ("Failed to reopen '%s': %s", priv->path, error->message);
-      goto err;
+      return META_KMS_RESOURCE_CHANGE_NONE;
     }
 
   ensure_latched_fd_hold (impl_device);
@@ -1172,7 +1172,11 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
       meta_topic (META_DEBUG_KMS, "Device '%s' didn't return any resources",
                   priv->path);
       meta_thread_uninhibit_realtime_in_impl (thread);
-      goto err;
+
+      if (!had_fd_open)
+        clear_latched_fd_hold (impl_device);
+
+      return META_KMS_RESOURCE_CHANGE_NONE;
     }
 
   changes = update_connectors (impl_device, drm_resources, connector_id);
@@ -1196,14 +1200,6 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
     clear_latched_fd_hold (impl_device);
 
   return changes;
-
-err:
-  g_clear_list (&priv->planes, g_object_unref);
-  g_clear_list (&priv->crtcs, g_object_unref);
-  g_clear_list (&priv->connectors, g_object_unref);
-  g_clear_pointer (&priv->crtc_frames, g_hash_table_unref);
-
-  return META_KMS_RESOURCE_CHANGE_FULL;
 }
 
 static MetaKmsResourceChanges
