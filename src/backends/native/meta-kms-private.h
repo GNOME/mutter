@@ -46,6 +46,9 @@ gboolean meta_kms_in_impl_task (MetaKms *kms);
 
 gboolean meta_kms_is_waiting_for_impl_task (MetaKms *kms);
 
+void meta_kms_remove_device (MetaKms       *kms,
+                             MetaKmsDevice *device);
+
 void meta_kms_emit_resources_changed (MetaKms                *kms,
                                       MetaKmsResourceChanges  changes);
 

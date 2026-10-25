@@ -25,6 +25,7 @@
 #include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl.h"
+#include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-thread-private.h"
 #include "cogl/cogl.h"
@@ -49,7 +50,6 @@ struct _MetaKms
 
   gulong hotplug_handler_id;
   gulong lease_handler_id;
-  gulong removed_handler_id;
 
   GList *devices;
 
@@ -323,14 +323,6 @@ on_udev_hotplug (MetaUdev    *udev,
 }
 
 static void
-on_udev_device_removed (MetaUdev    *udev,
-                        GUdevDevice *device,
-                        MetaKms     *kms)
-{
-  meta_kms_update_resources (kms, NULL, META_KMS_RESOURCE_CHANGE_NONE);
-}
-
-static void
 on_udev_lease (MetaUdev    *udev,
                GUdevDevice *udev_device,
                MetaKms     *kms)
@@ -376,6 +368,37 @@ meta_kms_create_device (MetaKms            *kms,
   kms->devices = g_list_append (kms->devices, device);
 
   return device;
+}
+
+static gpointer
+prepare_device_shutdown_in_impl (MetaThreadImpl  *thread_impl,
+                                 gpointer         user_data,
+                                 GError         **error)
+{
+  MetaKmsImplDevice *impl_device = user_data;
+
+  meta_kms_impl_device_prepare_shutdown (impl_device);
+  return GINT_TO_POINTER (TRUE);
+}
+
+void
+meta_kms_remove_device (MetaKms       *kms,
+                        MetaKmsDevice *device)
+{
+  MetaKmsImplDevice *impl_device;
+
+  impl_device = meta_kms_device_get_impl_device (device);
+  if (impl_device)
+    {
+      meta_kms_run_impl_task_sync (kms,
+                                   prepare_device_shutdown_in_impl,
+                                   impl_device,
+                                   NULL);
+    }
+
+  kms->devices = g_list_remove (kms->devices, device);
+
+  g_object_unref (device);
 }
 
 gboolean
@@ -472,10 +495,6 @@ meta_kms_new (MetaBackend   *backend,
         g_signal_connect (udev, "lease", G_CALLBACK (on_udev_lease), kms);
     }
 
-  kms->removed_handler_id =
-    g_signal_connect (udev, "device-removed",
-                      G_CALLBACK (on_udev_device_removed), kms);
-
   g_signal_connect (backend, "prepare-shutdown",
                     G_CALLBACK (on_prepare_shutdown),
                     kms);
@@ -512,7 +531,6 @@ meta_kms_finalize (GObject *object)
 
   g_clear_signal_handler (&kms->hotplug_handler_id, udev);
   g_clear_signal_handler (&kms->lease_handler_id, udev);
-  g_clear_signal_handler (&kms->removed_handler_id, udev);
 
   G_OBJECT_CLASS (meta_kms_parent_class)->finalize (object);
 }

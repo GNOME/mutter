@@ -52,7 +52,7 @@
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-device-pool-private.h"
 #include "backends/native/meta-drm-lease.h"
-#include "backends/native/meta-kms.h"
+#include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-monitor-manager-native.h"
 #include "backends/native/meta-render-device-gbm.h"
@@ -546,70 +546,54 @@ should_ignore_device (MetaBackendNative *backend_native,
 }
 
 static void
-on_udev_device_added (MetaUdev          *udev,
-                      GUdevDevice       *device,
-                      MetaBackendNative *native)
+remove_drm_device (MetaBackendNative *backend_native,
+                   MetaGpuKms        *gpu_kms)
 {
-  MetaBackend *backend = META_BACKEND (native);
-  g_autoptr (GError) error = NULL;
-  const char *device_path;
-  GList *gpus, *l;
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (backend_native);
+  MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
 
-  if (!meta_udev_is_drm_device (udev, device))
-    return;
+  meta_kms_remove_device (priv->kms, kms_device);
+  meta_backend_remove_gpu (META_BACKEND (backend_native), META_GPU (gpu_kms));
+}
 
-  device_path = g_udev_device_get_device_file (device);
+static int
+compare_udev_device_path (gconstpointer a,
+                          gconstpointer b)
+{
+  GUdevDevice *device = G_UDEV_DEVICE ((gpointer) a);
+  const char *path = (const char *) b;
 
-  gpus = meta_backend_get_gpus (backend);
-  for (l = gpus; l; l = l->next)
-    {
-      MetaGpuKms *gpu_kms = l->data;
+  return g_strcmp0 (g_udev_device_get_device_file (device), path);
+}
 
-      if (!g_strcmp0 (device_path, meta_gpu_kms_get_file_path (gpu_kms)))
-        {
-          g_warning ("Failed to hotplug secondary gpu '%s': %s",
-                     device_path, "device already present");
-          return;
-        }
-    }
+static int
+compare_gpu_path (gconstpointer a,
+                  gconstpointer b)
+{
+  MetaGpuKms *gpu_kms;
+  const char *path;
 
-  if (should_ignore_device (native, device))
-    {
-      g_message ("Ignoring DRM device '%s'", device_path);
-      return;
-    }
+  if (!META_IS_GPU_KMS ((gpointer) a))
+    return -1;
 
-  if (!add_drm_device (native, device, &error))
-    {
-      if (meta_backend_is_headless (backend) &&
-          g_error_matches (error, G_IO_ERROR,
-                           G_IO_ERROR_PERMISSION_DENIED))
-        {
-          meta_topic (META_DEBUG_BACKEND,
-                      "Ignoring unavailable secondary gpu '%s': %s",
-                      device_path, error->message);
-        }
-      else
-        {
-          g_warning ("Failed to hotplug secondary gpu '%s': %s",
-                     device_path, error->message);
-        }
-    }
+  gpu_kms = META_GPU_KMS ((gpointer) a);
+  path = (const char *) b;
+
+  return g_strcmp0 (meta_gpu_kms_get_file_path (gpu_kms), path);
 }
 
 static gboolean
-init_gpus (MetaBackendNative  *native,
-           GError            **error)
+rescan_devices (MetaBackendNative *native)
 {
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);
   MetaBackend *backend = META_BACKEND (native);
   MetaUdev *udev = meta_backend_get_udev (backend);
-  MetaKms *kms = meta_backend_native_get_kms (native);
-  g_autoptr (GError) local_error = NULL;
   MetaUdevDeviceType device_type = 0;
-  GList *devices;
-  GList *l;
+  g_autolist (GUdevDevice) udev_devices = NULL;
+  g_autoptr (GList) stale_gpus = NULL;
+  gboolean changed = FALSE;
 
   switch (priv->mode)
     {
@@ -623,52 +607,105 @@ init_gpus (MetaBackendNative  *native,
       break;
     }
 
-  devices = meta_udev_list_drm_devices (udev, device_type, &local_error);
-  if (local_error)
+  udev_devices = meta_udev_list_drm_devices (udev, device_type, NULL);
+
+  for (GList *l = meta_backend_get_gpus (backend); l; l = l->next)
     {
-      g_propagate_error (error, g_steal_pointer (&local_error));
-      return FALSE;
+      MetaGpuKms *gpu_kms;
+      const char *gpu_path;
+
+      if (!META_IS_GPU_KMS (l->data))
+        continue;
+
+      gpu_kms = META_GPU_KMS (l->data);
+      gpu_path = meta_gpu_kms_get_file_path (gpu_kms);
+
+      if (!g_list_find_custom (udev_devices, gpu_path,
+                               compare_udev_device_path))
+        stale_gpus = g_list_prepend (stale_gpus, gpu_kms);
     }
 
-  for (l = devices; l; l = l->next)
+  for (GList *l = stale_gpus; l; l = l->next)
     {
-      GUdevDevice *device = l->data;
-      GError *device_error = NULL;
+      MetaGpuKms *gpu_kms = l->data;
 
-      if (should_ignore_device (native, device))
+      meta_topic (META_DEBUG_BACKEND,
+                  "Removing DRM device '%s'",
+                  meta_gpu_kms_get_file_path (gpu_kms));
+      remove_drm_device (native, gpu_kms);
+      changed = TRUE;
+    }
+
+  for (GList *l = udev_devices; l; l = l->next)
+    {
+      GUdevDevice *udev_dev = l->data;
+      g_autoptr (GError) local_error = NULL;
+      const char *device_path;
+
+      device_path = g_udev_device_get_device_file (udev_dev);
+
+      if (g_list_find_custom (meta_backend_get_gpus (backend), device_path,
+                              compare_gpu_path))
+        continue;
+
+      if (should_ignore_device (native, udev_dev))
         {
-          g_message ("Ignoring DRM device '%s'",
-                     g_udev_device_get_device_file (device));
+          meta_topic (META_DEBUG_BACKEND,
+                      "Ignoring DRM device '%s'", device_path);
           continue;
         }
 
-      if (!add_drm_device (native, device, &device_error))
+      if (!add_drm_device (native, udev_dev, &local_error))
         {
           if (meta_backend_is_headless (backend) &&
-              (g_error_matches (device_error, G_IO_ERROR,
+              (g_error_matches (local_error, G_IO_ERROR,
                                 G_IO_ERROR_PERMISSION_DENIED) ||
                (g_strcmp0 (g_getenv ("RUNNING_UNDER_RR"), "1") == 0 &&
-                g_error_matches (device_error, G_IO_ERROR,
+                g_error_matches (local_error, G_IO_ERROR,
                                  G_IO_ERROR_NOT_FOUND))))
             {
               meta_topic (META_DEBUG_BACKEND,
-                          "Ignoring unavailable gpu '%s': %s'",
-                          g_udev_device_get_device_file (device),
-                          device_error->message);
+                          "Ignoring unavailable gpu '%s': %s",
+                          device_path, local_error->message);
             }
           else
             {
               g_warning ("Failed to open gpu '%s': %s",
-                         g_udev_device_get_device_file (device),
-                         device_error->message);
+                         device_path, local_error->message);
             }
-
-          g_clear_error (&device_error);
-          continue;
+        }
+      else
+        {
+          meta_topic (META_DEBUG_BACKEND,
+                      "Adding DRM device '%s'", device_path);
+          changed = TRUE;
         }
     }
 
-  g_list_free_full (devices, g_object_unref);
+  return changed;
+}
+
+static void
+on_udev_device_changed (MetaUdev          *udev,
+                        GUdevDevice       *device,
+                        MetaBackendNative *native)
+{
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (native);
+
+  if (rescan_devices (native))
+    meta_kms_emit_resources_changed (priv->kms, META_KMS_RESOURCE_CHANGE_FULL);
+}
+
+static gboolean
+init_gpus (MetaBackendNative  *native,
+           GError            **error)
+{
+  MetaBackend *backend = META_BACKEND (native);
+  MetaUdev *udev = meta_backend_get_udev (backend);
+  MetaKms *kms = meta_backend_native_get_kms (native);
+
+  rescan_devices (native);
 
   meta_kms_notify_probed (kms);
 
@@ -681,7 +718,11 @@ init_gpus (MetaBackendNative  *native,
     }
 
   g_signal_connect_object (udev, "device-added",
-                           G_CALLBACK (on_udev_device_added),
+                           G_CALLBACK (on_udev_device_changed),
+                           native,
+                           G_CONNECT_DEFAULT);
+  g_signal_connect_object (udev, "device-removed",
+                           G_CALLBACK (on_udev_device_changed),
                            native,
                            G_CONNECT_DEFAULT);
 
