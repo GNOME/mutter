@@ -1555,6 +1555,18 @@ on_gpu_added_for_cursor (MetaBackend              *backend,
 }
 
 static void
+on_gpu_removed_for_cursor (MetaBackend              *backend,
+                           MetaGpu                  *gpu,
+                           MetaCursorRendererNative *native)
+{
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
+
+  if (META_IS_GPU_KMS (gpu))
+    g_hash_table_remove (priv->deferred_hw_cursor_init, gpu);
+}
+
+static void
 on_pointer_position_changed_in_input_impl (MetaSeatImpl           *seat_impl,
                                            const graphene_point_t *position,
                                            MetaBackend            *backend)
@@ -1709,6 +1721,9 @@ meta_cursor_renderer_native_new (MetaBackend *backend)
                            cursor_renderer_native, 0);
   g_signal_connect (backend, "gpu-added",
                     G_CALLBACK (on_gpu_added_for_cursor),
+                    cursor_renderer_native);
+  g_signal_connect (backend, "gpu-removed",
+                    G_CALLBACK (on_gpu_removed_for_cursor),
                     cursor_renderer_native);
   g_signal_connect (backend,
                     "prepare-shutdown",

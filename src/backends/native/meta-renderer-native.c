@@ -1557,6 +1557,17 @@ on_gpu_added (MetaBackendNative  *backend_native,
 }
 
 static void
+on_gpu_removed (MetaBackendNative  *backend_native,
+                MetaGpu            *gpu,
+                MetaRendererNative *renderer_native)
+{
+  if (!META_IS_GPU_KMS (gpu))
+    return;
+
+  g_hash_table_remove (renderer_native->gpu_datas, META_GPU_KMS (gpu));
+}
+
+static void
 on_power_save_mode_changed (MetaMonitorManager        *monitor_manager,
                             MetaPowerSaveChangeReason  reason,
                             MetaRendererNative        *renderer_native)
@@ -1869,6 +1880,8 @@ meta_renderer_native_constructed (GObject *object)
 
   g_signal_connect (backend, "gpu-added",
                     G_CALLBACK (on_gpu_added), renderer_native);
+  g_signal_connect (backend, "gpu-removed",
+                    G_CALLBACK (on_gpu_removed), renderer_native);
   g_signal_connect (monitor_manager, "power-save-mode-changed",
                     G_CALLBACK (on_power_save_mode_changed), renderer_native);
 
