@@ -559,8 +559,10 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   if (error &&
       !g_error_matches (error,
                         G_IO_ERROR,
-                        G_IO_ERROR_PERMISSION_DENIED))
-
+                        G_IO_ERROR_PERMISSION_DENIED) &&
+      !g_error_matches (error,
+                        G_IO_ERROR,
+                        G_IO_ERROR_NO_SUCH_DEVICE))
     g_warning ("Page flip discarded: %s", error->message);
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_DISCARDED;
@@ -1487,7 +1489,10 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
                         META_KMS_ERROR_DISCARDED) &&
       !g_error_matches (error,
                         G_IO_ERROR,
-                        G_IO_ERROR_PERMISSION_DENIED))
+                        G_IO_ERROR_PERMISSION_DENIED) &&
+      !g_error_matches (error,
+                        G_IO_ERROR,
+                        G_IO_ERROR_NO_SUCH_DEVICE))
     g_warning ("Page flip failed: %s", error->message);
 
   frame_info->flags |= COGL_FRAME_INFO_FLAG_DISCARDED;
@@ -2389,6 +2394,9 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
   if (!g_error_matches (error,
                         G_IO_ERROR,
                         G_IO_ERROR_PERMISSION_DENIED) &&
+      !g_error_matches (error,
+                        G_IO_ERROR,
+                        G_IO_ERROR_NO_SUCH_DEVICE) &&
       !g_error_matches (error,
                         META_KMS_ERROR,
                         META_KMS_ERROR_EMPTY_UPDATE))

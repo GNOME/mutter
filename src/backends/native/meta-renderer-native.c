@@ -562,7 +562,10 @@ mode_sets_update_result_feedback (const MetaKmsFeedback *kms_feedback,
   if (feedback_error &&
       !g_error_matches (feedback_error,
                         G_IO_ERROR,
-                        G_IO_ERROR_PERMISSION_DENIED))
+                        G_IO_ERROR_PERMISSION_DENIED) &&
+      !g_error_matches (feedback_error,
+                        G_IO_ERROR,
+                        G_IO_ERROR_NO_SUCH_DEVICE))
     g_warning ("Failed to post KMS update: %s", feedback_error->message);
 }
 
