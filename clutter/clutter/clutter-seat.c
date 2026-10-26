@@ -250,13 +250,13 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
-                  _clutter_marshal_VOID__OBJECT_FLAGS_UINT,
+                  _clutter_marshal_VOID__FLAGS_UINT,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE,
                   G_TYPE_UINT);
   g_signal_set_va_marshaller (signals[PTR_A11Y_TIMEOUT_STARTED],
                               G_TYPE_FROM_CLASS (object_class),
-                              _clutter_marshal_VOID__OBJECT_FLAGS_UINTv);
+                              _clutter_marshal_VOID__FLAGS_UINTv);
 
   /**
    * ClutterSeat::ptr-a11y-timeout-stopped:
@@ -275,13 +275,13 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
-                  _clutter_marshal_VOID__OBJECT_FLAGS_BOOLEAN,
+                  _clutter_marshal_VOID__FLAGS_BOOLEAN,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE,
                   G_TYPE_BOOLEAN);
   g_signal_set_va_marshaller (signals[PTR_A11Y_TIMEOUT_STOPPED],
                               G_TYPE_FROM_CLASS (object_class),
-                              _clutter_marshal_VOID__OBJECT_FLAGS_BOOLEANv);
+                              _clutter_marshal_VOID__FLAGS_BOOLEANv);
 
   /**
    * ClutterSeat::is-unfocus-inhibited-changed:

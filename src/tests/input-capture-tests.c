@@ -466,7 +466,6 @@ meta_test_input_capture_events (void)
 
 static void
 on_a11y_timeout_started (ClutterSeat                   *seat,
-                         ClutterInputDevice            *device,
                          ClutterPointerA11yTimeoutType  timeout_type,
                          unsigned int                   delay_ms,
                          int                           *a11y_started_counter)
