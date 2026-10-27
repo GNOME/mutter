@@ -536,7 +536,8 @@ meta_test_kms_device_discard_disabled (void)
   device_pool = meta_backend_native_get_device_pool (backend_native);
   device_file = meta_device_pool_open (device_pool,
                                        meta_kms_device_get_path (device),
-                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL |
+                                       META_DEVICE_FILE_FLAG_NONBLOCK,
                                        &error);
   if (!device_file)
     g_error ("Failed to open KMS device: %s", error->message);

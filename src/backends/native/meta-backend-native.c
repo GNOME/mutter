@@ -443,9 +443,10 @@ create_render_device (MetaBackendNative  *backend_native,
   g_autoptr (GError) gbm_error = NULL;
 
   if (meta_backend_is_headless (backend))
-    device_file_flags = META_DEVICE_FILE_FLAG_NONE;
+    device_file_flags = META_DEVICE_FILE_FLAG_NONBLOCK;
   else
-    device_file_flags = META_DEVICE_FILE_FLAG_TAKE_CONTROL;
+    device_file_flags = META_DEVICE_FILE_FLAG_TAKE_CONTROL |
+                        META_DEVICE_FILE_FLAG_NONBLOCK;
 
   device_file = meta_device_pool_open (device_pool,
                                        device_path,

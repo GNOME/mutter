@@ -23,7 +23,6 @@
 #include <fcntl.h>
 #include <glib/gstdio.h>
 #include <linux/dma-buf.h>
-#include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/timerfd.h>
 #include <xf86drm.h>
@@ -499,33 +498,15 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
 
   fd = meta_device_file_get_fd (priv->device_file);
 
-  while (TRUE)
+  if (drmHandleEvent (fd, &drm_event_context) != 0)
     {
-      if (drmHandleEvent (fd, &drm_event_context) != 0)
-        {
-          struct pollfd pfd;
-          int ret;
+      if (errno == EAGAIN)
+        return TRUE;
 
-          if (errno != EAGAIN)
-            {
-              g_set_error_literal (error, G_IO_ERROR,
-                                   g_io_error_from_errno (errno),
-                                   strerror (errno));
-              return FALSE;
-            }
-
-          pfd.fd = fd;
-          pfd.events = POLL_IN | POLL_ERR;
-          do
-            {
-              ret = poll (&pfd, 1, -1);
-            }
-          while (ret == -1 && errno == EINTR);
-        }
-      else
-        {
-          break;
-        }
+      g_set_error_literal (error, G_IO_ERROR,
+                           g_io_error_from_errno (errno),
+                           strerror (errno));
+      return FALSE;
     }
 
   return TRUE;

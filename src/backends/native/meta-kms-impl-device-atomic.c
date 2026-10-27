@@ -1443,7 +1443,8 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
   g_autoptr (MetaDeviceFile) device_file = NULL;
 
   device_file = meta_device_pool_open (device_pool, path,
-                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL |
+                                       META_DEVICE_FILE_FLAG_NONBLOCK,
                                        error);
   if (!device_file)
     return NULL;

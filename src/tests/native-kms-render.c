@@ -191,7 +191,8 @@ on_scanout_presented (ClutterStage     *stage,
 
   device_file = meta_device_pool_open (device_pool,
                                        meta_kms_device_get_path (kms_device),
-                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL |
+                                       META_DEVICE_FILE_FLAG_NONBLOCK,
                                        &error);
   if (!device_file)
     g_error ("Failed to open KMS device: %s", error->message);

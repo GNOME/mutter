@@ -60,7 +60,7 @@ meta_kms_impl_device_dummy_open_device_file (MetaKmsImplDevice  *impl_device,
     meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
 
   return meta_device_pool_open (device_pool, path,
-                                META_DEVICE_FILE_FLAG_NONE,
+                                META_DEVICE_FILE_FLAG_NONBLOCK,
                                 error);
 }
 

@@ -780,7 +780,8 @@ load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
 
   device_file = meta_device_pool_open (device_pool,
                                        meta_gpu_kms_get_file_path (gpu_kms),
-                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL |
+                                       META_DEVICE_FILE_FLAG_NONBLOCK,
                                        &error);
   if (!device_file)
     {
@@ -1173,7 +1174,8 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
 
       device_file = meta_device_pool_open (device_pool,
                                            meta_gpu_kms_get_file_path (gpu_kms),
-                                           META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                           META_DEVICE_FILE_FLAG_TAKE_CONTROL |
+                                           META_DEVICE_FILE_FLAG_NONBLOCK,
                                            &error);
       if (!device_file)
         {

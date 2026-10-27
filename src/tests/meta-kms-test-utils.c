@@ -120,7 +120,8 @@ open_device_file_for (MetaKmsDevice *device)
 
   device_path = meta_kms_device_get_path (device);
   device_file = meta_device_pool_open (device_pool, device_path,
-                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL |
+                                       META_DEVICE_FILE_FLAG_NONBLOCK,
                                        NULL);
   g_assert_nonnull (device_file);
   return device_file;
