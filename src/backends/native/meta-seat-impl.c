@@ -2085,7 +2085,7 @@ process_base_event (MetaSeatImpl          *seat_impl,
       device_event =
         clutter_event_device_notify_new (CLUTTER_DEVICE_ADDED,
                                          CLUTTER_EVENT_NONE,
-                                         CLUTTER_CURRENT_TIME,
+                                         g_get_monotonic_time (),
                                          device);
 
       meta_input_settings_add_device (input_settings, device);
@@ -2098,7 +2098,7 @@ process_base_event (MetaSeatImpl          *seat_impl,
       device_event =
         clutter_event_device_notify_new (CLUTTER_DEVICE_REMOVED,
                                          CLUTTER_EVENT_NONE,
-                                         CLUTTER_CURRENT_TIME,
+                                         g_get_monotonic_time (),
                                          device);
       meta_input_settings_remove_device (input_settings, device);
       meta_seat_impl_remove_device (seat_impl, device);
@@ -4321,7 +4321,7 @@ meta_seat_impl_add_virtual_input_device (MetaSeatImpl       *seat_impl,
   device_event =
     clutter_event_device_notify_new (CLUTTER_DEVICE_ADDED,
                                      CLUTTER_EVENT_NONE,
-                                     CLUTTER_CURRENT_TIME,
+                                     g_get_monotonic_time (),
                                      device);
   queue_event (seat_impl, device_event);
 }
@@ -4341,7 +4341,7 @@ meta_seat_impl_remove_virtual_input_device (MetaSeatImpl       *seat_impl,
 
   device_event = clutter_event_device_notify_new (CLUTTER_DEVICE_REMOVED,
                                                   CLUTTER_EVENT_NONE,
-                                                  CLUTTER_CURRENT_TIME,
+                                                  g_get_monotonic_time (),
                                                   device);
   queue_event (seat_impl, device_event);
 }
