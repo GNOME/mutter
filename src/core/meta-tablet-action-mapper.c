@@ -488,6 +488,18 @@ meta_tablet_action_mapper_cycle_tablet_output (MetaTabletActionMapper *mapper,
                                                  device, pretty_name);
 }
 
+static int64_t
+get_emulated_event_time_us (void)
+{
+  const ClutterEvent *event;
+
+  event = clutter_get_current_event ();
+  if (event)
+    return clutter_event_get_time_us (event);
+  else
+    return g_get_monotonic_time ();
+}
+
 static void
 emulate_modifiers (ClutterVirtualInputDevice *device,
                    ClutterModifierType        mods,
@@ -510,7 +522,7 @@ emulate_modifiers (ClutterVirtualInputDevice *device,
         continue;
 
       clutter_virtual_input_device_notify_keyval (device,
-                                                  clutter_get_current_event_time (),
+                                                  get_emulated_event_time_us (),
                                                   mod_map[i].keyval, state);
     }
 }
@@ -555,7 +567,7 @@ meta_tablet_action_mapper_emulate_keybinding (MetaTabletActionMapper *mapper,
     emulate_modifiers (priv->virtual_tablet_keyboard, combo.modifiers, state);
 
   clutter_virtual_input_device_notify_keyval (priv->virtual_tablet_keyboard,
-                                              clutter_get_current_event_time (),
+                                              get_emulated_event_time_us (),
                                               combo.keysym, state);
   if (!is_press)
     emulate_modifiers (priv->virtual_tablet_keyboard, combo.modifiers, state);
