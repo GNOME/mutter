@@ -274,6 +274,14 @@ meta_device_pool_open (MetaDevicePool       *pool,
 
       if (!take_device (pool->session_proxy, major, minor, &fd, NULL, error))
         return NULL;
+
+      if (flags & META_DEVICE_FILE_FLAG_NONBLOCK)
+        {
+          int fd_flags;
+
+          fd_flags = fcntl (fd, F_GETFL);
+          fcntl (fd, F_SETFL, fd_flags | O_NONBLOCK);
+        }
     }
   else
     {
@@ -288,6 +296,8 @@ meta_device_pool_open (MetaDevicePool       *pool,
       else
         open_flags = O_RDWR;
       open_flags |= O_CLOEXEC;
+      if (flags & META_DEVICE_FILE_FLAG_NONBLOCK)
+        open_flags |= O_NONBLOCK;
 
       do
         {
