@@ -25,6 +25,7 @@ typedef enum _MetaOutputTestBacklightType
   META_OUTPUT_TEST_BACKLIGHT_NONE,
   META_OUTPUT_TEST_BACKLIGHT_MOCK,
   META_OUTPUT_TEST_BACKLIGHT_SYSFS,
+  META_OUTPUT_TEST_BACKLIGHT_REF_WHITE,
 } MetaOutputTestBacklightType;
 
 struct _MetaOutputTest

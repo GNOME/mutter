@@ -22,6 +22,7 @@
 #include "backends/meta-backend-types.h"
 #include "backends/meta-backlight-private.h"
 #include "backends/meta-output.h"
+#include "core/util-private.h"
 
 #define META_TYPE_BACKLIGHT_REF_WHITE (meta_backlight_ref_white_get_type ())
 G_DECLARE_FINAL_TYPE (MetaBacklightRefWhite,
@@ -29,5 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaBacklightRefWhite,
                       META, BACKLIGHT_REF_WHITE,
                       MetaBacklight)
 
+META_EXPORT_TEST
 MetaBacklightRefWhite * meta_backlight_ref_white_new (MetaBackend *backend,
                                                       MetaMonitor *monitor);

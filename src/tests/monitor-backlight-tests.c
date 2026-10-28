@@ -371,6 +371,105 @@ meta_test_backlight_sysfs_set (void)
   g_assert_cmpint (get_logind_backlight (backend, "backlight1"), ==, 30);
 }
 
+static MonitorTestCaseSetup ref_white_test_case_setup = {
+  .modes = {
+    {
+      .width = 1024,
+      .height = 768,
+      .refresh_rate = 60.0
+    }
+  },
+  .n_modes = 1,
+  .outputs = {
+     {
+      .crtc = 0,
+      .modes = { 0 },
+      .n_modes = 1,
+      .preferred_mode = 0,
+      .possible_crtcs = { 0 },
+      .n_possible_crtcs = 1,
+      .width_mm = 222,
+      .height_mm = 125,
+      .connector_type = META_CONNECTOR_TYPE_eDP,
+      .backlight_type = META_OUTPUT_TEST_BACKLIGHT_REF_WHITE,
+    },
+    {
+      .crtc = 1,
+      .modes = { 0 },
+      .n_modes = 1,
+      .preferred_mode = 0,
+      .possible_crtcs = { 1 },
+      .n_possible_crtcs = 1,
+      .width_mm = 220,
+      .height_mm = 124
+    }
+  },
+  .n_outputs = 2,
+  .crtcs = {
+    {
+      .current_mode = 0
+    },
+    {
+      .current_mode = 0
+    }
+  },
+  .n_crtcs = 2
+};
+
+static void
+meta_test_backlight_ref_white_sanity (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitor *monitor;
+  MetaBacklight *backlight;
+  int backlight_min;
+  int backlight_max;
+  int backlight_value;
+
+  emulate_hotplug (&ref_white_test_case_setup);
+
+  monitor = meta_monitor_manager_get_monitors (monitor_manager)->data;
+  backlight = meta_monitor_get_backlight (monitor);
+  g_assert_nonnull (backlight);
+
+  meta_backlight_get_brightness_info (backlight, &backlight_min, &backlight_max);
+  backlight_value = meta_backlight_get_brightness (backlight);
+  g_assert_cmpint (backlight_min, ==, 10);
+  g_assert_cmpint (backlight_max, ==, 210);
+  g_assert_cmpint (backlight_value, ==, 100);
+}
+
+static void
+meta_test_backlight_ref_white_set (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaColorManager *color_manager = meta_backend_get_color_manager (backend);
+  MetaMonitor *monitor;
+  MetaBacklight *backlight;
+  MetaColorDevice *color_device;
+
+  emulate_hotplug (&ref_white_test_case_setup);
+
+  monitor = meta_monitor_manager_get_monitors (monitor_manager)->data;
+  backlight = meta_monitor_get_backlight (monitor);
+  color_device = meta_color_manager_get_color_device (color_manager, monitor);
+
+  meta_backlight_set_brightness (backlight, 140);
+  meta_backlight_set_brightness (backlight, 160);
+
+  while (meta_backlight_has_pending (backlight))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (meta_backlight_get_brightness (backlight), ==, 160);
+  g_assert_cmpfloat_with_epsilon (
+    meta_color_device_get_reference_luminance_factor (color_device),
+    1.6f, FLT_EPSILON);
+}
+
 int
 main (int   argc,
       char *argv[])
@@ -386,6 +485,10 @@ main (int   argc,
   meta_init_monitor_test_setup (create_test_setup);
   g_test_add_func ("/backends/backlight/sanity",
                    meta_test_backlight_sanity);
+  g_test_add_func ("/backends/backlight/ref-white/sanity",
+                   meta_test_backlight_ref_white_sanity);
+  g_test_add_func ("/backends/backlight/ref-white/set",
+                   meta_test_backlight_ref_white_set);
   g_test_add_func ("/backends/backlight/sysfs/sanity",
                    meta_test_backlight_sysfs_sanity);
   g_test_add_func ("/backends/backlight/sysfs/set",

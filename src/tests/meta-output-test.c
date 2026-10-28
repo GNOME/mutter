@@ -19,6 +19,7 @@
 
 #include "tests/meta-output-test.h"
 
+#include "backends/meta-backlight-ref-white-private.h"
 #include "backends/meta-backlight-sysfs-private.h"
 #include "backends/meta-gpu.h"
 
@@ -53,6 +54,9 @@ meta_output_test_create_backlight (MetaOutput  *output,
       return META_BACKLIGHT (meta_backlight_sysfs_new (backend,
                                                        meta_output_get_info (output),
                                                        error));
+    case META_OUTPUT_TEST_BACKLIGHT_REF_WHITE:
+      return META_BACKLIGHT (meta_backlight_ref_white_new (backend,
+                                                           meta_output_get_monitor (output)));
     case META_OUTPUT_TEST_BACKLIGHT_NONE:
       break;
     }

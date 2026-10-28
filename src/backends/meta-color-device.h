@@ -63,6 +63,7 @@ gboolean meta_color_device_is_ready (MetaColorDevice *color_device);
 
 void meta_color_device_update (MetaColorDevice *color_device);
 
+META_EXPORT_TEST
 float meta_color_device_get_reference_luminance_factor (MetaColorDevice *color_device);
 
 void meta_color_device_set_reference_luminance_factor (MetaColorDevice *color_device,
