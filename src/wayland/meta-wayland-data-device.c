@@ -532,6 +532,7 @@ data_device_update_position (MetaWaylandDragGrab *drag_grab,
   monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager,
                                                          point->x, point->y);
   meta_wayland_surface_set_main_monitor (drag_grab->drag_surface, monitor);
+  meta_wayland_surface_notify_preferred_scale_monitor (drag_grab->drag_surface);
 }
 
 static gboolean

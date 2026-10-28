@@ -44,6 +44,9 @@ G_DEFINE_TYPE (MetaWaylandSurfaceRoleDND,
                meta_wayland_surface_role_dnd,
                META_TYPE_WAYLAND_ACTOR_SURFACE)
 
+static MetaLogicalMonitor *
+dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface);
+
 static void
 dnd_surface_set_property (GObject      *object,
                           guint         prop_id,
@@ -134,9 +137,12 @@ dnd_surface_get_preferred_scale_monitor (MetaWaylandSurfaceRole *surface_role)
     meta_wayland_compositor_get_context (surface->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
-     meta_backend_get_monitor_manager (backend);
+    meta_backend_get_monitor_manager (backend);
   graphene_rect_t extentsf = GRAPHENE_RECT_INIT_ZERO;
   MtkRectangle extents;
+
+  if (!clutter_actor_has_allocation (CLUTTER_ACTOR (surface_actor)))
+    return dnd_surface_find_logical_monitor (actor_surface);
 
   clutter_actor_get_transformed_extents (CLUTTER_ACTOR (surface_actor),
                                          &extentsf);
