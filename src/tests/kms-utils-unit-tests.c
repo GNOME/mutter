@@ -47,6 +47,44 @@ static const RefreshRateTestCase refresh_rate_test_cases[] = {
     .expected_refresh_rate = 59.9375f,
   },
 
+  /* NTSC 720x480i */
+  {
+    .drm_mode = {
+      .clock = 13500,
+      .hdisplay = 720,
+      .hsync_start = 736,
+      .hsync_end = 798,
+      .htotal = 858,
+      .vdisplay = 480,
+      .vsync_start = 489,
+      .vsync_end = 495,
+      .vtotal = 525,
+      .vscan = 0,
+      .flags = DRM_MODE_FLAG_INTERLACE | DRM_MODE_FLAG_NHSYNC |
+               DRM_MODE_FLAG_NVSYNC,
+    },
+    .expected_refresh_rate = 59.94f,
+  },
+
+  /* 640x960 CVT timings converted to a 640x480 doublescan mode */
+  {
+    .drm_mode = {
+      .clock = 50000,
+      .hdisplay = 640,
+      .hsync_start = 672,
+      .hsync_end = 736,
+      .htotal = 838,
+      .vdisplay = 480,
+      .vsync_start = 481,
+      .vsync_end = 483,
+      .vtotal = 498,
+      .vscan = 0,
+      .flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_PVSYNC |
+               DRM_MODE_FLAG_DBLSCAN,
+    },
+    .expected_refresh_rate = 59.9055f,
+  },
+
   /* "cvt 640 480" with htotal 0 */
   {
     .drm_mode = {

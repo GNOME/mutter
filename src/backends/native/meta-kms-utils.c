@@ -33,6 +33,10 @@ meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *drm_mode)
 
   numerator = drm_mode->clock * 1000.0;
   denominator = (double) drm_mode->vtotal * drm_mode->htotal;
+  if (drm_mode->flags & DRM_MODE_FLAG_INTERLACE)
+    numerator *= 2.0;
+  if (drm_mode->flags & DRM_MODE_FLAG_DBLSCAN)
+    denominator *= 2.0;
   if (drm_mode->vscan > 1)
     denominator *= drm_mode->vscan;
 
