@@ -129,6 +129,23 @@ meta_test_wayland_surface_scales (void)
                                             (uint32_t) (scale * 120.0f));
   meta_wayland_test_driver_wait_for_sync_point (test_driver, 0);
 
+  g_debug ("Testing with scale 1.5 with drag icon");
+  scale = 1.5f;
+  test_case_setup.outputs[0].scale = scale;
+  bump_output_serial (&test_case_setup.outputs[0].serial);
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  clutter_virtual_input_device_notify_button (virtual_pointer,
+                                              CLUTTER_CURRENT_TIME,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, 2);
+  meta_wayland_test_driver_emit_sync_event (test_driver,
+                                            (uint32_t) (scale * 120.0f));
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, 0);
+
   g_debug ("Terminating client");
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
 

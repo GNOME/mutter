@@ -25,10 +25,14 @@
 static float toplevel_scale;
 static float cursor_scale;
 static float subsurface_scale;
+static float dnd_scale;
 
 static WaylandSurface *toplevel_surface;
 static WaylandSurface *cursor_surface;
 static WaylandSurface *subsurface;
+static WaylandSurface *dnd_surface;
+
+static struct wl_data_source *data_source;
 
 static void
 check_scales (float scale)
@@ -47,6 +51,14 @@ check_scales (float scale)
   g_assert_cmpint (subsurface->preferred_buffer_scale,
                    ==,
                    (int32_t) ceilf (scale));
+
+  if (dnd_surface)
+    {
+      g_assert_cmpfloat_with_epsilon (dnd_scale, scale, FLT_EPSILON);
+      g_assert_cmpint (dnd_surface->preferred_buffer_scale,
+                       ==,
+                       (int32_t) ceilf (scale));
+    }
 }
 
 static void
@@ -123,6 +135,29 @@ on_pointer_enter (WaylandSurface    *surface,
 }
 
 static void
+on_button_event (WaylandSurface    *surface,
+                 struct wl_pointer *pointer,
+                 uint32_t           serial,
+                 uint32_t           button,
+                 gboolean           state)
+{
+  WaylandDisplay *display = surface->display;
+
+  dnd_surface = wayland_surface_new_unassigned (display);
+  watch_preferred_scales (display,
+                          dnd_surface->wl_surface,
+                          &dnd_scale);
+
+  data_source =
+    wl_data_device_manager_create_data_source (display->data_device_manager);
+  wl_data_device_start_drag (display->data_device, data_source,
+                             surface->wl_surface,
+                             dnd_surface->wl_surface, serial);
+
+  test_driver_sync_point (display->test_driver, 2, NULL);
+}
+
+static void
 on_sync_event (WaylandDisplay *display,
                uint32_t        serial,
                uint32_t       *out_scale)
@@ -147,6 +182,8 @@ main (int    argc,
                                           100, 100, 0xffffffff);
   g_signal_connect (toplevel_surface, "pointer-enter",
                     G_CALLBACK (on_pointer_enter), NULL);
+  g_signal_connect (toplevel_surface, "button-event",
+                    G_CALLBACK (on_button_event), NULL);
   xdg_toplevel_set_fullscreen (toplevel_surface->xdg_toplevel, NULL);
   watch_preferred_scales (display,
                           toplevel_surface->wl_surface,
@@ -182,10 +219,12 @@ main (int    argc,
     }
 
   g_clear_pointer (&wl_subsurface, wl_subsurface_destroy);
+  g_clear_pointer (&data_source, wl_data_source_destroy);
 
   g_clear_object (&toplevel_surface);
   g_clear_object (&cursor_surface);
   g_clear_object (&subsurface);
+  g_clear_object (&dnd_surface);
 
   return EXIT_SUCCESS;
 }
