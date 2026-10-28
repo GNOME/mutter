@@ -24,7 +24,6 @@
 #include <float.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-backlight-sysfs-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-config-manager.h"
@@ -729,7 +728,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       int connector_number;
       char *serial;
       g_autoptr (MetaOutputInfo) output_info = NULL;
-      g_autoptr (MetaBacklight) backlight = NULL;
+      MetaOutputTest *output_test;
 
       crtc_index = setup->outputs[i].crtc;
       if (crtc_index == -1)
@@ -831,20 +830,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       output_info->supported_hdr_eotfs =
         setup->outputs[i].supported_hdr_eotfs;
 
-      if (setup->outputs[i].backlight_min > 0 &&
-          setup->outputs[i].backlight_max > 0)
-        {
-          backlight =
-            g_object_new (META_TYPE_BACKLIGHT_TEST,
-                          "backend", backend,
-                          "name", output_info->name,
-                          "brightness-min", setup->outputs[i].backlight_min,
-                          "brightness-max", setup->outputs[i].backlight_max,
-                          "brightness", setup->outputs[i].backlight_max,
-                          NULL);
-        }
-
-      if (setup->outputs[i].sysfs_backlight)
+      if (setup->outputs[i].backlight_type == META_OUTPUT_TEST_BACKLIGHT_SYSFS)
         {
           UMockdevTestbed *udev_testbed =
             meta_context_test_get_udev_testbed (context_test);
@@ -852,7 +838,6 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
           g_autofree char *connector_name = NULL;
           g_autofree char *connector_udev = NULL;
           g_autofree char *backlight_udev = NULL;
-          int min;
 
           g_assert_true (umockdev_in_mock_environment ());
 
@@ -879,7 +864,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                                                         /* subsystem */
                                                         "backlight",
                                                         /* name */
-                                                        setup->outputs[i].sysfs_backlight,
+                                                        setup->outputs[i].sysfs_backlight_name,
                                                         /* parent */
                                                         connector_udev,
                                                         /* attributes */
@@ -889,26 +874,21 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                                                         NULL,
                                                         /* properties */
                                                         NULL);
-
-          backlight = META_BACKLIGHT (meta_backlight_sysfs_new (backend,
-                                                                output_info,
-                                                                NULL));
-          g_assert_nonnull (backlight);
-
-          meta_backlight_get_brightness_info (backlight, &min, NULL);
-          g_assert_cmpint (min, ==, setup->outputs[i].backlight_min);
         }
 
       output = g_object_new (META_TYPE_OUTPUT_TEST,
                              "id", (uint64_t) i,
                              "gpu", meta_test_get_gpu (backend),
                              "info", output_info,
-                             "backlight", backlight,
                              NULL);
+
+      output_test = META_OUTPUT_TEST (output);
+      output_test->backlight_type = setup->outputs[i].backlight_type;
+      output_test->backlight_min = setup->outputs[i].backlight_min;
+      output_test->backlight_max = setup->outputs[i].backlight_max;
 
       if (!setup->outputs[i].dynamic_scale)
         {
-          MetaOutputTest *output_test = META_OUTPUT_TEST (output);
           float scale;
 
           scale = setup->outputs[i].scale;

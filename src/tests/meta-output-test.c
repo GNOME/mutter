@@ -19,16 +19,8 @@
 
 #include "tests/meta-output-test.h"
 
-enum
-{
-  PROP_0,
-
-  PROP_BACKLIGHT,
-
-  N_PROPS
-};
-
-static GParamSpec *obj_props[N_PROPS];
+#include "backends/meta-backlight-sysfs-private.h"
+#include "backends/meta-gpu.h"
 
 G_DEFINE_TYPE (MetaOutputTest, meta_output_test, META_TYPE_OUTPUT_NATIVE)
 
@@ -45,9 +37,25 @@ meta_output_test_create_backlight (MetaOutput  *output,
                                    GError     **error)
 {
   MetaOutputTest *output_test = META_OUTPUT_TEST (output);
+  MetaBackend *backend = meta_gpu_get_backend (meta_output_get_gpu (output));
 
-  if (output_test->backlight)
-    return g_object_ref (output_test->backlight);
+  switch (output_test->backlight_type)
+    {
+    case META_OUTPUT_TEST_BACKLIGHT_MOCK:
+      return META_BACKLIGHT (g_object_new (META_TYPE_BACKLIGHT_TEST,
+                                           "backend", backend,
+                                           "name", meta_output_get_name (output),
+                                           "brightness-min", output_test->backlight_min,
+                                           "brightness-max", output_test->backlight_max,
+                                           "brightness", output_test->backlight_max,
+                                           NULL));
+    case META_OUTPUT_TEST_BACKLIGHT_SYSFS:
+      return META_BACKLIGHT (meta_backlight_sysfs_new (backend,
+                                                       meta_output_get_info (output),
+                                                       error));
+    case META_OUTPUT_TEST_BACKLIGHT_NONE:
+      break;
+    }
 
   g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                        "no test backlight defined");
@@ -55,72 +63,13 @@ meta_output_test_create_backlight (MetaOutput  *output,
 }
 
 static void
-meta_output_test_set_property (GObject      *object,
-                               guint         prop_id,
-                               const GValue *value,
-                               GParamSpec   *pspec)
-{
-  MetaOutputTest *output_test = META_OUTPUT_TEST (object);
-
-  switch (prop_id)
-    {
-    case PROP_BACKLIGHT:
-      g_set_object (&output_test->backlight, g_value_get_object (value));
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-    }
-}
-
-static void
-meta_output_test_get_property (GObject    *object,
-                               guint       prop_id,
-                               GValue     *value,
-                               GParamSpec *pspec)
-{
-  MetaOutputTest *output_test = META_OUTPUT_TEST (object);
-
-  switch (prop_id)
-    {
-    case PROP_BACKLIGHT:
-      g_value_set_object (value, output_test->backlight);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-    }
-}
-
-static void
-meta_output_test_dispose (GObject *object)
-{
-  MetaOutputTest *output_test = META_OUTPUT_TEST (object);
-
-  g_clear_object (&output_test->backlight);
-
-  G_OBJECT_CLASS (meta_output_test_parent_class)->dispose (object);
-}
-
-static void
 meta_output_test_class_init (MetaOutputTestClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaOutputClass *output_class = META_OUTPUT_CLASS (klass);
   MetaOutputNativeClass *output_native_class = META_OUTPUT_NATIVE_CLASS (klass);
 
-  object_class->set_property = meta_output_test_set_property;
-  object_class->get_property = meta_output_test_get_property;
-  object_class->dispose = meta_output_test_dispose;
-
   output_class->create_backlight = meta_output_test_create_backlight;
   output_native_class->read_edid = meta_output_test_read_edid;
-
-  obj_props[PROP_BACKLIGHT] =
-    g_param_spec_object ("backlight", NULL, NULL,
-                         META_TYPE_BACKLIGHT,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void

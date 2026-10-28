@@ -22,6 +22,7 @@
 #include <glib.h>
 
 #include "tests/meta-monitor-manager-test.h"
+#include "tests/meta-output-test.h"
 #include "tests/meta-test-utils.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-monitor-private.h"
@@ -115,9 +116,10 @@ typedef struct _MonitorTestCaseOutput
   gboolean hotplug_mode;
   int suggested_x;
   int suggested_y;
-  int backlight_min;
-  int backlight_max;
-  const char *sysfs_backlight;
+  MetaOutputTestBacklightType backlight_type;
+  int backlight_min; /* MOCK, SYSFS */
+  int backlight_max; /* MOCK, SYSFS */
+  const char *sysfs_backlight_name; /* SYSFS */
   gboolean has_edid_info;
   MetaEdidInfo edid_info;
   uint64_t supported_color_spaces;

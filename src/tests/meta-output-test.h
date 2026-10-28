@@ -20,13 +20,22 @@
 #include "backends/meta-backlight-private.h"
 #include "backends/native/meta-output-native.h"
 
+typedef enum _MetaOutputTestBacklightType
+{
+  META_OUTPUT_TEST_BACKLIGHT_NONE,
+  META_OUTPUT_TEST_BACKLIGHT_MOCK,
+  META_OUTPUT_TEST_BACKLIGHT_SYSFS,
+} MetaOutputTestBacklightType;
+
 struct _MetaOutputTest
 {
   MetaOutputNative parent;
 
   gboolean override_scale;
   float scale;
-  MetaBacklight *backlight;
+  MetaOutputTestBacklightType backlight_type;
+  int backlight_min;
+  int backlight_max;
 };
 
 #define META_TYPE_OUTPUT_TEST (meta_output_test_get_type ())
