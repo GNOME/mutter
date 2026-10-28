@@ -470,6 +470,36 @@ meta_test_backlight_ref_white_set (void)
     1.6f, FLT_EPSILON);
 }
 
+static void
+meta_test_backlight_ref_white_monitor_removed (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MonitorTestCaseSetup test_case_setup = ref_white_test_case_setup;
+  g_autoptr (MetaBacklight) backlight = NULL;
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitor *monitor;
+
+  emulate_hotplug (&ref_white_test_case_setup);
+
+  monitor = meta_monitor_manager_get_monitors (monitor_manager)->data;
+  backlight = g_object_ref (meta_monitor_get_backlight (monitor));
+
+  meta_backlight_set_brightness (backlight, 140);
+  g_assert_true (meta_backlight_has_pending (backlight));
+
+  test_case_setup.n_outputs = 0;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (
+    META_MONITOR_MANAGER_TEST (monitor_manager), test_setup);
+  g_assert_null (meta_monitor_manager_get_monitors (monitor_manager));
+
+  while (meta_backlight_has_pending (backlight))
+    g_main_context_iteration (NULL, TRUE);
+}
+
 int
 main (int   argc,
       char *argv[])
@@ -489,6 +519,8 @@ main (int   argc,
                    meta_test_backlight_ref_white_sanity);
   g_test_add_func ("/backends/backlight/ref-white/set",
                    meta_test_backlight_ref_white_set);
+  g_test_add_func ("/backends/backlight/ref-white/monitor-removed",
+                   meta_test_backlight_ref_white_monitor_removed);
   g_test_add_func ("/backends/backlight/sysfs/sanity",
                    meta_test_backlight_sysfs_sanity);
   g_test_add_func ("/backends/backlight/sysfs/set",

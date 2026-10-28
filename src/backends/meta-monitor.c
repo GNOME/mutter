@@ -701,7 +701,11 @@ meta_monitor_dispose (GObject *object)
       priv->outputs = NULL;
     }
 
-  g_clear_object (&priv->backlight);
+  if (priv->backlight)
+    {
+      g_object_run_dispose (G_OBJECT (priv->backlight));
+      g_clear_object (&priv->backlight);
+    }
 
   G_OBJECT_CLASS (meta_monitor_parent_class)->dispose (object);
 }
@@ -1008,7 +1012,11 @@ meta_monitor_create_backlight (MetaMonitor *monitor)
   g_autoptr (MetaBacklight) backlight = NULL;
   g_autoptr (GError) error = NULL;
 
-  g_clear_object (&priv->backlight);
+  if (priv->backlight)
+    {
+      g_object_run_dispose (G_OBJECT (priv->backlight));
+      g_clear_object (&priv->backlight);
+    }
 
   backlight = meta_output_create_backlight (main_output, &error);
   if (!backlight)

@@ -32,6 +32,7 @@ struct _MetaBacklightRefWhite
   MetaBacklight parent;
 
   MetaMonitor *monitor;
+  GTask *pending_task;
   guint change_ref_white_handle_id;
 };
 
@@ -69,8 +70,8 @@ get_factor (MetaBacklightRefWhite *backlight_ref_white)
 static gboolean
 on_change_ref_white (gpointer user_data)
 {
-  GTask *task = G_TASK (user_data);
-  MetaBacklightRefWhite *backlight_ref_white = g_task_get_source_object (task);
+  MetaBacklightRefWhite *backlight_ref_white = user_data;
+  g_autoptr (GTask) task = g_steal_pointer (&backlight_ref_white->pending_task);
   int brightness_target = GPOINTER_TO_INT (g_task_get_task_data (task));
 
   backlight_ref_white->change_ref_white_handle_id = 0;
@@ -102,11 +103,12 @@ meta_backlight_ref_white_set_brightness (MetaBacklight       *backlight,
   /* We have to do this in an idle because backlights can be changed from
    * the shell in a frame clock dispatch, and changing the ColorDevice
    * reference white invalidates the onscreen. */
+  backlight_ref_white->pending_task = g_steal_pointer (&task);
   backlight_ref_white->change_ref_white_handle_id =
     mtk_idle_add_full (CLUTTER_PRIORITY_REDRAW - 1,
                        on_change_ref_white,
-                       g_steal_pointer (&task),
-                       g_object_unref);
+                       backlight_ref_white,
+                       NULL);
   mtk_source_set_name_by_id (backlight_ref_white->change_ref_white_handle_id,
                              "[mutter] on_change_ref_white");
 }
@@ -119,6 +121,16 @@ meta_backlight_ref_white_dispose (GObject *object)
 
   g_clear_handle_id (&backlight_ref_white->change_ref_white_handle_id,
                      mtk_source_remove);
+
+  if (backlight_ref_white->pending_task)
+    {
+      g_task_return_new_error (backlight_ref_white->pending_task,
+                               G_IO_ERROR, G_IO_ERROR_CANCELLED,
+                               "Monitor was removed");
+      g_clear_object (&backlight_ref_white->pending_task);
+    }
+
+  backlight_ref_white->monitor = NULL;
 
   G_OBJECT_CLASS (meta_backlight_ref_white_parent_class)->dispose (object);
 }
