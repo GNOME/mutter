@@ -17,9 +17,12 @@
 
 #include "config.h"
 
+#include <float.h>
 #include <stdio.h>
 
 #include "backends/meta-backlight-private.h"
+#include "backends/meta-color-device.h"
+#include "backends/meta-color-manager.h"
 #include "tests/meta-test/meta-context-test.h"
 #include "tests/meta-monitor-test-utils.h"
 
@@ -122,6 +125,30 @@ static MonitorTestCaseSetup sysfs_test_case_setup = {
 
 static MetaContext *test_context;
 
+static MetaMonitorTestSetup *
+create_test_setup (MetaBackend *backend)
+{
+  return meta_create_monitor_test_setup (backend,
+                                         &initial_test_case_setup,
+                                         MONITOR_TEST_FLAG_NO_STORED);
+}
+
+static void
+emulate_hotplug (MonitorTestCaseSetup *test_case_setup)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaMonitorTestSetup *test_setup;
+
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+}
+
 static void
 meta_test_backlight_sanity (void)
 {
@@ -135,6 +162,8 @@ meta_test_backlight_sanity (void)
   int backlight_min;
   int backlight_max;
   int backlight_value;
+
+  emulate_hotplug (&initial_test_case_setup);
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
@@ -342,45 +371,6 @@ meta_test_backlight_sysfs_set (void)
   g_assert_cmpint (get_logind_backlight (backend, "backlight1"), ==, 30);
 }
 
-static MetaMonitorTestSetup *
-create_test_setup (MetaBackend *backend)
-{
-  return meta_create_monitor_test_setup (backend,
-                                         &initial_test_case_setup,
-                                         MONITOR_TEST_FLAG_NO_STORED);
-}
-
-static void
-prepare_backlight_test (void)
-{
-  MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaMonitorManagerTest *monitor_manager_test =
-    META_MONITOR_MANAGER_TEST (monitor_manager);
-  MetaMonitorTestSetup *test_setup;
-
-  test_setup = meta_create_monitor_test_setup (backend,
-                                               &initial_test_case_setup,
-                                               MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
-}
-
-static void
-finish_backlight_test (void)
-{
-}
-
-static void
-add_test (const char *test_path,
-          GTestFunc   test_func)
-{
-  g_test_add_vtable (test_path, 0, NULL,
-                     (GTestFixtureFunc) prepare_backlight_test,
-                     (GTestFixtureFunc) test_func,
-                     (GTestFixtureFunc) finish_backlight_test);
-}
-
 int
 main (int   argc,
       char *argv[])
@@ -394,9 +384,12 @@ main (int   argc,
   test_context = context;
 
   meta_init_monitor_test_setup (create_test_setup);
-  add_test ("/backends/backlight/sanity", meta_test_backlight_sanity);
-  add_test ("/backends/backlight/sysfs/sanity", meta_test_backlight_sysfs_sanity);
-  add_test ("/backends/backlight/sysfs/set", meta_test_backlight_sysfs_set);
+  g_test_add_func ("/backends/backlight/sanity",
+                   meta_test_backlight_sanity);
+  g_test_add_func ("/backends/backlight/sysfs/sanity",
+                   meta_test_backlight_sysfs_sanity);
+  g_test_add_func ("/backends/backlight/sysfs/set",
+                   meta_test_backlight_sysfs_set);
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_NONE);
