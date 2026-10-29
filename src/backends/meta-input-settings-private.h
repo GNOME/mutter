@@ -73,6 +73,9 @@ struct _MetaInputSettingsClass
   void (* set_speed) (MetaInputSettings  *settings,
                       ClutterInputDevice *device,
                       gdouble             speed);
+  void (* set_touchpad_scroll_speed) (MetaInputSettings  *settings,
+                                      ClutterInputDevice *device,
+                                      double              speed);
   void (* set_left_handed) (MetaInputSettings  *settings,
                             ClutterInputDevice *device,
                             gboolean            enabled);

@@ -87,6 +87,9 @@ struct _MetaInputDeviceNative
 
   ClutterModifierType button_state;
 
+  /* Input-thread owned, like the scroll accumulators below. */
+  double touchpad_scroll_speed;
+
   /* When the client doesn't support high-resolution scroll, accumulate deltas
    * until we can notify a discrete event.
    * Some mice have a free spinning wheel, making possible to lock the wheel

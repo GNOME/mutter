@@ -1286,6 +1286,19 @@ meta_seat_impl_notify_scroll_continuous_in_impl (MetaSeatImpl             *seat_
                                                  ClutterScrollSource       scroll_source,
                                                  ClutterScrollFinishFlags  finish_flags)
 {
+  if (scroll_source == CLUTTER_SCROLL_SOURCE_FINGER &&
+      (clutter_input_device_get_capabilities (input_device) &
+       CLUTTER_INPUT_CAPABILITY_TOUCHPAD))
+    {
+      MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (input_device);
+
+      /* Scale before smooth delivery and discrete emulation diverge. libinput
+       * has already applied natural scrolling and determined axis stops.
+       */
+      dx *= device_native->touchpad_scroll_speed;
+      dy *= device_native->touchpad_scroll_speed;
+    }
+
   if (finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL)
     seat_impl->accum_scroll_dx = 0;
   else

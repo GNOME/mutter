@@ -203,6 +203,17 @@ meta_input_settings_native_set_left_handed (MetaInputSettings  *settings,
 }
 
 static void
+meta_input_settings_native_set_touchpad_scroll_speed (MetaInputSettings  *settings,
+                                                     ClutterInputDevice *device,
+                                                     double              speed)
+{
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+
+  /* Native input settings and their GSettings signals live on the input thread. */
+  device_native->touchpad_scroll_speed = speed;
+}
+
+static void
 meta_input_settings_native_set_tap_enabled (MetaInputSettings  *settings,
                                             ClutterInputDevice *device,
                                             gboolean            enabled)
@@ -904,6 +915,8 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
   input_settings_class->set_send_events = meta_input_settings_native_set_send_events;
   input_settings_class->set_matrix = meta_input_settings_native_set_matrix;
   input_settings_class->set_speed = meta_input_settings_native_set_speed;
+  input_settings_class->set_touchpad_scroll_speed =
+    meta_input_settings_native_set_touchpad_scroll_speed;
   input_settings_class->set_left_handed = meta_input_settings_native_set_left_handed;
   input_settings_class->set_tap_enabled = meta_input_settings_native_set_tap_enabled;
   input_settings_class->set_tap_button_map = meta_input_settings_native_set_tap_button_map;

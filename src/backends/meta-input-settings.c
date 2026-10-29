@@ -589,6 +589,41 @@ update_device_speed (MetaInputSettings      *input_settings,
 }
 
 static void
+update_touchpad_scroll_speed (MetaInputSettings  *input_settings,
+                              ClutterInputDevice *device)
+{
+  MetaInputSettingsPrivate *priv =
+    meta_input_settings_get_instance_private (input_settings);
+  g_autoptr (GSettingsSchema) schema = NULL;
+  ConfigDoubleFunc func;
+  double speed;
+
+  func = META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_touchpad_scroll_speed;
+  if (!func)
+    return;
+
+  if (device &&
+      !device_matches_capabilities (device,
+                                    CLUTTER_INPUT_CAPABILITY_TOUCHPAD,
+                                    CLUTTER_INPUT_CAPABILITY_NONE))
+    return;
+
+  /* Keep working with schemas that do not provide this downstream key. */
+  g_object_get (priv->touchpad_settings, "settings-schema", &schema, NULL);
+  if (!g_settings_schema_has_key (schema, "scroll-speed"))
+    return;
+
+  speed = g_settings_get_double (priv->touchpad_settings, "scroll-speed");
+  if (device)
+    settings_device_set_double_setting (input_settings, device, func, speed);
+  else
+    settings_set_double_setting (input_settings,
+                                 CLUTTER_INPUT_CAPABILITY_TOUCHPAD,
+                                 CLUTTER_INPUT_CAPABILITY_NONE,
+                                 func, speed);
+}
+
+static void
 update_device_natural_scroll (MetaInputSettings      *input_settings,
                               ClutterInputDevice     *device)
 {
@@ -1319,6 +1354,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_touchpad_left_handed (input_settings, NULL);
       else if (strcmp (key, "speed") == 0)
         update_device_speed (input_settings, NULL);
+      else if (strcmp (key, "scroll-speed") == 0)
+        update_touchpad_scroll_speed (input_settings, NULL);
       else if (strcmp (key, "natural-scroll") == 0)
         update_device_natural_scroll (input_settings, NULL);
       else if (strcmp (key, "accel-profile") == 0 ||
@@ -1629,6 +1666,7 @@ apply_device_settings (MetaInputSettings  *input_settings,
 
   update_device_speed (input_settings, device);
   update_device_natural_scroll (input_settings, device);
+  update_touchpad_scroll_speed (input_settings, device);
 
   update_mouse_left_handed (input_settings, device);
   update_pointer_accel_profile (input_settings,

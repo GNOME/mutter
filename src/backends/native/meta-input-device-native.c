@@ -242,6 +242,7 @@ meta_input_device_native_init (MetaInputDeviceNative *self)
   self->output_ratio = 0;
   self->width = -1;
   self->height = -1;
+  self->touchpad_scroll_speed = 1.0;
 }
 
 static void
