@@ -64,7 +64,7 @@
 #define X11_TMP_UNIX_DIR     "/tmp/.X11-unix"
 #define X11_TMP_UNIX_PATH    "/tmp/.X11-unix/X"
 
-#define MAX_X11_SOCKET_ATTEMPTS 50
+#define MAX_X11_SOCKET_ATTEMPTS 1000
 
 static int display_number_override = -1;
 
