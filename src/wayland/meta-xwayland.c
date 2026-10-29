@@ -64,6 +64,8 @@
 #define X11_TMP_UNIX_DIR     "/tmp/.X11-unix"
 #define X11_TMP_UNIX_PATH    "/tmp/.X11-unix/X"
 
+#define MAX_X11_SOCKET_ATTEMPTS 50
+
 static int display_number_override = -1;
 
 static void meta_xwayland_stop_xserver (MetaXWaylandManager *manager);
@@ -268,13 +270,12 @@ create_lock_file (int      display,
       display++;
       number_of_tries++;
 
-      /* If we can't get a display after 50 times, then something's wrong. Just
-       * abort in this case. */
-      if (number_of_tries >= 50)
+      if (number_of_tries >= MAX_X11_SOCKET_ATTEMPTS)
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                        "Gave up after trying to lock different "
-                       "X11 display lock file 50 times");
+                       "X11 display lock file %d times",
+                       MAX_X11_SOCKET_ATTEMPTS);
           return NULL;
         }
     }
@@ -651,7 +652,7 @@ choose_xdisplay (MetaXWaylandManager     *manager,
         {
           unlink (file);
 
-          if (++number_of_tries >= 50)
+          if (++number_of_tries >= MAX_X11_SOCKET_ATTEMPTS)
             {
               g_prefix_error (&local_error, "Failed to bind X11 socket: ");
               g_propagate_error (error, g_steal_pointer (&local_error));
