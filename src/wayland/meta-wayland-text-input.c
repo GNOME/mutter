@@ -41,7 +41,6 @@ typedef enum
   META_WAYLAND_PENDING_STATE_SURROUNDING_TEXT = 1 << 2,
   META_WAYLAND_PENDING_STATE_ENABLED          = 1 << 3,
   META_WAYLAND_PENDING_STATE_ACTIONS          = 1 << 4,
-  META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY = 1 << 5,
 } MetaWaylandTextInputPendingState;
 
 typedef struct _PreeditStyleHint PreeditStyleHint;
@@ -97,7 +96,6 @@ struct _MetaWaylandTextInput
 
   uint32_t enable_serial;
   ClutterInputActionFlags available_actions;
-  gboolean show_panel;
   gboolean enabled;
 
   struct
@@ -861,6 +859,12 @@ text_input_commit_state (struct wl_client   *client,
 
           if (!clutter_input_focus_is_focused (focus))
             clutter_input_method_focus_in (input_method, focus);
+          /* If the zwp_text_input_v3 protocol, version 2, is not used,
+           * fall back to the legacy behavior of showing the OSK on a second
+           * commit after focus-in.
+           * With zwp_text_input_v3, version 2, clients get to control the OSK
+           * show/hide behavior themselves.
+           */
           else if (wl_resource_get_version (resource) <
                    ZWP_TEXT_INPUT_V3_SHOW_INPUT_PANEL_SINCE_VERSION)
             enable_panel_v1 = TRUE;
@@ -948,18 +952,7 @@ text_input_commit_state (struct wl_client   *client,
                                                text_input->available_actions);
     }
 
-  if (text_input->pending_state & META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY)
-    {
-      ClutterInputPanelState panel_state;
-
-      if (text_input->show_panel)
-        panel_state = CLUTTER_INPUT_PANEL_STATE_ON;
-      else
-        panel_state = CLUTTER_INPUT_PANEL_STATE_OFF;
-
-      clutter_input_focus_set_input_panel_state (focus, panel_state);
-    }
-  else if (enable_panel_v1)
+  if (enable_panel_v1)
     {
       clutter_input_focus_set_input_panel_state (focus,
                                                  CLUTTER_INPUT_PANEL_STATE_ON);
@@ -1016,9 +1009,13 @@ text_input_show_input_panel (struct wl_client   *client,
                              struct wl_resource *resource)
 {
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  ClutterInputFocus *focus = text_input->input_focus;
 
-  text_input->show_panel = TRUE;
-  text_input->pending_state |= META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY;
+  if (!client_matches_focus (text_input, client) ||
+      !clutter_input_focus_is_focused (focus))
+    return;
+
+  clutter_input_focus_set_input_panel_state (text_input->input_focus, CLUTTER_INPUT_PANEL_STATE_ON);
 }
 
 static void
@@ -1026,9 +1023,13 @@ text_input_hide_input_panel (struct wl_client   *client,
                              struct wl_resource *resource)
 {
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  ClutterInputFocus *focus = text_input->input_focus;
 
-  text_input->show_panel = FALSE;
-  text_input->pending_state |= META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY;
+  if (!client_matches_focus (text_input, client) ||
+      !clutter_input_focus_is_focused (focus))
+    return;
+
+  clutter_input_focus_set_input_panel_state (text_input->input_focus, CLUTTER_INPUT_PANEL_STATE_OFF);
 }
 
 static struct zwp_text_input_v3_interface meta_text_input_interface = {
