@@ -2705,6 +2705,27 @@ maybe_create_syncobj (MetaStreamSource  *source,
                        g_steal_pointer (&timeline));
 }
 
+/* The NVIDIA driver does not attach fences to dma-bufs, so consumers relying on
+ * implicit synchronization can read a buffer the GPU is still writing.
+ */
+static gboolean
+dma_bufs_require_explicit_sync (MetaStreamSource *source)
+{
+  MetaStream *stream = meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  const char *egl_vendor;
+
+  egl_vendor =
+    cogl_renderer_egl_query_string (COGL_RENDERER_EGL (cogl_renderer),
+                                    EGL_VENDOR);
+
+  return g_strcmp0 (egl_vendor, "NVIDIA") == 0;
+}
+
 static void
 on_stream_add_buffer (void             *data,
                       struct pw_buffer *buffer)
@@ -2724,24 +2745,52 @@ on_stream_add_buffer (void             *data,
     {
       MetaStream *stream = meta_stream_source_get_stream (source);
       CoglPixelFormat cogl_format;
+      GArray *modifiers;
 
       if (!cogl_pixel_format_from_spa_video_format (priv->video_format.format,
                                                     &cogl_format))
         g_assert_not_reached ();
 
-      dmabuf_handle =
-        meta_stream_create_dma_buf_handle (stream,
-                                           cogl_format,
-                                           priv->video_format.modifier,
-                                           priv->video_format.size.width,
-                                           priv->video_format.size.height);
+      modifiers = g_hash_table_lookup (priv->modifiers,
+                                       GINT_TO_POINTER (cogl_format));
+
+      if (dma_bufs_require_explicit_sync (source) &&
+          !spa_buffer_find_meta_data (spa_buffer, SPA_META_SyncTimeline,
+                                      sizeof (struct spa_meta_sync_timeline)))
+        {
+          /* If the consumer did not negotiate explicit synchronization when
+           * it's required, treat the allocation as failed so that the stream
+           * is renegotiated.
+           * Drop all modifiers at once: a single renegotiation then leaves only
+           * the shared memory format.
+           */
+          if (modifiers->len > 0)
+            {
+              meta_topic (META_DEBUG_SCREEN_CAST,
+                          "pw_stream %u does not use explicit sync, "
+                          "falling back to shared memory buffers",
+                          pw_stream_get_node_id (priv->pipewire_stream));
+
+              g_array_set_size (modifiers, 0);
+              meta_stream_source_renegotiate (source);
+            }
+
+          return;
+        }
+      else
+        {
+          dmabuf_handle =
+            meta_stream_create_dma_buf_handle (stream,
+                                               cogl_format,
+                                               priv->video_format.modifier,
+                                               priv->video_format.size.width,
+                                               priv->video_format.size.height);
+        }
+
       if (!dmabuf_handle)
         {
-          GArray *modifiers;
           int i;
 
-          modifiers = g_hash_table_lookup (priv->modifiers,
-                                           GINT_TO_POINTER (cogl_format));
           for (i = 0; i < modifiers->len; i++)
             {
               if (g_array_index (modifiers, uint64_t, i) ==
