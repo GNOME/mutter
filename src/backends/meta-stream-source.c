@@ -122,6 +122,7 @@ typedef struct _MetaStreamSourcePrivate
   struct pw_stream *pipewire_stream;
   struct spa_hook pipewire_stream_listener;
   uint32_t node_id;
+  uint64_t node_serial;
 
   struct spa_video_info_raw video_format;
   ClutterColorState *color_state;
@@ -2130,6 +2131,9 @@ on_stream_state_changed (void                 *data,
       if (priv->node_id == SPA_ID_INVALID && priv->pipewire_stream)
         {
           priv->node_id = pw_stream_get_node_id (priv->pipewire_stream);
+          priv->node_serial =
+            pw_properties_get_uint64 (pw_stream_get_properties (priv->pipewire_stream),
+                                      PW_KEY_OBJECT_SERIAL, 0);
           g_signal_emit (source, signals[READY], 0);
         }
       if (meta_stream_source_is_enabled (source))
@@ -3409,4 +3413,13 @@ meta_stream_source_get_node_id (MetaStreamSource *source)
     meta_stream_source_get_instance_private (source);
 
   return priv->node_id;
+}
+
+uint64_t
+meta_stream_source_get_node_serial (MetaStreamSource *source)
+{
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+
+  return priv->node_serial;
 }

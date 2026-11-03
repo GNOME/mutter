@@ -38,7 +38,7 @@
 
 #define META_SCREEN_CAST_DBUS_SERVICE "org.gnome.Mutter.ScreenCast"
 #define META_SCREEN_CAST_DBUS_PATH "/org/gnome/Mutter/ScreenCast"
-#define META_SCREEN_CAST_API_VERSION 4
+#define META_SCREEN_CAST_API_VERSION 5
 
 struct _MetaScreenCast
 {

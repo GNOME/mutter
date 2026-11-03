@@ -102,6 +102,29 @@ on_stream_closed (MetaStream           *stream,
 }
 
 static void
+emit_pipewire_stream_added_v2 (MetaScreenCastStream *screen_cast_stream,
+                               uint32_t              node_id,
+                               uint64_t              node_serial)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (screen_cast_stream);
+  GVariantBuilder properties_builder;
+
+  g_variant_builder_init (&properties_builder, G_VARIANT_TYPE_VARDICT);
+  g_variant_builder_add (&properties_builder, "{sv}", "node-id",
+                         g_variant_new_uint32 (node_id));
+  g_variant_builder_add (&properties_builder, "{sv}", "node-serial",
+                         g_variant_new_uint64 (node_serial));
+  g_dbus_connection_emit_signal (priv->connection,
+                                 meta_screen_cast_session_get_peer_name (priv->session),
+                                 priv->object_path,
+                                 META_SCREEN_CAST_STREAM_DBUS_IFACE,
+                                 "PipeWireStreamAddedV2",
+                                 g_variant_new ("(a{sv})", &properties_builder),
+                                 NULL);
+}
+
+static void
 on_stream_ready (MetaStream           *stream,
                  MetaScreenCastStream *screen_cast_stream)
 {
@@ -125,6 +148,10 @@ on_stream_ready (MetaStream           *stream,
                                  "PipeWireStreamAdded",
                                  g_variant_new ("(u)", node_id),
                                  NULL);
+
+  emit_pipewire_stream_added_v2 (screen_cast_stream,
+                                 node_id,
+                                 meta_stream_source_get_node_serial (source));
 }
 
 MetaScreenCastSession *

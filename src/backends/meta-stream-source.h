@@ -205,3 +205,5 @@ void meta_stream_source_renegotiate (MetaStreamSource *source);
 ClutterColorState * meta_stream_source_get_color_state (MetaStreamSource *source);
 
 uint32_t meta_stream_source_get_node_id (MetaStreamSource *source);
+
+uint64_t meta_stream_source_get_node_serial (MetaStreamSource *source);
