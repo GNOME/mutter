@@ -612,6 +612,10 @@ toplevel_sessions_restore_fullscreen_monitor_removed (void)
   g_assert_cmpint (frame_rect.width, ==, 640);
   g_assert_cmpint (frame_rect.height, ==, 480);
 
+  g_signal_handlers_disconnect_by_func (session_manager,
+                                        on_session_instantiated,
+                                        &session_id);
+
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);
 }
