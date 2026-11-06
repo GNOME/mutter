@@ -7665,7 +7665,13 @@ meta_window_set_wm_class (MetaWindow *window,
                           const char *wm_class,
                           const char *wm_instance)
 {
-  if (g_set_str (&window->res_class, wm_class) || g_set_str (&window->res_name, wm_instance))
+  gboolean class_changed;
+  gboolean name_changed;
+
+  class_changed = g_set_str (&window->res_class, wm_class);
+  name_changed = g_set_str (&window->res_name, wm_instance);
+
+  if (class_changed || name_changed)
     g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_WM_CLASS]);
 }
 
