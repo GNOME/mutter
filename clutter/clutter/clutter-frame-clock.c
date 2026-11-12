@@ -1611,7 +1611,6 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
   int64_t ready_time_us = target_us, extrapolated_presentation_time_us;
   int64_t max_update_time_estimate_us;
   int64_t now_us;
-  int64_t cycles;
   ClutterFrameClockState next_state = frame_clock->state;
 
   if (frame_clock->inhibit_count > 0)
@@ -1692,12 +1691,10 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
           return;
         }
 
-      cycles =
-        (target_us - next_presentation_time_us +
-         frame_clock->refresh_interval_us - 1) /
-        frame_clock->refresh_interval_us;
       extrapolated_presentation_time_us =
-        next_presentation_time_us + frame_clock->refresh_interval_us * cycles;
+        mtk_extrapolate_next_interval_boundary (next_presentation_time_us,
+                                                target_us,
+                                                frame_clock->refresh_interval_us);
       max_update_time_estimate_us = next_presentation_time_us - next_update_time_us;
       ready_time_us = extrapolated_presentation_time_us - max_update_time_estimate_us;
       frame_clock->next_presentation_time_us = extrapolated_presentation_time_us;
