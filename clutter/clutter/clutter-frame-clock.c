@@ -1675,8 +1675,6 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
                                      NULL,
                                      &next_frame_deadline_us);
 
-      g_warn_if_fail (next_presentation_time_us != -1);
-
       if (next_presentation_time_us == 0)
         {
           /* Without presentation feedback there is nothing to extrapolate */
