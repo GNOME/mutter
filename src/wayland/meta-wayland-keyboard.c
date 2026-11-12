@@ -441,14 +441,9 @@ meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
   MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
   MetaBackend *backend = backend_from_keyboard (keyboard);
 
-  keyboard->settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
-
   wl_array_init (&keyboard->pressed_keys);
 
   keyboard->key_down_serials = g_hash_table_new (NULL, NULL);
-
-  g_signal_connect (keyboard->settings, "changed",
-                    G_CALLBACK (settings_changed), keyboard);
 
   g_signal_connect (backend, "keymap-changed",
                     G_CALLBACK (on_keymap_changed), keyboard);
@@ -489,7 +484,6 @@ meta_wayland_keyboard_disable (MetaWaylandKeyboard *keyboard)
 
   wl_array_release (&keyboard->pressed_keys);
 
-  g_clear_object (&keyboard->settings);
 }
 
 static gboolean
@@ -839,6 +833,10 @@ meta_wayland_keyboard_init (MetaWaylandKeyboard *keyboard)
   wl_list_init (&keyboard->resource_list);
   wl_list_init (&keyboard->focus_resource_list);
 
+  keyboard->settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
+  g_signal_connect (keyboard->settings, "changed",
+                    G_CALLBACK (settings_changed), keyboard);
+
   keyboard->focus_surface_listener.notify =
     keyboard_handle_focus_surface_destroy;
 }
@@ -848,6 +846,7 @@ meta_wayland_keyboard_finalize (GObject *object)
 {
   MetaWaylandKeyboard *keyboard = META_WAYLAND_KEYBOARD (object);
 
+  g_clear_object (&keyboard->settings);
   meta_wayland_xkb_info_destroy (&keyboard->xkb_info);
 
   G_OBJECT_CLASS (meta_wayland_keyboard_parent_class)->finalize (object);
