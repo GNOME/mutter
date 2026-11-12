@@ -962,6 +962,8 @@ static MetaKmsResourceChanges
 meta_kms_connector_state_changes (MetaKmsConnectorState *state,
                                   MetaKmsConnectorState *new_state)
 {
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
+
   if (state->current_crtc_id != new_state->current_crtc_id)
     {
       meta_topic (META_DEBUG_KMS, "current CRTC ID changed");
@@ -1105,10 +1107,16 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
   if (state->privacy_screen_state != new_state->privacy_screen_state)
     {
       meta_topic (META_DEBUG_KMS, "privacy screen state changed");
-      return META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
+      changes |= META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
     }
 
-  return META_KMS_RESOURCE_CHANGE_NONE;
+  if (state->abm.value != new_state->abm.value)
+    {
+      meta_topic (META_DEBUG_KMS, "ABM level changed");
+      changes |= META_KMS_RESOURCE_CHANGE_ABM;
+    }
+
+  return changes;
 }
 
 static void
@@ -1122,6 +1130,9 @@ meta_kms_connector_update_state_changes (MetaKmsConnector       *connector,
 
   if (changes & META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN)
     current_state->privacy_screen_state = new_state->privacy_screen_state;
+
+  if (changes & META_KMS_RESOURCE_CHANGE_ABM)
+    current_state->abm.value = new_state->abm.value;
 }
 
 static gpointer
