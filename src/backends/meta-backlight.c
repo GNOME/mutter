@@ -335,7 +335,8 @@ meta_backlight_set_content_adaptive_level (MetaBacklight *backlight,
  * @backlight: A #MetaBacklight object
  *
  * Returns the requested level, which is not necessarily what the panel is
- * doing.
+ * doing. It can also change on its own, to follow the panel when the level
+ * was changed elsewhere.
  *
  * Returns: The requested level.
  */

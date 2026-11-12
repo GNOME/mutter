@@ -439,6 +439,24 @@ sync_content_adaptive_level_from_connector (MetaBacklight    *backlight,
                                              META_KMS_CONNECTOR_ABM_OFF);
 }
 
+void
+meta_output_kms_sync_content_adaptive_level (MetaOutputKms *output_kms)
+{
+  MetaOutput *output = META_OUTPUT (output_kms);
+  MetaMonitor *monitor = meta_output_get_monitor (output);
+  MetaBacklight *backlight;
+
+  if (!monitor || meta_monitor_get_main_output (monitor) != output)
+    return;
+
+  backlight = meta_monitor_get_backlight (monitor);
+  if (!backlight)
+    return;
+
+  sync_content_adaptive_level_from_connector (backlight,
+                                              output_kms->kms_connector);
+}
+
 static MetaBacklight *
 meta_output_kms_create_backlight (MetaOutput  *output,
                                   GError     **error)

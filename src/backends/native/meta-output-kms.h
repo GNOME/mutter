@@ -37,6 +37,8 @@ MetaKmsConnector * meta_output_kms_get_kms_connector (MetaOutputKms *output_kms)
 
 uint32_t meta_output_kms_get_connector_id (MetaOutputKms *output_kms);
 
+void meta_output_kms_sync_content_adaptive_level (MetaOutputKms *output_kms);
+
 MetaOutputKms * meta_output_kms_from_kms_connector (MetaKmsConnector *connector);
 
 void meta_unlink_kms_connector (MetaKmsConnector *connector);

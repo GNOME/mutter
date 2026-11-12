@@ -378,6 +378,22 @@ handle_hotplug_event (MetaMonitorManager *manager)
 }
 
 static void
+sync_content_adaptive_levels (MetaMonitorManager *manager)
+{
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  GList *l;
+
+  for (l = meta_backend_get_gpus (backend); l; l = l->next)
+    {
+      MetaGpu *gpu = l->data;
+      GList *k;
+
+      for (k = meta_gpu_get_outputs (gpu); k; k = k->next)
+        meta_output_kms_sync_content_adaptive_level (META_OUTPUT_KMS (k->data));
+    }
+}
+
+static void
 on_kms_resources_changed (MetaKms                *kms,
                           MetaKmsResourceChanges  changes,
                           MetaMonitorManager     *manager)
@@ -389,6 +405,12 @@ on_kms_resources_changed (MetaKms                *kms,
   if (changes == META_KMS_RESOURCE_CHANGE_CRTC_COLOR_PIPELINE)
     {
       meta_dbus_display_config_emit_monitors_changed (manager->display_config);
+      return;
+    }
+
+  if (changes == META_KMS_RESOURCE_CHANGE_ABM)
+    {
+      sync_content_adaptive_levels (manager);
       return;
     }
 
