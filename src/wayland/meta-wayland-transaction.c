@@ -266,15 +266,14 @@ has_dependencies (MetaWaylandTransaction *transaction)
       if (surface->transaction.first_committed != transaction)
         return TRUE;
 
-      if (!entry || !entry->state)
+      if (!entry || !entry->state || !entry->state->fifo_wait ||
+          !surface->fifo_barrier)
         continue;
 
       actor = meta_wayland_surface_get_actor (surface);
-      if (!actor || meta_surface_actor_is_effectively_obscured (actor) ||
-          !clutter_actor_is_mapped (CLUTTER_ACTOR (actor)))
-        continue;
-
-      if (entry->state->fifo_wait && surface->fifo_barrier)
+      if (actor &&
+          !meta_surface_actor_is_effectively_obscured (actor) &&
+          clutter_actor_is_mapped (CLUTTER_ACTOR (actor)))
         return TRUE;
     }
 
