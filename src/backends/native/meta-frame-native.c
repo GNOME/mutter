@@ -20,7 +20,9 @@
 #include "backends/native/meta-frame-native.h"
 
 #include "backends/native/meta-kms-update.h"
+#include "backends/native/meta-onscreen-native.h"
 #include "clutter/clutter-mutter.h"
+#include "cogl/cogl-frame-info-private.h"
 #include "core/util-private.h"
 
 #include <glib/gstdio.h>
@@ -33,6 +35,8 @@ struct _MetaFrameNative
   CoglScanout *scanout;
 
   MetaKmsUpdate *kms_update;
+
+  GSource *kms_ready_source;
 
   MtkRegion *damage;
 
@@ -47,6 +51,7 @@ meta_frame_native_release (ClutterFrame *frame)
   g_clear_fd (&frame_native->sync.fd, NULL);
   g_clear_pointer (&frame_native->damage, mtk_region_unref);
   g_clear_pointer (&frame_native->kms_update, meta_kms_update_free);
+  g_clear_pointer (&frame_native->kms_ready_source, g_source_destroy);
   g_clear_object (&frame_native->buffer);
   g_clear_object (&frame_native->scanout);
 }
@@ -94,6 +99,79 @@ gboolean
 meta_frame_native_has_kms_update (MetaFrameNative *frame_native)
 {
   return !!frame_native->kms_update;
+}
+
+static void
+maybe_mark_kms_ready (CoglFrameInfo *frame_info)
+{
+  if (frame_info->kms_ready_time_us == 0)
+    frame_info->kms_ready_time_us = g_get_monotonic_time ();
+}
+
+typedef struct _KmsReadySource {
+  GSource parent;
+  MetaFrameNative *frame_native;
+} KmsReadySource;
+
+static gboolean
+kms_ready_source_dispatch (GSource     *source,
+                           GSourceFunc  callback,
+                           gpointer     user_data)
+{
+  KmsReadySource *kms_ready_source = (KmsReadySource *) source;
+  MetaFrameNative *frame_native = kms_ready_source->frame_native;
+  ClutterFrame *frame = &frame_native->parent;
+  CoglFrameInfo *cogl_frame_info = clutter_frame_get_cogl_frame_info (frame);
+
+  maybe_mark_kms_ready (cogl_frame_info);
+  g_clear_pointer (&frame_native->kms_ready_source, g_source_destroy);
+  return G_SOURCE_REMOVE;
+}
+
+static GSourceFuncs next_frame_source_funcs = {
+  .dispatch = kms_ready_source_dispatch,
+};
+
+void
+meta_frame_native_ensure_kms_ready (MetaFrameNative *frame_native)
+{
+  ClutterFrame *frame = &frame_native->parent;
+  CoglFrameInfo *cogl_frame_info = clutter_frame_get_cogl_frame_info (frame);
+  g_autoptr (GMainContext) main_context = NULL;
+  GSource *source;
+  KmsReadySource *kms_ready_source;
+  int sync_fd = frame_native->sync.fd;
+
+  if (frame_native->kms_ready_source)
+    return;
+
+  if (sync_fd < 0 ||
+      mtk_is_fd_readable (sync_fd))
+    {
+      maybe_mark_kms_ready (cogl_frame_info);
+      return;
+    }
+
+  main_context = g_main_context_ref_thread_default ();
+
+  source = g_source_new (&next_frame_source_funcs,
+                         sizeof (KmsReadySource));
+  g_source_add_unix_fd (source, sync_fd, G_IO_IN);
+
+  g_source_set_static_name (source,
+                            "[mutter] Native frame KMS ready");
+  g_source_attach (source, main_context);
+  g_source_unref (source);
+
+  frame_native->kms_ready_source = source;
+  kms_ready_source = (KmsReadySource *) source;
+  kms_ready_source->frame_native = frame_native;
+}
+
+void
+meta_frame_native_cancel_kms_ready (MetaFrameNative *frame_native)
+{
+  g_clear_pointer (&frame_native->kms_ready_source, g_source_destroy);
 }
 
 void

@@ -38,6 +38,10 @@ MetaKmsUpdate * meta_frame_native_steal_kms_update (MetaFrameNative *frame_nativ
 META_EXPORT_TEST
 gboolean meta_frame_native_has_kms_update (MetaFrameNative *frame_native);
 
+void meta_frame_native_ensure_kms_ready (MetaFrameNative *frame_native);
+
+void meta_frame_native_cancel_kms_ready (MetaFrameNative *frame_native);
+
 void meta_frame_native_set_buffer (MetaFrameNative *frame_native,
                                    MetaDrmBuffer   *buffer);
 
