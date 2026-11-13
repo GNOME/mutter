@@ -7,20 +7,21 @@
 # Dirgita <dirgitadevina@yahoo.co.id>, 2011, 2012, 2014.
 # Andika Triwidada <andika@gmail.com>, 2011-2015, 2024, 2025.
 # Kukuh Syafaat <kukuhsyafaat@gnome.org>, 2017-2024.
+# Herpiko Dwi Aguno <herpiko@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter gnome-49\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-12-03 15:57+0000\n"
-"PO-Revision-Date: 2026-01-23 19:01+0700\n"
-"Last-Translator: Andika Triwidada <andika@gmail.com>\n"
+"POT-Creation-Date: 2026-09-11 19:26+0000\n"
+"PO-Revision-Date: 2026-11-13 03:58+0000\n"
+"Last-Translator: Herpiko Dwi Aguno <herpiko@gmail.com>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: pelokalan.blankon.id\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -250,35 +251,60 @@ msgstr "Maksimalkan ukuran jendela secara vertikal"
 msgid "Maximize window horizontally"
 msgstr "Maksimalkan ukuran jendela secara horisontal"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:142
 msgid "View split on left"
 msgstr "Tilik belah di kiri"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:147
 msgid "View split on right"
 msgstr "Tilik belah di kanan"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.experimental.gschema.xml.in:7
+msgid "Always allocate scanout buffers with explicit modifiers"
+msgstr "Selalu alokasikan pemindaian penyangga dengan modifier eksplisit"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:8
+msgid ""
+"When true, mutter will always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. This option requires a restart."
+msgstr ""
+"Jika aktif, mutter akan selalu mengalokasikan pemindaian penyangga dengan "
+"modifier eksplisit, jika didukung oleh penggerak. Opsi ini memerlukan mulai "
+"ulang."
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:17
+msgid "Automatically terminate Xwayland after last client is gone"
+msgstr "Akhiri Xwayland secara otomatis setelah klien terakhir hilang"
+
+#: data/org.gnome.mutter.experimental.gschema.xml.in:18
+msgid ""
+"When true, mutter will automatically terminate Xwayland after the last "
+"relevant client is gone. This option requires a restart."
+msgstr ""
+"Jika aktif, mutter akan secara otomatis mengakhiri Xwayland setelah klien "
+"relevan terakhir hilang. Opsi ini memerlukan mulai ulang."
+
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Tombol yang digunakan untuk memperluas operasi manajemen jendela"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
-"This key will initiate the “overlay”, which is a combination window overview "
-"and application launching system. The default is intended to be the “Windows "
-"key” on PC hardware. It’s expected that this binding either the default or "
-"set to the empty string."
+"This key will initiate the “overlay”, which is a combination window "
+"overview and application launching system. The default is intended to be the "
+"“Windows key” on PC hardware. It’s expected that this binding either "
+"the default or set to the empty string."
 msgstr ""
 "Kunci ini akan mengawali \"overlay\", yang merupakan kombinasi ringkasan "
 "jendela dan sistem peluncuran aplikasi. Nilai baku ditujukan agar menjadi "
 "\"tombol Windows\" pada perangkat keras PC. Diharapkan agar pengikatan ini "
 "berupa baku atau diisi dengan kalimat kosong."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Lampirkan dialog modal"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -287,11 +313,11 @@ msgstr ""
 "Jika bernilai \"true\", maka dialog modal akan muncul menempel pada baris "
 "judul jendela utama dan bergerak seiring perpindahan jendela utama tersebut."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Fungsikan pengubinan tepi ketika menjatuhkan jendela ke tepi layar"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -302,11 +328,11 @@ msgstr ""
 "menutupi separuh dari area yang tersedia. Menjatuhkan jendela pada tepi atas "
 "layar akan memaksimalkan mereka sepenuhnya."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Ruang kerja dikelola secara dinamis"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
@@ -316,11 +342,11 @@ msgstr ""
 "sejumlah tetap ruang kerja (ditentukan oleh kunci num-workspaces dalam "
 "org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Ruang kerja hanya pada primer"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -328,25 +354,25 @@ msgstr ""
 "Menentukan apakah perpindahan area kerja hanya terjadi pada jendela aplikasi "
 "di semua monitor atau hanya untuk jendela pada monitor utama."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Tunda perubahan fokus sampai penunjuk berhenti bergerak"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
-"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
-"focus will not be changed immediately when entering a window, but only after "
-"the pointer stops moving."
+"If set to true, and the focus mode is either “sloppy” or “mouse” "
+"then the focus will not be changed immediately when entering a window, but "
+"only after the pointer stops moving."
 msgstr ""
 "Bila diisi dengan true, dan mode fokus adalah \"sloppy\" atau \"mouse\" maka "
 "fokus tak akan berubah seketika saat memasuki suatu jendela, tapi hanya "
 "setelah penunjuk berhenti bergerak."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Lebar batas yang dapat diseret"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -354,11 +380,11 @@ msgstr ""
 "Total banyaknya tepi yang dapat diseret. Bila tepi tema yang nampak tak "
 "cukup, tepi tak nampak akan ditambahkan untuk memenuhi nilai ini."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Memaksimalkan otomatis hampir memantau jendela yang ditata ukurannya"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -366,11 +392,11 @@ msgstr ""
 "Bila difungsikan, jendela baru yang awalnya seukuran monitor secara otomatis "
 "dimaksimalkan."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Tempatkan jendela baru di tengah"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -378,64 +404,19 @@ msgstr ""
 "Ketika berisi true, jendela baru akan selalu diletakkan di tengah dari layar "
 "aktif dari monitor."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid "Enable experimental features"
-msgstr "Aktifkan fitur eksperimental"
-
-#: data/org.gnome.mutter.gschema.xml.in:109
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
-msgstr ""
-"Untuk mengaktifkan fitur eksperimental, tambahkan kata kunci fitur ke "
-"daftar. Apakah fitur tersebut memerlukan mulai ulang kompositor tergantung "
-"pada fitur yang diberikan. Setiap fitur eksperimental tidak diperlukan untuk "
-"tetap tersedia, atau dapat dikonfigurasi. Jangan berharap menambahkan apa "
-"pun dalam pengaturan ini tetap bertahan di masa mendatang. Kata kunci yang "
-"mungkin saat ini: • \"scale-monitor-framebuffer\" — menjadikan mutter bawaan "
-"untuk mengatur monitor logis dalam ruang koordinat piksel logis, sementara "
-"menskalakan framebuffer monitor alih-alih konten jendela, untuk mengelola "
-"monitor HiDPI. Tidak memerlukan mulai ulang. • \"kms-modifiers\" — membuat "
-"mutter selalu mengalokasikan buffer scanout dengan pengubah eksplisit, jika "
-"didukung oleh penggerak. Memerlukan mulai ulang. • \"autoclose-xwayland\" — "
-"secara otomatis menghentikan Xwayland jika semua klien X11 yang relevan "
-"sudah lenyap. Memerlukan mulai ulang. • \"variable-refresh-rate\" — membuat "
-"mutter secara dinamis menyesuaikan kecepatan penyegaran monitor bila berlaku "
-"dan jika didukung oleh monitor, GPU, dan penggerak DRM. Dapat dikonfigurasi "
-"di Pengaturan. Memerlukan mulai ulang. • \"xwayland-native-scaling\" — "
-"memungkinkan klien Xwayland memakai dukungan penskalaan native mereka. Bila "
-"penskalaan tidak didukung oleh klien, maka klien akan tidak diskalakan. "
-"Pengaturan hanya berdampa ketika \"scale-monitor-framebuffer\" juga "
-"difungsikan."
-
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Modifier to use to locate the pointer"
 msgstr "Pengubah yang digunakan untuk menemukan penunjuk"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Kunci ini akan memulai aksi \"penunjuk lokasi\"."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:114
 msgid "Timeout for check-alive ping"
 msgstr "Batas waktu untuk ping pemeriksaan hidup"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:115
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -446,11 +427,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:126
 msgid "Per output luminance settings"
 msgstr "Pengaturan luminansi per keluaran"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:127
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -462,15 +443,15 @@ msgstr ""
 "nilai floating point terkait yang mewakili luminansi keluaran dalam persen "
 "(%). Nilai baku ketika tidak ditentukan adalah 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Switch monitor configurations"
 msgstr "Tukar konfigurasi monitor bawaan"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "Rotates the built-in monitor configuration"
 msgstr "Memutar konfigurasi monitor bawaan"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:162
 msgid "Cancel any active input capture session"
 msgstr "Batalkan sesi penangkapan masukan aktif apa pun"
 
@@ -532,15 +513,15 @@ msgstr "Izinkan X11 menggenggam untuk mengunci fokus papan tik dengan Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
-"Allow all keyboard events to be routed to X11 “override redirect” windows "
-"with a grab when running in Xwayland. This option is to support X11 clients "
-"which map an “override redirect” window (which do not receive keyboard "
-"focus) and issue a keyboard grab to force all keyboard events to that "
-"window. This option is seldom used and has no effect on regular X11 windows "
-"which can receive keyboard focus under normal circumstances. For a X11 grab "
-"to be taken into account under Wayland, the client must also either send a "
-"specific X11 ClientMessage to the root window or be among the applications "
-"allowed in key “xwayland-grab-access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” "
+"windows with a grab when running in Xwayland. This option is to support X11 "
+"clients which map an “override redirect” window (which do not receive "
+"keyboard focus) and issue a keyboard grab to force all keyboard events to "
+"that window. This option is seldom used and has no effect on regular X11 "
+"windows which can receive keyboard focus under normal circumstances. For a "
+"X11 grab to be taken into account under Wayland, the client must also either "
+"send a specific X11 ClientMessage to the root window or be among the "
+"applications allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Izinkan semua peristiwa papan tik dialihkan ke jendela X11 \"override "
 "redirect\" dengan perambanan saat berjalan di Xwayland. Opsi ini adalah "
@@ -550,7 +531,8 @@ msgstr ""
 "dan tidak berpengaruh pada jendela X11 biasa yang dapat menerima fokus papan "
 "tik dalam keadaan normal. Agar pengambilan X11 diperhitungkan di bawah "
 "Wayland, klien juga harus mengirim PesanKlien X11 tertentu ke jendela root "
-"atau di antara aplikasi yang diizinkan di kunci “xwayland-grab-access-rules”."
+"atau di antara aplikasi yang diizinkan di kunci "
+"“xwayland-grab-access-rules”."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -563,13 +545,13 @@ msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
-"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are denied, which has precedence over the list of "
-"values allowed, to revoke applications from the default system list. The "
-"default system list includes the following applications: "
-"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
-"using the specific keyboard shortcut defined by the keybinding key “restore-"
-"shortcuts”."
+"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are "
+"supported. Values starting with “!” are denied, which has precedence "
+"over the list of values allowed, to revoke applications from the default "
+"system list. The default system list includes the following applications: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab "
+"by using the specific keyboard shortcut defined by the keybinding key "
+"“restore-shortcuts”."
 msgstr ""
 "Buat daftar nama sumber daya atau kelas sumber daya dari jendela X11 yang "
 "diizinkan atau tidak diizinkan untuk melakukan pengambilalihan papan ketik "
@@ -608,13 +590,13 @@ msgstr ""
 msgid ""
 "Allow connections from clients with an endianness different to that of "
 "Xwayland. The X server byte-swapping code is a huge attack surface, much of "
-"that code in Xwayland is prone to security issues. The use-case of byte-"
-"swapped clients is very niche, and disabled by default in Xwayland. Enable "
-"this option to instruct Xwayland to accept connections from X11 clients with "
-"a different endianness. This option has no effect if Xwayland does not "
-"support the command line option +byteswappedclients/-byteswappedclients to "
-"control that setting. Xwayland needs to be restarted for this setting to "
-"take effect."
+"that code in Xwayland is prone to security issues. The use-case of "
+"byte-swapped clients is very niche, and disabled by default in Xwayland. "
+"Enable this option to instruct Xwayland to accept connections from X11 "
+"clients with a different endianness. This option has no effect if Xwayland "
+"does not support the command line option "
+"+byteswappedclients/-byteswappedclients to control that setting. Xwayland "
+"needs to be restarted for this setting to take effect."
 msgstr ""
 "Izinkan koneksi dari klien dengan endianness yang berbeda dengan Xwayland. "
 "Kode pertukaran byte pealden X adalah permukaan serangan yang sangat besar, "
@@ -625,6 +607,24 @@ msgstr ""
 "tidak berpengaruh jika Xwayland tidak mendukung opsi baris perintah "
 "+byteswappedclients/-byteswappedclients untuk mengontrol pengaturan "
 "tersebut. Xwayland perlu dimulai ulang agar pengaturan ini berlaku."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Konfigurasi faktor skala Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Atur skala ruang koordinat Xwayland sesuai dengan faktor ini. Ini akan "
+"mempengaruhi skala klien X11 dengan kemampuan HiDPI akan ditampilkan, dan "
+"bagaimana kompositor mengatur skala jendela klien X11. Mengatur skala ke 0 "
+"berarti skala akan dihitung secara otomatis. Skala akan dibulatkan ke "
+"bilangan bulat terdekat."
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
@@ -650,7 +650,7 @@ msgstr "Tipe"
 msgid "Add"
 msgstr "Tambah"
 
-#: mdk/mdk-launcher-entry.c:198
+#: mdk/mdk-launcher-entry.c:204
 msgid "Run"
 msgstr "Jalankan"
 
@@ -682,62 +682,82 @@ msgstr "_Emulasikan sentuhan"
 msgid "_Inhibit system shortcuts"
 msgstr "Cegah p_intasan sistem"
 
-#: mdk/mdk-main-window.ui:20
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "Gunakan _keymap host"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "_Monitor"
+
+#: mdk/mdk-main-window.ui:26
+msgid "_Add monitor"
+msgstr "T_ambah monitor"
+
+#: mdk/mdk-main-window.ui:30
+msgid "_Emulate monitor modes"
+msgstr "_Emulasikan mode-mode monitor"
+
+#: mdk/mdk-main-window.ui:37
 msgid "_Launchers"
 msgstr "Pe_luncur"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:41
 msgid "_Edit launchers"
 msgstr "Sunting p_eluncur"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
 msgstr "Tent_ang Kit Pengembangan Mutter"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:60
 msgid "Mutter Development Kit"
 msgstr "Kit Pengembangan Mutter"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "Menu Utama"
 
-#: mdk/mdk-main.c:49
+#: mdk/mdk-main.c:53
 msgid "The Mutter Team"
 msgstr "Tim Mutter"
 
-#: mdk/mdk-main.c:62
+#: mdk/mdk-main.c:66
 msgid "Mutter software development kit"
 msgstr "Kit pengembangan perangkat lunak Mutter"
 
-#: mdk/mdk-main.c:65
+#: mdk/mdk-main.c:69
 msgid "About Mutter Development Kit"
 msgstr "Tentang Kit Pengembangan Mutter"
 
-#: mdk/mdk-monitor.c:674
+#: mdk/mdk-main.c:397 mdk/mdk-main.c:398
+msgid "Devkit options"
+msgstr "Opsi devkit"
+
+#: mdk/mdk-monitor.c:561
 msgid "Failed to create monitor"
 msgstr "Gagal membuat pemantau"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:283
 msgid "Built-in display"
 msgstr "Tampilan bawaan"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:310
 msgid "Unknown"
 msgstr "Tak Dikenal"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:312
 msgid "Unknown Display"
 msgstr "Tampilan Tak Dikenal"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:328
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -749,74 +769,58 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Bel peristiwa"
 
-#: src/core/display.c:742
+#: src/core/display.c:603
 msgid "Privacy Screen Enabled"
 msgstr "Layar Privasi Diaktifkan"
 
-#: src/core/display.c:743
+#: src/core/display.c:604
 msgid "Privacy Screen Disabled"
 msgstr "Layar Privasi Dinonaktifkan"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "Mengganti manajer jendela yang tengah berjalan"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "Tampilan X yang digunakna"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "Buat panggilan X selaras"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:344
 msgid "Run as a wayland compositor"
 msgstr "Jalankan sebagai kompositor wayland"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "Jalankan sebagai kompositor bersarang"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:351
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Jalankan kompositor wayland tanpa memmulai Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:358
 msgid "Specify Wayland display name to use"
 msgstr "Tentukan nama tampilan Wayland yang akan digunakan"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:364
 msgid "Run as a full display server, rather than nested"
 msgstr "Jalankan sebagai peladen tampilan penuh, ketimbang tampilan bersarang"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:369
 msgid "Run as a headless display server"
 msgstr "Jalankan sebagai peladen tampilan tanpa kepala (headless)"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:374
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Tambah monitor virtual persisten (WxH atau WxH@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:380
 msgid "Run development kit"
 msgstr "Jalankan kit pengembangan"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "Jalankan dengan backend X11"
+#: src/core/meta-context-main.c:385
+msgid "Development kit arguments"
+msgstr "Argumen kit pengembangan"
 
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:396
 msgid "Profile performance using trace instrumentation"
 msgstr "Performa profil menggunakan instrumentasi trace"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:402
 msgid "Enable debug control D-Bus interface"
 msgstr "Aktifkan antarmuka D-Bus kontrol awakutu"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Beralih Mode: (Grup %d)"
@@ -824,7 +828,7 @@ msgstr "Beralih Mode: (Grup %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Beralih Mode"
@@ -832,37 +836,37 @@ msgstr "Beralih Mode"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Berpindah monitor"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Tampilkan bantuan pada layar"
 
 #. Translators: this string will appear in Sysprof
-#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:303
 msgid "Compositor"
 msgstr "Kompositor"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Cetak versi"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Pengaya Mutter yang dipakai"
 
-#: src/core/prefs.c:1874
+#: src/core/prefs.c:1866
 #, c-format
 msgid "Workspace %d"
 msgstr "Area kerja %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:154
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Muter dikompilasi tanpa dukungan mode riuh"
 
-#: src/core/workspace.c:508
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Area kerja dialihkan"
 
@@ -871,31 +875,28 @@ msgstr "Area kerja dialihkan"
 msgid "Mode Switch: Mode %d"
 msgstr "Tukar Mode: Mode %d"
 
-#: src/x11/meta-x11-display.c:844
+#: src/x11/meta-x11-display.c:729
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"Tampilan \"%s\" sudah memiliki manajer jendela; cobalah gunakan pilihan --"
-"replace untuk mengganti manajer jendela saat ini."
+msgid "Display “%s” already has a window manager"
+msgstr "Tampilan “%s” sudah memiliki manajer jendela"
 
-#: src/x11/meta-x11-display.c:1229
+#: src/x11/meta-x11-display.c:1092
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Gagal membuka tampilan X Window System \"%s\""
 
-#: src/x11/meta-x11-display.c:1460
+#: src/x11/meta-x11-display.c:1236
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Layar %d pada tampilan \"%s\" tidak valid"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2788
+#: src/x11/meta-x11-display.c:2410
 #, c-format
 msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
+"Another compositing manager is already running on screen %i on display "
+"“%s”."
 msgstr ""
 "Manajer komposit lain telah berjalan pada layar %i pada tampilan \"%s\"."
 
@@ -904,7 +905,76 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Format %s tidak didukung"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:565
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pada %s)"
+
+#~ msgid "Enable experimental features"
+#~ msgstr "Aktifkan fitur eksperimental"
+
+#~ msgid ""
+#~ "To enable experimental features, add the feature keyword to the list. "
+#~ "Whether the feature requires restarting the compositor depends on the "
+#~ "given feature. Any experimental feature is not required to still be "
+#~ "available, or configurable. Don’t expect adding anything in this "
+#~ "setting to be future proof. Currently possible keywords: • "
+#~ "“scale-monitor-framebuffer” — makes mutter default to layout "
+#~ "logical monitors in a logical pixel coordinate space, while scaling "
+#~ "monitor framebuffers instead of window content, to manage HiDPI monitors. "
+#~ "Does not require a restart. • “kms-modifiers” — makes mutter "
+#~ "always allocate scanout buffers with explicit modifiers, if supported by "
+#~ "the driver. Requires a restart. • “autoclose-xwayland” — "
+#~ "automatically terminates Xwayland if all relevant X11 clients are gone. "
+#~ "Requires a restart. • “variable-refresh-rate” — makes mutter "
+#~ "dynamically adjust the refresh rate of the monitor when applicable if "
+#~ "supported by the monitor, GPU and DRM driver. Configurable in Settings. "
+#~ "Requires a restart. • “xwayland-native-scaling” — lets Xwayland "
+#~ "clients use their native scaling support. If scaling is not supported by "
+#~ "client, the client will be unscaled. Setting only takes effect when "
+#~ "“scale-monitor-framebuffer” is enabled as well."
+#~ msgstr ""
+#~ "Untuk mengaktifkan fitur eksperimental, tambahkan kata kunci fitur ke "
+#~ "daftar. Apakah fitur tersebut memerlukan mulai ulang kompositor "
+#~ "tergantung pada fitur yang diberikan. Setiap fitur eksperimental tidak "
+#~ "diperlukan untuk tetap tersedia, atau dapat dikonfigurasi. Jangan "
+#~ "berharap menambahkan apa pun dalam pengaturan ini tetap bertahan di masa "
+#~ "mendatang. Kata kunci yang mungkin saat ini: • "
+#~ "\"scale-monitor-framebuffer\" — menjadikan mutter bawaan untuk mengatur "
+#~ "monitor logis dalam ruang koordinat piksel logis, sementara menskalakan "
+#~ "framebuffer monitor alih-alih konten jendela, untuk mengelola monitor "
+#~ "HiDPI. Tidak memerlukan mulai ulang. • \"kms-modifiers\" — membuat "
+#~ "mutter selalu mengalokasikan buffer scanout dengan pengubah eksplisit, "
+#~ "jika didukung oleh penggerak. Memerlukan mulai ulang. • "
+#~ "\"autoclose-xwayland\" — secara otomatis menghentikan Xwayland jika "
+#~ "semua klien X11 yang relevan sudah lenyap. Memerlukan mulai ulang. • "
+#~ "\"variable-refresh-rate\" — membuat mutter secara dinamis menyesuaikan "
+#~ "kecepatan penyegaran monitor bila berlaku dan jika didukung oleh monitor, "
+#~ "GPU, dan penggerak DRM. Dapat dikonfigurasi di Pengaturan. Memerlukan "
+#~ "mulai ulang. • \"xwayland-native-scaling\" — memungkinkan klien "
+#~ "Xwayland memakai dukungan penskalaan native mereka. Bila penskalaan tidak "
+#~ "didukung oleh klien, maka klien akan tidak diskalakan. Pengaturan hanya "
+#~ "berdampa ketika \"scale-monitor-framebuffer\" juga difungsikan."
+
+#~ msgid "Replace the running window manager"
+#~ msgstr "Mengganti manajer jendela yang tengah berjalan"
+
+#~ msgid "X Display to use"
+#~ msgstr "Tampilan X yang digunakna"
+
+#~ msgid "Make X calls synchronous"
+#~ msgstr "Buat panggilan X selaras"
+
+#~ msgid "Run as a nested compositor"
+#~ msgstr "Jalankan sebagai kompositor bersarang"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "Jalankan dengan backend X11"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace "
+#~ "option to replace the current window manager."
+#~ msgstr ""
+#~ "Tampilan \"%s\" sudah memiliki manajer jendela; cobalah gunakan pilihan "
+#~ "--replace untuk mengganti manajer jendela saat ini."
