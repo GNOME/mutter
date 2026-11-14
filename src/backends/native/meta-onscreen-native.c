@@ -3050,14 +3050,6 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   return TRUE;
 }
 
-void
-meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
-                               MetaRendererView *view)
-{
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  onscreen_native->view = view;
-}
-
 static gboolean
 meta_onscreen_native_is_nvidia (MetaOnscreenNative *onscreen_native)
 {
@@ -3665,6 +3657,27 @@ on_privacy_screen_enabled_changed (MetaOutput         *output,
   clutter_stage_view_schedule_update (stage_view);
 }
 
+static void
+clear_invalidation_handlers (MetaOnscreenNative *onscreen_native)
+{
+  g_clear_signal_handler (&onscreen_native->property.gamma_lut.signal_handler_id,
+                          onscreen_native->crtc);
+  g_clear_signal_handler (&onscreen_native->property.ctm.signal_handler_id,
+                          onscreen_native->crtc);
+  g_clear_signal_handler (&onscreen_native->property.privacy_screen.signal_handler_id,
+                          onscreen_native->output);
+  g_clear_signal_handler (&onscreen_native->property.vrr.signal_handler_id,
+                          onscreen_native->view);
+}
+
+void
+meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
+                               MetaRendererView *view)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  onscreen_native->view = view;
+}
+
 MetaOnscreenNative *
 meta_onscreen_native_new (MetaRendererNative *renderer_native,
                           MetaGpuKms         *render_gpu,
@@ -3730,19 +3743,6 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
     }
 
   return onscreen_native;
-}
-
-static void
-clear_invalidation_handlers (MetaOnscreenNative *onscreen_native)
-{
-  g_clear_signal_handler (&onscreen_native->property.gamma_lut.signal_handler_id,
-                          onscreen_native->crtc);
-  g_clear_signal_handler (&onscreen_native->property.ctm.signal_handler_id,
-                          onscreen_native->crtc);
-  g_clear_signal_handler (&onscreen_native->property.privacy_screen.signal_handler_id,
-                          onscreen_native->output);
-  g_clear_signal_handler (&onscreen_native->property.vrr.signal_handler_id,
-                          onscreen_native->view);
 }
 
 static void
