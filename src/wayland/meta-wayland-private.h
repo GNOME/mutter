@@ -117,6 +117,7 @@ struct _MetaWaylandCompositor
 
   /* Transactions with time constraints. */
   GQueue *timed_transactions;
+  GSource *timed_transactions_source;
 
   /* Surfaces with fifo barriers. */
   GList *barrier_surfaces;

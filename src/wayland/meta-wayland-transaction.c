@@ -507,25 +507,24 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
   if (max_time_us > g_get_monotonic_time ())
     {
       MetaSurfaceActor *actor;
-      ClutterFrameClock *frame_clock = NULL;
 
-      /* When the surface has no role assigned yet, it doesn't have an actor.
-       * Ideally we would still manage to schedule the commits, but for now we
-       * just ignore the time constraint.
-       * See: https://gitlab.gnome.org/GNOME/mutter/-/issues/4108
-       */
+      maybe_apply = FALSE;
+      transaction->target_presentation_time_us = max_time_us;
+      meta_wayland_compositor_add_timed_transaction (transaction->compositor,
+                                                     transaction);
+
       actor = meta_wayland_surface_get_actor (max_time_surface);
       if (actor)
-        frame_clock = clutter_actor_pick_frame_clock (CLUTTER_ACTOR (actor), NULL);
-
-      if (frame_clock)
         {
-          maybe_apply = FALSE;
-          transaction->target_presentation_time_us = max_time_us;
-          meta_wayland_compositor_add_timed_transaction (transaction->compositor, transaction);
-          clutter_frame_clock_add_future_time (frame_clock, max_time_us);
+          ClutterFrameClock *frame_clock;
+
+          frame_clock = clutter_actor_pick_frame_clock (CLUTTER_ACTOR (actor),
+                                                        NULL);
+          if (frame_clock)
+            clutter_frame_clock_add_future_time (frame_clock, max_time_us);
         }
     }
+
   transaction->committed_sequence = ++committed_sequence;
   transaction->node.data = transaction;
 

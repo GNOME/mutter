@@ -376,6 +376,7 @@ clear_time_constraints_for_stage_view_transactions (MetaWaylandCompositor *compo
 {
   MetaWaylandTransaction *transaction;
   gboolean cleared = FALSE;
+  int64_t ready_time_us = -1;
 
   while ((transaction = g_queue_peek_head (compositor->timed_transactions)))
     {
@@ -386,6 +387,13 @@ clear_time_constraints_for_stage_view_transactions (MetaWaylandCompositor *compo
       cleared = TRUE;
     }
 
+  if (transaction)
+    {
+      ready_time_us =
+        meta_wayland_transaction_get_target_presentation_time_us (transaction);
+    }
+
+  g_source_set_ready_time (compositor->timed_transactions_source, ready_time_us);
   return cleared;
 }
 
@@ -655,15 +663,45 @@ compare_transaction_times (const MetaWaylandTransaction *a,
   return 0;
 }
 
+/* Normally, time constraints are cleared from on_before_update.
+ * This is a fallback for when that doesn't happen (in time).
+ */
+static gboolean
+timed_transactions_source_dispatch (GSource     *source,
+                                    GSourceFunc  callback,
+                                    void        *data)
+{
+  MetaWaylandCompositor *compositor = data;
+  int64_t time_us;
+
+  time_us = g_get_monotonic_time ();
+  clear_time_constraints_for_stage_view_transactions (compositor, NULL, time_us);
+  return G_SOURCE_CONTINUE;
+}
+
+static GSourceFuncs timed_transactions_source_funcs =
+{
+  .dispatch = timed_transactions_source_dispatch,
+};
+
 void
 meta_wayland_compositor_add_timed_transaction (MetaWaylandCompositor  *compositor,
                                                MetaWaylandTransaction *transaction)
 {
+  int64_t target_us;
+
   if (g_queue_find (compositor->timed_transactions, transaction))
     return;
 
   g_queue_insert_sorted (compositor->timed_transactions, transaction,
                          (GCompareDataFunc)compare_transaction_times, NULL);
+
+  if (g_queue_peek_head (compositor->timed_transactions) != transaction)
+    return;
+
+  target_us =
+    meta_wayland_transaction_get_target_presentation_time_us (transaction);
+  g_source_set_ready_time (compositor->timed_transactions_source, target_us);
 }
 
 void
@@ -836,6 +874,7 @@ meta_wayland_compositor_finalize (GObject *object)
   g_clear_pointer (&compositor->display_name, g_free);
   g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
   g_clear_pointer (&compositor->source, g_source_destroy);
+  g_clear_pointer (&compositor->timed_transactions_source, g_source_destroy);
 
   g_queue_free (compositor->timed_transactions);
 
@@ -953,7 +992,7 @@ meta_wayland_compositor_new (MetaContext *context)
   ClutterActor *stage = meta_backend_get_stage (backend);
   g_autoptr (GMainContext) main_context = NULL;
   MetaWaylandCompositor *compositor;
-  GSource *wayland_event_source;
+  GSource *source;
 #ifdef HAVE_XWAYLAND
   MetaX11DisplayPolicy x11_display_policy;
 #endif
@@ -970,7 +1009,7 @@ meta_wayland_compositor_new (MetaContext *context)
   wl_display_set_default_max_buffer_size (compositor->wayland_display,
                                           1024 * 1024);
 
-  wayland_event_source = wayland_event_source_new (compositor->wayland_display);
+  source = wayland_event_source_new (compositor->wayland_display);
 
   /* XXX: Here we are setting the wayland event source to have a
    * slightly lower priority than the X event source, because we are
@@ -978,10 +1017,18 @@ meta_wayland_compositor_new (MetaContext *context)
    * relating to X clients when we don't know what's happened to them
    * according to the X protocol.
    */
-  g_source_set_priority (wayland_event_source, META_PRIORITY_EVENTS + 1);
-  g_source_attach (wayland_event_source, main_context);
-  compositor->source = wayland_event_source;
-  g_source_unref (wayland_event_source);
+  g_source_set_priority (source, META_PRIORITY_EVENTS + 1);
+  g_source_attach (source, main_context);
+  compositor->source = source;
+  g_source_unref (source);
+
+  source = g_source_new (&timed_transactions_source_funcs, sizeof (GSource));
+  g_source_set_callback (source, NULL, compositor, NULL);
+  g_source_set_priority (source, G_PRIORITY_DEFAULT_IDLE);
+  g_source_set_static_name (source, "[mutter] Wayland commit-timing protocol");
+  g_source_attach (source, main_context);
+  compositor->timed_transactions_source = source;
+  g_source_unref (source);
 
   g_signal_connect (stage, "before-update",
                     G_CALLBACK (on_before_update), compositor);
