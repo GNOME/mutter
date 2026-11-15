@@ -27,6 +27,7 @@
 #include "compositor/meta-window-actor-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-surface-private.h"
+#include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-window-wayland.h"
 
 #ifdef HAVE_XWAYLAND
@@ -49,6 +50,25 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWaylandActorSurface,
                                      META_TYPE_WAYLAND_SURFACE_ROLE)
 
 static void
+on_stage_views_changed (MetaWaylandSurface *surface)
+{
+  MetaSurfaceActor *actor = meta_wayland_surface_get_actor (surface);
+  MetaWaylandCompositor *compositor =
+    meta_wayland_surface_get_compositor (surface);
+
+  meta_wayland_surface_update_outputs (surface);
+
+  if (!g_list_find (compositor->barrier_surfaces, surface) ||
+      (actor &&
+       clutter_actor_pick_frame_clock (CLUTTER_ACTOR (actor), NULL)))
+    return;
+
+  meta_wayland_compositor_remove_barrier_surface (compositor, surface);
+  surface->fifo_barrier = FALSE;
+  meta_wayland_transaction_consider_surface (surface);
+}
+
+static void
 clear_surface_actor (MetaWaylandActorSurface *actor_surface)
 {
   MetaWaylandActorSurfacePrivate *priv =
@@ -67,6 +87,9 @@ clear_surface_actor (MetaWaylandActorSurface *actor_surface)
                                         surface);
   g_signal_handlers_disconnect_by_func (priv->actor,
                                         meta_wayland_surface_update_outputs,
+                                        surface);
+  g_signal_handlers_disconnect_by_func (priv->actor,
+                                        on_stage_views_changed,
                                         surface);
   g_clear_object (&priv->actor);
 }
@@ -478,6 +501,6 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
                             G_CALLBACK (meta_wayland_surface_update_outputs),
                             surface);
   g_signal_connect_swapped (priv->actor, "stage-views-changed",
-                            G_CALLBACK (meta_wayland_surface_update_outputs),
+                            G_CALLBACK (on_stage_views_changed),
                             surface);
 }
