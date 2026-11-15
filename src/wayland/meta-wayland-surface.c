@@ -899,6 +899,7 @@ void
 meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                   MetaWaylandSurfaceState *state)
 {
+  MetaSurfaceActor *actor = meta_wayland_surface_get_actor (surface);
   gboolean had_damage = FALSE;
   int old_width, old_height;
 
@@ -947,7 +948,9 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
           state->buffer->type != META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL));
     }
 
-  if (state->fifo_barrier)
+  if (state->fifo_barrier &&
+      actor &&
+      clutter_actor_pick_frame_clock (CLUTTER_ACTOR (actor), NULL))
     {
       surface->fifo_barrier = TRUE;
       meta_wayland_compositor_add_barrier_surface (surface->compositor,
