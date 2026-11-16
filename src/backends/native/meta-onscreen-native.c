@@ -2274,6 +2274,7 @@ on_vrr_allowed_changed (MetaRendererView   *view,
                          CLUTTER_FRAME_CLOCK_MODE_FIXED;
       clutter_frame_clock_set_mode (frame_clock, frame_clock_mode);
       onscreen_native->property.vrr.invalidated = TRUE;
+      clutter_stage_view_schedule_update (stage_view);
     }
 }
 
