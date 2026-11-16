@@ -3712,6 +3712,7 @@ meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
 
   if (output_info->supports_vrr)
     {
+      onscreen_native->property.vrr.invalidated = TRUE;
       onscreen_native->property.vrr.signal_handler_id =
         g_signal_connect (view, "notify::is-vrr-allowed",
                           G_CALLBACK (on_vrr_allowed_changed),
