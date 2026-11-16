@@ -370,9 +370,8 @@ ensure_source_for_stage_view (MetaWaylandCompositor *compositor,
 }
 
 static gboolean
-clear_time_constraints_for_stage_view_transactions (MetaWaylandCompositor *compositor,
-                                                    ClutterStageView      *stage_view,
-                                                    int64_t                target_time_us)
+clear_time_constraints_for_transactions (MetaWaylandCompositor *compositor,
+                                         int64_t                target_time_us)
 {
   MetaWaylandTransaction *transaction;
   gboolean cleared = FALSE;
@@ -439,9 +438,8 @@ on_before_update (ClutterStage          *stage,
                                                      &expected_presentation_time_us))
     expected_presentation_time_us = g_get_monotonic_time ();
 
-  if (clear_time_constraints_for_stage_view_transactions (compositor,
-                                                          stage_view,
-                                                          expected_presentation_time_us))
+  if (clear_time_constraints_for_transactions (compositor,
+                                               expected_presentation_time_us))
     frame->is_target_presentation_time = TRUE;
 }
 
@@ -675,7 +673,7 @@ timed_transactions_source_dispatch (GSource     *source,
   int64_t time_us;
 
   time_us = g_get_monotonic_time ();
-  clear_time_constraints_for_stage_view_transactions (compositor, NULL, time_us);
+  clear_time_constraints_for_transactions (compositor, time_us);
   return G_SOURCE_CONTINUE;
 }
 
