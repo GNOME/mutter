@@ -103,7 +103,10 @@ meta_window_group_paint (ClutterActor        *actor,
 
       clutter_actor_get_relative_transformation_matrix (actor, stage,
                                                         &actor_to_stage);
-      if (!graphene_matrix_inverse (&actor_to_stage, &stage_to_actor))
+
+      if (graphene_matrix_is_identity (&actor_to_stage))
+        graphene_matrix_init_identity (&stage_to_actor);
+      else if (!graphene_matrix_inverse (&actor_to_stage, &stage_to_actor))
         goto fail;
     }
 
